@@ -19,9 +19,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class WaybillService {
+    public void getTest(){
+        System.out.println("get Test sysout System.out.println");
+    }
     public List<WaybillGetDto> getReadExcel(Sheet worksheet){
         List<WaybillGetDto> waybillGetDtos = new ArrayList();
-        
+
         List<WaybillFormReadDto> waybillFormReadDtos = getWaybillForm(worksheet);
         Collections.sort(waybillFormReadDtos);
         
