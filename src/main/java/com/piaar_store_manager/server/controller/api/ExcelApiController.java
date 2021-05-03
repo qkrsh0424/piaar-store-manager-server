@@ -103,6 +103,17 @@ public class ExcelApiController {
         Cell cell = null;
         int rowNum = 0;
 
+        sheet.setColumnWidth(0, 10000);
+        sheet.setColumnWidth(1, 1000);
+        sheet.setColumnWidth(2, 15000);
+        sheet.setColumnWidth(3, 5000);
+        sheet.setColumnWidth(4, 5000);
+        sheet.setColumnWidth(5, 3000);
+        sheet.setColumnWidth(6, 3000);
+        sheet.setColumnWidth(7, 3000);
+        sheet.setColumnWidth(8, 20000);
+        sheet.setColumnWidth(9, 10000);
+
         // Header
         row = sheet.createRow(rowNum++);
         cell = row.createCell(0);
@@ -131,7 +142,7 @@ public class ExcelApiController {
             WaybillAssembledDto assembledDto = getDto.getList().get(i);
             String receiverStr = assembledDto.getReceiver() + " ";
             for(int j = 0 ; j < assembledDto.getOptionInfos().size(); j++){
-                receiverStr += assembledDto.getOptionInfos().get(j).getOptionInfo() + "-" + assembledDto.getOptionInfos().get(j).getUnit();
+                receiverStr += assembledDto.getOptionInfos().get(j).getOptionInfo() + "-" + assembledDto.getOptionInfos().get(j).getUnit()+", ";
             }
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
