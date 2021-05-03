@@ -96,7 +96,6 @@ public class ExcelApiController {
     // /api/excel/waybill/logen/write
     @PostMapping("/waybill/logen/write")
     public void writeLogenWaybill(HttpServletResponse response, @RequestBody WaybillGetDto getDto){
-        System.out.println(getDto);
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("첫번째 시트");
         Row row = null;
