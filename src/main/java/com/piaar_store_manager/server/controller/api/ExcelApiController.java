@@ -112,7 +112,8 @@ public class ExcelApiController {
         sheet.setColumnWidth(6, 3000);
         sheet.setColumnWidth(7, 3000);
         sheet.setColumnWidth(8, 20000);
-        sheet.setColumnWidth(9, 10000);
+        sheet.setColumnWidth(9, 1000);
+        sheet.setColumnWidth(10, 10000);
 
         // Header
         row = sheet.createRow(rowNum++);
@@ -135,6 +136,8 @@ public class ExcelApiController {
         cell = row.createCell(8);
         cell.setCellValue("품목명");
         cell = row.createCell(9);
+        cell.setCellValue("");
+        cell = row.createCell(10);
         cell.setCellValue("배송메세지");
 
         // Body
@@ -164,6 +167,8 @@ public class ExcelApiController {
             cell = row.createCell(8);
             cell.setCellValue(assembledDto.getProdName());
             cell = row.createCell(9);
+            cell.setCellValue("");
+            cell = row.createCell(10);
             cell.setCellValue(assembledDto.getDeliveryMessage());
             
         }
