@@ -14,7 +14,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class OrderConfirmService {
     public List<OrderConfirmGetDto> getReadExcel(Sheet worksheet){
         List<OrderConfirmGetDto> orderConfirmGetDtos = new ArrayList<>();
@@ -24,6 +27,9 @@ public class OrderConfirmService {
         for (int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
+            // log
+            log.info("excel size number : ", i);
+            log.info("OrderConfirmService : getReadExcel : row.getCell => {}." , row.getCell(16));
             String prodName = row.getCell(16).getStringCellValue() + "-" + (row.getCell(18) != null ? row.getCell(18).getStringCellValue():"");
             if(prodNameSet.add(prodName)){
                 OrderConfirmGetDto orderConfirmGetDto = new OrderConfirmGetDto();

@@ -1,5 +1,13 @@
 package com.piaar_store_manager.server.config;
 
+import com.piaar_store_manager.server.config.auth.JwtAuthenticationFilter;
+import com.piaar_store_manager.server.config.auth.JwtAuthorizationFilter;
+import com.piaar_store_manager.server.config.auth.JwtLogoutSuccessHandler;
+import com.piaar_store_manager.server.model.refresh_token.repository.RefreshTokenRepository;
+import com.piaar_store_manager.server.model.user.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +19,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+    @Value("${app.jwt.access.secret}")
+    private String accessTokenSecret;
+
+    @Value("${app.jwt.refresh.secret}")
+    private String refreshTokenSecret;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    RefreshTokenRepository refreshTokenRepository;
     
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -24,9 +43,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().permitAll()
             .and()
                 .formLogin().disable()
+                .logout()
+                    .logoutUrl("/api/v1/logout")
+                    .logoutSuccessHandler(new JwtLogoutSuccessHandler())
+                    .deleteCookies("piaar_actoken")
+                .and()
                 .httpBasic().disable()
                 .csrf()
                 .disable()
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userRepository, refreshTokenRepository, accessTokenSecret, refreshTokenSecret)) // AuthenticationManager
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, refreshTokenRepository, accessTokenSecret, refreshTokenSecret)) // AuthenticationManager
             ;
     }
 
