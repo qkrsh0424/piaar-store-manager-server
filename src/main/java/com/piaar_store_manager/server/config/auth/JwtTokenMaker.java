@@ -39,6 +39,7 @@ public class JwtTokenMaker {
         atPayloads.put("id", userEntity.getId());
         atPayloads.put("username", userEntity.getUsername());
         atPayloads.put("roles", userEntity.getRoles());
+        atPayloads.put("name", userEntity.getName());
         atPayloads.put("rtid", rtId);
 
         // == ACCESS TOKEN ==

@@ -39,6 +39,9 @@ public class UserEntity {
     @Column(name="salt")
     private String salt;
 
+    @Column(name="name")
+    private String name;
+
     @Column(name = "roles")
     private String roles;
 

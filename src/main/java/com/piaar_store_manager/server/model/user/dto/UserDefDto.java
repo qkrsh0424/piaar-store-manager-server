@@ -11,6 +11,7 @@ public class UserDefDto {
     private String username;
     private String password;
     private String roles;
+    private String name;
     private Date updatedAt;
     private Date createdAt;
 }

@@ -42,6 +42,7 @@ public class UserService {
         userEntity.setUsername(signupReqDto.getUsername());
         userEntity.setPassword(password);
         userEntity.setSalt(salt);
+        userEntity.setName(signupReqDto.getName());
         userEntity.setRoles("ROLE_USER");
         userEntity.setAllowedAccessCount(DEFAULT_ALLOWED_ACCESS_COUNT);
         userEntity.setUpdatedAt(dateHandler.getCurrentDate());

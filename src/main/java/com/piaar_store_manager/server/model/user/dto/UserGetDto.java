@@ -9,4 +9,5 @@ public class UserGetDto {
     private UUID id;
     private String username;
     private String roles;
+    private String name;
 }
