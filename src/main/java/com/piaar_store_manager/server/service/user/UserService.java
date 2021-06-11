@@ -3,12 +3,14 @@ package com.piaar_store_manager.server.service.user;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.config.auth.PrincipalDetails;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
 import com.piaar_store_manager.server.model.user.entity.UserEntity;
 import com.piaar_store_manager.server.model.user.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +62,25 @@ public class UserService {
         }
         
         return false;
+    }
+
+    public boolean isAdmin(){
+        if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(r->r.getAuthority().equals("ROLE_ADMIN"))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isUserLogin(){
+        if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")){
+            return false;
+        }
+        return true;
+    }
+
+    public UUID getUserId(){
+        PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        return principalDetails.getUser().getId();
     }
 }

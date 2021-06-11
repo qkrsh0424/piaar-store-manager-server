@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class AccountBookDefDto {
     private UUID id;
+    private UUID userId;
     private String accountBookType;
     private String bankType;
     private String desc;

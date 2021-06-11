@@ -25,6 +25,9 @@ public class AccountBookEntity {
     @Type(type = "uuid-char")
     @Column(name = "id")
     private UUID id;
+    @Type(type = "uuid-char")
+    @Column(name = "user_id")
+    private UUID userId;
     @Column(name = "account_book_type")
     private String accountBookType;
     @Column(name = "bank_type")
