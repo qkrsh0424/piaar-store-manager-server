@@ -35,6 +35,7 @@ public class AccountBookApiController {
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setData(accountBookService.searchList(query));
+        message.setPagenation(accountBookService.searchPagenation(query));
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -53,6 +54,28 @@ public class AccountBookApiController {
             
             accountBookService.createList(accountBookDefDtos, userService.getUserId());
         }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // /api/v1/account-book/sum/income
+    @GetMapping("/sum/income")
+    public ResponseEntity<?> calcSumIncome(@RequestParam Map<String, Object> query){
+        Message message = new Message();
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setData(accountBookService.getSumIncome(query));
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // /api/v1/account-book/sum/expenditure
+    @GetMapping("/sum/expenditure")
+    public ResponseEntity<?> calcSumExpenditure(@RequestParam Map<String, Object> query){
+        Message message = new Message();
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setData(accountBookService.getSumExpenditure(query));
 
         return new ResponseEntity<>(message, message.getStatus());
     }
