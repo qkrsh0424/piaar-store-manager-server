@@ -71,6 +71,13 @@ public class UserService {
         return false;
     }
 
+    public boolean isManager(){
+        if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(r->r.getAuthority().equals("ROLE_ADMIN") || r.getAuthority().equals("ROLE_MANAGER"))){
+            return true;
+        }
+        return false;
+    }
+
     public boolean isUserLogin(){
         if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")){
             return false;

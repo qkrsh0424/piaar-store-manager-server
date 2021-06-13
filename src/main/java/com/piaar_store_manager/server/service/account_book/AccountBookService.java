@@ -50,6 +50,7 @@ public class AccountBookService {
         entity.setRegDate(dto.getRegDate());
         entity.setCreatedAt(dateHandler.getCurrentDate());
         entity.setUpdatedAt(dateHandler.getCurrentDate());
+        entity.setDeleted(0);
         return entity;
     }
 
@@ -66,6 +67,7 @@ public class AccountBookService {
             entity.setRegDate(dto.getRegDate());
             entity.setCreatedAt(dateHandler.getCurrentDate());
             entity.setUpdatedAt(dateHandler.getCurrentDate());
+            entity.setDeleted(0);
             entities.add(entity);
         }
         return entities;
@@ -99,7 +101,6 @@ public class AccountBookService {
         Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
         Integer currPageParsed = query.get("currPage") != null ? Integer.parseInt(query.get("currPage").toString()) : 1;
         
-        // TODO : 페이지네이션 만들기
         Integer itemSize = accountBookRepository.sizeJUserByCond(accountBookType, bankType, startDate, endDate);
         Integer itemPerPage = DEFAULT_ITEM_PER_PAGE;
         Integer pageSize = (int) Math.ceil(((double) itemSize) / itemPerPage);
@@ -183,5 +184,12 @@ public class AccountBookService {
         Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
 
         return accountBookRepository.sumIncomeOrExpenditureCond(accountBookType, bankType, startDate, endDate);
+    }
+
+    public void destroyOne(UUID id) {
+        accountBookRepository.findById(id).ifPresent(r->{
+            r.setDeleted(1);
+            accountBookRepository.save(r);
+        });
     }
 }

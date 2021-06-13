@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
 import com.piaar_store_manager.server.model.message.Message;
@@ -11,6 +12,7 @@ import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,7 +31,7 @@ public class AccountBookApiController {
 
     // /api/v1/account-book/list
     @GetMapping("/list")
-    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> query){
+    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> query) {
 
         Message message = new Message();
         message.setStatus(HttpStatus.OK);
@@ -51,7 +53,7 @@ public class AccountBookApiController {
         } else {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
-            
+
             accountBookService.createList(accountBookDefDtos, userService.getUserId());
         }
 
@@ -60,7 +62,7 @@ public class AccountBookApiController {
 
     // /api/v1/account-book/sum/income
     @GetMapping("/sum/income")
-    public ResponseEntity<?> calcSumIncome(@RequestParam Map<String, Object> query){
+    public ResponseEntity<?> calcSumIncome(@RequestParam Map<String, Object> query) {
         Message message = new Message();
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
@@ -71,11 +73,31 @@ public class AccountBookApiController {
 
     // /api/v1/account-book/sum/expenditure
     @GetMapping("/sum/expenditure")
-    public ResponseEntity<?> calcSumExpenditure(@RequestParam Map<String, Object> query){
+    public ResponseEntity<?> calcSumExpenditure(@RequestParam Map<String, Object> query) {
         Message message = new Message();
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setData(accountBookService.getSumExpenditure(query));
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @DeleteMapping("/one")
+    public ResponseEntity<?> destroyOne(@RequestParam("id") UUID id) {
+        Message message = new Message();
+        if (userService.isManager()) {
+            try {
+                accountBookService.destroyOne(id);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("access_denied");
+        }
 
         return new ResponseEntity<>(message, message.getStatus());
     }

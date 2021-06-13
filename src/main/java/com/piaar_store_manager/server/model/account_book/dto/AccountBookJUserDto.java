@@ -47,7 +47,7 @@ public class AccountBookJUserDto {
         return this.accountBook.getUpdatedAt();
     }
     public String getName(){
-        return this.user.getName();
+        return this.user !=null ? this.user.getName() : "";
     }
 
     @Override

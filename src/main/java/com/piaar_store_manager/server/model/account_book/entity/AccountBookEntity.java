@@ -42,4 +42,6 @@ public class AccountBookEntity {
     private Date createdAt;
     @Column(name = "updated_at")
     private Date updatedAt;
+    @Column(name = "deleted")
+    private Integer deleted;
 }
