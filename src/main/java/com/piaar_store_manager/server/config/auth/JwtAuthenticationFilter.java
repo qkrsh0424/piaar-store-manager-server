@@ -40,6 +40,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private RefreshTokenRepository refreshTokenRepository;
     private JwtTokenMaker jwtTokenMaker;
 
+    /**
+     * 
+     * <pre>
+     * 로그인 필터 적용 URL => /api/v1/login
+     * </pre>
+     * @param authenticationManager
+     * @param userRepository
+     * @param refreshTokenRepository
+     * @param accessTokenSecret
+     * @param refreshTokenSecret
+     * 
+     */
     public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,
             String accessTokenSecret, String refreshTokenSecret) {
         this.authenticationManager = authenticationManager;
@@ -50,6 +62,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         setFilterProcessesUrl("/api/v1/login");
     }
 
+    /**
+     * <pre>
+     * 로그인 요청이 들어오면 실행되는 로직.
+     * </pre>
+     * @param request
+     * @param response
+     * @return authentication
+     */
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -86,7 +106,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
     }
 
-    // ================로그인 성공.==================
+    // ================로그인 성공.================== 
+    /**
+     * <pre>
+     * 로그인에 성공하면 실행되는 이벤트처리
+     * </pre>
+     * @param request
+     * @param response
+     * @param chain
+     * @param authResult
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
@@ -135,6 +164,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     // ================로그인 실패.==================
+    /**
+     * <pre>
+     * 로그인에 실패하면 실행되는 이벤트처리
+     * </pre>
+     * @param request
+     * @param response
+     * @param chain
+     * @param authResult
+     */
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
             org.springframework.security.core.AuthenticationException failed) throws IOException, ServletException {
@@ -155,6 +193,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     }
 
+    /**
+     * <pre>
+     * 생성된 리프레시 토큰을 DB에 담는 메소드.
+     * RefreshTokenRepository에 의존함.
+     * </pre>
+     * @param userEntity
+     * @param rtId
+     * @param refreshToken
+     */
     private void saveRefreshToken(UserEntity userEntity, UUID rtId, String refreshToken){
         RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
         refreshTokenEntity.setId(rtId);
@@ -165,6 +212,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         refreshTokenRepository.save(refreshTokenEntity);
     }
 
+    /**
+     * <pre>
+     * 유저에게 부여된 허용된 엑세스 개수를 초과하게되면, 허용된 개수를 초과한 과거데이터들을 모두 삭제하는 메소드.
+     * RefreshTokenRepository에 의존함.
+     * </pre>
+     * @param userEntity
+     */
     private void deleteLimitRefreshToken(UserEntity userEntity){
         refreshTokenRepository.deleteOldRefreshTokens(userEntity.getId().toString(), userEntity.getAllowedAccessCount());
     }
