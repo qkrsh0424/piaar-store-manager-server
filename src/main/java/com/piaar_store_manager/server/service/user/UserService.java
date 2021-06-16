@@ -30,7 +30,15 @@ public class UserService {
     @Autowired
     DateHandler dateHandler;
 
-    // Signup
+    /**
+     * <b>DB Insert Related Method<b/>
+     * <p>
+     * 유저 등록시 사용되는 서비스 메소드
+     * @param signupReqDto
+     * @return String : 
+     *      if isDuplicatedUsername then "duplicated_username" else "success"
+     * @see UserRepository
+     */
     public String createOne(SignupReqDto signupReqDto){
         if(isDuplicatedUsername(signupReqDto.getUsername())){
             return "duplicated_username";
@@ -55,6 +63,11 @@ public class UserService {
         return "success";
     }
 
+    /**
+     * 유저네임이 중복되는 데이터가 있는지 확인한다.
+     * @param username
+     * @return Boolean : if exist then true / else false
+     */
     public boolean isDuplicatedUsername(String username){
         Optional<UserEntity> userEntityOpt = userRepository.findByUsername(username);
         if(userEntityOpt.isPresent()){
@@ -64,6 +77,10 @@ public class UserService {
         return false;
     }
 
+    /**
+     * 관리자 권한인지 체크한다.
+     * @return Boolean : if admin then true / else false
+     */
     public boolean isAdmin(){
         if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(r->r.getAuthority().equals("ROLE_ADMIN"))){
             return true;
@@ -71,6 +88,10 @@ public class UserService {
         return false;
     }
 
+    /**
+     * 매니저 권한인지 체크한다.
+     * @return Boolean : if admin | manager then true / else false
+     */
     public boolean isManager(){
         if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(r->r.getAuthority().equals("ROLE_ADMIN") || r.getAuthority().equals("ROLE_MANAGER"))){
             return true;
@@ -78,6 +99,10 @@ public class UserService {
         return false;
     }
 
+    /**
+     * 로그인 상태를 체크한다.
+     * @return Boolean : if login then true / else false
+     */
     public boolean isUserLogin(){
         if(SecurityContextHolder.getContext().getAuthentication().getName().equals("anonymousUser")){
             return false;
@@ -85,6 +110,10 @@ public class UserService {
         return true;
     }
 
+    /**
+     * 유저아이디를 가져온다
+     * @return UUID : userId
+     */
     public UUID getUserId(){
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         

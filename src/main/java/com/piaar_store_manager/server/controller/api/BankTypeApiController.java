@@ -16,7 +16,15 @@ public class BankTypeApiController {
     @Autowired
     BankTypeService bankTypeService;
 
-    // /api/v1/bank-type/list
+    /**
+     * Search all list for bankType
+     * <p>
+     * <b>GET : API URL => /api/v1/bank-type/list</b>
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see BankTypeService#searchList
+     */
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
         Message message = new Message();
