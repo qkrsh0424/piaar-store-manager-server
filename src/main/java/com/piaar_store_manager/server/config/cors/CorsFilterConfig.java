@@ -18,7 +18,9 @@ public class CorsFilterConfig{
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("http://localhost:3001");
         config.addAllowedOrigin("http://localhost:8081");
+        config.addAllowedOrigin("http://localhost:5000");
         config.addAllowedOrigin("http://www.piaar.co.kr");
+        config.addAllowedOrigin("https://www.piaar.co.kr");
         config.addAllowedHeader("*");
         config.addAllowedMethod("OPTIONS");
         config.addAllowedMethod("HEAD");
