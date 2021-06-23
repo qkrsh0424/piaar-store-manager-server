@@ -10,9 +10,9 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
-import com.piaar_store_manager.server.model.account_book.dto.AccountBookJUserDto;
+import com.piaar_store_manager.server.model.account_book.dto.AccountBookJoinDto;
 import com.piaar_store_manager.server.model.account_book.entity.AccountBookEntity;
-import com.piaar_store_manager.server.model.account_book.proj.AccountBookJUserProj;
+import com.piaar_store_manager.server.model.account_book.proj.AccountBookJoinProj;
 import com.piaar_store_manager.server.model.account_book.repository.AccountBookRepository;
 import com.piaar_store_manager.server.model.pagenation.PagenationDto;
 
@@ -103,10 +103,10 @@ public class AccountBookService {
      * 등록된 입/지출 건들을 조건에 맞게 조회한다. 
      * 
      * @param query : Map[accountBookType, bankType, startDate, endDate, currPage]
-     * @return List::AccountBookJUserDto::
+     * @return List::AccountBookJoinDto::
      * @see AccountBookRepository
      */
-    public List<AccountBookJUserDto> searchList(Map<String, Object> query) {
+    public List<AccountBookJoinDto> searchList(Map<String, Object> query) {
         String accountBookType = query.get("accountBookType") != null ? query.get("accountBookType").toString() : "";
         String bankType = query.get("bankType") != null ? query.get("bankType").toString() : "";
 
@@ -120,7 +120,7 @@ public class AccountBookService {
         Integer currPage = (currPageParsed == null || (currPageParsed <1)) ? 0 : (currPageParsed - 1);
 
         Pageable pageable = PageRequest.of(currPage, DEFAULT_ITEM_PER_PAGE);
-        List<AccountBookJUserDto> dtos = convJUserDtosByProj(
+        List<AccountBookJoinDto> dtos = convJUserDtosByProj(
                 accountBookRepository.selectListJUserByCond(accountBookType, bankType, startDate, endDate, pageable));
         return dtos;
     }
@@ -186,15 +186,15 @@ public class AccountBookService {
      * <b>Convert Method</b>
      * <p>
      * (AccountBook Join User) 프로젝션 리스트를 dto 리스트 형태로 변환
-     * List::AccountBookJUserProj:: => List::AccountBookJUserDto::
+     * List::AccountBookJUserProj:: => List::AccountBookJoinDto::
      * @param projs
-     * @return List ::AccountBookJUserDto::
+     * @return List ::AccountBookJoinDto::
      * 
      */
-    private List<AccountBookJUserDto> convJUserDtosByProj(List<AccountBookJUserProj> projs) {
-        List<AccountBookJUserDto> dtos = new ArrayList<>();
-        for (AccountBookJUserProj proj : projs) {
-            dtos.add(new AccountBookJUserDto(proj.getAccountBook(), proj.getUser()));
+    private List<AccountBookJoinDto> convJUserDtosByProj(List<AccountBookJoinProj> projs) {
+        List<AccountBookJoinDto> dtos = new ArrayList<>();
+        for (AccountBookJoinProj proj : projs) {
+            dtos.add(new AccountBookJoinDto(proj.getAccountBook(), proj.getUser()));
         }
         return dtos;
     }

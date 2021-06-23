@@ -36,8 +36,8 @@ public class AccountBookEntity {
     private String desc;
     @Column(name = "money")
     private Long money;
-    @Column(name = "expenditure_type")
-    private String expenditureType;
+    @Column(name = "expenditure_type_id")
+    private Integer expenditureTypeId;
     @Column(name = "reg_date")
     private Date regDate;
     @Column(name = "created_at")
