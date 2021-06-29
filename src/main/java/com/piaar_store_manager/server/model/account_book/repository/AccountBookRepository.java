@@ -18,8 +18,9 @@ import org.springframework.stereotype.Repository;
 public interface AccountBookRepository extends JpaRepository<AccountBookEntity, Long>{
 
     @Query(
-        "SELECT ab AS accountBook, u AS user FROM AccountBookEntity ab\n"+
+        "SELECT ab AS accountBook, u AS user, COALESCE(et, ExpenditureTypeEntity) AS expenditureType FROM AccountBookEntity ab\n"+
         "LEFT OUTER JOIN UserEntity u ON ab.userId=u.id\n"+
+        "LEFT OUTER JOIN ExpenditureTypeEntity et ON ab.expenditureTypeId=et.expenditureTypeId\n"+
         "WHERE ab.accountBookType LIKE %:accountBookType% AND ab.bankType LIKE %:bankType% AND ab.regDate BETWEEN :startDate AND :endDate AND ab.deleted=0\n"+
         "ORDER BY ab.regDate DESC"
     )

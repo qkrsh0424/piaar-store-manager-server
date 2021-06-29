@@ -120,8 +120,7 @@ public class AccountBookService {
         Integer currPage = (currPageParsed == null || (currPageParsed <1)) ? 0 : (currPageParsed - 1);
 
         Pageable pageable = PageRequest.of(currPage, DEFAULT_ITEM_PER_PAGE);
-        List<AccountBookJoinDto> dtos = convJUserDtosByProj(
-                accountBookRepository.selectListJUserByCond(accountBookType, bankType, startDate, endDate, pageable));
+        List<AccountBookJoinDto> dtos = convJUserDtosByProj(accountBookRepository.selectListJUserByCond(accountBookType, bankType, startDate, endDate, pageable));
         return dtos;
     }
 
@@ -194,7 +193,7 @@ public class AccountBookService {
     private List<AccountBookJoinDto> convJUserDtosByProj(List<AccountBookJoinProj> projs) {
         List<AccountBookJoinDto> dtos = new ArrayList<>();
         for (AccountBookJoinProj proj : projs) {
-            dtos.add(new AccountBookJoinDto(proj.getAccountBook(), proj.getUser()));
+            dtos.add(new AccountBookJoinDto(proj.getAccountBook(), proj.getUser(), proj.getExpenditureType()));
         }
         return dtos;
     }
@@ -267,5 +266,43 @@ public class AccountBookService {
             r.setDeleted(1);
             accountBookRepository.save(r);
         });
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * AccountBook id 값과 상응되는 데이터의 일부분을 업데이트한다.
+     * @param accountBookId
+     * @param accountBookDefDto
+     */
+    public void patchOne(UUID accountBookId, AccountBookDefDto accountBookDefDto) {
+        accountBookRepository.findById(accountBookId).ifPresentOrElse(r->{
+            if(accountBookDefDto.getAccountBookType() != null){
+                r.setAccountBookType(accountBookDefDto.getAccountBookType());
+            }
+            if(accountBookDefDto.getBankType() != null){
+                r.setBankType(accountBookDefDto.getBankType());
+            }
+            if(accountBookDefDto.getUserId() != null){
+                r.setUserId(accountBookDefDto.getUserId());
+            }
+            if(accountBookDefDto.getDesc() != null){
+                r.setDesc(accountBookDefDto.getDesc());
+            }
+            if(accountBookDefDto.getMoney() != null){
+                r.setMoney(accountBookDefDto.getMoney());
+            }
+            if(accountBookDefDto.getExpenditureTypeId() != null){
+                r.setExpenditureTypeId(accountBookDefDto.getExpenditureTypeId());
+            }
+            if(accountBookDefDto.getRegDate() != null){
+                r.setRegDate(accountBookDefDto.getRegDate());
+            }
+            if(accountBookDefDto.getCreatedAt() != null){
+                r.setCreatedAt(accountBookDefDto.getCreatedAt());
+            }
+            r.setUpdatedAt(dateHandler.getCurrentDate());
+            accountBookRepository.save(r);
+        }, null);
     }
 }

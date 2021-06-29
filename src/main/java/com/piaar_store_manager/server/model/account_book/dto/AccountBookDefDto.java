@@ -13,6 +13,7 @@ public class AccountBookDefDto {
     private String bankType;
     private String desc;
     private Long money;
+    private Integer expenditureTypeId;
     private Date regDate;
     private Date createdAt;
     private Date updatedAt;

@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +63,7 @@ public class AccountBookApiController {
      * Create list api for account book.
      * <p>
      * <b>POST : API URL => /api/v1/account-book/list</b>
+     * 
      * @param accountBookDefDtos : List
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -71,7 +74,7 @@ public class AccountBookApiController {
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<AccountBookDefDto> accountBookDefDtos) {
         Message message = new Message();
-        // 유저 로그인 상태체크. 
+        // 유저 로그인 상태체크.
         if (!userService.isUserLogin()) {
             message.setStatus(HttpStatus.FORBIDDEN);
             message.setMessage("need_login");
@@ -92,6 +95,7 @@ public class AccountBookApiController {
      * Have many search condition options, their all in query parameter.
      * <p>
      * <b>GET : API URL => /api/v1/account-book/sum/income</b>
+     * 
      * @param query : Map[accountBookType, bankType, startDate, endDate]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -114,6 +118,7 @@ public class AccountBookApiController {
      * Have many search condition options, their all in query parameter.
      * <p>
      * <b>GET : API URL => /api/v1/account-book/sum/expenditure</b>
+     * 
      * @param query : Map[accountBookType, bankType, startDate, endDate]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -136,6 +141,7 @@ public class AccountBookApiController {
      * <b>Permission level => Manager</b>
      * <p>
      * <b>DELETE : API URL => /api/v1/account-book/one</b>
+     * 
      * @param id : UUID
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -161,6 +167,29 @@ public class AccountBookApiController {
             message.setMessage("access_denied");
         }
 
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Patch( Delete or Remove ) expenditure-type for account book
+     * <p>
+     * <b>Permission level => Manager</b>
+     * <p>
+     * <b>PATCH : API URL => /api/v1/account-book/expenditure-type/{accountBookId}</b>
+     * 
+     * @param accountBookId
+     * @param expenditureTypeId
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see AccountBookService#patchOne
+     */
+    @PatchMapping("/{accountBookId}")
+    public ResponseEntity<?> patchOne(@PathVariable(value = "accountBookId") UUID accountBookId, @RequestBody AccountBookDefDto accountBookDefDto ) {
+        Message message = new Message();
+        accountBookService.patchOne(accountBookId, accountBookDefDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
         return new ResponseEntity<>(message, message.getStatus());
     }
 }
