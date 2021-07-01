@@ -93,8 +93,10 @@ public class WaybillService {
                 exd3.setBuyerContact(fResultList.get(i).getBuyerContact());
                 exd3.setDeliveryMessage(fResultList.get(i).getDeliveryMessage());
                 exd3.setDestination(fResultList.get(i).getDestination());
+                exd3.setPaidTime(fResultList.get(i).getPaidTime());
                 exd3.setProdName(fResultList.get(i).getProdName());
                 exd3.setProdNo(fResultList.get(i).getProdNo());
+                exd3.setProdCode(fResultList.get(i).getProdCode());
                 exd3.setReceiver(fResultList.get(i).getReceiver());
                 exd3.setReceiverContact1(fResultList.get(i).getReceiverContact1());
                 exd3.setReceiverContact2(fResultList.get(i).getReceiverContact2());
@@ -131,10 +133,12 @@ public class WaybillService {
             WaybillFormReadDto data = new WaybillFormReadDto();
             data.setBuyer(row.getCell(8).getStringCellValue());
             data.setReceiver(row.getCell(10).getStringCellValue());
+            data.setPaidTime(row.getCell(14).getDateCellValue());
             data.setProdNo(row.getCell(15).getStringCellValue());
             data.setProdName(row.getCell(16).getStringCellValue());
             data.setOptionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "");
             data.setUnit((int) row.getCell(20).getNumericCellValue());
+            data.setProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "");
             data.setReceiverContact1(row.getCell(40).getStringCellValue());
             data.setReceiverContact2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "");
             data.setDestination(row.getCell(42).getStringCellValue());
