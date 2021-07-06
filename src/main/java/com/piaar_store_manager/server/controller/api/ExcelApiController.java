@@ -2,7 +2,10 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -383,6 +386,7 @@ public class ExcelApiController {
             assembledDtos.addAll(getDto.getList());
         }
 
+        
         // Body
         for (WaybillAssembledDto dto : assembledDtos) {
             row = sheet.createRow(rowNum++);
