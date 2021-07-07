@@ -30,7 +30,7 @@ public class SalesRateService {
 
         for (OrderSearchExcelFormDto dto : orderSearchExcelFormDtos) {
             // 클레임 상태가 "취소완료" 이면 건너뛴다
-            if (dto.getClaimStatus() != null && dto.getClaimStatus().equals("취소완료") && dto.getClaimStatus().equals("반품완료")) {
+            if (dto.getClaimStatus() != null && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
                 continue;
             }
             if (prodNameSet.add(dto.getProdName())) {
@@ -50,7 +50,7 @@ public class SalesRateService {
         for (SalesRateOptionGetDto salesRateOptionGetDto : salesRateOptionGetDtos) {
             for (OrderSearchExcelFormDto dto : orderSearchExcelFormDtos) {
                 // 클레임 상태가 "취소완료" 이면 건너뛴다
-                if (dto.getClaimStatus() != null && dto.getClaimStatus().equals("취소완료")) {
+                if (dto.getClaimStatus() != null && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
                     continue;
                 }
 
