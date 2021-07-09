@@ -31,9 +31,11 @@ public class ShipmentApiController {
     PackingListCoupangService packingListCoupangService;
 
     /**
-     * Read excel for shipment packing list of naver smartstore and combine to create new data.
+     * Read excel for shipment packing list of naver smartstore and combine to
+     * create new data.
      * <p>
      * <b>POST : API URL => /api/v1/shipment/packing-list/naver/excel/read</b>
+     * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
      * @throws IOException
@@ -41,13 +43,15 @@ public class ShipmentApiController {
      * @see HttpStatus
      */
     @PostMapping("/packing-list/naver/excel/read")
-    public ResponseEntity<?> readPackingListNaverExcel(@RequestParam("file") MultipartFile file) throws IOException{
+    public ResponseEntity<?> readPackingListNaverExcel(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename()); // 3
 
         if (!extension.equals("xlsx") && !extension.equals("xls")) {
-            throw new IOException("엑셀파일만 업로드 해주세요.");
+            message.setMessage("extension_error");
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(message, message.getStatus());
         }
 
         Workbook workbook = null;
@@ -59,16 +63,23 @@ public class ShipmentApiController {
         }
         Sheet worksheet = workbook.getSheetAt(0);
 
-        message.setMessage("success");
-        message.setStatus(HttpStatus.OK);
-        message.setData(packingListNaverService.getPackingListData(worksheet));
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        try {
+            message.setMessage("success");
+            message.setStatus(HttpStatus.OK);
+            message.setData(packingListNaverService.getPackingListData(worksheet));
+        } catch (Exception e) {
+            message.setMessage("not_matched_file_error");
+            message.setStatus(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Read excel for shipment packing list of coupang and combine to create new data.
+     * Read excel for shipment packing list of coupang and combine to create new
+     * data.
      * <p>
      * <b>POST : API URL => /api/v1/shipment/packing-list/coupang/excel/read</b>
+     * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
      * @throws IOException
@@ -76,13 +87,15 @@ public class ShipmentApiController {
      * @see HttpStatus
      */
     @PostMapping("/packing-list/coupang/excel/read")
-    public ResponseEntity<?> readPackingListCoupangExcel(@RequestParam("file") MultipartFile file) throws IOException{
+    public ResponseEntity<?> readPackingListCoupangExcel(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
 
         String extension = FilenameUtils.getExtension(file.getOriginalFilename()); // 3
 
         if (!extension.equals("xlsx") && !extension.equals("xls")) {
-            throw new IOException("엑셀파일만 업로드 해주세요.");
+            message.setMessage("extension_error");
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(message, message.getStatus());
         }
 
         Workbook workbook = null;
@@ -94,9 +107,14 @@ public class ShipmentApiController {
         }
         Sheet worksheet = workbook.getSheetAt(0);
 
-        message.setMessage("success");
-        message.setStatus(HttpStatus.OK);
-        message.setData(packingListCoupangService.getPackingListData(worksheet));
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        try {
+            message.setMessage("success");
+            message.setStatus(HttpStatus.OK);
+            message.setData(packingListCoupangService.getPackingListData(worksheet));
+        } catch (Exception e) {
+            message.setMessage("not_matched_file_error");
+            message.setStatus(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(message, message.getStatus());
     }
 }

@@ -30,11 +30,12 @@ public class SalesRateService {
 
         for (OrderSearchExcelFormDto dto : orderSearchExcelFormDtos) {
             // 클레임 상태가 "취소완료" 이면 건너뛴다
-            if (dto.getClaimStatus() != null && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
+            if (dto.getClaimStatus() != null
+                    && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
                 continue;
             }
             if (prodNameSet.add(dto.getProdName())) {
-                SalesRateCommonGetDto salesRateCommonGetDto = new SalesRateCommonGetDto(dto.getProdName());
+                SalesRateCommonGetDto salesRateCommonGetDto = new SalesRateCommonGetDto(dto.getProdName(), dto.getProdNo());
 
                 salesRateCommonGetDtos.add(salesRateCommonGetDto);
             }
@@ -48,26 +49,29 @@ public class SalesRateService {
         }
 
         for (SalesRateOptionGetDto salesRateOptionGetDto : salesRateOptionGetDtos) {
+            
             for (OrderSearchExcelFormDto dto : orderSearchExcelFormDtos) {
                 // 클레임 상태가 "취소완료" 이면 건너뛴다
-                if (dto.getClaimStatus() != null && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
+                if (dto.getClaimStatus() != null
+                        && (dto.getClaimStatus().equals("취소완료") || dto.getClaimStatus().equals("반품완료"))) {
                     continue;
                 }
 
                 if (salesRateOptionGetDto.getFullName().equals(dto.getProdName() + "::" + dto.getOptionInfo())) {
                     Integer unitCount = salesRateOptionGetDto.getUnitSum();
+                    
                     unitCount += dto.getUnit();
-
+                    salesRateOptionGetDto.setSalesCount(salesRateOptionGetDto.getSalesCount() + 1);
                     salesRateOptionGetDto.setUnitSum(unitCount);
                 }
             }
         }
 
         for (SalesRateCommonGetDto salesRateCommonGetDto : salesRateCommonGetDtos) {
-            salesRateOptionGetDtos.stream()
-                    .filter(r -> r.getProdName().equals(salesRateCommonGetDto.getProdName()))
-                    .forEach(r->{
+            salesRateOptionGetDtos.stream().filter(r -> r.getProdName().equals(salesRateCommonGetDto.getProdName()))
+                    .forEach(r -> {
                         salesRateCommonGetDto.setUnitSum(salesRateCommonGetDto.getUnitSum() + r.getUnitSum());
+                        salesRateCommonGetDto.setSalesCount(salesRateCommonGetDto.getSalesCount() + r.getSalesCount());
                         salesRateCommonGetDto.getOptionInfos().add(r);
                     });
         }
