@@ -6,4 +6,5 @@ import lombok.Data;
 public class ExpenditureTypeDto {
     private Integer expenditureTypeId;
     private String expenditureType;
+    private Long sumValue;
 }

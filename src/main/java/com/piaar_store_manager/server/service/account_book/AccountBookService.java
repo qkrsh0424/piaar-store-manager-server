@@ -14,7 +14,9 @@ import com.piaar_store_manager.server.model.account_book.dto.AccountBookJoinDto;
 import com.piaar_store_manager.server.model.account_book.entity.AccountBookEntity;
 import com.piaar_store_manager.server.model.account_book.proj.AccountBookJoinProj;
 import com.piaar_store_manager.server.model.account_book.repository.AccountBookRepository;
+import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureTypeDto;
 import com.piaar_store_manager.server.model.pagenation.PagenationDto;
+import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +35,9 @@ public class AccountBookService {
 
     @Autowired
     DateHandler dateHandler;
+
+    @Autowired
+    ExpenditureTypeService expendtureTypeService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -305,4 +310,6 @@ public class AccountBookService {
             accountBookRepository.save(r);
         }, null);
     }
+
+    
 }

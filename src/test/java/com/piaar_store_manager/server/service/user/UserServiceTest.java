@@ -19,9 +19,9 @@ public class UserServiceTest {
     @Test
     public void createOneTest(){
         SignupReqDto signupReqDto = new SignupReqDto();
-        signupReqDto.setUsername("박세훈");
-        signupReqDto.setPassword("syna123.");
-        signupReqDto.setName("박세훈");
+        signupReqDto.setUsername("*");
+        signupReqDto.setPassword("*123!@");
+        signupReqDto.setName("*");
 
         userService.createOne(signupReqDto);
     }
