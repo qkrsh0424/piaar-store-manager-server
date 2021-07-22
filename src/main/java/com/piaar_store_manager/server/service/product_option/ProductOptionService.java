@@ -126,9 +126,24 @@ public class ProductOptionService {
      * @param userId
      * @see ProductOptionRepository
      */
+    // TODO : create option을 할때 product의 cid 데이터가 있어야 하므로, product Cid 값도 같이 넘겨줘서 작업해야합니다.
     public void createOne(ProductOptionGetDto productOptionGetDto, UUID userId){
         ProductOptionEntity entity = convEntitiyByDto(productOptionGetDto, userId);
         productOptionRepository.save(entity);
+    }
+
+    // TODO (NEW): createList 작성하는 코드, 한번 훑어보고 ProductService : createOne 에 접목시킬수 있는방법을 생각해보면 좋을것 같습니다.
+    // ProductService : createPAO2 코드에 접목 시켜놓았으니 확인바랍니다.
+    public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid){
+        List<ProductOptionEntity> entities = new ArrayList<>();
+
+        for(ProductOptionGetDto dto : productOptionGetDtos){
+            ProductOptionEntity entity = convEntitiyByDto2(dto, userId, productCid);
+            entities.add(entity);
+        }
+
+        productOptionRepository.saveAll(entities);
+        
     }
 
     /**
@@ -139,6 +154,7 @@ public class ProductOptionService {
      * @param userId
      * @return ProductOptionEntity
      */
+    // TODO : productCid는 외부 인자이므로 인자로 받아서 ProductOptionEntity를 작성해야합니다. convEntityByDto2 를 참고 하세요~
     private ProductOptionEntity convEntitiyByDto(ProductOptionGetDto productOptionDto, UUID userId){
         ProductOptionEntity productOptionEntity = new ProductOptionEntity();
 
@@ -154,6 +170,26 @@ public class ProductOptionService {
                 .setUpdatedAt(dateHandler.getCurrentDate())
                 .setUpdatedBy(userRepository.findById(userId).get().getName())
                 .setProductCid(productOptionDto.getProductCid());
+
+        return productOptionEntity;
+    }
+
+    // TODO (NEW) : 
+    private ProductOptionEntity convEntitiyByDto2(ProductOptionGetDto productOptionDto, UUID userId, Integer productCid){
+        ProductOptionEntity productOptionEntity = new ProductOptionEntity();
+
+        productOptionEntity.setId(UUID.randomUUID())
+                .setDefaultName(productOptionDto.getDefaultName())
+                .setManagementName(productOptionDto.getManagementName())
+                .setSalesPrice(productOptionDto.getSalesPrice())
+                .setStockUnit(productOptionDto.getStockUnit())
+                .setStatus(productOptionDto.getStatus())
+                .setMemo(productOptionDto.getMemo())
+                .setCreatedAt(dateHandler.getCurrentDate())
+                .setCreatedBy(userRepository.findById(userId).get().getName())
+                .setUpdatedAt(dateHandler.getCurrentDate())
+                .setUpdatedBy(userRepository.findById(userId).get().getName())
+                .setProductCid(productCid);
 
         return productOptionEntity;
     }

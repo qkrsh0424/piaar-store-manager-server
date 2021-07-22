@@ -50,12 +50,14 @@ public class ProductEntity {
     @Column(name = "created_at")
     private Date createdAt;
 
+    // TODO : UUID로 설정해얗랍니다
     @Column(name = "created_by")
     private String createdBy;
 
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    // TODO : UUID로 설정해얗랍니다
     @Column(name = "updated_by")
     private String updatedBy;
 

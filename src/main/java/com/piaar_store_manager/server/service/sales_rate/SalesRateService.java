@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.stereotype.Service;
 
-// TODO : Code Refactoring All
+// TODO : Code Refactoring All 안건들여도 됩니다~~
 @Service
 public class SalesRateService {
     public List<SalesRateCommonGetDto> getSalesRateCommon(Sheet worksheet) {
