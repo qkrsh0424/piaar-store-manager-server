@@ -39,7 +39,6 @@ public class AccountBookService {
     @Autowired
     ExpenditureTypeService expendtureTypeService;
 
-//    hello world
     /**
      * <b>DB Insert Related Method</b>
      * <p>
