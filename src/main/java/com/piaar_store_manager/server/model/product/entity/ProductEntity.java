@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Entity
 @Data
-@Table(name = "Product")
+@Table(name = "product")
 @Accessors(chain = true)
 public class ProductEntity {
 
@@ -50,7 +50,6 @@ public class ProductEntity {
     @Column(name = "created_at")
     private Date createdAt;
 
-    // TODO : UUID로 설정해얗랍니다 o
     @Type(type = "uuid-char")
     @Column(name = "created_by")
     private UUID createdBy;
@@ -58,7 +57,6 @@ public class ProductEntity {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    // TODO : UUID로 설정해얗랍니다. o
     @Type(type = "uuid-char")
     @Column(name = "updated_by")
     private UUID updatedBy;

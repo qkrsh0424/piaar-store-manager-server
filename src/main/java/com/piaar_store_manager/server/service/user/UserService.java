@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.piaar_store_manager.server.config.auth.PrincipalDetails;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
+import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.model.user.entity.UserEntity;
 import com.piaar_store_manager.server.model.user.repository.UserRepository;
 
@@ -61,6 +62,15 @@ public class UserService {
         log.info("UserService : createOne : print(userEntity) => {}.", userEntity);
         userRepository.save(userEntity);
         return "success";
+    }
+
+    public UserGetDto getDtoByEntity(UserEntity userEntity){
+        UserGetDto userGetDto = new UserGetDto();
+        userGetDto.setId(userEntity.getId());
+        userGetDto.setName(userEntity.getName());
+        userGetDto.setRoles(userEntity.getRoles());
+        userGetDto.setUsername(userEntity.getUsername());
+        return userGetDto;
     }
 
     /**
