@@ -9,6 +9,6 @@ import java.util.UUID;
 @Accessors(chain=true)
 public class ProductCategoryGetDto {
     private Integer cid;
-    private UUID id;
+    private String id;
     private String name;
 }

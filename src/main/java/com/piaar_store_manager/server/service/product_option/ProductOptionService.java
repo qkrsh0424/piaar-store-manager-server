@@ -81,6 +81,22 @@ public class ProductOptionService {
         return productOptionDto;
     }
 
+    // TODO(READ) :: ADD NEW 
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 등록된 상품옵션들중 product cid와 대응되는 값을 모두 조회한다.
+     *
+     * @return List::ProductOptionDto::
+     * @see ProductOptionRepository
+     */
+    public List<ProductOptionGetDto> searchList(Integer productCid){
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
+        List<ProductOptionGetDto> productOptionDto = getDtoByEntities(productOptionEntities);
+
+        return productOptionDto;
+    }
+
     /**
      * <b>Convert Method</b>
      * <p>

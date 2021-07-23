@@ -30,6 +30,18 @@ public class ProductCategoryService {
         return productCategoryGetDtos;
     }
 
+    public ProductCategoryGetDto getDtoByEntity(ProductCategoryEntity productCategoryEntity){
+
+            ProductCategoryGetDto productCategoryDto = new ProductCategoryGetDto();
+
+            productCategoryDto
+                .setCid(productCategoryEntity.getCid())
+                .setId(productCategoryEntity.getId())
+                .setName(productCategoryEntity.getName());
+
+        return productCategoryDto;
+    }
+
     /**
      * <b>Convert Method</b>
      * <p>
@@ -37,7 +49,7 @@ public class ProductCategoryService {
      * @param productCategoryEntities
      * @return List::ProductCategoryGetDto::
      */
-    private List<ProductCategoryGetDto> getDtoByEntites(List<ProductCategoryEntity> productCategoryEntities){
+    public List<ProductCategoryGetDto> getDtoByEntites(List<ProductCategoryEntity> productCategoryEntities){
         List<ProductCategoryGetDto> productCategoryDtos = new ArrayList<>();
 
         for(ProductCategoryEntity productCategoryEntity : productCategoryEntities){
