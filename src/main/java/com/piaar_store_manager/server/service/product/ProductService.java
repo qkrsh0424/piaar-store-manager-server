@@ -146,7 +146,7 @@ public class ProductService {
      * @param userId
      */
     public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
-        ProductEntity entity = convEntityByDto(productCreateReqDto.getProductDto(), userId);
+        ProductEntity entity = convEntitiyByDto(productCreateReqDto.getProductDto(), userId);
         ProductEntity savedProductEntity = productRepository.save(entity);
 
         productOptionService.createList(productCreateReqDto.getOptionDtos(), userId, savedProductEntity.getCid());
