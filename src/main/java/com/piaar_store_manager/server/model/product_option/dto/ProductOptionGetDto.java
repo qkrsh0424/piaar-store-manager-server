@@ -18,9 +18,9 @@ public class ProductOptionGetDto {
     private String status;
     private String memo;
     private Date createdAt;
-    private String createdBy;
+    private UUID createdBy;
     private Date updatedAt;
-    private String updatedBy;
+    private UUID updatedBy;
     private Integer productCid;
     private UUID productId;
 }

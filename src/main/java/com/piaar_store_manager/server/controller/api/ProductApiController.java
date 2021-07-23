@@ -3,7 +3,6 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.service.account_book.AccountBookService;
 import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ public class ProductApiController {
      */
     @GetMapping("/{productId}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productId") Integer productId) {
-        // TODO : 만약에 해당 productId의 자원이 없다면 404 에러를 반환해야 합니다.
+        // TODO : 만약에 해당 productId의 자원이 없다면 404 에러를 반환해야 합니다. o
         // 현재 productId가 존재하지 않는 데이터임에도 불구하고 200 코드를 리턴하고 있습니다.
         // ========= 이러한 방법으로 널값을 NOT FOUNT 404 에러를 던저서 자원이 없다는것을 표시가능 =========
         // try {
@@ -53,10 +52,17 @@ public class ProductApiController {
         // ========= 이러한 방법으로 널값을 NOT FOUNT 404 에러를 던저서 자원이 없다는것을 표시가능 =========
 
         Message message = new Message();
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-        message.setData(productService.searchOne(productId));
-        return new ResponseEntity<>(message, message.getStatus());
+
+        try{
+            message.setData(productService.searchOne(productId));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productId=" + productId + " value.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
     }
 
     /**
@@ -77,6 +83,20 @@ public class ProductApiController {
         message.setMessage("success");
         message.setData(productService.searchList());
         return new ResponseEntity<>(message, message.getStatus());
+
+        // TODO : 데이터 리스트가 없는 경우에도 예외처리를 해줘야 하는 건가요 (,productCategory, productOption)
+//        Message message = new Message();
+//
+//        try{
+//            message.setData(productService.searchList());
+//            message.setStatus(HttpStatus.OK);
+//            message.setMessage("success");
+//            return new ResponseEntity<>(message, message.getStatus());
+//        } catch(NullPointerException e) {
+//            message.setStatus(HttpStatus.NOT_FOUND);
+//            message.setMessage("No Data");
+//            return new ResponseEntity<>(message, message.getStatus());
+//        }
     }
 
     /**
@@ -120,13 +140,16 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            // TODO : DB CREATE, UPDATE, DELETE 는 항상 Exception이 발생할수 있으므로 왠만하면 try catch로 감싸주는게 좋습니다
-            productService.createPAO(productCreateReqDto, userService.getUserId());
+            // TODO : DB CREATE, UPDATE, DELETE 는 항상 Exception이 발생할수 있으므로 왠만하면 try catch로 감싸주는게 좋습니다 o
+            try{
+                productService.createPAO(productCreateReqDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
-
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -173,12 +196,15 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productService.createPAOList(productCreateReqDtos, userService.getUserId());
+            try{
+                productService.createPAOList(productCreateReqDtos, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
-
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -205,10 +231,14 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productService.destroyOne(productId);
+            try{
+                productService.destroyOne(productId);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -237,12 +267,15 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productService.changeOne(productGetDto, userService.getUserId());
+            try{
+                productService.changeOne(productGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
-
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -269,12 +302,15 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productService.changeOne(productGetDto, userService.getUserId());
+            try{
+                productService.changeOne(productGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
-
         return new ResponseEntity<>(message, message.getStatus());
     }
 

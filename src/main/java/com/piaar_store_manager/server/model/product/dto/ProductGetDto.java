@@ -20,8 +20,8 @@ public class ProductGetDto {
     private String imageFileName;
     private String memo;
     private Date createdAt;
-    private String createdBy;
+    private UUID createdBy;
     private Date updatedAt;
-    private String updatedBy;
+    private UUID updatedBy;
     private Integer productCategoryCid;
 }

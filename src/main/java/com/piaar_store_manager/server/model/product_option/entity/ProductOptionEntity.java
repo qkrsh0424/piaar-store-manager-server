@@ -44,14 +44,16 @@ public class ProductOptionEntity {
     @Column(name = "created_at")
     private Date createdAt;
 
+    @Type(type = "uuid-char")
     @Column(name = "created_by")
-    private String createdBy;
+    private UUID createdBy;
 
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @Type(type = "uuid-char")
     @Column(name = "updated_by")
-    private String updatedBy;
+    private UUID updatedBy;
 
     @Column(name = "product_cid")
     private Integer productCid;

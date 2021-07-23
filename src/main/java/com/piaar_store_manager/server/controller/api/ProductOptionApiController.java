@@ -3,8 +3,6 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.service.product.ProductService;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +34,17 @@ public class ProductOptionApiController {
     @GetMapping("/{productOptionId}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionId") Integer productOptionId){
         Message message = new Message();
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-        message.setData(productOptionService.searchOne(productOptionId));
-        return new ResponseEntity<>(message, message.getStatus());
+
+        try{
+            message.setData(productOptionService.searchOne(productOptionId));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productOptionId=" + productOptionId + " value.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
     }
 
     /**
@@ -84,10 +89,14 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productOptionService.createOne(productOptionGetDto, userService.getUserId());
+            try{
+                productOptionService.createOne(productOptionGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -116,10 +125,14 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productOptionService.destroyOne(productOptionId);
+            try{
+                productOptionService.destroyOne(productOptionId);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -148,10 +161,14 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+            try{
+                productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -180,10 +197,14 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-
-            productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+            try{
+                productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
