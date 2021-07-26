@@ -271,6 +271,7 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
+            // TODO : 권한이 ROLE_MANAGER 이상인 유저만 삭제 가능
             try{
                 productService.destroyOne(productId);
                 message.setStatus(HttpStatus.OK);

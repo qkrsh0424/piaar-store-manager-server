@@ -11,13 +11,11 @@ import com.piaar_store_manager.server.model.product_category.dto.ProductCategory
 import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
 import com.piaar_store_manager.server.service.user.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +25,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Slf4j
 public class ProductService {
 
     @Autowired

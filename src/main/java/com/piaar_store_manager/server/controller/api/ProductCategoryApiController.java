@@ -1,8 +1,6 @@
 package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
-import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +27,7 @@ public class ProductCategoryApiController {
      * @see HttpStatus
      * @see ProductCategoryService#searchList
      */
+    // TODO : Category 기본 메소드 명세 작성
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
         Message message = new Message();
