@@ -25,8 +25,11 @@ public class ProductCategoryService {
      */
     public List<ProductCategoryGetDto> searchList(){
         List<ProductCategoryEntity> productCategoryEntities = productCategoryRepository.findAll();
-        List<ProductCategoryGetDto> productCategoryGetDtos = getDtoByEntites(productCategoryEntities);
+        List<ProductCategoryGetDto> productCategoryGetDtos = new ArrayList<>();
 
+        for(ProductCategoryEntity productCategoryEntity : productCategoryEntities){
+            productCategoryGetDtos.add(getDtoByEntity(productCategoryEntity));
+        }
         return productCategoryGetDtos;
     }
 
@@ -41,26 +44,4 @@ public class ProductCategoryService {
 
         return productCategoryDto;
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::ProductCategoryEntity:: => List::ProductCategoryGetDto::
-     * @param productCategoryEntities
-     * @return List::ProductCategoryGetDto::
-     */
-    public List<ProductCategoryGetDto> getDtoByEntites(List<ProductCategoryEntity> productCategoryEntities){
-        List<ProductCategoryGetDto> productCategoryDtos = new ArrayList<>();
-
-        for(ProductCategoryEntity productCategoryEntity : productCategoryEntities){
-            ProductCategoryGetDto productCategoryDto = new ProductCategoryGetDto();
-
-            productCategoryDto.setCid(productCategoryEntity.getCid())
-                    .setName(productCategoryEntity.getName());
-
-            productCategoryDtos.add(productCategoryDto);
-        }
-        return productCategoryDtos;
-    }
-
 }

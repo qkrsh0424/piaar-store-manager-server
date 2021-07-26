@@ -63,5 +63,4 @@ public class ProductEntity {
 
     @Column(name = "product_category_cid")
     private Integer productCategoryCid;
-
 }

@@ -1,9 +1,19 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.model.user.dto.UserGetDto;
+import com.piaar_store_manager.server.service.product.ProductService;
+import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
+
+import com.piaar_store_manager.server.service.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +31,15 @@ public class ProductOptionService {
     @Autowired
     private DateHandler dateHandler;
 
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private ProductCategoryService productCategoryService;
+
+    @Autowired
+    UserService userService;
+
     /**
      * <b>DB Select Related Method</b>
      * <p>
@@ -36,9 +55,49 @@ public class ProductOptionService {
 
         if(productOptionEntityOpt.isPresent()){
             productOptionDto = getDtoByEntitiy(productOptionEntityOpt.get());
+        }else{
+            throw new NullPointerException();
         }
 
         return productOptionDto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption id 값과 상응되는 데이터를 조회한다.
+     * 해당 ProductOption와 연관관계에 놓여있는 One To Many JOIN(o2mj) 상태를 조회한다.
+     * 
+     *
+     * @param productOptionId
+     * @return ProductOptionGetDto
+     * @see ProductOptionRepository#selectByCid
+     * @see ProductEntity
+     * @see UserEntity
+     * @see ProductCategoryEntity
+     * 
+     * @return ProductOptionJoinResDto
+     */
+    public ProductOptionJoinResDto searchOneO2MJ(Integer productOptionId) {
+        ProductOptionJoinResDto productOptionResDto = new ProductOptionJoinResDto();
+
+        Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.selectByCid(productOptionId);
+
+        if(productOptionProjOpt.isPresent()){
+            ProductGetDto productGetDto = productService.getDtoByEntity(productOptionProjOpt.get().getProduct());
+            UserGetDto userGetDto = userService.getDtoByEntity(productOptionProjOpt.get().getUser());
+            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productOptionProjOpt.get().getCategory());
+            ProductOptionGetDto productOptionGetDto = this.getDtoByEntitiy(productOptionProjOpt.get().getProductOption());
+            
+            productOptionResDto
+                    .setProduct(productGetDto)
+                    .setUser(userGetDto)
+                    .setCategory(categoryGetDto)
+                    .setOption(productOptionGetDto);
+        }else{
+            throw new NullPointerException();
+        }
+        return productOptionResDto;
     }
 
     /**
@@ -76,9 +135,51 @@ public class ProductOptionService {
      */
     public List<ProductOptionGetDto> searchList(){
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll();
-        List<ProductOptionGetDto> productOptionDto = getDtoByEntities(productOptionEntities);
+        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
+        for(ProductOptionEntity optionEntity : productOptionEntities){
+            productOptionDto.add(getDtoByEntitiy(optionEntity));
+        }
         return productOptionDto;
+    }
+
+    // TODO(READ) :: ADD NEW
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption 데이터를 모두 조회한다.
+     * 해당 ProductOption와 연관관계에 놓여있는 One To Many JOIN(o2mj) 상태를 조회한다.
+     *
+     *
+     * @return List::ProductOptionJoinResDto::
+     * @see ProductOptionRepository#selectAll
+     * @see ProductEntity
+     * @see UserEntity
+     * @see ProductCategoryEntity
+     *
+     * @return ProductOptionJoinResDto
+     */
+    public List<ProductOptionJoinResDto> searchListO2MJ() {
+        List<ProductOptionJoinResDto> productOptionJoinResDtos = new ArrayList<>();
+        List<ProductOptionProj> productOptionProjsOpt = productOptionRepository.selectAll();
+        ProductOptionJoinResDto productOptionJoinResDto = new ProductOptionJoinResDto();
+
+        for(ProductOptionProj projOptionOpt : productOptionProjsOpt) {
+
+            ProductGetDto productGetDto = productService.getDtoByEntity(projOptionOpt.getProduct());
+            UserGetDto userGetDto = userService.getDtoByEntity(projOptionOpt.getUser());
+            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOptionOpt.getCategory());
+            ProductOptionGetDto productOptionGetDto = this.getDtoByEntitiy(projOptionOpt.getProductOption());
+
+            productOptionJoinResDto
+                    .setProduct(productGetDto)
+                    .setUser(userGetDto)
+                    .setCategory(categoryGetDto)
+                    .setOption(productOptionGetDto);
+
+            productOptionJoinResDtos.add(productOptionJoinResDto);
+        }
+        return productOptionJoinResDtos;
     }
 
     // TODO(READ) :: ADD NEW 
@@ -92,41 +193,23 @@ public class ProductOptionService {
      */
     public List<ProductOptionGetDto> searchList(Integer productCid){
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
-        List<ProductOptionGetDto> productOptionDto = getDtoByEntities(productOptionEntities);
+        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
+
+        for(ProductOptionEntity optionEntity : productOptionEntities){
+            productOptionDto.add(getDtoByEntitiy(optionEntity));
+        }
 
         return productOptionDto;
     }
 
     /**
-     * <b>Convert Method</b>
+     * <b>DB Insert Related Method</b>
      * <p>
-     * List::productOptionEntities:: => List::ProductOptionGetDto::
-     * @param productOptionEntities
-     * @return List::ProductOptionGetDto::
+     * ProductOption 내용을 한개 등록한다.
+     * @param productOptionGetDto
+     * @param userId
+     * @see ProductOptionRepository
      */
-    private List<ProductOptionGetDto> getDtoByEntities(List<ProductOptionEntity> productOptionEntities){
-        List<ProductOptionGetDto> productOptionDtos = new ArrayList<>();
-
-        for(ProductOptionEntity productOptionEntity : productOptionEntities) {
-            ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
-
-            productOptionDto.setDefaultName(productOptionEntity.getDefaultName())
-                    .setManagementName(productOptionEntity.getManagementName())
-                    .setSalesPrice(productOptionEntity.getSalesPrice())
-                    .setStockUnit(productOptionEntity.getStockUnit())
-                    .setStatus(productOptionEntity.getStatus())
-                    .setMemo(productOptionEntity.getMemo())
-                    .setCreatedAt(productOptionEntity.getCreatedAt())
-                    .setCreatedBy(productOptionEntity.getCreatedBy())
-                    .setUpdatedAt(productOptionEntity.getUpdatedAt())
-                    .setUpdatedBy(productOptionEntity.getUpdatedBy())
-                    .setProductCid(productOptionEntity.getProductCid());
-
-            productOptionDtos.add(productOptionDto);
-        }
-        return productOptionDtos;
-    }
-
     public void createOne(ProductOptionGetDto productOptionGetDto, UUID userId){
         ProductOptionEntity entity = convEntitiyByDto(productOptionGetDto, userId, productOptionGetDto.getProductCid());
         productOptionRepository.save(entity);
@@ -138,6 +221,7 @@ public class ProductOptionService {
      * ProductOption 내용을 한개 등록한다.
      * @param productOptionGetDto
      * @param userId
+     * @param productCid
      * @see ProductOptionRepository
      */
     public void createOne(ProductOptionGetDto productOptionGetDto, UUID userId, Integer productCid) {
@@ -145,6 +229,15 @@ public class ProductOptionService {
         productOptionRepository.save(entity);
     }
 
+    /**
+     * <b>DB Insert Related Method</b>
+     * <p>
+     * ProductOption 내용을 여러개 등록한다.
+     * @param productOptionGetDto
+     * @param userId
+     * @param productCid
+     * @see ProductOptionRepository
+     */
     public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid){
         List<ProductOptionEntity> entities = new ArrayList<>();
 

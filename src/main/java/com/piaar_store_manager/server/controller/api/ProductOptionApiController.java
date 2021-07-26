@@ -31,12 +31,40 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#searchOne
      */
-    @GetMapping("/{productOptionId}")
+    @GetMapping("/one/{productOptionId}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionId") Integer productOptionId){
         Message message = new Message();
 
         try{
             message.setData(productOptionService.searchOne(productOptionId));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productOptionId=" + productOptionId + " value.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     *
+     * Search one api for productOption.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/one-o2mj/{productOptionId}</b>
+     *
+     * @param productOptionId
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductOptionService#searchOneOTMJ
+     */
+    @GetMapping("/one-o2mj/{productOptionId}")
+    public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productOptionId") Integer productOptionId) {
+        Message message = new Message();
+
+        try{
+            message.setData(productOptionService.searchOneO2MJ(productOptionId));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
@@ -65,6 +93,33 @@ public class ProductOptionApiController {
         message.setMessage("success");
         message.setData(productOptionService.searchList());
         return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     *
+     * Search list api for productOption.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/list-o2mj</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductOptionService#searchListO2MJ
+     */
+    @GetMapping("/list-o2mj")
+    public ResponseEntity<?> searchListOTMJ() {
+        Message message = new Message();
+
+        try{
+            message.setData(productOptionService.searchListO2MJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("No Data");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
     }
 
     /**
@@ -115,7 +170,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#destroyOne
      */
-    @DeleteMapping("/{productOptionId}")
+    @DeleteMapping("/one/{productOptionId}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionId") Integer productOptionId){
         Message message = new Message();
 
@@ -151,7 +206,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#patchOne
      */
-    @PutMapping("")
+    @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto){
         Message message = new Message();
 
@@ -187,7 +242,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#patchOne
      */
-    @PatchMapping("")
+    @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductOptionGetDto productOptionGetDto){
         Message message = new Message();
 

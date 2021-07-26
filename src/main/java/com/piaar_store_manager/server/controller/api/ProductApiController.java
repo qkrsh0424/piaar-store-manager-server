@@ -60,7 +60,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOne
+     * @see ProductService#searchOneOTMJ
      */
     @GetMapping("/one-o2mj/{productId}")
     public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productId") Integer productId) {
@@ -88,7 +88,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOne
+     * @see ProductService#searchOneFullJoin
      */
     @GetMapping("/one-fj/{productId}")
     public ResponseEntity<?> searchOneFullJoin(@PathVariable(value = "productId") Integer productId) {
@@ -115,7 +115,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOne
+     * @see ProductService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
@@ -126,7 +126,72 @@ public class ProductApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     *
+     * Search list api for product.
+     * <p>
+     * <b>GET : API URL => /api/v1/product/list-o2mj</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductService#searchListO2MJ
+     */
+    @GetMapping("/list-o2mj")
+    public ResponseEntity<?> searchListOTMJ() {
+        Message message = new Message();
 
+        try{
+            message.setData(productService.searchListO2MJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("No Data");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     *
+     * Search list api for product.
+     * <p>
+     * <b>GET : API URL => /api/v1/product/list-fj</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductService#searchListFullJoin
+     */
+    @GetMapping("/list-fj")
+    public ResponseEntity<?> searchListFullJoin() {
+        Message message = new Message();
+
+        try{
+            message.setData(productService.searchListFullJoin());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("No Data");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     * Create one api for product.
+     * <p>
+     * <b>POST : API URL => /api/v1/product/one</b>
+     * 
+     * @param ProductCreateReqDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductCreateReqDto
+     * @see ProductService#createOne
+     */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductCreateReqDto productCreateReqDto) {
         Message message = new Message();
@@ -149,6 +214,18 @@ public class ProductApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Create list api for product.
+     * <p>
+     * <b>POST : API URL => /api/v1/product/list</b>
+     * 
+     * @param ProductCreateReqDto : List
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductCreateReqDto
+     * @see ProductService#createList
+     */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductCreateReqDto> productCreateReqDtos) {
         Message message = new Message();

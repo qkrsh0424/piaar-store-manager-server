@@ -75,7 +75,7 @@ public class ProductService {
      * 해당 Product와 연관관계에 놓여있는 One To Many JOIN(o2mj) 상태를 조회한다.
      * 
      *
-     * @param productCid
+     * @param productId
      * @return ProductGetDto
      * @see ProductRepository#selectByCid
      * @see UserEntity
@@ -101,7 +101,6 @@ public class ProductService {
         }else{
             throw new NullPointerException();
         }
-
         return productResDto;
     }
 
@@ -132,17 +131,16 @@ public class ProductService {
             UserGetDto userGetDto = userService.getDtoByEntity(productProjOpt.get().getUser());
             ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productProjOpt.get().getCategory());
             List<ProductOptionGetDto> optionGetDtos = productOptionService.searchList(productProjOpt.get().getProduct().getCid());
+            
             productResDto
                 .setProduct(productGetDto)
                 .setUser(userGetDto)
                 .setCategory(categoryGetDto)
-                .setOptions(optionGetDtos)
-            ;
+                .setOptions(optionGetDtos);
 
         }else{
             throw new NullPointerException();
         }
-
         return productResDto;
     }
 
@@ -179,37 +177,86 @@ public class ProductService {
      */
     public List<ProductGetDto> searchList() {
         List<ProductEntity> productEntities = productRepository.findAll();
-        List<ProductGetDto> productDto = getDtoByEntities(productEntities);
+        List<ProductGetDto> productDto = new ArrayList<>();
 
+        for(ProductEntity entity : productEntities){
+            productDto.add(getDtoByEntity(entity));
+        }
         return productDto;
     }
 
+    // TODO(READ) :: ADD NEW
     /**
-     * <b>Convert Method</b>
+     * <b>DB Select Related Method</b>
      * <p>
-     * List::ProductEntity:: => List::ProductGetDto::
-     * 
-     * @param productEntities
-     * @return List::ProductGetDto::
+     * Product 데이터를 모두 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 One To Many JOIN(o2mj) 상태를 조회한다.
+     *
+     *
+     * @return List::ProductJoinResDto::
+     * @see ProductRepository#selectAll
+     * @see UserEntity
+     * @see ProductCategoryEntity
+     *
+     * @return ProductJoinResDto
      */
-    private List<ProductGetDto> getDtoByEntities(List<ProductEntity> productEntities) {
-        List<ProductGetDto> productDtos = new ArrayList<>();
+    public List<ProductJoinResDto> searchListO2MJ() {
+        List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
+        List<ProductProj> productProjsOpt = productRepository.selectAll();
+        ProductJoinResDto productJoinResDto = new ProductJoinResDto();
 
-        for (ProductEntity productEntity : productEntities) {
-            ProductGetDto productDto = new ProductGetDto();
+        for(ProductProj projOpt : productProjsOpt) {
+            ProductGetDto productGetDto = this.getDtoByEntity(projOpt.getProduct());
+            UserGetDto userGetDto = userService.getDtoByEntity(projOpt.getUser());
+            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOpt.getCategory());
 
-            productDto.setCid(productEntity.getCid()).setId(productEntity.getId()).setCode(productEntity.getCode())
-                    .setManufacturingCode(productEntity.getManufacturingCode())
-                    .setNProductCode(productEntity.getNProductCode()).setDefaultName(productEntity.getDefaultName())
-                    .setManagementName(productEntity.getManagementName()).setImageUrl(productEntity.getImageUrl())
-                    .setImageFileName(productEntity.getImageFileName()).setMemo(productEntity.getMemo())
-                    .setCreatedAt(productEntity.getCreatedAt()).setCreatedBy(productEntity.getCreatedBy())
-                    .setUpdatedAt(productEntity.getUpdatedAt()).setUpdatedBy(productEntity.getUpdatedBy())
-                    .setProductCategoryCid(productEntity.getProductCategoryCid());
+            productJoinResDto
+                    .setProduct(productGetDto)
+                    .setUser(userGetDto)
+                    .setCategory(categoryGetDto);
 
-            productDtos.add(productDto);
+            productJoinResDtos.add(productJoinResDto);
         }
-        return productDtos;
+        return productJoinResDtos;
+    }
+
+    // TODO(READ) :: ADD NEW
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * Product 데이터를 모두 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 모든 JOIN(fj) 상태를 조회한다.
+     *
+     *
+     * @return List::ProductJoinResDto::
+     * @see ProductRepository#selectAll
+     * @see UserEntity
+     * @see ProductCategoryEntity
+     * @see ProductOptionEntity
+     *
+     * @return ProductJoinResDto
+     */
+    public List<ProductJoinResDto> searchListFullJoin(){
+        List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
+        List<ProductProj> productProjsOpt = productRepository.selectAll();
+        ProductJoinResDto productJoinResDto = new ProductJoinResDto();
+
+        for(ProductProj projOpt : productProjsOpt) {
+            ProductGetDto productGetDto = this.getDtoByEntity(projOpt.getProduct());
+            UserGetDto userGetDto = userService.getDtoByEntity(projOpt.getUser());
+            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOpt.getCategory());
+            List<ProductOptionGetDto> optionGetDtos = productOptionService.searchList(projOpt.getProduct().getCid());
+
+            productJoinResDto
+                    .setProduct(productGetDto)
+                    .setUser(userGetDto)
+                    .setCategory(categoryGetDto)
+                    .setOptions(optionGetDtos);
+
+            productJoinResDtos.add(productJoinResDto);
+        }
+        return productJoinResDtos;
+
     }
 
     /**
