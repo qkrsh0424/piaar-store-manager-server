@@ -13,7 +13,7 @@ public class ProductGetDto {
     private UUID id;
     private String code;
     private String manufacturingCode;
-    private String nProductCode;
+    private String naverProductCode;
     private String defaultName;
     private String managementName;
     private String imageUrl;

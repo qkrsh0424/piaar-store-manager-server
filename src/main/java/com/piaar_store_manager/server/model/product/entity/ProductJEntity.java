@@ -1,10 +1,14 @@
 package com.piaar_store_manager.server.model.product.entity;
 
 import lombok.Data;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+
+import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryJEntity;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,6 +16,7 @@ import java.util.UUID;
 @Data
 @Table(name = "product")
 @Accessors(chain = true)
+@ToString(exclude = {"productCategory"})
 public class ProductJEntity {
 
     @Id
@@ -61,7 +66,9 @@ public class ProductJEntity {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
-    @Column(name = "product_category_cid")
-    private Integer productCategoryCid;
+    // @Column(name = "product_category_cid")
+    // private Integer productCategoryCid;
 
+    @ManyToOne
+    private ProductCategoryJEntity productCategory;
 }

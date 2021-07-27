@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.piaar_store_manager.server.model.product.entity.ProductEntity;
-import com.piaar_store_manager.server.model.product.entity.ProductJEntity;
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;

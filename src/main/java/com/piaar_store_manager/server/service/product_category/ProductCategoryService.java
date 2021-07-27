@@ -2,12 +2,15 @@ package com.piaar_store_manager.server.service.product_category;
 
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryEntity;
+import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryJEntity;
+import com.piaar_store_manager.server.model.product_category.repository.ProductCategoryJRepository;
 import com.piaar_store_manager.server.model.product_category.repository.ProductCategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductCategoryService {
@@ -43,5 +46,15 @@ public class ProductCategoryService {
                 .setName(productCategoryEntity.getName());
 
         return productCategoryDto;
+    }
+
+    // test
+    @Autowired
+    private ProductCategoryJRepository productCategoryJRepository;
+
+    public ProductCategoryJEntity searchJoinOne(Integer productId){
+        Optional<ProductCategoryJEntity> productCategoryEntities = productCategoryJRepository.findById(productId);
+        
+        return productCategoryEntities.get();
     }
 }

@@ -13,7 +13,6 @@ import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 
 import com.piaar_store_manager.server.service.user.UserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -165,9 +164,9 @@ public class ProductOptionService {
     public List<ProductOptionJoinResDto> searchListO2MJ() {
         List<ProductOptionJoinResDto> productOptionJoinResDtos = new ArrayList<>();
         List<ProductOptionProj> productOptionProjsOpt = productOptionRepository.selectAll();
-        ProductOptionJoinResDto productOptionJoinResDto = new ProductOptionJoinResDto();
-
+        
         for (ProductOptionProj projOptionOpt : productOptionProjsOpt) {
+            ProductOptionJoinResDto productOptionJoinResDto = new ProductOptionJoinResDto();
 
             ProductGetDto productGetDto = productService.getDtoByEntity(projOptionOpt.getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(projOptionOpt.getUser());

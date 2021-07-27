@@ -29,8 +29,8 @@ public class ProductEntity {
     @Column(name = "manufacturing_code")
     private String manufacturingCode;
 
-    @Column(name = "n_product_code")
-    private String nProductCode;
+    @Column(name = "naver_product_code")
+    private String naverProductCode;
 
     @Column(name = "default_name")
     private String defaultName;

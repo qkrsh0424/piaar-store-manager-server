@@ -5,7 +5,9 @@ import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product.dto.ProductJoinResDto;
 import com.piaar_store_manager.server.model.product.entity.ProductEntity;
+import com.piaar_store_manager.server.model.product.entity.ProductJEntity;
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
+import com.piaar_store_manager.server.model.product.repository.ProductJRepository;
 import com.piaar_store_manager.server.model.product.repository.ProductRepository;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryEntity;
@@ -154,7 +156,7 @@ public class ProductService {
 
         productDto.setCid(productEntity.getCid()).setId(productEntity.getId()).setCode(productEntity.getCode())
                 .setManufacturingCode(productEntity.getManufacturingCode())
-                .setNProductCode(productEntity.getNProductCode()).setDefaultName(productEntity.getDefaultName())
+                .setNaverProductCode(productEntity.getNaverProductCode()).setDefaultName(productEntity.getDefaultName())
                 .setManagementName(productEntity.getManagementName()).setImageUrl(productEntity.getImageUrl())
                 .setImageFileName(productEntity.getImageFileName()).setMemo(productEntity.getMemo())
                 .setCreatedAt(productEntity.getCreatedAt()).setCreatedBy(productEntity.getCreatedBy())
@@ -200,9 +202,10 @@ public class ProductService {
     public List<ProductJoinResDto> searchListO2MJ() {
         List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
         List<ProductProj> productProjsOpt = productRepository.selectAll();
-        ProductJoinResDto productJoinResDto = new ProductJoinResDto();
-
+        
         for(ProductProj projOpt : productProjsOpt) {
+            ProductJoinResDto productJoinResDto = new ProductJoinResDto();
+
             ProductGetDto productGetDto = this.getDtoByEntity(projOpt.getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(projOpt.getUser());
             ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOpt.getCategory());
@@ -236,9 +239,10 @@ public class ProductService {
     public List<ProductJoinResDto> searchListFullJoin(){
         List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
         List<ProductProj> productProjsOpt = productRepository.selectAll();
-        ProductJoinResDto productJoinResDto = new ProductJoinResDto();
-
+        
         for(ProductProj projOpt : productProjsOpt) {
+            ProductJoinResDto productJoinResDto = new ProductJoinResDto();
+
             ProductGetDto productGetDto = this.getDtoByEntity(projOpt.getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(projOpt.getUser());
             ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOpt.getCategory());
@@ -290,7 +294,7 @@ public class ProductService {
 
         productEntity.setId(productGetDto.getId()).setCode(productGetDto.getCode())
                 .setManufacturingCode(productGetDto.getManufacturingCode())
-                .setNProductCode(productGetDto.getNProductCode()).setDefaultName(productGetDto.getDefaultName())
+                .setNaverProductCode(productGetDto.getNaverProductCode()).setDefaultName(productGetDto.getDefaultName())
                 .setManagementName(productGetDto.getManagementName()).setImageUrl(productGetDto.getImageUrl())
                 .setImageFileName(productGetDto.getImageFileName()).setMemo(productGetDto.getMemo())
                 .setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
@@ -313,7 +317,7 @@ public class ProductService {
         ProductEntity productEntity = new ProductEntity();
 
         productEntity.setId(UUID.randomUUID()).setCode(productDto.getCode())
-                .setManufacturingCode(productDto.getManufacturingCode()).setNProductCode(productDto.getNProductCode())
+                .setManufacturingCode(productDto.getManufacturingCode()).setNaverProductCode(productDto.getNaverProductCode())
                 .setDefaultName(productDto.getDefaultName()).setManagementName(productDto.getManagementName())
                 .setImageUrl(productDto.getImageUrl()).setImageFileName(productDto.getImageFileName())
                 .setMemo(productDto.getMemo()).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
@@ -359,7 +363,7 @@ public class ProductService {
         for (ProductGetDto dto : productGetDtos) {
             ProductEntity productEntity = new ProductEntity();
             productEntity.setId(UUID.randomUUID()).setCode(dto.getCode())
-                    .setManufacturingCode(dto.getManufacturingCode()).setNProductCode(dto.getNProductCode())
+                    .setManufacturingCode(dto.getManufacturingCode()).setNaverProductCode(dto.getNaverProductCode())
                     .setDefaultName(dto.getDefaultName()).setManagementName(dto.getManagementName())
                     .setImageUrl(dto.getImageUrl()).setImageFileName(dto.getImageFileName()).setMemo(dto.getMemo())
                     .setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(dto.getCreatedBy())
@@ -395,7 +399,7 @@ public class ProductService {
     public void changeOne(ProductGetDto productDto, UUID userId) {
         productRepository.findById(productDto.getCid()).ifPresentOrElse(productEntity -> {
             productEntity.setCode(productDto.getCode()).setManufacturingCode(productDto.getManufacturingCode())
-                    .setNProductCode(productDto.getNProductCode()).setDefaultName(productDto.getDefaultName())
+                    .setNaverProductCode(productDto.getNaverProductCode()).setDefaultName(productDto.getDefaultName())
                     .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
                     .setImageFileName(productDto.getImageFileName()).setMemo(productDto.getMemo())
                     .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
@@ -421,8 +425,8 @@ public class ProductService {
             if (productDto.getManufacturingCode() != null) {
                 productEntity.setManufacturingCode(productDto.getManufacturingCode());
             }
-            if (productDto.getNProductCode() != null) {
-                productEntity.setNProductCode(productDto.getNProductCode());
+            if (productDto.getNaverProductCode() != null) {
+                productEntity.setNaverProductCode(productDto.getNaverProductCode());
             }
             if (productDto.getDefaultName() != null) {
                 productEntity.setDefaultName(productDto.getDefaultName());
@@ -448,5 +452,4 @@ public class ProductService {
             productRepository.save(productEntity);
         }, null);
     }
-
 }
