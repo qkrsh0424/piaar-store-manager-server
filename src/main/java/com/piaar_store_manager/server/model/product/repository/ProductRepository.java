@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
-    // TODO(READ) :: ADD NEW 
+    
     @Query(
         "SELECT p AS product, u AS user, pc AS category FROM ProductEntity p\n"+
         "JOIN UserEntity u ON p.createdBy = u.id\n"+

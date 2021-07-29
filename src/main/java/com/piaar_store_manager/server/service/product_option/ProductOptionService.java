@@ -53,7 +53,7 @@ public class ProductOptionService {
         ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
 
         if (productOptionEntityOpt.isPresent()) {
-            productOptionDto = getDtoByEntitiy(productOptionEntityOpt.get());
+            productOptionDto = getDtoByEntity(productOptionEntityOpt.get());
         } else {
             throw new NullPointerException();
         }
@@ -85,10 +85,8 @@ public class ProductOptionService {
         if (productOptionProjOpt.isPresent()) {
             ProductGetDto productGetDto = productService.getDtoByEntity(productOptionProjOpt.get().getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(productOptionProjOpt.get().getUser());
-            ProductCategoryGetDto categoryGetDto = productCategoryService
-                    .getDtoByEntity(productOptionProjOpt.get().getCategory());
-            ProductOptionGetDto productOptionGetDto = this
-                    .getDtoByEntitiy(productOptionProjOpt.get().getProductOption());
+            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productOptionProjOpt.get().getCategory());
+            ProductOptionGetDto productOptionGetDto = this.getDtoByEntity(productOptionProjOpt.get().getProductOption());
 
             productOptionResDto.setProduct(productGetDto).setUser(userGetDto).setCategory(categoryGetDto)
                     .setOption(productOptionGetDto);
@@ -106,7 +104,7 @@ public class ProductOptionService {
      * @param productOptionEntity
      * @return ProductOptionGetDto
      */
-    private ProductOptionGetDto getDtoByEntitiy(ProductOptionEntity productOptionEntity) {
+    public ProductOptionGetDto getDtoByEntity(ProductOptionEntity productOptionEntity) {
         ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
 
         productOptionDto
@@ -140,7 +138,7 @@ public class ProductOptionService {
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
         for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(getDtoByEntitiy(optionEntity));
+            productOptionDto.add(getDtoByEntity(optionEntity));
         }
         return productOptionDto;
     }
@@ -163,25 +161,14 @@ public class ProductOptionService {
      */
     public List<ProductOptionJoinResDto> searchListO2MJ() {
         List<ProductOptionJoinResDto> productOptionJoinResDtos = new ArrayList<>();
-        List<ProductOptionProj> productOptionProjsOpt = productOptionRepository.selectAll();
+        List<ProductOptionProj> productOptionProjs = productOptionRepository.selectAll();
         
-        for (ProductOptionProj projOptionOpt : productOptionProjsOpt) {
-            ProductOptionJoinResDto productOptionJoinResDto = new ProductOptionJoinResDto();
-
-            ProductGetDto productGetDto = productService.getDtoByEntity(projOptionOpt.getProduct());
-            UserGetDto userGetDto = userService.getDtoByEntity(projOptionOpt.getUser());
-            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(projOptionOpt.getCategory());
-            ProductOptionGetDto productOptionGetDto = this.getDtoByEntitiy(projOptionOpt.getProductOption());
-
-            productOptionJoinResDto.setProduct(productGetDto).setUser(userGetDto).setCategory(categoryGetDto)
-                    .setOption(productOptionGetDto);
-
-            productOptionJoinResDtos.add(productOptionJoinResDto);
+        for (ProductOptionProj projOptionOpt : productOptionProjs) {
+            productOptionJoinResDtos.add(searchOneO2MJ(projOptionOpt.getProductOption().getCid()));
         }
         return productOptionJoinResDtos;
     }
 
-    // TODO(READ) :: ADD NEW
     /**
      * <b>DB Select Related Method</b>
      * <p>
@@ -195,7 +182,7 @@ public class ProductOptionService {
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
         for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(getDtoByEntitiy(optionEntity));
+            productOptionDto.add(getDtoByEntity(optionEntity));
         }
 
         return productOptionDto;
@@ -259,8 +246,7 @@ public class ProductOptionService {
      * @param userId
      * @return ProductOptionEntity
      */
-    private ProductOptionEntity convEntitiyByDto(ProductOptionGetDto productOptionDto, UUID userId,
-            Integer productCid) {
+    private ProductOptionEntity convEntitiyByDto(ProductOptionGetDto productOptionDto, UUID userId, Integer productCid) {
         ProductOptionEntity productOptionEntity = new ProductOptionEntity();
 
         productOptionEntity.setId(UUID.randomUUID()).setDefaultName(productOptionDto.getDefaultName())
@@ -340,6 +326,28 @@ public class ProductOptionService {
             }
 
             productOptionEntity.setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+            productOptionRepository.save(productOptionEntity);
+        }, null);
+    }
+
+    public void receiveProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
+
+        productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
+            productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() + receiveUnit)
+                               .setUpdatedAt(dateHandler.getCurrentDate())
+                               .setUpdatedBy(userId);
+
+            productOptionRepository.save(productOptionEntity);
+        }, null);
+    }
+
+    public void releaseProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
+
+        productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
+            productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() - receiveUnit)
+                               .setUpdatedAt(dateHandler.getCurrentDate())
+                               .setUpdatedBy(userId);
 
             productOptionRepository.save(productOptionEntity);
         }, null);

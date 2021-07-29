@@ -22,7 +22,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
-        "JOIN UserEntity u ON p.createdBy = u.id\n"+
+        "JOIN UserEntity u ON po.createdBy = u.id\n"+
         "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
         "WHERE po.cid=:cid"
     )
@@ -31,7 +31,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
-        "JOIN UserEntity u ON p.createdBy = u.id\n"+
+        "JOIN UserEntity u ON po.createdBy = u.id\n"+
         "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid"
     )
     List<ProductOptionProj> selectAll();

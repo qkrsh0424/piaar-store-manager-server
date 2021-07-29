@@ -3,7 +3,6 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.model.product.entity.ProductJEntity;
 import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/v1/product")
 public class ProductApiController {
@@ -30,26 +26,26 @@ public class ProductApiController {
      *
      * Search one api for product.
      * <p>
-     * <b>GET : API URL => /api/v1/product/one/{productId}</b>
+     * <b>GET : API URL => /api/v1/product/one/{productCid}</b>
      *
-     * @param productId
+     * @param productCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductService#searchOne
      */
-    @GetMapping("/one/{productId}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productId") Integer productId) {
+    @GetMapping("/one/{productCid}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
 
         try{
-            message.setData(productService.searchOne(productId));
+            message.setData(productService.searchOne(productCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productId=" + productId + " value.");
+            message.setMessage("Not found productCid=" + productCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
@@ -58,26 +54,29 @@ public class ProductApiController {
      *
      * Search one api for product.
      * <p>
-     * <b>GET : API URL => /api/v1/product/one-o2mj/{productId}</b>
-     *
-     * @param productId
+     * <b>GET : API URL => /api/v1/product/one-m2oj/{productCid}</b>
+     * <p>
+     * Product cid 값과 상응되는 데이터를 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * 
+     * @param productCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOneOTMJ
+     * @see ProductService#searchOneM2OJ
      */
-    @GetMapping("/one-o2mj/{productId}")
-    public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productId") Integer productId) {
+    @GetMapping("/one-m2oj/{productCid}")
+    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
 
         try{
-            message.setData(productService.searchOneO2MJ(productId));
+            message.setData(productService.searchOneM2OJ(productCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productId=" + productId + " value.");
+            message.setMessage("Not found productCid=" + productCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
@@ -87,25 +86,28 @@ public class ProductApiController {
      * Search one api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/one-fj/{productId}</b>
-     *
-     * @param productId
+     * <p>
+     * Product id 값과 상응되는 데이터를 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 Full JOIN(fj) 상태를 조회한다.
+     * 
+     * @param productCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOneFullJoin
+     * @see ProductService#searchOneFJ
      */
-    @GetMapping("/one-fj/{productId}")
-    public ResponseEntity<?> searchOneFullJoin(@PathVariable(value = "productId") Integer productId) {
+    @GetMapping("/one-fj/{productCid}")
+    public ResponseEntity<?> searchOneFJ(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
 
         try{
-            message.setData(productService.searchOneFullJoin(productId));
+            message.setData(productService.searchOneFJ(productCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productId=" + productId + " value.");
+            message.setMessage("Not found productCid=" + productCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
@@ -142,11 +144,11 @@ public class ProductApiController {
      * @see ProductService#searchListO2MJ
      */
     @GetMapping("/list-o2mj")
-    public ResponseEntity<?> searchListOTMJ() {
+    public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
 
         try{
-            message.setData(productService.searchListO2MJ());
+            message.setData(productService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
@@ -166,14 +168,14 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchListFullJoin
+     * @see ProductService#searchListFJ
      */
     @GetMapping("/list-fj")
-    public ResponseEntity<?> searchListFullJoin() {
+    public ResponseEntity<?> searchListFJ() {
         Message message = new Message();
 
         try{
-            message.setData(productService.searchListFullJoin());
+            message.setData(productService.searchListFJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
@@ -183,18 +185,20 @@ public class ProductApiController {
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
-
+    
     /**
      * Create one api for product.
      * <p>
+     * <b>Permission level => Manager</b>
+     * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
      * 
-     * @param ProductCreateReqDto
+     * @param productCreateReqDto : ProductCreateReqDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductCreateReqDto
-     * @see ProductService#createOne
+     * @see ProductService#createPAO
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductCreateReqDto productCreateReqDto) {
@@ -221,9 +225,11 @@ public class ProductApiController {
     /**
      * Create list api for product.
      * <p>
+     * <b>Permission level => Manager</b>
+     * <p>
      * <b>POST : API URL => /api/v1/product/list</b>
      * 
-     * @param ProductCreateReqDto : List
+     * @param productCreateReqDto : List::ProductCreateReqDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -253,7 +259,7 @@ public class ProductApiController {
     }
 
     /**
-     * Destroy( Delete or Remove ) one for product.
+     * Destroy( Delete or Remove ) one api for product.
      * <p>
      * <b>Permission level => Manager</b>
      * <p>
@@ -275,7 +281,6 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
-            // TODO : 권한이 ROLE_MANAGER 이상인 유저만 삭제 가능
             try{
                 productService.destroyOne(productId);
                 message.setStatus(HttpStatus.OK);
@@ -290,17 +295,17 @@ public class ProductApiController {
     }
 
     /**
-     * Change product
+     * Change one api for product
      * <p>
      * <b>Permission level => Manager</b>
      * <p>
      * <b>PUT : API URL => /api/v1/product/one</b>
      *
-     * @param productGetDto
+     * @param productGetDto : ProductGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#patchOne
+     * @see ProductService#changeOne
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductGetDto productGetDto) {
@@ -325,7 +330,42 @@ public class ProductApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) product
+     * Change list api for product
+     * <p>
+     * <b>Permission level => Manager</b>
+     * <p>
+     * <b>PUT : API URL => /api/v1/product/list</b>
+     *
+     * @param productGetDto : List::ProductCreateReqDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductService#changePAOList
+     */
+    @PutMapping("/list")
+    public ResponseEntity<?> changePAOList(@RequestBody List<ProductCreateReqDto> productCreateReqDto) {
+        Message message = new Message();
+
+        // 유저 로그인 상태체크.
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else {
+            try{
+                productService.changePAOList(productCreateReqDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Patch( Delete or Remove ) one api for product
      * <p>
      * <b>Permission level => Manager</b>
      * <p>
@@ -348,7 +388,7 @@ public class ProductApiController {
             message.setMemo("need login");
         } else {
             try{
-                productService.changeOne(productGetDto, userService.getUserId());
+                productService.patchOne(productGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
