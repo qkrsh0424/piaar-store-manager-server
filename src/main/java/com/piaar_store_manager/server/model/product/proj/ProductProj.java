@@ -5,9 +5,8 @@ import com.piaar_store_manager.server.model.product_category.entity.ProductCateg
 import com.piaar_store_manager.server.model.user.entity.UserEntity;
 
 /**
- * 자기 자신과 One To Many 관계에 놓여있는 값들과 JOIN
+ * 자기 자신과 Many To One 관계에 놓여있는 값들과 JOIN
  */
-// TODO(READ) :: ADD NEW 
 public interface ProductProj {
     ProductEntity getProduct();
     ProductCategoryEntity getCategory();

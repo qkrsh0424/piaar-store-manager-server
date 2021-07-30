@@ -44,19 +44,14 @@ public class ProductReceiveService {
     @Autowired
     private UserService userService;
 
-    public ProductReceiveGetDto searchOne(Integer productReceiveId) {
-        Optional<ProductReceiveEntity> productEntityOpt = productReceiveRepository.findById(productReceiveId);
-        ProductReceiveGetDto dto = new ProductReceiveGetDto();
-
-        if (productEntityOpt.isPresent()) {
-            dto = getDtoByEntity(productEntityOpt.get());
-        } else {
-            throw new NullPointerException();
-        }
-
-        return dto;
-    }
-
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReceiveEntity => ProductReceiveGetDto
+     * 
+     * @param productReceiveEntity : ProductReceiveEntity
+     * @return ProductReceiveGetDto
+     */
     public ProductReceiveGetDto getDtoByEntity(ProductReceiveEntity entity) {
         ProductReceiveGetDto dto = new ProductReceiveGetDto();
 
@@ -71,22 +66,15 @@ public class ProductReceiveService {
         return dto;
     }
 
-    public List<ProductReceiveGetDto> searchList() {
-        List<ProductReceiveEntity> entities = productReceiveRepository.findAll();
-        List<ProductReceiveGetDto> dtos = new ArrayList<>();
-
-        for(ProductReceiveEntity entity : entities){
-            dtos.add(getDtoByEntity(entity));
-        }
-        return dtos;
-    }
-
-    public void createRP(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
-        ProductReceiveEntity entity = convEntityByDto(productReceiveGetDto, userId);
-        productReceiveRepository.save(entity);
-        productOptionService.receiveProductUnit(productReceiveGetDto.getProductOptionCid(), userId, entity.getReceiveUnit());
-    }
-
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReceiveGetDto => ProductReceiveEntity
+     * 
+     * @param dto : ProductReceiveGetDto
+     * @param userId : UUID
+     * @return ProductReceiveEntity
+     */
     public ProductReceiveEntity convEntityByDto(ProductReceiveGetDto dto, UUID userId) {
         ProductReceiveEntity entity = new ProductReceiveEntity();
 
@@ -100,7 +88,133 @@ public class ProductReceiveService {
         return entity;
     }
 
-    public void createRPList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
+     *
+     * @param productCid : Integer
+     * @return ProductReceiveGetDto
+     * @see ProductReceiveRepository#findById
+     */
+    public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
+        Optional<ProductReceiveEntity> productEntityOpt = productReceiveRepository.findById(productReceiveCid);
+        ProductReceiveGetDto dto = new ProductReceiveGetDto();
+
+        if (productEntityOpt.isPresent()) {
+            dto = getDtoByEntity(productEntityOpt.get());
+        } else {
+            throw new NullPointerException();
+        }
+
+        return dto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
+     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @param productReceiveCid : Integer
+     * @return ProductReceiveJoinResDto
+     * @see ProductReceiveRepository#selectByCid
+     * @see ProductOptionService#getDtoByEntity
+     * @see ProductService#getDtoByEntity
+     * @see ProductCategoryService#getDtoByEntity
+     * @see UserService#getDtoByEntity
+     */
+    public ProductReceiveJoinResDto searchOneM2OJ(Integer productReceiveCid){
+        ProductReceiveJoinResDto productReceiveResDto = new ProductReceiveJoinResDto();
+
+        Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.selectByCid(productReceiveCid);
+
+        if(productReceiveProjOpt.isPresent()) {
+            ProductReceiveGetDto productReceiveDto = this.getDtoByEntity(productReceiveProjOpt.get().getProductReceive());
+            ProductOptionGetDto productOptionDto = productOptionService.getDtoByEntity(productReceiveProjOpt.get().getProductOption());
+            ProductGetDto productDto = productService.getDtoByEntity(productReceiveProjOpt.get().getProduct());
+            ProductCategoryGetDto productCategoryDto = productCategoryService.getDtoByEntity(productReceiveProjOpt.get().getCategory());
+            UserGetDto userDto = userService.getDtoByEntity(productReceiveProjOpt.get().getUser());
+
+            productReceiveResDto.setReceive(productReceiveDto)
+                                .setOption(productOptionDto)
+                                .setProduct(productDto)
+                                .setCategory(productCategoryDto)
+                                .setUser(userDto);
+
+        } else {
+            throw new NullPointerException();
+        }
+            
+        return productReceiveResDto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductReceive 데이터를 모두 조회한다.
+     * 
+     * @return List::ProductReceiveGetDto::
+     * @see ProductReceiveRepository#findAll
+     */
+    public List<ProductReceiveGetDto> searchList() {
+        List<ProductReceiveEntity> entities = productReceiveRepository.findAll();
+        List<ProductReceiveGetDto> dtos = new ArrayList<>();
+
+        for(ProductReceiveEntity entity : entities){
+            dtos.add(getDtoByEntity(entity));
+        }
+        return dtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductReceive 데이터를 모두 조회한다.
+     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @return List::ProductReceiveJoinResDto::
+     * @see ProductReceiveRepository#selectAll
+     */
+    public List<ProductReceiveJoinResDto> searchListM2OJ() {
+        List<ProductReceiveJoinResDto> productReceiveJoinResDtos = new ArrayList<>();
+        List<ProductReceiveProj> productReceiveProjs = productReceiveRepository.selectAll();
+        
+        for (ProductReceiveProj projReceiveOpt : productReceiveProjs) {
+            productReceiveJoinResDtos.add(searchOneM2OJ(projReceiveOpt.getProductReceive().getCid()));
+        }
+        return productReceiveJoinResDtos;
+    }
+
+    /**
+     * <b>DB Insert Related Method</b>
+     * <p>
+     * ProductReceive 내용을 한개 등록한다.
+     * 상품 입고 개수만큼 ProductOption 데이터에 반영한다.
+     * 
+     * @param productReceiveGetDto : ProductReceiveGetDto
+     * @param userId : UUID
+     * @see ProductReceiveRepository#save
+     * @see ProductOptionService#receiveProductUnit
+     */
+    public void createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
+        ProductReceiveEntity entity = convEntityByDto(productReceiveGetDto, userId);
+        productReceiveRepository.save(entity);
+        productOptionService.receiveProductUnit(productReceiveGetDto.getProductOptionCid(), userId, entity.getReceiveUnit());
+    }
+
+    /**
+     * <b>DB Insert Related Method</b>
+     * <p>
+     * ProductReceive 내용을 여러개 등록한다.
+     * 상품 입고 개수만큼 ProductOption 데이터에 반영한다.
+     * 
+     * @param productReceiveGetDto : List::ProductReceiveGetDto::
+     * @param userId : UUID
+     * @see ProductReceiveRepository#save
+     * @see ProductOptionService#receiveProductUnit
+     */
+    public void createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
         ProductReceiveEntity entity = new ProductReceiveEntity();
         
         for(ProductReceiveGetDto dto : productReceiveGetDtos) {
@@ -110,13 +224,36 @@ public class ProductReceiveService {
         }
     }
 
-    public void destroyOne(Integer productReceiveId, UUID userId) {
-        productReceiveRepository.findById(productReceiveId).ifPresent(releaseProduct -> {
-            productOptionService.releaseProductUnit(releaseProduct.getProductOptionCid(), userId, releaseProduct.getReceiveUnit());
-            productReceiveRepository.delete(releaseProduct);
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터를 삭제한다.
+     * 
+     * @param productReceiveCid : Integer
+     * @param userId : UUID
+     * @see ProductReceiveRepository#findById
+     * @see ProductOptionService#releaseProductUnit
+     * @see ProductReceiveRepository#delete
+     */
+    public void destroyOne(Integer productReceiveCid, UUID userId) {
+        productReceiveRepository.findById(productReceiveCid).ifPresent(product -> {
+            productOptionService.releaseProductUnit(product.getProductOptionCid(), userId, product.getReceiveUnit());
+            productReceiveRepository.delete(product);
         });
     }
 
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터를 업데이트한다.
+     * 
+     * @param receiveDto : ProductReceiveGetDto
+     * @param userId : UUID
+     * @see ProductReceiveRepository#findById
+     * @see ProductOptionService#releaseProductUnit
+     * @see ProductReceiveRepository#save
+     * @see ProductOptionService#receiveProductUnit
+     */
     public void changeOne(ProductReceiveGetDto receiveDto, UUID userId) {
         productReceiveRepository.findById(receiveDto.getCid()).ifPresentOrElse(changeEntity -> {
             
@@ -134,6 +271,14 @@ public class ProductReceiveService {
         }, null);
     }
 
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 각 상품마다 ProductReceive cid 값과 상응되는 데이터를 업데이트한다.
+     * 
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
+     * @param userId :: UUID
+     */
     public void changeList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
 
         for(ProductReceiveGetDto dto : productReceiveGetDtos) {
@@ -141,6 +286,18 @@ public class ProductReceiveService {
         }
     }
 
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터의 일부분을 업데이트한다.
+     * 
+     * @param receiveDto : ProductReceiveGetDto
+     * @param userId : UUID
+     * @see ProductReceiveRepository#findById
+     * @see ProductOptionService#releaseProductUnit
+     * @see ProductReceiveRepository#save
+     * @see ProductOptionService#receiveProductUnit
+     */
     public void patchOne(ProductReceiveGetDto receiveDto, UUID userId) {
         productReceiveRepository.findById(receiveDto.getCid()).ifPresentOrElse(receiveEntity -> {
             if(receiveDto.getReceiveUnit() != null){
@@ -167,40 +324,4 @@ public class ProductReceiveService {
             }
         }, null);
     }
-
-    public ProductReceiveJoinResDto searchOneOTMJ(Integer productReceiveId){
-        ProductReceiveJoinResDto productReceiveResDto = new ProductReceiveJoinResDto();
-
-        Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.selectByCid(productReceiveId);
-
-        if(productReceiveProjOpt.isPresent()) {
-            ProductReceiveGetDto productReceiveDto = this.getDtoByEntity(productReceiveProjOpt.get().getProductReceive());
-            ProductOptionGetDto productOptionDto = productOptionService.getDtoByEntity(productReceiveProjOpt.get().getProductOption());
-            ProductGetDto productDto = productService.getDtoByEntity(productReceiveProjOpt.get().getProduct());
-            ProductCategoryGetDto productCategoryDto = productCategoryService.getDtoByEntity(productReceiveProjOpt.get().getCategory());
-            UserGetDto userDto = userService.getDtoByEntity(productReceiveProjOpt.get().getUser());
-
-            productReceiveResDto.setReceive(productReceiveDto)
-                                .setOption(productOptionDto)
-                                .setProduct(productDto)
-                                .setCategory(productCategoryDto)
-                                .setUser(userDto);
-
-        } else {
-            throw new NullPointerException();
-        }
-            
-        return productReceiveResDto;
-    }
-
-    public List<ProductReceiveJoinResDto> searchListOTMJ() {
-        List<ProductReceiveJoinResDto> productReceiveJoinResDtos = new ArrayList<>();
-        List<ProductReceiveProj> productReceiveProjs = productReceiveRepository.selectAll();
-        
-        for (ProductReceiveProj projReceiveOpt : productReceiveProjs) {
-            productReceiveJoinResDtos.add(searchOneOTMJ(projReceiveOpt.getProductReceive().getCid()));
-        }
-        return productReceiveJoinResDtos;
-    }
-
 }

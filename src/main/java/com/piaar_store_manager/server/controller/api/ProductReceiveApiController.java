@@ -30,22 +30,73 @@ public class ProductReceiveApiController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/one/{productReceiveId}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveId") Integer productReceiveId) {
+    /**
+     * Search one api for productReceive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
+     *
+     * @param productReceiveCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#searchOne
+     */
+    @GetMapping("/one/{productReceiveCid}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
         try{
-            message.setData(productReceiveService.searchOne(productReceiveId));
+            message.setData(productReceiveService.searchOne(productReceiveCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReceiveId=" + productReceiveId + " value.");
+            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
 
+    /**
+     * Search one api for productReceive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/one-m2oj/{productCid}</b>
+     * <p>
+     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
+     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * 
+     * @param productReceiveCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#searchOneM2OJ
+     */
+    @GetMapping("/one-m2oj/{productReceiveCid}")
+    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+        Message message = new Message();
+
+        try{
+            message.setData(productReceiveService.searchOneM2OJ(productReceiveCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     * Search list api for productReceive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/list</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#searchList
+     */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -55,6 +106,46 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search list api for productReceive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
+     * ProductReceive 데이터를 조회한다.
+     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#searchListM2OJ
+     */
+    @GetMapping("/list-m2oj")
+    public ResponseEntity<?> searchListM2OJ() {
+        Message message = new Message();
+
+        try{
+            message.setData(productReceiveService.searchListM2OJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("No Data.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     * Create one api for productReceive.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-receive/one</b>
+     * 
+     * @param productReceiveGetDto : ProductReceiveGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#createPR
+     * @see UserService#getUserId
+     */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
@@ -66,7 +157,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReceiveService.createRP(productReceiveGetDto, userService.getUserId());
+                productReceiveService.createPR(productReceiveGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -77,6 +168,18 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Create list api for productReceive.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-receive/list</b>
+     * 
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#createPRList
+     * @see UserService#getUserId
+     */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
@@ -88,7 +191,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReceiveService.createRPList(productReceiveGetDtos, userService.getUserId());
+                productReceiveService.createPRList(productReceiveGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -99,8 +202,20 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @DeleteMapping("/one/{productReceiveId}")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveId") Integer productReceiveId) {
+    /**
+     * Destroy( Delete or Remove ) one api for productReceive.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
+     *
+     * @param productReceiveCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#destroyOne
+     * @see UserService#getUserId
+     */
+    @DeleteMapping("/one/{productReceiveCid}")
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
         // 유저 로그인 상태체크.
@@ -110,7 +225,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReceiveService.destroyOne(productReceiveId, userService.getUserId());
+                productReceiveService.destroyOne(productReceiveCid, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -122,8 +237,20 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Change one api for productReceive
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-receive/one</b>
+     *
+     * @param receiveDto : ProductReceiveGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#changeOne
+     * @see UserService#getUserId
+     */
     @PutMapping("/one")
-    public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto optionDto) {
+    public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
 
         // 유저 로그인 상태체크.
@@ -133,7 +260,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReceiveService.changeOne(optionDto, userService.getUserId());
+                productReceiveService.changeOne(receiveDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -144,6 +271,18 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Change list api for productReceive
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-receive/list</b>
+     *
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReceiveService#changeList
+     * @see UserService#getUserId
+     */
     @PutMapping("/list")
     public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
@@ -166,6 +305,18 @@ public class ProductReceiveApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Patch( Delete or Remove ) one api for productReceive
+     * <p>
+     * <b>PATCH : API URL => /api/v1/product-receive/one</b>
+     *
+     * @param productReceiveGetDto : ProductReceiveGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReceiveService#patchOne
+     * @see UserService#getUserId
+     */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
@@ -186,37 +337,5 @@ public class ProductReceiveApiController {
             }
         }
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/one-o2mj/{productReceiveId}")
-    public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productReceiveId") Integer productReceiveId) {
-        Message message = new Message();
-
-        try{
-            message.setData(productReceiveService.searchOneOTMJ(productReceiveId));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReceiveId=" + productReceiveId + " value.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
-    }
-
-    @GetMapping("/list-o2mj")
-    public ResponseEntity<?> searchListOTMJ() {
-        Message message = new Message();
-
-        try{
-            message.setData(productReceiveService.searchListOTMJ());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("No Data.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
     }
 }

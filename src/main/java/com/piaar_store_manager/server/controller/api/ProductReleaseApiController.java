@@ -30,22 +30,73 @@ public class ProductReleaseApiController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/one/{productReleaseId}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseId") Integer productReleaseId) {
+    /**
+     * Search one api for productRelease.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-release/one/{productReleaseCid}</b>
+     *
+     * @param productReleaseCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReleaseService#searchOne
+     */
+    @GetMapping("/one/{productReleaseCid}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
 
         try{
-            message.setData(productReleaseService.searchOne(productReleaseId));
+            message.setData(productReleaseService.searchOne(productReleaseCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReleaseId=" + productReleaseId + " value.");
+            message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
 
+    /**
+     * Search one api for productRelease.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-release/one-m2oj/{productCid}</b>
+     * <p>
+     * ProductRelease cid 값과 상응되는 데이터를 조회한다.
+     * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * 
+     * @param productReleaseCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReleaseService#searchOneM2OJ
+     */
+    @GetMapping("/one-m2oj/{productReleaseCid}")
+    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
+        Message message = new Message();
+
+        try{
+            message.setData(productReleaseService.searchOneM2OJ(productReleaseCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     * Search list api for productRelease.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-release/list</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReleaseService#searchList
+     */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -55,6 +106,46 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search list api for productRelease.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-release/list-m2oj</b>
+     * ProductRelease 데이터를 조회한다.
+     * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReleaseService#searchListM2OJ
+     */
+    @GetMapping("/list-m2oj")
+    public ResponseEntity<?> searchListM2OJ() {
+        Message message = new Message();
+
+        try{
+            message.setData(productReleaseService.searchListM2OJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+            return new ResponseEntity<>(message, message.getStatus());
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("No Data.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+    }
+
+    /**
+     * Create one api for productRelease.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-release/one</b>
+     * 
+     * @param productReleaseGetDto : ProductReleaseGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#createPR
+     * @see UserService#getUserId
+     */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();
@@ -66,7 +157,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReleaseService.createRP(productReleaseGetDto, userService.getUserId());
+                productReleaseService.createPR(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -77,6 +168,18 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Create list api for productRelease.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-release/list</b>
+     * 
+     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#createPRList
+     * @see UserService#getUserId
+     */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
@@ -88,7 +191,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReleaseService.createRPList(productReleaseGetDtos, userService.getUserId());
+                productReleaseService.createPRList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -99,8 +202,20 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @DeleteMapping("/one/{productReleaseId}")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseId") Integer productReleaseId) {
+    /**
+     * Destroy( Delete or Remove ) one api for productRelease.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/product-release/one/{productreleaseCid}</b>
+     *
+     * @param productReleaseCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#destroyOne
+     * @see UserService#getUserId
+     */
+    @DeleteMapping("/one/{productReleaseCid}")
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
 
         // 유저 로그인 상태체크.
@@ -110,7 +225,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else {
             try{
-                productReleaseService.destroyOne(productReleaseId, userService.getUserId());
+                productReleaseService.destroyOne(productReleaseCid, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -122,6 +237,18 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Change one api for productRelease
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-release/one</b>
+     *
+     * @param releaseDto : ProductReleaseGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#changeOne
+     * @see UserService#getUserId
+     */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductReleaseGetDto releaseDto) {
         Message message = new Message();
@@ -144,6 +271,18 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Change list api for productRelease
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-release/list</b>
+     *
+     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see productReleaseService#changeList
+     * @see UserService#getUserId
+     */
     @PutMapping("/list")
     public ResponseEntity<?> changeList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
@@ -166,6 +305,18 @@ public class ProductReleaseApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Patch( Delete or Remove ) one api for productRelease
+     * <p>
+     * <b>PATCH : API URL => /api/v1/product-release/one</b>
+     *
+     * @param productReleaseGetDto : ProductReleaseGetDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#patchOne
+     * @see UserService#getUserId
+     */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();
@@ -186,37 +337,5 @@ public class ProductReleaseApiController {
             }
         }
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/one-o2mj/{productReleaseId}")
-    public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productReleaseId") Integer productReleaseId) {
-        Message message = new Message();
-
-        try{
-            message.setData(productReleaseService.searchOneOTMJ(productReleaseId));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReleaseId=" + productReleaseId + " value.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
-    }
-
-    @GetMapping("/list-o2mj")
-    public ResponseEntity<?> searchListOTMJ() {
-        Message message = new Message();
-
-        try{
-            message.setData(productReleaseService.searchListOTMJ());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("No Data.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
     }
 }

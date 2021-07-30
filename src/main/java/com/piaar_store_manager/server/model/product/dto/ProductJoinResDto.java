@@ -12,7 +12,6 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-// TODO(READ) :: ADD NEW 
 public class ProductJoinResDto {
     ProductGetDto product;
     ProductCategoryGetDto category;

@@ -38,7 +38,7 @@ public class ProductService {
     private ProductCategoryService productCategoryService; 
 
     @Autowired
-    UserService userService;
+    private UserService userService;
 
     /**
      * <b>Convert Method</b>
@@ -72,7 +72,7 @@ public class ProductService {
      * @param userId : UUID
      * @return ProductEntity
      */
-    private ProductEntity convEntitiyByDto(ProductGetDto productDto, UUID userId) {
+    private ProductEntity convEntityByDto(ProductGetDto productDto, UUID userId) {
         ProductEntity productEntity = new ProductEntity();
 
         productEntity.setId(UUID.randomUUID()).setCode(productDto.getCode())
@@ -180,7 +180,7 @@ public class ProductService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 등록된 상품들을 모두 조회한다.
+     * Product 데이터를 모두 조회한다.
      * 
      * @return List::ProductGetDto::
      * @see ProductRepository#findAll
@@ -244,7 +244,7 @@ public class ProductService {
      * @see ProductRepository#save
      */
     public void createOne(ProductGetDto productGetDto, UUID userId) {
-        ProductEntity entity = convEntitiyByDto(productGetDto, userId);
+        ProductEntity entity = convEntityByDto(productGetDto, userId);
         productRepository.save(entity);
     }
 
@@ -259,7 +259,7 @@ public class ProductService {
      * @see ProductOptionService#createList
      */
     public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
-        ProductEntity entity = convEntitiyByDto(productCreateReqDto.getProductDto(), userId);
+        ProductEntity entity = convEntityByDto(productCreateReqDto.getProductDto(), userId);
         ProductEntity savedProductEntity = productRepository.save(entity);
 
         productOptionService.createList(productCreateReqDto.getOptionDtos(), userId, savedProductEntity.getCid());
@@ -280,7 +280,7 @@ public class ProductService {
         ProductEntity savedProductEntity = new ProductEntity();
 
         for (ProductCreateReqDto dto : productCreateReqDtos) {
-            entity = convEntitiyByDto(dto.getProductDto(), userId);
+            entity = convEntityByDto(dto.getProductDto(), userId);
             savedProductEntity = productRepository.save(entity);
             productOptionService.createList(dto.getOptionDtos(), userId, savedProductEntity.getCid());
         }

@@ -17,7 +17,6 @@ public class ProductCategoryApiController {
     private ProductCategoryService productCategoryService;
 
     /**
-     *
      * Search list api for productCategory.
      * <p>
      * <b>GET : API URL => /api/v1/product-category/list</b>
@@ -27,7 +26,6 @@ public class ProductCategoryApiController {
      * @see HttpStatus
      * @see ProductCategoryService#searchList
      */
-    // TODO : Category 기본 메소드 명세 작성
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
         Message message = new Message();

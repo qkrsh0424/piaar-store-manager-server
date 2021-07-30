@@ -23,7 +23,6 @@ public class ProductApiController {
     private UserService userService;
 
     /**
-     *
      * Search one api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/one/{productCid}</b>
@@ -51,7 +50,6 @@ public class ProductApiController {
     }
 
     /**
-     *
      * Search one api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/one-m2oj/{productCid}</b>
@@ -82,7 +80,6 @@ public class ProductApiController {
     }
 
     /**
-     *
      * Search one api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/one-fj/{productId}</b>
@@ -113,7 +110,6 @@ public class ProductApiController {
     }
 
     /**
-     *
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list</b>
@@ -133,17 +129,16 @@ public class ProductApiController {
     }
 
     /**
-     *
      * Search list api for product.
      * <p>
-     * <b>GET : API URL => /api/v1/product/list-o2mj</b>
+     * <b>GET : API URL => /api/v1/product/list-m2oj</b>
      *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchListO2MJ
+     * @see ProductService#searchListM2OJ
      */
-    @GetMapping("/list-o2mj")
+    @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
 
@@ -160,7 +155,6 @@ public class ProductApiController {
     }
 
     /**
-     *
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list-fj</b>
@@ -189,16 +183,14 @@ public class ProductApiController {
     /**
      * Create one api for product.
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
      * 
      * @param productCreateReqDto : ProductCreateReqDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductCreateReqDto
      * @see ProductService#createPAO
+     * @see UserService#getUserId
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductCreateReqDto productCreateReqDto) {
@@ -225,16 +217,14 @@ public class ProductApiController {
     /**
      * Create list api for product.
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
      * <b>POST : API URL => /api/v1/product/list</b>
      * 
      * @param productCreateReqDto : List::ProductCreateReqDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductCreateReqDto
      * @see ProductService#createList
+     * @see UserService#getUserId
      */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductCreateReqDto> productCreateReqDtos) {
@@ -260,8 +250,6 @@ public class ProductApiController {
 
     /**
      * Destroy( Delete or Remove ) one api for product.
-     * <p>
-     * <b>Permission level => Manager</b>
      * <p>
      * <b>DELETE : API URL => /api/v1/product/one/{productId}</b>
      *
@@ -297,8 +285,6 @@ public class ProductApiController {
     /**
      * Change one api for product
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
      * <b>PUT : API URL => /api/v1/product/one</b>
      *
      * @param productGetDto : ProductGetDto
@@ -306,6 +292,7 @@ public class ProductApiController {
      * @see Message
      * @see HttpStatus
      * @see ProductService#changeOne
+     * @see UserService#getUserId
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductGetDto productGetDto) {
@@ -332,8 +319,6 @@ public class ProductApiController {
     /**
      * Change list api for product
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
      * <b>PUT : API URL => /api/v1/product/list</b>
      *
      * @param productGetDto : List::ProductCreateReqDto::
@@ -341,6 +326,7 @@ public class ProductApiController {
      * @see Message
      * @see HttpStatus
      * @see ProductService#changePAOList
+     * @see UserService#getUserId
      */
     @PutMapping("/list")
     public ResponseEntity<?> changePAOList(@RequestBody List<ProductCreateReqDto> productCreateReqDto) {
@@ -367,15 +353,14 @@ public class ProductApiController {
     /**
      * Patch( Delete or Remove ) one api for product
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
      * <b>PATCH : API URL => /api/v1/product/one</b>
      *
-     * @param productGetDto
+     * @param productGetDto : ProductGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductService#patchOne
+     * @see UserService#getUserId
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductGetDto productGetDto) {

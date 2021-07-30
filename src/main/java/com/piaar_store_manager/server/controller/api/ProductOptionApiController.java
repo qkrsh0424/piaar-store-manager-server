@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
-import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -21,62 +20,62 @@ public class ProductOptionApiController {
     private UserService userService;
 
     /**
-     *
      * Search one api for productOption.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/{productOptionId}</b>
+     * <b>GET : API URL => /api/v1/product-option/one/{productOptionCid}</b>
      *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductOptionService#searchOne
      */
-    @GetMapping("/one/{productOptionId}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionId") Integer productOptionId){
+    @GetMapping("/one/{productOptionCid}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid){
         Message message = new Message();
 
         try{
-            message.setData(productOptionService.searchOne(productOptionId));
+            message.setData(productOptionService.searchOne(productOptionCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productOptionId=" + productOptionId + " value.");
+            message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
 
     /**
-     *
      * Search one api for productOption.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/one-o2mj/{productOptionId}</b>
+     * <b>GET : API URL => /api/v1/product-option/one-m2oj/{productOptionCId}</b>
+     * <p>
+     * ProductOption cid 값과 상응되는 데이터를 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
-     * @param productOptionId
+     * @param productOptionCid
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchOneOTMJ
+     * @see ProductOptionService#searchOneM2OJ
      */
-    @GetMapping("/one-o2mj/{productOptionId}")
-    public ResponseEntity<?> searchOneOTMJ(@PathVariable(value = "productOptionId") Integer productOptionId) {
+    @GetMapping("/one-m2oj/{productOptionCid}")
+    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
 
         try{
-            message.setData(productOptionService.searchOneO2MJ(productOptionId));
+            message.setData(productOptionService.searchOneM2OJ(productOptionCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
         } catch (NullPointerException e) {
             message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productOptionId=" + productOptionId + " value.");
+            message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
             return new ResponseEntity<>(message, message.getStatus());
         }
     }
 
     /**
-     *
      * Search list api for productOption.
      * <p>
      * <b>GET : API URL => /api/v1/product-option/list</b>
@@ -96,22 +95,24 @@ public class ProductOptionApiController {
     }
 
     /**
-     *
      * Search list api for productOption.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/list-o2mj</b>
+     * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
+     * <p>
+     * ProductOption 데이터를 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchListO2MJ
+     * @see ProductOptionService#searchListM2OJ
      */
-    @GetMapping("/list-o2mj")
-    public ResponseEntity<?> searchListOTMJ() {
+    @GetMapping("/list-m2oj")
+    public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
 
         try{
-            message.setData(productOptionService.searchListO2MJ());
+            message.setData(productOptionService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
             return new ResponseEntity<>(message, message.getStatus());
@@ -126,13 +127,13 @@ public class ProductOptionApiController {
      * Create one api for productOption.
      * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
-     *
+     * 
      * @param productOptionGetDto : ProductOptionGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductGetDto
      * @see ProductOptionService#createOne
+     * @see UserService#getUserId
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -158,7 +159,7 @@ public class ProductOptionApiController {
     }
 
     /**
-     * Destroy( Delete or Remove ) one for productOption.
+     * Destroy( Delete or Remove ) one api for productOption.
      * <p>
      * <b>Permission level => Manager</b>
      * <p>
@@ -170,8 +171,8 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#destroyOne
      */
-    @DeleteMapping("/one/{productOptionId}")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionId") Integer productOptionId){
+    @DeleteMapping("/one/{productOptionCid}")
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionCid") Integer productOptionCid){
         Message message = new Message();
 
         // 유저 로그인 상태체크.
@@ -181,7 +182,7 @@ public class ProductOptionApiController {
             message.setMemo("need login");
         } else {
             try{
-                productOptionService.destroyOne(productOptionId);
+                productOptionService.destroyOne(productOptionCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -194,17 +195,16 @@ public class ProductOptionApiController {
     }
 
     /**
-     * Change productOption
+     * Change one api for productOption
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
-     * <b>PUT : API URL => /api/v1/product-option</b>
+     * <b>PUT : API URL => /api/v1/product-option/one</b>
      *
-     * @param productOptionGetDto
+     * @param productOptionGetDto : ProductOptionGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductOptionService#patchOne
+     * @see UserService#getUserId
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -230,17 +230,16 @@ public class ProductOptionApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) productOption
+     * Patch( Delete or Remove ) one api for productOption
      * <p>
-     * <b>Permission level => Manager</b>
-     * <p>
-     * <b>PATCH : API URL => /api/v1/product-option</b>
+     * <b>PATCH : API URL => /api/v1/product-option/one</b>
      *
-     * @param productOptionGetDto
+     * @param productOptionGetDto : ProductOptionGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductOptionService#patchOne
+     * @see UserService#getUserId
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -253,7 +252,7 @@ public class ProductOptionApiController {
             message.setMemo("need login");
         } else {
             try{
-                productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+                productOptionService.patchOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

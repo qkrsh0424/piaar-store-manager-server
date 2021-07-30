@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer> {
-    // TODO(READ) :: ADD NEW 
     @Query(
         "SELECT po FROM ProductOptionEntity po\n"+
         "WHERE po.productCid=:productCid"
