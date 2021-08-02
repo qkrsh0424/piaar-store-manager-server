@@ -45,16 +45,22 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
 
-        try{
-            message.setData(productReleaseService.searchOne(productReleaseCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
-            return new ResponseEntity<>(message, message.getStatus());
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            try {
+                message.setData(productReleaseService.searchOne(productReleaseCid));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
+            }
         }
+
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
@@ -75,16 +81,22 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
 
-        try{
-            message.setData(productReleaseService.searchOneM2OJ(productReleaseCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
-            return new ResponseEntity<>(message, message.getStatus());
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            try {
+                message.setData(productReleaseService.searchOneM2OJ(productReleaseCid));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("Not found productReleaseCid=" + productReleaseCid + " value.");
+            }
         }
+
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
@@ -100,9 +112,17 @@ public class ProductReleaseApiController {
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-        message.setData(productReleaseService.searchList());
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productReleaseService.searchList());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -122,16 +142,17 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
 
-        try{
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
             message.setData(productReleaseService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
-            return new ResponseEntity<>(message, message.getStatus());
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("No Data.");
-            return new ResponseEntity<>(message, message.getStatus());
         }
+
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
@@ -150,12 +171,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> createOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();
 
-         // 유저 로그인 상태체크.
-         if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        // 유저 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.createPR(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -164,7 +181,10 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -184,12 +204,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> createList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
 
-        // 유저 로그인 상태체크.
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.createPRList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -198,6 +214,8 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -218,12 +236,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
 
-        // 유저 로그인 상태체크.
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.destroyOne(productReleaseCid, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -232,6 +246,8 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -253,12 +269,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> changeOne(@RequestBody ProductReleaseGetDto releaseDto) {
         Message message = new Message();
 
-        // 유저 로그인 상태체크.
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        //유저의 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.changeOne(releaseDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -267,7 +279,10 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -287,12 +302,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> changeList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
 
-        // 유저 로그인 상태체크.
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        //유저의 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.changeList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -301,7 +312,10 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -321,12 +335,8 @@ public class ProductReleaseApiController {
     public ResponseEntity<?> patchOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();
 
-        // 유저 로그인 상태체크.
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
+        //유저의 권한을 체크한다.
+        if (userService.isManager()) {
             try{
                 productReleaseService.patchOne(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
@@ -335,7 +345,25 @@ public class ProductReleaseApiController {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }
+        } else {
+            userDenyCheck(message);
         }
+
         return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * <b>Check the type of user denial.</b>
+     */
+    public void userDenyCheck(Message message) {
+
+        if(!userService.isUserLogin()){
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        }else{
+            message.setMessage("access_denied");
+        }
+
+        message.setStatus(HttpStatus.FORBIDDEN);
     }
 }

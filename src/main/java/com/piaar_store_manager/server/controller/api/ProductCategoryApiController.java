@@ -2,6 +2,8 @@ package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
+import com.piaar_store_manager.server.service.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,9 @@ public class ProductCategoryApiController {
     @Autowired
     private ProductCategoryService productCategoryService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * Search list api for productCategory.
      * <p>
@@ -29,9 +34,17 @@ public class ProductCategoryApiController {
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
         Message message = new Message();
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-        message.setData(productCategoryService.searchList());
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productCategoryService.searchList());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 }
