@@ -65,7 +65,7 @@ public class FileUploadService{
         String fileName = this.storeFile(file);
             
         String fileUploadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                                    .path("/api/v1/file-upload/images/")
+                                    .path("/uploads/")
                                     .path(fileName)
                                     .toUriString();
             

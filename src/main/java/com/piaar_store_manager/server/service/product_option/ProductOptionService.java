@@ -53,6 +53,7 @@ public class ProductOptionService {
         productOptionDto
                 .setCid(productOptionEntity.getCid())
                 .setId(productOptionEntity.getId())
+                .setCode(productOptionEntity.getCode())
                 .setDefaultName(productOptionEntity.getDefaultName())
                 .setManagementName(productOptionEntity.getManagementName())
                 .setSalesPrice(productOptionEntity.getSalesPrice())
@@ -80,7 +81,7 @@ public class ProductOptionService {
     private ProductOptionEntity convEntityByDto(ProductOptionGetDto productOptionDto, UUID userId, Integer productCid) {
         ProductOptionEntity productOptionEntity = new ProductOptionEntity();
 
-        productOptionEntity.setId(UUID.randomUUID()).setDefaultName(productOptionDto.getDefaultName())
+        productOptionEntity.setId(UUID.randomUUID()).setCode(productOptionDto.getCode()).setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName()).setSalesPrice(productOptionDto.getSalesPrice())
                 .setStockUnit(productOptionDto.getStockUnit()).setStatus(productOptionDto.getStatus())
                 .setMemo(productOptionDto.getMemo()).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
@@ -259,7 +260,7 @@ public class ProductOptionService {
      */
     public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
         productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
-            productOptionEntity.setDefaultName(productOptionDto.getDefaultName())
+            productOptionEntity.setCode(productOptionDto.getCode()).setDefaultName(productOptionDto.getDefaultName())
                     .setManagementName(productOptionDto.getManagementName())
                     .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
@@ -282,6 +283,9 @@ public class ProductOptionService {
      */
     public void patchOne(ProductOptionGetDto productOptionDto, UUID userId) {
         productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
+            if (productOptionDto.getCode() != null) {
+                productOptionEntity.setCode(productOptionDto.getCode());
+            }
             if (productOptionDto.getDefaultName() != null) {
                 productOptionEntity.setDefaultName(productOptionDto.getDefaultName());
             }

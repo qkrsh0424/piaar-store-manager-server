@@ -11,6 +11,7 @@ import java.util.UUID;
 public class ProductOptionGetDto {
     private Integer cid;
     private UUID id;
+    private String code;
     private String defaultName;
     private String managementName;
     private Integer salesPrice;

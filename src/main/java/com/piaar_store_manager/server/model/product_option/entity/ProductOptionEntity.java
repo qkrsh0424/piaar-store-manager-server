@@ -23,6 +23,9 @@ public class ProductOptionEntity {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "code")
+    private String code;
+
     @Column(name = "default_name")
     private String defaultName;
 
