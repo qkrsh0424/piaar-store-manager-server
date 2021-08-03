@@ -166,6 +166,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseService#createPR
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
@@ -182,7 +183,7 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -199,6 +200,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseService#createPRList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
@@ -215,8 +217,9 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -231,6 +234,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseService#destroyOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReleaseCid}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
@@ -247,7 +251,7 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -264,6 +268,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseService#changeOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductReleaseGetDto releaseDto) {
@@ -280,7 +285,7 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -297,6 +302,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseService#changeList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
     public ResponseEntity<?> changeList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
@@ -313,7 +319,7 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -330,6 +336,7 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseService#patchOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
@@ -346,24 +353,9 @@ public class ProductReleaseApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
-
+        
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * <b>Check the type of user denial.</b>
-     */
-    public void userDenyCheck(Message message) {
-
-        if(!userService.isUserLogin()){
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        }else{
-            message.setMessage("access_denied");
-        }
-
-        message.setStatus(HttpStatus.FORBIDDEN);
     }
 }

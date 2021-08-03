@@ -155,6 +155,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#createOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -171,7 +172,7 @@ public class ProductOptionApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -189,6 +190,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see ProductOptionService#destroyOne
+     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productOptionCid}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionCid") Integer productOptionCid){
@@ -205,7 +207,7 @@ public class ProductOptionApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -222,6 +224,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#patchOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -238,7 +241,7 @@ public class ProductOptionApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -255,6 +258,7 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#patchOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductOptionGetDto productOptionGetDto){
@@ -271,25 +275,10 @@ public class ProductOptionApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * <b>Check the type of user denial.</b>
-     */
-    public void userDenyCheck(Message message) {
-
-        if(!userService.isUserLogin()){
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        }else{
-            message.setMessage("access_denied");
-        }
-
-        message.setStatus(HttpStatus.FORBIDDEN);
     }
 
 }

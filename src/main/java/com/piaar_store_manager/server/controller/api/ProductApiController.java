@@ -219,6 +219,7 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#createPAO
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductCreateReqDto productCreateReqDto) {
@@ -235,7 +236,7 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -252,6 +253,7 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#createList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductCreateReqDto> productCreateReqDtos) {
@@ -268,7 +270,7 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -284,6 +286,7 @@ public class ProductApiController {
      * @see Message
      * @see HttpStatus
      * @see ProductService#destroyOne
+     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productId}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
@@ -300,7 +303,7 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -317,6 +320,7 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#changeOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductGetDto productGetDto) {
@@ -333,7 +337,7 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -350,6 +354,7 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#changePAOList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
     public ResponseEntity<?> changePAOList(@RequestBody List<ProductCreateReqDto> productCreateReqDto) {
@@ -366,7 +371,7 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -383,6 +388,7 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#patchOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductGetDto productGetDto) {
@@ -399,24 +405,9 @@ public class ProductApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * <b>Check the type of user denial.</b>
-     */
-    public void userDenyCheck(Message message) {
-
-        if(!userService.isUserLogin()){
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        }else{
-            message.setMessage("access_denied");
-        }
-
-        message.setStatus(HttpStatus.FORBIDDEN);
     }
 }

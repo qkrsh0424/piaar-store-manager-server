@@ -182,7 +182,7 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -215,7 +215,7 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -248,7 +248,7 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -281,7 +281,7 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -314,7 +314,7 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -331,6 +331,7 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveService#patchOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
@@ -347,24 +348,9 @@ public class ProductReceiveApiController {
                 message.setMessage("error");
             }
         } else {
-            userDenyCheck(message);
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * <b>Check the type of user denial.</b>
-     */
-    public void userDenyCheck(Message message) {
-
-        if(!userService.isUserLogin()){
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        }else{
-            message.setMessage("access_denied");
-        }
-
-        message.setStatus(HttpStatus.FORBIDDEN);
     }
 }

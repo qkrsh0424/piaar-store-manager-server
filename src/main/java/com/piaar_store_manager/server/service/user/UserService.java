@@ -5,12 +5,14 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.config.auth.PrincipalDetails;
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.model.user.entity.UserEntity;
 import com.piaar_store_manager.server.model.user.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -128,5 +130,20 @@ public class UserService {
         PrincipalDetails principalDetails = (PrincipalDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
         return principalDetails.getUser().getId();
+    }
+
+    /**
+     * <b>Check the type of user denial.</b>
+     */
+    public void userDenyCheck(Message message) {
+
+        if(!this.isUserLogin()){
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        }else{
+            message.setMessage("access_denied");
+        }
+
+        message.setStatus(HttpStatus.FORBIDDEN);
     }
 }

@@ -15,7 +15,7 @@ public class WebMvcConfig implements WebMvcConfigurer{
         // TODO Auto-generated method stub
         registry
             .addResourceHandler("/uploads/**")
-            .addResourceLocations("file:///"+assetsPath+"/")
+            .addResourceLocations("file://"+assetsPath+"/")
             .setCachePeriod(0);
     }
 }
