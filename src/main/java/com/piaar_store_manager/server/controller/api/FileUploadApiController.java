@@ -41,6 +41,9 @@ public class FileUploadApiController {
      */
     @PostMapping("/uploadFile")
     public FileUploadResponse uploadFile(@RequestParam("file") MultipartFile file) {
+        // TODO : Upload 시에 파일의 extension을 체크하여 이미지가 아닌 파일은 거절해야됨.
+        // 개인적인 생각으로는 단일 업로드 메소드를 그냥 서비스로 넣어버리고 멀티업로드 API 만 구현해서 사용하는게 나을것 같아요
+
         String fileName = fileUploadservice.storeFile(file);
         
         String fileUploadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -61,6 +64,7 @@ public class FileUploadApiController {
      */
     @PostMapping("/uploadFiles")
     public List<FileUploadResponse> uploadFiles(@RequestParam("files") List<MultipartFile> files){
+        // TODO : Upload 시에 파일의 extension을 체크하여 이미지가 아닌 파일은 거절해야됨.
         return files.stream()
                     .map(file -> uploadFile(file))
                     .collect(Collectors.toList());
@@ -75,6 +79,7 @@ public class FileUploadApiController {
      * @param request : HttpServletRequest
      * @return ResponseEntity::UrlResource::
      */
+    // TODO (desc): 정적 리소스 매핑으로 파일 요청을 관리해주는게 더 좋아 보임.
     @GetMapping("/images/{fileName}")
     public ResponseEntity<UrlResource> getUploadFile(@PathVariable String fileName, HttpServletRequest request){
 
