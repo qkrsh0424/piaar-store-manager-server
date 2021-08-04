@@ -26,18 +26,20 @@ public class FileUploadApiController {
     private UserService userService;
 
     /**
-     * Upload files api for image files.
+     * Upload files api for image files to local.
      * <p>
      * <b>GET : API URL => /api/v1/file-upload/uploadFiles</b>
      * 
      * @param files : List::MultipartFile::
      * @return ResponseEntity(message, HttpStatus)
      * @see FileUploadService#uploadFiles
+     * @see UserService#userDenyCheck
      */
-    @PostMapping("/uploadFiles")
-    public ResponseEntity<?> uploadFiles(@RequestParam("files") List<MultipartFile> files) {
+    @PostMapping("/uploadFilesToLocal")
+    public ResponseEntity<?> uploadFilesToLocal(@RequestParam("files") List<MultipartFile> files) {
         Message message = new Message();
         
+        // file extension check.
         try{
             fileUploadservice.isImageFile(files);
         } catch(Exception e){
@@ -49,7 +51,47 @@ public class FileUploadApiController {
 
         if (userService.isManager()) {
             try{
-                message.setData(fileUploadservice.uploadFiles(files));
+                message.setData(fileUploadservice.uploadFilesToLocal(files));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Upload files api for image files to cloud.
+     * <p>
+     * <b>GET : API URL => /api/v1/file-upload/uploadFiles</b>
+     * 
+     * @param files : List::MultipartFile::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see FileUploadService#uploadFiles
+     * @see UserService#userDenyCheck
+     */
+    @PostMapping("/uploadFilesToCloud")
+    public ResponseEntity<?> uploadFilesToCloud(@RequestParam("files") List<MultipartFile> files) {
+        Message message = new Message();
+
+        // file extension check.
+        try{
+            fileUploadservice.isImageFile(files);
+        } catch(Exception e){
+            message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            message.setMessage("file_extension_error");
+            message.setMemo("This is not an image file.");
+            return new ResponseEntity<>(message, message.getStatus());
+        }
+
+        if (userService.isManager()) {
+            try{
+                message.setData(fileUploadservice.uploadFilesToCloud(files));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
