@@ -28,7 +28,7 @@ public class FileUploadApiController {
     /**
      * Upload files api for image files to local.
      * <p>
-     * <b>GET : API URL => /api/v1/file-upload/uploadFiles</b>
+     * <b>GET : API URL => /api/v1/file-upload/uploadFilesToLocal</b>
      * 
      * @param files : List::MultipartFile::
      * @return ResponseEntity(message, HttpStatus)
@@ -68,7 +68,7 @@ public class FileUploadApiController {
     /**
      * Upload files api for image files to cloud.
      * <p>
-     * <b>GET : API URL => /api/v1/file-upload/uploadFiles</b>
+     * <b>GET : API URL => /api/v1/file-upload/uploadFilesToCloud</b>
      * 
      * @param files : List::MultipartFile::
      * @return ResponseEntity(message, HttpStatus)
