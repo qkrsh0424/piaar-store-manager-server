@@ -27,11 +27,14 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     )
     Optional<ProductOptionProj> selectByCid(Integer cid);
 
+    // FIX : Added "ORDER BY" query for product_option.created_at ASC
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
         "JOIN UserEntity u ON po.createdBy = u.id\n"+
-        "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid"
+        "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
+        "ORDER BY po.createdAt ASC"
+
     )
     List<ProductOptionProj> selectAll();
 }

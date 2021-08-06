@@ -8,6 +8,7 @@ import com.piaar_store_manager.server.model.bank_type.entity.BankTypeEntity;
 import com.piaar_store_manager.server.model.bank_type.repository.BankTypeRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,7 +17,8 @@ public class BankTypeService {
     BankTypeRepository bankTypeRepo;
 
     public List<BankTypeDefDto> searchList(){
-        List<BankTypeEntity> bankTypeEntities = bankTypeRepo.findAll();
+        Sort sort = Sort.by(Sort.Direction.ASC, "bankTypeId");
+        List<BankTypeEntity> bankTypeEntities = bankTypeRepo.findAll(sort);
         List<BankTypeDefDto> bankTypeDtos = getDtosByEntities(bankTypeEntities);
         return bankTypeDtos;
     }

@@ -17,12 +17,15 @@ import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class ProductService {
 
     @Autowired
@@ -228,6 +231,9 @@ public class ProductService {
         List<ProductProj> productProjsOpt = productRepository.selectAll();
         
         for(ProductProj projOpt : productProjsOpt) {
+
+            // TODO
+            // log.info("projOpt => {}", projOpt.getProduct().getDefaultName());
             productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
         }
         return productJoinResDtos;
