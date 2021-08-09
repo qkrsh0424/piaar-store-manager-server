@@ -170,6 +170,26 @@ public class ProductReceiveService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
+     * ProductOption cid 값과 상응되는 ProductReceive 데이터를 조회한다.
+     *
+     * @param productOptionCid : Integer
+     * @return List::ProductReceiveGetDto
+     * @see ProductReceiveRepository#findByProductOptionCid
+     */
+    public List<ProductReceiveGetDto> searchList(Integer productOptionCid) {
+        List<ProductReceiveEntity> productEntities = productReceiveRepository.findByProductOptionCid(productOptionCid);
+        List<ProductReceiveGetDto> dtos = new ArrayList<>();
+
+        for(ProductReceiveEntity entity : productEntities){
+            dtos.add(getDtoByEntity(entity));
+        }
+
+        return dtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
      * ProductReceive 데이터를 모두 조회한다.
      * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *

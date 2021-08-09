@@ -29,4 +29,6 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
         "JOIN UserEntity u ON u.id=pr.createdBy"
     )
     List<ProductReleaseProj> selectAll();
+
+    public List<ProductReleaseEntity> findByProductOptionCid(Integer productOptionCid);
 }

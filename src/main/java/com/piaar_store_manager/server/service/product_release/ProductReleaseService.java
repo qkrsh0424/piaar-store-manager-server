@@ -170,6 +170,26 @@ public class ProductReleaseService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
+     * ProductOption cid 값과 상응되는 ProductRelease 데이터를 조회한다.
+     *
+     * @param productOptionCid : Integer
+     * @return List::ProductReceiveGetDto
+     * @see ProductReceiveRepository#findByProductOptionCid
+     */
+    public List<ProductReleaseGetDto> searchList(Integer productOptionCid) {
+        List<ProductReleaseEntity> productEntities = productReleaseRepository.findByProductOptionCid(productOptionCid);
+        List<ProductReleaseGetDto> dtos = new ArrayList<>();
+
+        for(ProductReleaseEntity entity : productEntities){
+            dtos.add(getDtoByEntity(entity));
+        }
+
+        return dtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
      * ProductRelease 데이터를 모두 조회한다.
      * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *

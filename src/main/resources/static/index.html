@@ -30,8 +30,8 @@
             var formData = new FormData();
 
             var fileSize = $("#upload-file-input")[0].files.length;
-            var urlPath = fileSize == 0? "/api/v1/file-upload/uploadFilesToLocal" : "/api/v1/file-upload/uploadFilesToLocal";
-            var key = fileSize == 0? "file" : "files";
+            var urlPath = "/api/v1/file-upload/uploadFilesToLocal";
+            var key = "files";
 
             for(var i = 0; i < fileSize; i++) {
                 formData.append(key, $("#upload-file-input")[0].files[i]);

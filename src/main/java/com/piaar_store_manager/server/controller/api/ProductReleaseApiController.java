@@ -129,6 +129,39 @@ public class ProductReleaseApiController {
     /**
      * Search list api for productRelease.
      * <p>
+     * <b>GET : API URL => /api/v1/product-release/list/{productOptionCid}</b>
+     *
+     * @param productOptionCid : Integer
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductReleaseService#searchList
+     */
+    @GetMapping("/list/{productOptionCid}")
+    public ResponseEntity<?> searchList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            try {
+                message.setData(productReleaseService.searchList(productOptionCid));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
+            }
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api for productRelease.
+     * <p>
      * <b>GET : API URL => /api/v1/product-release/list-m2oj</b>
      * ProductRelease 데이터를 조회한다.
      * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
