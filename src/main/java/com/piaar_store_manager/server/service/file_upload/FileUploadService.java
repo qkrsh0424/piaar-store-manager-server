@@ -133,15 +133,16 @@ public class FileUploadService{
      * @return FileUploadResponse
      */
     public FileUploadResponse uploadFileToCloud(MultipartFile file) throws IOException {
+        String uploadPath = bucket + "/upload/image";
         String fileName = "PiaarMS_" + UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename();
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(file.getSize());
         
-        s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), objMeta)
+        s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
                                                       
-        return new FileUploadResponse(fileName, s3Client.getUrl(bucket, fileName).toString(), file.getContentType(), file.getSize());
+        return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
     }
 
     /**
