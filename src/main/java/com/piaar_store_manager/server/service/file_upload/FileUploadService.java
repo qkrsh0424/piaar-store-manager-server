@@ -26,7 +26,6 @@ import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;

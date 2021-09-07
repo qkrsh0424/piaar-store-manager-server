@@ -183,7 +183,7 @@ public class ExcelApiController {
             cell.setCellValue("");
             cell = row.createCell(10);
             cell.setCellValue(assembledDto.getDeliveryMessage());
-
+            
         }
 
         // 컨텐츠 타입과 파일명 지정
