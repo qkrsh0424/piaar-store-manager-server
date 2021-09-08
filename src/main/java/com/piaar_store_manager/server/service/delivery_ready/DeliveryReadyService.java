@@ -1,8 +1,11 @@
 package com.piaar_store_manager.server.service.delivery_ready;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -89,6 +92,71 @@ public class DeliveryReadyService {
         throw new IOException("엑셀파일만 업로드 해주세요.");
     }
 
+    // entity -> dto :: FileEntity
+    private DeliveryReadyFileDto getFileDtoByEntity(DeliveryReadyFileEntity entity) {
+        DeliveryReadyFileDto fileDto = new DeliveryReadyFileDto();
+
+        fileDto.setCid(entity.getCid()).setId(entity.getId()).setFilePath(entity.getFilePath()).setFileName(entity.getFileName())
+        .setFileSize(entity.getFileSize()).setFileExtension(entity.getFileExtension())
+        .setCreatedAt(entity.getCreatedAt()).setCreatedBy(entity.getCreatedBy()).setDeleted(entity.getDeleted());
+        
+        return fileDto;
+    }
+
+    // entity -> dto :: ItemEntity
+    private DeliveryReadyItemDto getItemDtoByEntity(DeliveryReadyItemEntity entity) {
+        DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
+
+        itemDto.setCid(entity.getCid()).setId(entity.getId()).setProdOrderNumber(entity.getProdOrderNumber())
+            .setOrderNumber(entity.getOrderNumber()).setSalesChannel(entity.getSalesChannel())
+            .setBuyer(entity.getBuyer()).setBuyerId(entity.getBuyerId()).setReceiver(entity.getReceiver())
+            .setPaymentDate(entity.getPaymentDate()).setProdNumber(entity.getProdNumber()).setProdName(entity.getProdName())
+            .setOptionInfo(entity.getOptionInfo()).setOptionManagementCode(entity.getOptionManagementCode())
+            .setUnit(entity.getUnit()).setOrderConfirmationDate(entity.getOrderConfirmationDate())
+            .setShipmentDueDate(entity.getShipmentDueDate()).setShipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
+            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
+            .setSellerInnerCode2(entity.getSellerInnerCode2()).setReceiverContact1(entity.getReceiverContact1())
+            .setReceiverContact2(entity.getReceiverContact2()).setDestination(entity.getDestination())
+            .setBuyerContact(entity.getBuyerContact()).setZipCode(entity.getZipCode()).setDeliveryMessage(entity.getDeliveryMessage())
+            .setReleaseArea(entity.getReleaseArea()).setOrderDateTime(entity.getOrderDateTime())
+            .setReleased(entity.getReleased()).setReleasedAt(entity.getReleasedAt()).setCreatedAt(entity.getCreatedAt())
+            .setDeliveryReadyFileCid(entity.getDeliveryReadyFileCid());
+
+        return itemDto;
+    }
+
+    private DeliveryReadyFileEntity convFileEntityByDto(DeliveryReadyFileDto dto) {
+        DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
+
+        entity.setId(dto.getId()).setFilePath(dto.getFilePath()).setFileName(dto.getFileName())
+            .setFileSize(dto.getFileSize()).setFileExtension(dto.getFileExtension()).setCreatedAt(dto.getCreatedAt())
+            .setCreatedBy(dto.getCreatedBy()).setDeleted(dto.getDeleted());
+
+        return entity;
+    }
+
+    // dto -> entity :: ItemDto
+    private DeliveryReadyItemEntity convItemEntityByDto(DeliveryReadyItemDto dto) {
+        DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
+
+        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
+            .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())
+            .setBuyer(dto.getBuyer()).setBuyerId(dto.getBuyerId()).setReceiver(dto.getReceiver())
+            .setPaymentDate(dto.getPaymentDate()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
+            .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
+            .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
+            .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
+            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
+            .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
+            .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
+            .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
+            .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
+            .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
+            .setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
+
+        return entity;
+    }
+    
     /**
      * <b>Upload Excel File</b>
      * <p>
@@ -322,12 +390,13 @@ public class DeliveryReadyService {
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
      * @return List::DeliveryReadyItemViewResDto::
-     * @see deliveryReadyItemRepository#findAllReleased
+     * @see deliveryReadyItemRepository#findAllUnreleased
      */
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
-        List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllReleased(false);
+        List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllUnreleased();
         
+        // TODO :: 메소드 합치기
         for(DeliveryReadyItemViewProj proj : itemViewProj) {
             DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
 
@@ -342,68 +411,71 @@ public class DeliveryReadyService {
         return itemViewResDto;
     }
 
-    // entity -> dto :: FileEntity
-    private DeliveryReadyFileDto getFileDtoByEntity(DeliveryReadyFileEntity entity) {
-        DeliveryReadyFileDto fileDto = new DeliveryReadyFileDto();
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * DeliveryReadyItem 중 선택된 기간의 출 데이터를 조회한다.
+     *
+     * @return List::DeliveryReadyItemViewResDto::
+     * @see deliveryReadyItemRepository#findSelectedReleased
+     */
+    public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewReleased(String date1, String date2) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date startDate = null;
+        Date endDate = null;
 
-        fileDto.setCid(entity.getCid()).setId(entity.getId()).setFilePath(entity.getFilePath()).setFileName(entity.getFileName())
-        .setFileSize(entity.getFileSize()).setFileExtension(entity.getFileExtension())
-        .setCreatedAt(entity.getCreatedAt()).setCreatedBy(entity.getCreatedBy()).setDeleted(entity.getDeleted());
-        
-        return fileDto;
+        try{
+            startDate = dateFormat.parse(date1);
+            endDate = dateFormat.parse(date2);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        List<DeliveryReadyItemViewProj> releasedItems = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
+
+        // TODO :: 메소드 합치기
+        for(DeliveryReadyItemViewProj proj : releasedItems) {
+            DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
+
+            dto.setDeliveryReadyItem(this.getItemDtoByEntity(proj.getDeliveryReadyItem()))
+                .setOptionDefaultName(proj.getOptionDefaultName())
+                .setOptionManagementName(proj.getOptionManagementName())
+                .setOptionStockUnit(proj.getOptionStockUnit())
+                .setProdManagementName(proj.getProdManagementName());
+
+            itemViewResDto.add(dto);
+        }
+        return itemViewResDto;
     }
 
-    // entity -> dto :: ItemEntity
-    private DeliveryReadyItemDto getItemDtoByEntity(DeliveryReadyItemEntity entity) {
-        DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
-
-        itemDto.setCid(entity.getCid()).setId(entity.getId()).setProdOrderNumber(entity.getProdOrderNumber())
-            .setOrderNumber(entity.getOrderNumber()).setSalesChannel(entity.getSalesChannel())
-            .setBuyer(entity.getBuyer()).setBuyerId(entity.getBuyerId()).setReceiver(entity.getReceiver())
-            .setPaymentDate(entity.getPaymentDate()).setProdNumber(entity.getProdNumber()).setProdName(entity.getProdName())
-            .setOptionInfo(entity.getOptionInfo()).setOptionManagementCode(entity.getOptionManagementCode())
-            .setUnit(entity.getUnit()).setOrderConfirmationDate(entity.getOrderConfirmationDate())
-            .setShipmentDueDate(entity.getShipmentDueDate()).setShipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
-            .setSellerInnerCode2(entity.getSellerInnerCode2()).setReceiverContact1(entity.getReceiverContact1())
-            .setReceiverContact2(entity.getReceiverContact2()).setDestination(entity.getDestination())
-            .setBuyerContact(entity.getBuyerContact()).setZipCode(entity.getZipCode()).setDeliveryMessage(entity.getDeliveryMessage())
-            .setReleaseArea(entity.getReleaseArea()).setOrderDateTime(entity.getOrderDateTime())
-            .setReleased(entity.getReleased()).setReleasedAt(entity.getReleasedAt()).setCreatedAt(entity.getCreatedAt())
-            .setDeliveryReadyFileCid(entity.getDeliveryReadyFileCid());
-
-        return itemDto;
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * DeliveryReadyItem 미출고 데이터 중 itemId에 대응하는 데이터를 삭제한다.
+     *
+     * @see deliveryReadyItemRepository#findByItemId
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void deleteOneDeliveryReadyViewData(UUID itemId) {
+        deliveryReadyItemRepository.findByItemId(itemId).ifPresent(item -> {
+            deliveryReadyItemRepository.delete(item);
+        });
     }
 
-    private DeliveryReadyFileEntity convFileEntityByDto(DeliveryReadyFileDto dto) {
-        DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
+     *
+     * @see deliveryReadyItemRepository#findByItemId
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void updateReleasedDeliveryReadyItem(UUID itemId) {
+        deliveryReadyItemRepository.findByItemId(itemId).ifPresentOrElse(item -> {
+            item.setReleased(false).setReleasedAt(null);
 
-        entity.setId(dto.getId()).setFilePath(dto.getFilePath()).setFileName(dto.getFileName())
-            .setFileSize(dto.getFileSize()).setFileExtension(dto.getFileExtension()).setCreatedAt(dto.getCreatedAt())
-            .setCreatedBy(dto.getCreatedBy()).setDeleted(dto.getDeleted());
-
-        return entity;
-    }
-
-    // dto -> entity :: ItemDto
-    private DeliveryReadyItemEntity convItemEntityByDto(DeliveryReadyItemDto dto) {
-        DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
-
-        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
-            .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())
-            .setBuyer(dto.getBuyer()).setBuyerId(dto.getBuyerId()).setReceiver(dto.getReceiver())
-            .setPaymentDate(dto.getPaymentDate()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
-            .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
-            .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
-            .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
-            .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
-            .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
-            .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
-            .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
-            .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
-            .setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
-
-        return entity;
+            deliveryReadyItemRepository.save(item);
+        }, null);
     }
 }
