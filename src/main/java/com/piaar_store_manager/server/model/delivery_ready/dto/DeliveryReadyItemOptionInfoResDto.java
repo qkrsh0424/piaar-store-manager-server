@@ -5,10 +5,9 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class DeliveryReadyItemViewResDto {
-    DeliveryReadyItemDto deliveryReadyItem;
+public class DeliveryReadyItemOptionInfoResDto {
+    String optionCode;
     String optionDefaultName;
     String optionManagementName;
-    Integer optionStockUnit;
-    String prodManagementName;
+    String prodDefaultName;
 }

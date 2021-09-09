@@ -5,12 +5,15 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -23,9 +26,13 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyItemRepository;
@@ -329,7 +336,7 @@ public class DeliveryReadyService {
      * <p>
      * 배송준비 엑셀 파일 데이터들의 중복을 제거하여 DB에 저장한다.
      *
-     * @param file : MultipartFile
+     * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
      * @see DeliveryReadyItemRepository#findAllProdOrderNumber
      */
@@ -416,6 +423,8 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem 중 선택된 기간의 출 데이터를 조회한다.
      *
+     * @param date1 : String
+     * @param date2 : String
      * @return List::DeliveryReadyItemViewResDto::
      * @see deliveryReadyItemRepository#findSelectedReleased
      */
@@ -454,11 +463,12 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem 미출고 데이터 중 itemId에 대응하는 데이터를 삭제한다.
      *
-     * @see deliveryReadyItemRepository#findByItemId
+     * @param itemCid : Integer
+     * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#delete
      */
-    public void deleteOneDeliveryReadyViewData(UUID itemId) {
-        deliveryReadyItemRepository.findByItemId(itemId).ifPresent(item -> {
+    public void deleteOneDeliveryReadyViewData(Integer itemCid) {
+        deliveryReadyItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyItemRepository.delete(item);
         });
     }
@@ -468,14 +478,237 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
-     * @see deliveryReadyItemRepository#findByItemId
+     * @param itemCid : Integer
+     * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#delete
      */
-    public void updateReleasedDeliveryReadyItem(UUID itemId) {
-        deliveryReadyItemRepository.findByItemId(itemId).ifPresentOrElse(item -> {
+    public void updateReleasedDeliveryReadyItem(Integer itemCid) {
+        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
             deliveryReadyItemRepository.save(item);
         }, null);
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 등록된 모든 상품의 옵션정보들을 조회한다.
+     *
+     * @return List::DeliveryReadyItemOptionInfoResDto::
+     * @see deliveryReadyItemRepository#findAllOptionInfo
+     */
+    public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
+        List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyItemRepository.findAllOptionInfo();
+        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = new ArrayList<>();
+
+        for(DeliveryReadyItemOptionInfoProj proj : optionInfoProjs) {
+            DeliveryReadyItemOptionInfoResDto dto = new DeliveryReadyItemOptionInfoResDto();
+
+            dto.setOptionCode(proj.getOptionCode())
+                .setOptionDefaultName(proj.getOptionDefaultName())
+                .setOptionManagementName(proj.getOptionManagementName())
+                .setProdDefaultName(proj.getProdDefaultName());
+
+            optionInfoDto.add(dto);
+        }
+        return optionInfoDto;
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
+     *
+     * @param itemCid : Integer, optionCode : String
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#save
+     */
+    public void updateDeliveryReadyItemOptionInfo(Integer itemCid, String optionCode) {
+        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
+            if(optionCode.equals("null")) {
+                item.setOptionManagementCode("");
+            }
+            else{
+                item.setOptionManagementCode(optionCode);
+            }
+            deliveryReadyItemRepository.save(item);
+
+        }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
+     *
+     * @param itemCid : Integer
+     * @param optionCode : String
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#save
+     */
+    public void updateDeliveryReadyItemsOptionInfo(Integer itemCid, String optionCode) {
+        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
+            if(optionCode.equals("null")) {
+                item.setOptionManagementCode("");
+            }
+            else{
+                item.setOptionManagementCode(optionCode);
+            }
+            deliveryReadyItemRepository.save(item);
+
+            // 같은 상품의 옵션을 모두 변경
+            this.updateDeliveryReadyItemChangedOption(item, optionCode);
+
+        }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
+     *
+     * @param item : DeliveryReadyItemEntity
+     * @param optionCode : String
+     * @see deliveryReadyItemRepository#findByItems
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void updateDeliveryReadyItemChangedOption(DeliveryReadyItemEntity item, String optionCode) {
+        List<DeliveryReadyItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
+
+        for(DeliveryReadyItemEntity entity : entities) {
+            if(optionCode.equals("null")) {
+                entity.setOptionManagementCode("");
+            }
+            else{
+                entity.setOptionManagementCode(optionCode);
+            }
+            deliveryReadyItemRepository.save(entity);
+        }
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * DeliveryReadyItem 다운로드 시 중복데이터 처리 및 셀 색상을 지정한다.
+     *
+     * @param dtos : List::DeliveryReadyItemViewDto::
+     * @return List::DeliveryReadyItemExcelFormDto::
+     */
+    public List<DeliveryReadyItemExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {
+        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
+
+        // DeliveryReadyItemViewDto에서 DeliveryReadyItemEntity만 뽑아낸다
+        for(DeliveryReadyItemViewDto viewDto : viewDtos) {
+            dtos.add(this.getItemDtoByEntity(viewDto.getDeliveryReadyItem()));
+        }
+
+        // DeliveryReadyItemDto로 DeliveryReadyItemExcelFromDto를 만든다
+        List<DeliveryReadyItemExcelFormDto> formDtos = getFromDtoByDto(dtos);
+
+        return changeDuplicationDtos(formDtos);
+    }
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyItemEntity => DeliveryReadyItemExcelFormDto
+     *
+     * @param entities : List::DeliveryReadyItemEntity::
+     * @return List::DeliveryReadyItemExcelFormDto::
+     */
+    public List<DeliveryReadyItemExcelFormDto> getFromDtoByDto(List<DeliveryReadyItemDto> dtos) {
+        List<DeliveryReadyItemExcelFormDto> formDtos = new ArrayList<>();
+
+        for(DeliveryReadyItemDto dto : dtos){
+            DeliveryReadyItemExcelFormDto formDto = new DeliveryReadyItemExcelFormDto();
+
+            formDto.setProdOrderNumber(dto.getProdOrderNumber()).setOrderNumber(dto.getOrderNumber())
+                    .setReceiver(dto.getReceiver()).setReceiverContact1(dto.getReceiverContact1())
+                    .setZipCode(dto.getZipCode()).setDestination(dto.getDestination())
+                    .setTransportNumber("").setProdName(dto.getProdName())
+                    .setSender("스토어명").setSenderContact1("070-0000-0000").setOptionInfo(dto.getOptionInfo())
+                    .setOptionManagementCode(dto.getOptionManagementCode()).setUnit(dto.getUnit())
+                    .setDeliveryMessage(dto.getDeliveryMessage()).setUnitA("").setAllProdOrderNumber(dto.getProdNumber()).setDuplication(false);
+
+            formDtos.add(formDto);
+        }
+
+        return formDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * (주문번호 + 받는사람 + 상품명 + 상품상세) 중복데이터 가공
+     *
+     * @param dtos : List::DeliveryReadyItemExcelFormDto::
+     * @return List::DeliveryReadyItemExcelFormDto::
+     */
+    public List<DeliveryReadyItemExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemExcelFormDto> dtos) {
+        List<DeliveryReadyItemExcelFormDto> newOrderList = new ArrayList<>();
+
+        // 주문번호 > 받는사람 > 상품명 > 상품상세 정렬
+        dtos.sort(Comparator.comparing(DeliveryReadyItemExcelFormDto::getOrderNumber)
+                                .thenComparing(DeliveryReadyItemExcelFormDto::getReceiver)
+                                .thenComparing(DeliveryReadyItemExcelFormDto::getProdName)
+                                .thenComparing(DeliveryReadyItemExcelFormDto::getOptionInfo));
+
+        Set<String> optionSet = new HashSet();        // 받는사람 + 주소 + 상품명 + 상품상세
+
+        for(int i = 0; i < dtos.size(); i++){
+            StringBuilder sb = new StringBuilder();
+            sb.append(dtos.get(i).getReceiver());
+            sb.append(dtos.get(i).getDestination());
+            sb.append(dtos.get(i).getProdName());
+            sb.append(dtos.get(i).getOptionInfo());
+
+            StringBuilder receiverSb = new StringBuilder();
+            receiverSb.append(dtos.get(i).getReceiver());
+            receiverSb.append(dtos.get(i).getReceiverContact1());
+            receiverSb.append(dtos.get(i).getDestination());
+
+            String resultStr = sb.toString();
+            String receiverStr = receiverSb.toString();
+            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
+
+            // 받는사람 + 번호 + 주소 : 중복인 경우
+            if(!optionSet.add(receiverStr)){
+                newOrderList.get(prevOrderIdx).setDuplication(true);
+                dtos.get(i).setDuplication(true);
+            }
+
+            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
+            if(!optionSet.add(resultStr)){
+                DeliveryReadyItemExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                DeliveryReadyItemExcelFormDto currentProd = dtos.get(i);
+
+                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + " / " + currentProd.getProdOrderNumber());     // 총 상품번호 수정
+            }else{
+                newOrderList.add(dtos.get(i));
+            }
+        }
+
+        return newOrderList;
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 데이터 다운로드 시 출고 정보를 설정한다.
+     *
+     * @param dtos : List::DeliveryReadyItemViewDto::
+     * @see deliveryReadyItemRepository#updateReleasedAtByCid
+     */
+    @Transactional
+    public void releasedDeliveryReadyItem(List<DeliveryReadyItemViewDto> dtos) {
+
+        List<Integer> cidList = new ArrayList<>();
+        
+        for(DeliveryReadyItemViewDto dto : dtos){
+            cidList.add(dto.getDeliveryReadyItem().getCid());
+        }
+        deliveryReadyItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
 }
