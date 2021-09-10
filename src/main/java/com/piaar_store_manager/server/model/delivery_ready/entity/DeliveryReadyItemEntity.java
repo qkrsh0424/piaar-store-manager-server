@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
+
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
@@ -119,4 +121,25 @@ public class DeliveryReadyItemEntity {
 
     @Column(name = "delivery_ready_file_cid")
     private Integer deliveryReadyFileCid;
+
+    public static DeliveryReadyItemEntity toEntity(DeliveryReadyItemDto dto){
+        DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
+
+        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
+            .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())
+            .setBuyer(dto.getBuyer()).setBuyerId(dto.getBuyerId()).setReceiver(dto.getReceiver())
+            .setPaymentDate(dto.getPaymentDate()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
+            .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
+            .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
+            .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
+            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
+            .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
+            .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
+            .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
+            .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
+            .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
+            .setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
+
+        return entity;
+    }
 }

@@ -95,100 +95,6 @@ public class DeliveryReadyService {
         }
         throw new IOException("엑셀파일만 업로드 해주세요.");
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyFileEntity => DeliveryReadyFileDto
-     *
-     * @param entity : DeliveryReadyFileEntity
-     * @return DeliveryReadyFileDto
-     */
-    private DeliveryReadyFileDto getFileDtoByEntity(DeliveryReadyFileEntity entity) {
-        DeliveryReadyFileDto fileDto = new DeliveryReadyFileDto();
-
-        fileDto.setCid(entity.getCid()).setId(entity.getId()).setFilePath(entity.getFilePath()).setFileName(entity.getFileName())
-        .setFileSize(entity.getFileSize()).setFileExtension(entity.getFileExtension())
-        .setCreatedAt(entity.getCreatedAt()).setCreatedBy(entity.getCreatedBy()).setDeleted(entity.getDeleted());
-        
-        return fileDto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyItemEntity => DeliveryReadyItemDto
-     *
-     * @param entity : DeliveryReadyFileEntity
-     * @return DeliveryReadyItemDto
-     */
-    private DeliveryReadyItemDto getItemDtoByEntity(DeliveryReadyItemEntity entity) {
-        DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
-
-        itemDto.setCid(entity.getCid()).setId(entity.getId()).setProdOrderNumber(entity.getProdOrderNumber())
-            .setOrderNumber(entity.getOrderNumber()).setSalesChannel(entity.getSalesChannel())
-            .setBuyer(entity.getBuyer()).setBuyerId(entity.getBuyerId()).setReceiver(entity.getReceiver())
-            .setPaymentDate(entity.getPaymentDate()).setProdNumber(entity.getProdNumber()).setProdName(entity.getProdName())
-            .setOptionInfo(entity.getOptionInfo()).setOptionManagementCode(entity.getOptionManagementCode())
-            .setUnit(entity.getUnit()).setOrderConfirmationDate(entity.getOrderConfirmationDate())
-            .setShipmentDueDate(entity.getShipmentDueDate()).setShipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
-            .setSellerInnerCode2(entity.getSellerInnerCode2()).setReceiverContact1(entity.getReceiverContact1())
-            .setReceiverContact2(entity.getReceiverContact2()).setDestination(entity.getDestination())
-            .setBuyerContact(entity.getBuyerContact()).setZipCode(entity.getZipCode()).setDeliveryMessage(entity.getDeliveryMessage())
-            .setReleaseArea(entity.getReleaseArea()).setOrderDateTime(entity.getOrderDateTime())
-            .setReleased(entity.getReleased()).setReleasedAt(entity.getReleasedAt()).setCreatedAt(entity.getCreatedAt())
-            .setDeliveryReadyFileCid(entity.getDeliveryReadyFileCid());
-
-        return itemDto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyFileDto => DeliveryReadyFileEntity
-     *
-     * @param dto : DeliveryReadyFileDto
-     * @return DeliveryReadyFileEntity
-     */
-    private DeliveryReadyFileEntity convFileEntityByDto(DeliveryReadyFileDto dto) {
-        DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
-
-        entity.setId(dto.getId()).setFilePath(dto.getFilePath()).setFileName(dto.getFileName())
-            .setFileSize(dto.getFileSize()).setFileExtension(dto.getFileExtension()).setCreatedAt(dto.getCreatedAt())
-            .setCreatedBy(dto.getCreatedBy()).setDeleted(dto.getDeleted());
-
-        return entity;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyItemDto => DeliveryReadyItemEntity
-     *
-     * @param dto : DeliveryReadyItemDto
-     * @return DeliveryReadyItemEntity
-     */
-    private DeliveryReadyItemEntity convItemEntityByDto(DeliveryReadyItemDto dto) {
-        DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
-
-        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
-            .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())
-            .setBuyer(dto.getBuyer()).setBuyerId(dto.getBuyerId()).setReceiver(dto.getReceiver())
-            .setPaymentDate(dto.getPaymentDate()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
-            .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
-            .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
-            .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
-            .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
-            .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
-            .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
-            .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
-            .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
-            .setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
-
-        return entity;
-    }
     
     /**
      * <b>Upload Excel File</b>
@@ -287,10 +193,8 @@ public class DeliveryReadyService {
         // DeliveryReadyFileEntity 생성
         DeliveryReadyFileEntity entity = this.createDeliveryReadyFileDto(s3Client.getUrl(uploadPath, fileName).toString(), fileName, (int)file.getSize(), userId);
 
-        // DeliveryReadyFileDto fileDto = this.get(dto)
-
         // item 중복데이터 제거 후 items DB저장
-        this.createDeliveryReadyItemData(file, this.getFileDtoByEntity(entity));
+        this.createDeliveryReadyItemData(file, DeliveryReadyFileDto.toDto(entity));
                                                       
         return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
     }
@@ -312,7 +216,7 @@ public class DeliveryReadyService {
                 .withRegion(this.region)
                 .build();
     }
-
+ 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
@@ -331,7 +235,7 @@ public class DeliveryReadyService {
                 .setFileSize(fileSize).setFileExtension(FilenameUtils.getExtension(fileName))
                 .setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId).setDeleted(false);
 
-        return deliveryReadyFileRepository.save(convFileEntityByDto(fileDto));
+        return deliveryReadyFileRepository.save(DeliveryReadyFileEntity.toEntity(fileDto));
     }
 
     /**
@@ -410,7 +314,7 @@ public class DeliveryReadyService {
 
             // 상품주문번호가 중복되지 않는다면
             if(storedProdOrderNumber.add(dto.getProdOrderNumber())){
-                DeliveryReadyItemEntity entity = this.convItemEntityByDto(dto);
+                DeliveryReadyItemEntity entity = DeliveryReadyItemEntity.toEntity(dto);
                 entities.add(entity);
             }
         }
@@ -427,7 +331,7 @@ public class DeliveryReadyService {
      */
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllUnreleased();
-        List<DeliveryReadyItemViewResDto> itemViewResDto = this.getItemResDtosByProj(itemViewProj);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDto(itemViewProj);
 
         return itemViewResDto;
     }
@@ -455,34 +359,8 @@ public class DeliveryReadyService {
         }
 
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
-        List<DeliveryReadyItemViewResDto> itemViewResDto = this.getItemResDtosByProj(itemViewProj);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDto(itemViewProj);
 
-        return itemViewResDto;
-    }
-
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::DeliveryReadyItemViewProj:: => List::DeliveryReadyItemViewResDto::
-     *
-     * @param itemViewProj : List::DeliveryReadyItemViewProj::
-     * @return List::DeliveryReadyItemViewResDto::
-     */
-    public List<DeliveryReadyItemViewResDto> getItemResDtosByProj(List<DeliveryReadyItemViewProj> itemViewProj) {
-        List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
-
-        for(DeliveryReadyItemViewProj proj : itemViewProj){
-            DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
-
-            dto.setDeliveryReadyItem(this.getItemDtoByEntity(proj.getDeliveryReadyItem()))
-                .setOptionDefaultName(proj.getOptionDefaultName())
-                .setOptionManagementName(proj.getOptionManagementName())
-                .setOptionStockUnit(proj.getOptionStockUnit())
-                .setProdManagementName(proj.getProdManagementName());
-
-            itemViewResDto.add(dto);
-        }
         return itemViewResDto;
     }
  
@@ -528,18 +406,8 @@ public class DeliveryReadyService {
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
         List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyItemRepository.findAllOptionInfo();
-        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = new ArrayList<>();
+        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDto(optionInfoProjs);
 
-        for(DeliveryReadyItemOptionInfoProj proj : optionInfoProjs) {
-            DeliveryReadyItemOptionInfoResDto dto = new DeliveryReadyItemOptionInfoResDto();
-
-            dto.setOptionCode(proj.getOptionCode())
-                .setOptionDefaultName(proj.getOptionDefaultName())
-                .setOptionManagementName(proj.getOptionManagementName())
-                .setProdDefaultName(proj.getProdDefaultName());
-
-            optionInfoDto.add(dto);
-        }
         return optionInfoDto;
     }
 
@@ -629,41 +497,13 @@ public class DeliveryReadyService {
 
         // DeliveryReadyItemViewDto에서 DeliveryReadyItemEntity만 뽑아낸다
         for(DeliveryReadyItemViewDto viewDto : viewDtos) {
-            dtos.add(this.getItemDtoByEntity(viewDto.getDeliveryReadyItem()));
+            dtos.add(DeliveryReadyItemDto.toDto(viewDto.getDeliveryReadyItem()));
         }
 
         // DeliveryReadyItemDto로 DeliveryReadyItemExcelFromDto를 만든다
-        List<DeliveryReadyItemExcelFormDto> formDtos = getFromDtoByDto(dtos);
+        List<DeliveryReadyItemExcelFormDto> formDtos = DeliveryReadyItemExcelFormDto.toFormDto(dtos);
 
         return changeDuplicationDtos(formDtos);
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyItemEntity => DeliveryReadyItemExcelFormDto
-     *
-     * @param entities : List::DeliveryReadyItemEntity::
-     * @return List::DeliveryReadyItemExcelFormDto::
-     */
-    public List<DeliveryReadyItemExcelFormDto> getFromDtoByDto(List<DeliveryReadyItemDto> dtos) {
-        List<DeliveryReadyItemExcelFormDto> formDtos = new ArrayList<>();
-
-        for(DeliveryReadyItemDto dto : dtos){
-            DeliveryReadyItemExcelFormDto formDto = new DeliveryReadyItemExcelFormDto();
-
-            formDto.setProdOrderNumber(dto.getProdOrderNumber()).setOrderNumber(dto.getOrderNumber())
-                    .setReceiver(dto.getReceiver()).setReceiverContact1(dto.getReceiverContact1())
-                    .setZipCode(dto.getZipCode()).setDestination(dto.getDestination())
-                    .setTransportNumber("").setProdName(dto.getProdName())
-                    .setSender("스토어명").setSenderContact1("070-0000-0000").setOptionInfo(dto.getOptionInfo())
-                    .setOptionManagementCode(dto.getOptionManagementCode()).setUnit(dto.getUnit())
-                    .setDeliveryMessage(dto.getDeliveryMessage()).setUnitA("").setAllProdOrderNumber(dto.getProdNumber()).setDuplication(false);
-
-            formDtos.add(formDto);
-        }
-
-        return formDtos;
     }
 
     /**
@@ -683,7 +523,7 @@ public class DeliveryReadyService {
                                 .thenComparing(DeliveryReadyItemExcelFormDto::getProdName)
                                 .thenComparing(DeliveryReadyItemExcelFormDto::getOptionInfo));
 
-        Set<String> optionSet = new HashSet();        // 받는사람 + 주소 + 상품명 + 상품상세
+        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
 
         for(int i = 0; i < dtos.size(); i++){
             StringBuilder sb = new StringBuilder();

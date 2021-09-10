@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
+
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
@@ -51,4 +53,14 @@ public class DeliveryReadyFileEntity {
 
     @Column(name = "deleted")
     private Boolean deleted;
+
+    public static DeliveryReadyFileEntity toEntity(DeliveryReadyFileDto dto) {
+        DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
+
+        entity.setId(dto.getId()).setFilePath(dto.getFilePath()).setFileName(dto.getFileName())
+            .setFileSize(dto.getFileSize()).setFileExtension(dto.getFileExtension()).setCreatedAt(dto.getCreatedAt())
+            .setCreatedBy(dto.getCreatedBy()).setDeleted(dto.getDeleted());
+
+        return entity;
+    }
 }

@@ -2,7 +2,6 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -35,8 +34,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/v1/delivery-ready")
+@Slf4j
 public class DeliveryReadyApiController {
     
     @Autowired
@@ -57,6 +59,8 @@ public class DeliveryReadyApiController {
      * @see HttpStatus
      * @see DeliveryReadyService#isExcelFile
      * @see DeliveryReadyService#uploadDeliveryReadyExcelFile
+     * @see UserService#isUserLogin
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws IOException {
@@ -72,13 +76,20 @@ public class DeliveryReadyApiController {
             return new ResponseEntity<>(message, message.getStatus());
         }
 
-        try{
-            message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else {
+            try {
+                message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -96,6 +107,8 @@ public class DeliveryReadyApiController {
      * @see HttpStatus
      * @see DeliveryReadyService#isExcelFile
      * @see DeliveryReadyService#storeDeliveryReadyExcelFile
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/store")
     public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws IOException {
@@ -111,13 +124,18 @@ public class DeliveryReadyApiController {
             return new ResponseEntity<>(message, message.getStatus());
         }
 
-        try{
-            message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -132,18 +150,25 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyService#getDeliveryReadyViewUnreleasedData
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @GetMapping("/view/unreleased")
     public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
         Message message = new Message();
 
-        try{
-            message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -158,18 +183,25 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyService#getDeliveryReadyViewReleased
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @GetMapping("/view/release/{date1}&&{date2}")
     public ResponseEntity<?> getDeliveryReadyViewReleased(@PathVariable(value = "date1") String date1, @PathVariable(value="date2") String date2) {
         Message message = new Message();
 
-        try{
-            message.setData(deliveryReadyService.getDeliveryReadyViewReleased(date1, date2));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                message.setData(deliveryReadyService.getDeliveryReadyViewReleased(date1, date2));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -185,18 +217,24 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#deleteOneDeliveryReadyViewData
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/view/deleteOne/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
-        try{
-            deliveryReadyService.deleteOneDeliveryReadyViewData(itemCid);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        if (userService.isManager()) {
+            try {
+                deliveryReadyService.deleteOneDeliveryReadyViewData(itemCid);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -212,18 +250,25 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOne")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
         Message message = new Message();
 
-        try{
-            deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyItemDto);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyItemDto);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -238,18 +283,25 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyService#searchDeliveryReadyItemOptionInfo
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @GetMapping("/view/searchList/optionInfo")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
         Message message = new Message();
 
-        try{
-            message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -266,18 +318,25 @@ public class DeliveryReadyApiController {
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOption/{optionCode}")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
         Message message = new Message();
         
-        try{
-            deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, optionCode);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, optionCode);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -293,25 +352,41 @@ public class DeliveryReadyApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyService#updateDeliveryReadyItemsOptionInfo
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOptions/{optionCode}")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
         Message message = new Message();
         
-        try{
-            deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, optionCode);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch(Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, optionCode);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 9. 다운로드 시 중복데이터 함치기 및 셀 색상 변경
+    /**
+     * Change released data to unreleased data for delivery ready.
+     * <p>
+     * <b>POST : API URL => /api/v1/view/download</b>
+     *
+     * @param viewDtos : List::DeliveryReadyItemDto::
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     */
     @PostMapping("/view/download")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyItemViewDto> viewDtos) {
 
@@ -370,10 +445,12 @@ public class DeliveryReadyApiController {
             cell = row.createCell(1);
             cell.setCellValue(dtos.get(i).getProdOrderNumber());
             cell = row.createCell(2);
+
             // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
             if(dtos.get(i).isDuplication()){
                 cell.setCellStyle(cellStyle);
             }
+
             cell.setCellValue(dtos.get(i).getReceiver());
             cell = row.createCell(3);
             cell.setCellValue(dtos.get(i).getReceiverContact1());

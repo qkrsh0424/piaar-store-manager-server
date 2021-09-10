@@ -3,6 +3,8 @@ package com.piaar_store_manager.server.model.delivery_ready.dto;
 import java.util.Date;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -41,4 +43,25 @@ public class DeliveryReadyItemDto {
     private Date releasedAt;
     private Date createdAt;
     private Integer deliveryReadyFileCid;
+
+    public static DeliveryReadyItemDto toDto(DeliveryReadyItemEntity entity) {
+        DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
+
+        itemDto.setCid(entity.getCid()).setId(entity.getId()).setProdOrderNumber(entity.getProdOrderNumber())
+            .setOrderNumber(entity.getOrderNumber()).setSalesChannel(entity.getSalesChannel())
+            .setBuyer(entity.getBuyer()).setBuyerId(entity.getBuyerId()).setReceiver(entity.getReceiver())
+            .setPaymentDate(entity.getPaymentDate()).setProdNumber(entity.getProdNumber()).setProdName(entity.getProdName())
+            .setOptionInfo(entity.getOptionInfo()).setOptionManagementCode(entity.getOptionManagementCode())
+            .setUnit(entity.getUnit()).setOrderConfirmationDate(entity.getOrderConfirmationDate())
+            .setShipmentDueDate(entity.getShipmentDueDate()).setShipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
+            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
+            .setSellerInnerCode2(entity.getSellerInnerCode2()).setReceiverContact1(entity.getReceiverContact1())
+            .setReceiverContact2(entity.getReceiverContact2()).setDestination(entity.getDestination())
+            .setBuyerContact(entity.getBuyerContact()).setZipCode(entity.getZipCode()).setDeliveryMessage(entity.getDeliveryMessage())
+            .setReleaseArea(entity.getReleaseArea()).setOrderDateTime(entity.getOrderDateTime())
+            .setReleased(entity.getReleased()).setReleasedAt(entity.getReleasedAt()).setCreatedAt(entity.getCreatedAt())
+            .setDeliveryReadyFileCid(entity.getDeliveryReadyFileCid());
+
+        return itemDto;
+    }
 }
