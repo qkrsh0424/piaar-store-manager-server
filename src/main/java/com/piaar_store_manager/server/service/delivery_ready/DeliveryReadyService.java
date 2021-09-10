@@ -48,10 +48,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class DeliveryReadyService {
 
     private AmazonS3 s3Client;
@@ -99,7 +96,14 @@ public class DeliveryReadyService {
         throw new IOException("엑셀파일만 업로드 해주세요.");
     }
 
-    // entity -> dto :: FileEntity
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyFileEntity => DeliveryReadyFileDto
+     *
+     * @param entity : DeliveryReadyFileEntity
+     * @return DeliveryReadyFileDto
+     */
     private DeliveryReadyFileDto getFileDtoByEntity(DeliveryReadyFileEntity entity) {
         DeliveryReadyFileDto fileDto = new DeliveryReadyFileDto();
 
@@ -110,7 +114,14 @@ public class DeliveryReadyService {
         return fileDto;
     }
 
-    // entity -> dto :: ItemEntity
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyItemEntity => DeliveryReadyItemDto
+     *
+     * @param entity : DeliveryReadyFileEntity
+     * @return DeliveryReadyItemDto
+     */
     private DeliveryReadyItemDto getItemDtoByEntity(DeliveryReadyItemEntity entity) {
         DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
 
@@ -132,6 +143,14 @@ public class DeliveryReadyService {
         return itemDto;
     }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyFileDto => DeliveryReadyFileEntity
+     *
+     * @param dto : DeliveryReadyFileDto
+     * @return DeliveryReadyFileEntity
+     */
     private DeliveryReadyFileEntity convFileEntityByDto(DeliveryReadyFileDto dto) {
         DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
 
@@ -142,7 +161,14 @@ public class DeliveryReadyService {
         return entity;
     }
 
-    // dto -> entity :: ItemDto
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyItemDto => DeliveryReadyItemEntity
+     *
+     * @param dto : DeliveryReadyItemDto
+     * @return DeliveryReadyItemEntity
+     */
     private DeliveryReadyItemEntity convItemEntityByDto(DeliveryReadyItemDto dto) {
         DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
 
@@ -400,21 +426,9 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findAllUnreleased
      */
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
-        List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllUnreleased();
-        
-        // TODO :: 메소드 합치기
-        for(DeliveryReadyItemViewProj proj : itemViewProj) {
-            DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
+        List<DeliveryReadyItemViewResDto> itemViewResDto = this.getItemResDtosByProj(itemViewProj);
 
-            dto.setDeliveryReadyItem(this.getItemDtoByEntity(proj.getDeliveryReadyItem()))
-                .setOptionDefaultName(proj.getOptionDefaultName())
-                .setOptionManagementName(proj.getOptionManagementName())
-                .setOptionStockUnit(proj.getOptionStockUnit())
-                .setProdManagementName(proj.getProdManagementName());
-
-            itemViewResDto.add(dto);
-        }
         return itemViewResDto;
     }
 
@@ -440,11 +454,25 @@ public class DeliveryReadyService {
             e.printStackTrace();
         }
 
-        List<DeliveryReadyItemViewProj> releasedItems = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = this.getItemResDtosByProj(itemViewProj);
+
+        return itemViewResDto;
+    }
+
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::DeliveryReadyItemViewProj:: => List::DeliveryReadyItemViewResDto::
+     *
+     * @param itemViewProj : List::DeliveryReadyItemViewProj::
+     * @return List::DeliveryReadyItemViewResDto::
+     */
+    public List<DeliveryReadyItemViewResDto> getItemResDtosByProj(List<DeliveryReadyItemViewProj> itemViewProj) {
         List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
 
-        // TODO :: 메소드 합치기
-        for(DeliveryReadyItemViewProj proj : releasedItems) {
+        for(DeliveryReadyItemViewProj proj : itemViewProj){
             DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
 
             dto.setDeliveryReadyItem(this.getItemDtoByEntity(proj.getDeliveryReadyItem()))
@@ -457,7 +485,7 @@ public class DeliveryReadyService {
         }
         return itemViewResDto;
     }
-
+ 
     /**
      * <b>DB Delete Related Method</b>
      * <p>
@@ -478,12 +506,12 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
-     * @param itemCid : Integer
+     * @param dto : DeliveryReadyItemDto
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#delete
      */
-    public void updateReleasedDeliveryReadyItem(Integer itemCid) {
-        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
+    public void updateReleasedDeliveryReadyItem(DeliveryReadyItemDto dto) {
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
             deliveryReadyItemRepository.save(item);
@@ -520,12 +548,13 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
      *
-     * @param itemCid : Integer, optionCode : String
+     * @param dto : DeliveryReadyItemDto
+     * @param optionCode : String
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemOptionInfo(Integer itemCid, String optionCode) {
-        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
+    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto, String optionCode) {
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             if(optionCode.equals("null")) {
                 item.setOptionManagementCode("");
             }
@@ -542,13 +571,13 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
-     * @param itemCid : Integer
+     * @param dto : DeliveryReadyItemDto
      * @param optionCode : String
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemsOptionInfo(Integer itemCid, String optionCode) {
-        deliveryReadyItemRepository.findById(itemCid).ifPresentOrElse(item -> {
+    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto, String optionCode) {
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             if(optionCode.equals("null")) {
                 item.setOptionManagementCode("");
             }
@@ -592,7 +621,7 @@ public class DeliveryReadyService {
      * <p>
      * DeliveryReadyItem 다운로드 시 중복데이터 처리 및 셀 색상을 지정한다.
      *
-     * @param dtos : List::DeliveryReadyItemViewDto::
+     * @param viewDtos : List::DeliveryReadyItemViewDto::
      * @return List::DeliveryReadyItemExcelFormDto::
      */
     public List<DeliveryReadyItemExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {

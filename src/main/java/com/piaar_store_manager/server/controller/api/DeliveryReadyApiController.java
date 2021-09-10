@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
@@ -23,19 +24,18 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @RestController
-@Slf4j
 @RequestMapping("/api/v1/delivery-ready")
 public class DeliveryReadyApiController {
     
@@ -180,14 +180,13 @@ public class DeliveryReadyApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/view/deleteOne/{itemCid}</b>
      *
-     * @param itemId : UUID
+     * @param itemCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#deleteOneDeliveryReadyViewData
-     * @see UserService#userDenyCheck
      */
-    @GetMapping("/view/deleteOne/{itemCid}")
+    @DeleteMapping("/view/deleteOne/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
@@ -206,20 +205,20 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOne/{itemCid}</b>
+     * <b>PUT : API URL => /api/v1/view/updateOne</b>
      *
-     * @param itemId : UUID
+     * @param deliveryReadyItemDto : DeliveryReadyItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#updateReleasedDeliveryReadyItem
      */
-    @GetMapping("/view/updateOne/{itemCid}")
-    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@PathVariable(value = "itemCid") Integer itemCid) {
+    @PutMapping("/view/updateOne")
+    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
         Message message = new Message();
 
         try{
-            deliveryReadyService.updateReleasedDeliveryReadyItem(itemCid);
+            deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch(Exception e) {
@@ -259,20 +258,21 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/view/updateOne/{itemId}</b>
+     * <b>GET : API URL => /api/v1/view/updateOption/{optionCode}</b>
      *
-     * @param itemId : UUID
+     * @param deliveryReadyItemDto : DeliveryReadyItemDto
+     * @param optionCode : String
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#updateReleasedDeliveryReadyItem
      */
-    @GetMapping("/view/updateOption/{itemCid}&&{optionCode}")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@PathVariable(value = "itemCid") Integer itemCid, @PathVariable(value = "optionCode") String optionCode) {
+    @PutMapping("/view/updateOption/{optionCode}")
+    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
         Message message = new Message();
         
         try{
-            deliveryReadyService.updateDeliveryReadyItemOptionInfo(itemCid, optionCode);
+            deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, optionCode);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch(Exception e) {
@@ -286,20 +286,21 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOne/{itemCid}</b>
+     * <b>PUT : API URL => /api/v1/view/updateOptions/{optionCode}</b>
      *
-     * @param itemCid : Integer
+     * @param deliveryReadyItemDto : DeliveryReadyItemDto
+     * @param optionCode : String
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see deliveryReadyService#updateReleasedDeliveryReadyItem
      */
-    @GetMapping("/view/updateOptions/{itemCid}&&{optionCode}")
-    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@PathVariable(value = "itemCid") Integer itemCid, @PathVariable(value = "optionCode") String optionCode) {
+    @PutMapping("/view/updateOptions/{optionCode}")
+    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
         Message message = new Message();
         
         try{
-            deliveryReadyService.updateDeliveryReadyItemsOptionInfo(itemCid, optionCode);
+            deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, optionCode);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch(Exception e) {
