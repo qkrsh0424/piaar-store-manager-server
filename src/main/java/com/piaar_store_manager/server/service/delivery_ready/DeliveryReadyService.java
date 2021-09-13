@@ -493,15 +493,9 @@ public class DeliveryReadyService {
      * @return List::DeliveryReadyItemExcelFormDto::
      */
     public List<DeliveryReadyItemExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {
-        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
 
-        // DeliveryReadyItemViewDto에서 DeliveryReadyItemEntity만 뽑아낸다
-        for(DeliveryReadyItemViewDto viewDto : viewDtos) {
-            dtos.add(DeliveryReadyItemDto.toDto(viewDto.getDeliveryReadyItem()));
-        }
-
-        // DeliveryReadyItemDto로 DeliveryReadyItemExcelFromDto를 만든다
-        List<DeliveryReadyItemExcelFormDto> formDtos = DeliveryReadyItemExcelFormDto.toFormDto(dtos);
+        // // DeliveryReadyItemViewDto로 DeliveryReadyItemExcelFromDto를 만든다
+        List<DeliveryReadyItemExcelFormDto> formDtos = DeliveryReadyItemExcelFormDto.toFormDto(viewDtos);
 
         return changeDuplicationDtos(formDtos);
     }
@@ -517,9 +511,9 @@ public class DeliveryReadyService {
     public List<DeliveryReadyItemExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemExcelFormDto> dtos) {
         List<DeliveryReadyItemExcelFormDto> newOrderList = new ArrayList<>();
 
-        // 주문번호 > 받는사람 > 상품명 > 상품상세 정렬
-        dtos.sort(Comparator.comparing(DeliveryReadyItemExcelFormDto::getOrderNumber)
-                                .thenComparing(DeliveryReadyItemExcelFormDto::getReceiver)
+        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
+        dtos.sort(Comparator.comparing(DeliveryReadyItemExcelFormDto::getReceiver)
+                                .thenComparing(DeliveryReadyItemExcelFormDto::getOrderNumber)
                                 .thenComparing(DeliveryReadyItemExcelFormDto::getProdName)
                                 .thenComparing(DeliveryReadyItemExcelFormDto::getOptionInfo));
 
@@ -545,6 +539,7 @@ public class DeliveryReadyService {
             if(!optionSet.add(receiverStr)){
                 newOrderList.get(prevOrderIdx).setDuplication(true);
                 dtos.get(i).setDuplication(true);
+                System.out.println(prevOrderIdx + " " + dtos.get(prevOrderIdx).getReceiver() + ", " + i + " " + dtos.get(i).getReceiver());
             }
 
             // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우

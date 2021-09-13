@@ -40,7 +40,7 @@ public interface DeliveryReadyItemRepository extends JpaRepository<DeliveryReady
     @Query("SELECT dri FROM DeliveryReadyItemEntity dri WHERE dri.prodName=:prodName AND dri.optionInfo=:optionInfo")
     List<DeliveryReadyItemEntity> findByItems(String prodName, String optionInfo);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE delivery_ready_item AS dri SET dri.released=true, dri.released_at=:currentDate WHERE cid IN :cidList", nativeQuery = true)
     int updateReleasedAtByCid(List<Integer> cidList, Date currentDate);
 }

@@ -402,37 +402,42 @@ public class DeliveryReadyApiController {
 
         row = sheet.createRow(rowNum++);
         cell = row.createCell(0);
-        cell.setCellValue("주문번호");
-        cell = row.createCell(1);
-        cell.setCellValue("상품주문번호");
-        cell = row.createCell(2);
         cell.setCellValue("받는사람");
-        cell = row.createCell(3);
+        cell = row.createCell(1);
         cell.setCellValue("전화번호1");
-        cell = row.createCell(4);
+        cell = row.createCell(2);
         cell.setCellValue("우편번호");
-        cell = row.createCell(5);
+        cell = row.createCell(3);
         cell.setCellValue("주소");
-        cell = row.createCell(6);
+        cell = row.createCell(4);
         cell.setCellValue("운송장번호");
-        cell = row.createCell(7);
+        cell = row.createCell(5);
         cell.setCellValue("상품명1");
-        cell = row.createCell(8);
+        cell = row.createCell(6);
         cell.setCellValue("보내는사람(지정)");
-        cell = row.createCell(9);
+        cell = row.createCell(7);
         cell.setCellValue("전화번호1(지정)");
-        cell = row.createCell(10);
-        cell.setCellValue("옵션관리코드");
-        cell = row.createCell(11);
-        cell.setCellValue("내품수량1");
-        cell = row.createCell(12);
-        cell.setCellValue("배송메시지");
-        cell = row.createCell(13);
-        cell.setCellValue("수량(A타입)");
-        cell = row.createCell(14);
-        cell.setCellValue("총 상품주문번호");
-        cell = row.createCell(15);
+        cell = row.createCell(8);
         cell.setCellValue("상품상세1");
+        cell = row.createCell(9);
+        cell.setCellValue("내품수량1");
+        cell = row.createCell(10);
+        cell.setCellValue("배송메시지");
+        cell = row.createCell(11);
+        cell.setCellValue("수량(A타입)");
+        cell = row.createCell(12);
+        cell.setCellValue("주문번호");
+        cell = row.createCell(13);
+        cell.setCellValue("상품주문번호");
+        cell = row.createCell(14);
+        cell.setCellValue("스마트스토어 상품명");
+        cell = row.createCell(15);
+        cell.setCellValue("스마트스토어 옵션명");
+        cell = row.createCell(16);
+        cell.setCellValue("옵션관리코드");
+        cell = row.createCell(17);
+        cell.setCellValue("총 상품주문번호");
+
 
         CellStyle cellStyle = workbook.createCellStyle();
         cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
@@ -441,44 +446,127 @@ public class DeliveryReadyApiController {
         for (int i=0; i<dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
-            cell.setCellValue(dtos.get(i).getOrderNumber());
-            cell = row.createCell(1);
-            cell.setCellValue(dtos.get(i).getProdOrderNumber());
-            cell = row.createCell(2);
 
             // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
             if(dtos.get(i).isDuplication()){
                 cell.setCellStyle(cellStyle);
+                log.info("cell => {}", dtos.get(i).getReceiver());
             }
-
             cell.setCellValue(dtos.get(i).getReceiver());
-            cell = row.createCell(3);
+            cell = row.createCell(1);
             cell.setCellValue(dtos.get(i).getReceiverContact1());
-            cell = row.createCell(4);
+            cell = row.createCell(2);
             cell.setCellValue(dtos.get(i).getZipCode());
-            cell = row.createCell(5);
+            cell = row.createCell(3);
             cell.setCellValue(dtos.get(i).getDestination());
-            cell = row.createCell(6);
+            cell = row.createCell(4);
             cell.setCellValue(dtos.get(i).getTransportNumber());
-            cell = row.createCell(7);
-            cell.setCellValue(dtos.get(i).getProdName());
-            cell = row.createCell(8);
+            cell = row.createCell(5);
+            cell.setCellValue(dtos.get(i).getProdName());       // 피아르 상품관리명 + 상품제조번호
+            cell = row.createCell(6);
             cell.setCellValue(dtos.get(i).getSender());
-            cell = row.createCell(9);
+            cell = row.createCell(7);
             cell.setCellValue(dtos.get(i).getSenderContact1());
-            cell = row.createCell(10);
-            cell.setCellValue(dtos.get(i).getOptionManagementCode());
-            cell = row.createCell(11);
+            cell = row.createCell(8);
+            cell.setCellValue(dtos.get(i).getOptionManagementCode());       // 피아르 옵션관리명 + 피아르 옵션관리코드
+            cell = row.createCell(9);
             cell.setCellValue(dtos.get(i).getUnit());
-            cell = row.createCell(12);
+            cell = row.createCell(10);
             cell.setCellValue(dtos.get(i).getDeliveryMessage());
-            cell = row.createCell(13);
+            cell = row.createCell(11);
             cell.setCellValue(dtos.get(i).getUnitA());
+            cell = row.createCell(12);
+            cell.setCellValue(dtos.get(i).getOrderNumber());
+            cell = row.createCell(13);
+            cell.setCellValue(dtos.get(i).getProdOrderNumber());
             cell = row.createCell(14);
-            cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
+            cell.setCellValue(dtos.get(i).getProdName());       // 스마트스토어 상품명
             cell = row.createCell(15);
-            cell.setCellValue(dtos.get(i).getOptionInfo());
+            cell.setCellValue(dtos.get(i).getOptionManagementCode());   // 스마트스토어 옵션명
+            cell = row.createCell(16);
+            cell.setCellValue(dtos.get(i).getOptionManagementCode());
+            cell = row.createCell(17);
+            cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
         }
+        // row = sheet.createRow(rowNum++);
+        // cell = row.createCell(0);
+        // cell.setCellValue("주문번호");
+        // cell = row.createCell(1);
+        // cell.setCellValue("상품주문번호");
+        // cell = row.createCell(2);
+        // cell.setCellValue("받는사람");
+        // cell = row.createCell(3);
+        // cell.setCellValue("전화번호1");
+        // cell = row.createCell(4);
+        // cell.setCellValue("우편번호");
+        // cell = row.createCell(5);
+        // cell.setCellValue("주소");
+        // cell = row.createCell(6);
+        // cell.setCellValue("운송장번호");
+        // cell = row.createCell(7);
+        // cell.setCellValue("상품명1");
+        // cell = row.createCell(8);
+        // cell.setCellValue("보내는사람(지정)");
+        // cell = row.createCell(9);
+        // cell.setCellValue("전화번호1(지정)");
+        // cell = row.createCell(10);
+        // cell.setCellValue("옵션관리코드");
+        // cell = row.createCell(11);
+        // cell.setCellValue("내품수량1");
+        // cell = row.createCell(12);
+        // cell.setCellValue("배송메시지");
+        // cell = row.createCell(13);
+        // cell.setCellValue("수량(A타입)");
+        // cell = row.createCell(14);
+        // cell.setCellValue("총 상품주문번호");
+        // cell = row.createCell(15);
+        // cell.setCellValue("상품상세1");
+
+        // CellStyle cellStyle = workbook.createCellStyle();
+        // cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        // cellStyle.setFillPattern(FillPatternType.BRICKS);
+
+        // for (int i=0; i<dtos.size(); i++) {
+        //     row = sheet.createRow(rowNum++);
+        //     cell = row.createCell(0);
+        //     cell.setCellValue(dtos.get(i).getOrderNumber());
+        //     cell = row.createCell(1);
+        //     cell.setCellValue(dtos.get(i).getProdOrderNumber());
+        //     cell = row.createCell(2);
+
+        //     // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
+        //     if(dtos.get(i).isDuplication()){
+        //         cell.setCellStyle(cellStyle);
+        //     }
+
+        //     cell.setCellValue(dtos.get(i).getReceiver());
+        //     cell = row.createCell(3);
+        //     cell.setCellValue(dtos.get(i).getReceiverContact1());
+        //     cell = row.createCell(4);
+        //     cell.setCellValue(dtos.get(i).getZipCode());
+        //     cell = row.createCell(5);
+        //     cell.setCellValue(dtos.get(i).getDestination());
+        //     cell = row.createCell(6);
+        //     cell.setCellValue(dtos.get(i).getTransportNumber());
+        //     cell = row.createCell(7);
+        //     cell.setCellValue(dtos.get(i).getProdName());
+        //     cell = row.createCell(8);
+        //     cell.setCellValue(dtos.get(i).getSender());
+        //     cell = row.createCell(9);
+        //     cell.setCellValue(dtos.get(i).getSenderContact1());
+        //     cell = row.createCell(10);
+        //     cell.setCellValue(dtos.get(i).getOptionManagementCode());
+        //     cell = row.createCell(11);
+        //     cell.setCellValue(dtos.get(i).getUnit());
+        //     cell = row.createCell(12);
+        //     cell.setCellValue(dtos.get(i).getDeliveryMessage());
+        //     cell = row.createCell(13);
+        //     cell.setCellValue(dtos.get(i).getUnitA());
+        //     cell = row.createCell(14);
+        //     cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
+        //     cell = row.createCell(15);
+        //     cell.setCellValue(dtos.get(i).getOptionInfo());
+        // }
 
         for(int i = 0; i < 16; i++){
             sheet.autoSizeColumn(i);
