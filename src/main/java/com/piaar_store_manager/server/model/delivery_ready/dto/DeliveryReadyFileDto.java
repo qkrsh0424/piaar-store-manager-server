@@ -5,10 +5,16 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class DeliveryReadyFileDto {
     private Integer cid;
@@ -22,11 +28,17 @@ public class DeliveryReadyFileDto {
     private Boolean deleted;
 
     public static DeliveryReadyFileDto toDto(DeliveryReadyFileEntity entity) {
-        DeliveryReadyFileDto dto = new DeliveryReadyFileDto();
-
-        dto.setCid(entity.getCid()).setId(entity.getId()).setFilePath(entity.getFilePath())
-            .setFileName(entity.getFileName()).setFileSize(entity.getFileSize()).setFileExtension(entity.getFileExtension())
-            .setCreatedAt(entity.getCreatedAt()).setCreatedBy(entity.getCreatedBy()).setDeleted(entity.getDeleted());
+        DeliveryReadyFileDto dto = DeliveryReadyFileDto.builder()
+            .cid(entity.getCid())
+            .id(entity.getId())
+            .filePath(entity.getFilePath())
+            .fileName(entity.getFileName())
+            .fileSize(entity.getFileSize())
+            .fileExtension(entity.getFileExtension())
+            .createdAt(entity.getCreatedAt())
+            .createdBy(entity.getCreatedBy())
+            .deleted(entity.getDeleted())
+            .build();
 
         return dto;
     }

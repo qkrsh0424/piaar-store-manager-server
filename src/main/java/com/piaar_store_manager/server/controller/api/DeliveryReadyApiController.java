@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -34,11 +35,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @RestController
 @RequestMapping("/api/v1/delivery-ready")
-@Slf4j
 public class DeliveryReadyApiController {
     
     @Autowired
@@ -66,22 +64,21 @@ public class DeliveryReadyApiController {
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
 
-        // file extension check.
-        try{
-            deliveryReadyService.isExcelFile(file);
-        } catch(Exception e){
-            message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-            message.setMessage("file_extension_error");
-            message.setMemo("This is not an excel file.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
-
-
         if (!userService.isUserLogin()) {
             message.setStatus(HttpStatus.FORBIDDEN);
             message.setMessage("need_login");
             message.setMemo("need login");
         } else {
+            // file extension check.
+            try {
+                deliveryReadyService.isExcelFile(file);
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+                message.setMessage("file_extension_error");
+                message.setMemo("This is not an excel file.");
+                return new ResponseEntity<>(message, message.getStatus());
+            }
+
             try {
                 message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
@@ -114,18 +111,18 @@ public class DeliveryReadyApiController {
     public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
 
-        // file extension check.
-        try{
-            deliveryReadyService.isExcelFile(file);
-        } catch(Exception e){
-            message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-            message.setMessage("file_extension_error");
-            message.setMemo("This is not an excel file.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
-
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
+            // file extension check.
+            try {
+                deliveryReadyService.isExcelFile(file);
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+                message.setMessage("file_extension_error");
+                message.setMemo("This is not an excel file.");
+                return new ResponseEntity<>(message, message.getStatus());
+            }
+
             try {
                 message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
                 message.setStatus(HttpStatus.OK);
@@ -177,23 +174,24 @@ public class DeliveryReadyApiController {
     /**
      * Search released data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/released/{date1}&&{date2}</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/view/released</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
+     * @param query : Map[startDate, endDate]
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyService#getDeliveryReadyViewReleased
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @GetMapping("/view/release/{date1}&&{date2}")
-    public ResponseEntity<?> getDeliveryReadyViewReleased(@PathVariable(value = "date1") String date1, @PathVariable(value="date2") String date2) {
+    @GetMapping("/view/release")
+    public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) {
         Message message = new Message();
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                message.setData(deliveryReadyService.getDeliveryReadyViewReleased(date1, date2));
+                message.setData(deliveryReadyService.getDeliveryReadyViewReleased(query));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
@@ -310,25 +308,25 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/view/updateOption/{optionCode}</b>
+     * <b>GET : API URL => /api/v1/view/updateOption</b>
      *
      * @param deliveryReadyItemDto : DeliveryReadyItemDto
-     * @param optionCode : String
+     * @param query : Map [optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOption/{optionCode}")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
+    @PutMapping("/view/updateOption")
+    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @RequestParam Map<String, Object> query) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, optionCode);
+                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, query);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
@@ -345,10 +343,10 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOptions/{optionCode}</b>
+     * <b>PUT : API URL => /api/v1/view/updateOptions</b>
      *
      * @param deliveryReadyItemDto : DeliveryReadyItemDto
-     * @param optionCode : String
+     * @param query : Map[optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -356,14 +354,14 @@ public class DeliveryReadyApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOptions/{optionCode}")
-    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @PathVariable(value = "optionCode") String optionCode) {
+    @PutMapping("/view/updateOptions")
+    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @RequestParam Map<String, Object> query) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, optionCode);
+                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, query);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
@@ -380,12 +378,13 @@ public class DeliveryReadyApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/view/download</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/view/download</b>
      *
      * @param viewDtos : List::DeliveryReadyItemDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyService#changeDeliveryReadyItem
+     * @see deliveryReadyService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyItemViewDto> viewDtos) {
@@ -450,7 +449,6 @@ public class DeliveryReadyApiController {
             // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
             if(dtos.get(i).isDuplication()){
                 cell.setCellStyle(cellStyle);
-                log.info("cell => {}", dtos.get(i).getReceiver());
             }
             cell.setCellValue(dtos.get(i).getReceiver());
             cell = row.createCell(1);
@@ -462,13 +460,13 @@ public class DeliveryReadyApiController {
             cell = row.createCell(4);
             cell.setCellValue(dtos.get(i).getTransportNumber());
             cell = row.createCell(5);
-            cell.setCellValue(dtos.get(i).getProdName());       // 피아르 상품관리명 + 상품제조번호
+            cell.setCellValue(dtos.get(i).getStoreProdName() != null ? dtos.get(i).getStoreProdName() + " | " + dtos.get(i).getProdManufacturingCode() : "*지정 바람");       // 피아르 상품관리명 + 상품제조번호
             cell = row.createCell(6);
             cell.setCellValue(dtos.get(i).getSender());
             cell = row.createCell(7);
             cell.setCellValue(dtos.get(i).getSenderContact1());
             cell = row.createCell(8);
-            cell.setCellValue(dtos.get(i).getOptionManagementCode());       // 피아르 옵션관리명 + 피아르 옵션관리코드
+            cell.setCellValue(dtos.get(i).getStoreOptionName() != null ? dtos.get(i).getStoreOptionName() + " | " + dtos.get(i).getOptionManagementCode() : "*지정 바람");       // 피아르 옵션관리명 + 피아르 옵션관리코드
             cell = row.createCell(9);
             cell.setCellValue(dtos.get(i).getUnit());
             cell = row.createCell(10);
@@ -482,93 +480,14 @@ public class DeliveryReadyApiController {
             cell = row.createCell(14);
             cell.setCellValue(dtos.get(i).getProdName());       // 스마트스토어 상품명
             cell = row.createCell(15);
-            cell.setCellValue(dtos.get(i).getOptionManagementCode());   // 스마트스토어 옵션명
+            cell.setCellValue(dtos.get(i).getOptionInfo());    // 스마트스토어 옵션명
             cell = row.createCell(16);
             cell.setCellValue(dtos.get(i).getOptionManagementCode());
             cell = row.createCell(17);
             cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
         }
-        // row = sheet.createRow(rowNum++);
-        // cell = row.createCell(0);
-        // cell.setCellValue("주문번호");
-        // cell = row.createCell(1);
-        // cell.setCellValue("상품주문번호");
-        // cell = row.createCell(2);
-        // cell.setCellValue("받는사람");
-        // cell = row.createCell(3);
-        // cell.setCellValue("전화번호1");
-        // cell = row.createCell(4);
-        // cell.setCellValue("우편번호");
-        // cell = row.createCell(5);
-        // cell.setCellValue("주소");
-        // cell = row.createCell(6);
-        // cell.setCellValue("운송장번호");
-        // cell = row.createCell(7);
-        // cell.setCellValue("상품명1");
-        // cell = row.createCell(8);
-        // cell.setCellValue("보내는사람(지정)");
-        // cell = row.createCell(9);
-        // cell.setCellValue("전화번호1(지정)");
-        // cell = row.createCell(10);
-        // cell.setCellValue("옵션관리코드");
-        // cell = row.createCell(11);
-        // cell.setCellValue("내품수량1");
-        // cell = row.createCell(12);
-        // cell.setCellValue("배송메시지");
-        // cell = row.createCell(13);
-        // cell.setCellValue("수량(A타입)");
-        // cell = row.createCell(14);
-        // cell.setCellValue("총 상품주문번호");
-        // cell = row.createCell(15);
-        // cell.setCellValue("상품상세1");
 
-        // CellStyle cellStyle = workbook.createCellStyle();
-        // cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-        // cellStyle.setFillPattern(FillPatternType.BRICKS);
-
-        // for (int i=0; i<dtos.size(); i++) {
-        //     row = sheet.createRow(rowNum++);
-        //     cell = row.createCell(0);
-        //     cell.setCellValue(dtos.get(i).getOrderNumber());
-        //     cell = row.createCell(1);
-        //     cell.setCellValue(dtos.get(i).getProdOrderNumber());
-        //     cell = row.createCell(2);
-
-        //     // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
-        //     if(dtos.get(i).isDuplication()){
-        //         cell.setCellStyle(cellStyle);
-        //     }
-
-        //     cell.setCellValue(dtos.get(i).getReceiver());
-        //     cell = row.createCell(3);
-        //     cell.setCellValue(dtos.get(i).getReceiverContact1());
-        //     cell = row.createCell(4);
-        //     cell.setCellValue(dtos.get(i).getZipCode());
-        //     cell = row.createCell(5);
-        //     cell.setCellValue(dtos.get(i).getDestination());
-        //     cell = row.createCell(6);
-        //     cell.setCellValue(dtos.get(i).getTransportNumber());
-        //     cell = row.createCell(7);
-        //     cell.setCellValue(dtos.get(i).getProdName());
-        //     cell = row.createCell(8);
-        //     cell.setCellValue(dtos.get(i).getSender());
-        //     cell = row.createCell(9);
-        //     cell.setCellValue(dtos.get(i).getSenderContact1());
-        //     cell = row.createCell(10);
-        //     cell.setCellValue(dtos.get(i).getOptionManagementCode());
-        //     cell = row.createCell(11);
-        //     cell.setCellValue(dtos.get(i).getUnit());
-        //     cell = row.createCell(12);
-        //     cell.setCellValue(dtos.get(i).getDeliveryMessage());
-        //     cell = row.createCell(13);
-        //     cell.setCellValue(dtos.get(i).getUnitA());
-        //     cell = row.createCell(14);
-        //     cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
-        //     cell = row.createCell(15);
-        //     cell.setCellValue(dtos.get(i).getOptionInfo());
-        // }
-
-        for(int i = 0; i < 16; i++){
+        for(int i = 0; i < 18; i++){
             sheet.autoSizeColumn(i);
         }
 

@@ -11,19 +11,21 @@ public interface DeliveryReadyItemOptionInfoProj {
     String getOptionManagementName();
     String getProdDefaultName();
 
-    public static List<DeliveryReadyItemOptionInfoResDto> toResDto(List<DeliveryReadyItemOptionInfoProj> projs) {
+    public static DeliveryReadyItemOptionInfoResDto toResDto(DeliveryReadyItemOptionInfoProj proj) {
+        DeliveryReadyItemOptionInfoResDto dto = new DeliveryReadyItemOptionInfoResDto();
+
+        dto.setOptionCode(proj.getOptionCode()).setOptionDefaultName(proj.getOptionDefaultName())
+                .setOptionManagementName(proj.getOptionManagementName()).setProdDefaultName(proj.getProdDefaultName());
+
+        return dto;
+    }
+    
+    public static List<DeliveryReadyItemOptionInfoResDto> toResDtos(List<DeliveryReadyItemOptionInfoProj> projs) {
         List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = new ArrayList<>();
 
         for (DeliveryReadyItemOptionInfoProj proj : projs) {
-            DeliveryReadyItemOptionInfoResDto dto = new DeliveryReadyItemOptionInfoResDto();
-
-            dto.setOptionCode(proj.getOptionCode()).setOptionDefaultName(proj.getOptionDefaultName())
-                    .setOptionManagementName(proj.getOptionManagementName())
-                    .setProdDefaultName(proj.getProdDefaultName());
-
-            optionInfoDto.add(dto);
+            optionInfoDto.add(toResDto(proj));
         }
-
         return optionInfoDto;
     }
 }

@@ -5,10 +5,16 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain=true)
 public class DeliveryReadyItemDto {
     private Integer cid;
@@ -45,22 +51,40 @@ public class DeliveryReadyItemDto {
     private Integer deliveryReadyFileCid;
 
     public static DeliveryReadyItemDto toDto(DeliveryReadyItemEntity entity) {
-        DeliveryReadyItemDto itemDto = new DeliveryReadyItemDto();
-
-        itemDto.setCid(entity.getCid()).setId(entity.getId()).setProdOrderNumber(entity.getProdOrderNumber())
-            .setOrderNumber(entity.getOrderNumber()).setSalesChannel(entity.getSalesChannel())
-            .setBuyer(entity.getBuyer()).setBuyerId(entity.getBuyerId()).setReceiver(entity.getReceiver())
-            .setPaymentDate(entity.getPaymentDate()).setProdNumber(entity.getProdNumber()).setProdName(entity.getProdName())
-            .setOptionInfo(entity.getOptionInfo()).setOptionManagementCode(entity.getOptionManagementCode())
-            .setUnit(entity.getUnit()).setOrderConfirmationDate(entity.getOrderConfirmationDate())
-            .setShipmentDueDate(entity.getShipmentDueDate()).setShipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
-            .setSellerInnerCode2(entity.getSellerInnerCode2()).setReceiverContact1(entity.getReceiverContact1())
-            .setReceiverContact2(entity.getReceiverContact2()).setDestination(entity.getDestination())
-            .setBuyerContact(entity.getBuyerContact()).setZipCode(entity.getZipCode()).setDeliveryMessage(entity.getDeliveryMessage())
-            .setReleaseArea(entity.getReleaseArea()).setOrderDateTime(entity.getOrderDateTime())
-            .setReleased(entity.getReleased()).setReleasedAt(entity.getReleasedAt()).setCreatedAt(entity.getCreatedAt())
-            .setDeliveryReadyFileCid(entity.getDeliveryReadyFileCid());
+        DeliveryReadyItemDto itemDto = DeliveryReadyItemDto.builder()
+            .cid(entity.getCid())
+            .id(entity.getId())
+            .prodOrderNumber(entity.getProdOrderNumber())
+            .orderNumber(entity.getOrderNumber())
+            .salesChannel(entity.getSalesChannel())
+            .buyer(entity.getBuyer())
+            .buyerId(entity.getBuyerId())
+            .receiver(entity.getReceiver())
+            .paymentDate(entity.getPaymentDate())
+            .prodNumber(entity.getProdNumber())
+            .prodName(entity.getProdName())
+            .optionInfo(entity.getOptionInfo())
+            .optionManagementCode(entity.getOptionManagementCode())
+            .unit(entity.getUnit())
+            .orderConfirmationDate(entity.getOrderConfirmationDate())
+            .shipmentDueDate(entity.getShipmentDueDate())
+            .shipmentCostBundleNumber(entity.getShipmentCostBundleNumber())
+            .sellerProdCode(entity.getSellerProdCode())
+            .sellerInnerCode1(entity.getSellerInnerCode1())
+            .sellerInnerCode2(entity.getSellerInnerCode2())
+            .receiverContact1(entity.getReceiverContact1())
+            .receiverContact2(entity.getReceiverContact2())
+            .destination(entity.getDestination())
+            .buyerContact(entity.getBuyerContact())
+            .zipCode(entity.getZipCode())
+            .deliveryMessage(entity.getDeliveryMessage())
+            .releaseArea(entity.getReleaseArea())
+            .orderDateTime(entity.getOrderDateTime())
+            .released(entity.getReleased())
+            .releasedAt(entity.getReleasedAt())
+            .createdAt(entity.getCreatedAt())
+            .deliveryReadyFileCid(entity.getDeliveryReadyFileCid())
+            .build();
 
         return itemDto;
     }

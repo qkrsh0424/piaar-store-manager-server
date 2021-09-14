@@ -18,16 +18,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DeliveryReadyItemRepository extends JpaRepository<DeliveryReadyItemEntity, Integer>{
     
-    @Query(value = "SELECT prod_order_number FROM delivery_ready_item", nativeQuery = true)
+    @Query("SELECT dri.prodOrderNumber FROM DeliveryReadyItemEntity dri")
     Set<String> findAllProdOrderNumber();
 
-    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName FROM DeliveryReadyItemEntity dri\n"
+    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE dri.released=false")
     List<DeliveryReadyItemViewProj> findAllUnreleased();
 
-    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName FROM DeliveryReadyItemEntity dri\n"
+    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")

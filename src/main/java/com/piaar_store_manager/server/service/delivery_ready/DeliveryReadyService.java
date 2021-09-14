@@ -9,6 +9,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -48,7 +49,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class DeliveryReadyService {
 
     private AmazonS3 s3Client;
@@ -133,35 +137,34 @@ public class DeliveryReadyService {
         for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
-            DeliveryReadyItemDto dto = new DeliveryReadyItemDto();
-
-            dto.setId(UUID.randomUUID())
-                .setProdOrderNumber(row.getCell(0).getStringCellValue())
-                .setOrderNumber(row.getCell(1).getStringCellValue())
-                .setSalesChannel(row.getCell(7).getStringCellValue())
-                .setBuyer(row.getCell(8).getStringCellValue())
-                .setBuyerId(row.getCell(9).getStringCellValue())
-                .setReceiver(row.getCell(10).getStringCellValue())
-                .setPaymentDate(row.getCell(14).getDateCellValue())
-                .setProdNumber(row.getCell(15).getStringCellValue())
-                .setProdName(row.getCell(16).getStringCellValue())
-                .setOptionInfo(row.getCell(18).getStringCellValue())
-                .setOptionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
-                .setUnit((int) row.getCell(20).getNumericCellValue())
-                .setOrderConfirmationDate(row.getCell(27).getDateCellValue())
-                .setShipmentDueDate(row.getCell(28).getDateCellValue())
-                .setShipmentCostBundleNumber(row.getCell(32).getStringCellValue())
-                .setSellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
-                .setSellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
-                .setSellerInnerCode2(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
-                .setReceiverContact1(row.getCell(40).getStringCellValue())
-                .setReceiverContact2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
-                .setDestination(row.getCell(42).getStringCellValue())
-                .setBuyerContact(row.getCell(43).getStringCellValue())
-                .setZipCode(row.getCell(44).getStringCellValue())
-                .setDeliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
-                .setReleaseArea(row.getCell(46).getStringCellValue())
-                .setOrderDateTime(row.getCell(56).getDateCellValue());
+            DeliveryReadyItemDto dto = DeliveryReadyItemDto.builder().id(UUID.randomUUID())
+                    .prodOrderNumber(row.getCell(0).getStringCellValue())
+                    .orderNumber(row.getCell(1).getStringCellValue())
+                    .salesChannel(row.getCell(7).getStringCellValue())
+                    .buyer(row.getCell(8).getStringCellValue())
+                    .buyerId(row.getCell(9).getStringCellValue())
+                    .receiver(row.getCell(10).getStringCellValue())
+                    .paymentDate(row.getCell(14).getDateCellValue())
+                    .prodNumber(row.getCell(15).getStringCellValue())
+                    .prodName(row.getCell(16).getStringCellValue())
+                    .optionInfo(row.getCell(18).getStringCellValue())
+                    .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
+                    .unit((int) row.getCell(20).getNumericCellValue())
+                    .orderConfirmationDate(row.getCell(27).getDateCellValue())
+                    .shipmentDueDate(row.getCell(28).getDateCellValue())
+                    .shipmentCostBundleNumber(row.getCell(32).getStringCellValue())
+                    .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
+                    .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
+                    .sellerInnerCode2(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
+                    .receiverContact1(row.getCell(40).getStringCellValue())
+                    .receiverContact2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
+                    .destination(row.getCell(42).getStringCellValue())
+                    .buyerContact(row.getCell(43).getStringCellValue())
+                    .zipCode(row.getCell(44).getStringCellValue())
+                    .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
+                    .releaseArea(row.getCell(46).getStringCellValue())
+                    .orderDateTime(row.getCell(56).getDateCellValue())
+                    .build();
 
             dtos.add(dto);
         }
@@ -229,11 +232,17 @@ public class DeliveryReadyService {
      * @see DeliveryReadyFileRepository#save
      */
     public DeliveryReadyFileEntity createDeliveryReadyFileDto(String filePath, String fileName, Integer fileSize, UUID userId) {
-        DeliveryReadyFileDto fileDto = new DeliveryReadyFileDto();
 
-        fileDto.setId(UUID.randomUUID()).setFilePath(filePath).setFileName(fileName)
-                .setFileSize(fileSize).setFileExtension(FilenameUtils.getExtension(fileName))
-                .setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId).setDeleted(false);
+        DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
+            .id(UUID.randomUUID())
+            .filePath(filePath)
+            .fileName(fileName)
+            .fileSize(fileSize)
+            .fileExtension(FilenameUtils.getExtension(fileName))
+            .createdAt(dateHandler.getCurrentDate())
+            .createdBy(userId)
+            .deleted(false)
+            .build();
 
         return deliveryReadyFileRepository.save(DeliveryReadyFileEntity.toEntity(fileDto));
     }
@@ -271,7 +280,6 @@ public class DeliveryReadyService {
      * @see DeliveryReadyItemRepository#findAllProdOrderNumber
      */
     private void getDeliveryReadyExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) {
-        // List<DeliveryReadyItemDto> dtos = new ArrayList<>();
         List<DeliveryReadyItemEntity> entities = new ArrayList<>();
 
         Set<String> storedProdOrderNumber = deliveryReadyItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
@@ -279,38 +287,38 @@ public class DeliveryReadyService {
         for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
-            DeliveryReadyItemDto dto = new DeliveryReadyItemDto();
-
-            dto.setId(UUID.randomUUID())
-                .setProdOrderNumber(row.getCell(0).getStringCellValue())
-                .setOrderNumber(row.getCell(1).getStringCellValue())
-                .setSalesChannel(row.getCell(7).getStringCellValue())
-                .setBuyer(row.getCell(8).getStringCellValue())
-                .setBuyerId(row.getCell(9).getStringCellValue())
-                .setReceiver(row.getCell(10).getStringCellValue())
-                .setPaymentDate(row.getCell(14).getDateCellValue())
-                .setProdNumber(row.getCell(15).getStringCellValue())
-                .setProdName(row.getCell(16).getStringCellValue())
-                .setOptionInfo(row.getCell(18).getStringCellValue())
-                .setOptionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
-                .setUnit((int) row.getCell(20).getNumericCellValue())
-                .setOrderConfirmationDate(row.getCell(27).getDateCellValue())
-                .setShipmentDueDate(row.getCell(28).getDateCellValue())
-                .setShipmentCostBundleNumber(row.getCell(32).getStringCellValue())
-                .setSellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
-                .setSellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
-                .setSellerInnerCode2(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
-                .setReceiverContact1(row.getCell(40).getStringCellValue())
-                .setReceiverContact2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
-                .setDestination(row.getCell(42).getStringCellValue())
-                .setBuyerContact(row.getCell(43).getStringCellValue())
-                .setZipCode(row.getCell(44).getStringCellValue())
-                .setDeliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
-                .setReleaseArea(row.getCell(46).getStringCellValue())
-                .setOrderDateTime(row.getCell(56).getDateCellValue())
-                .setReleased(false)
-                .setCreatedAt(fileDto.getCreatedAt())
-                .setDeliveryReadyFileCid(fileDto.getCid());
+            DeliveryReadyItemDto dto = DeliveryReadyItemDto.builder()
+                .id(UUID.randomUUID())
+                .prodOrderNumber(row.getCell(0).getStringCellValue())
+                .orderNumber(row.getCell(1).getStringCellValue())
+                .salesChannel(row.getCell(7).getStringCellValue())
+                .buyer(row.getCell(8).getStringCellValue())
+                .buyerId(row.getCell(9).getStringCellValue())
+                .receiver(row.getCell(10).getStringCellValue())
+                .paymentDate(row.getCell(14).getDateCellValue())
+                .prodNumber(row.getCell(15).getStringCellValue())
+                .prodName(row.getCell(16).getStringCellValue())
+                .optionInfo(row.getCell(18).getStringCellValue())
+                .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
+                .unit((int) row.getCell(20).getNumericCellValue())
+                .orderConfirmationDate(row.getCell(27).getDateCellValue())
+                .shipmentDueDate(row.getCell(28).getDateCellValue())
+                .shipmentCostBundleNumber(row.getCell(32).getStringCellValue())
+                .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
+                .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
+                .sellerInnerCode2(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
+                .receiverContact1(row.getCell(40).getStringCellValue())
+                .receiverContact2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
+                .destination(row.getCell(42).getStringCellValue())
+                .buyerContact(row.getCell(43).getStringCellValue())
+                .zipCode(row.getCell(44).getStringCellValue())
+                .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
+                .releaseArea(row.getCell(46).getStringCellValue())
+                .orderDateTime(row.getCell(56).getDateCellValue())
+                .released(false)
+                .createdAt(fileDto.getCreatedAt())
+                .deliveryReadyFileCid(fileDto.getCid())
+                .build();
 
             // 상품주문번호가 중복되지 않는다면
             if(storedProdOrderNumber.add(dto.getProdOrderNumber())){
@@ -331,7 +339,7 @@ public class DeliveryReadyService {
      */
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllUnreleased();
-        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDto(itemViewProj);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;
     }
@@ -346,20 +354,22 @@ public class DeliveryReadyService {
      * @return List::DeliveryReadyItemViewResDto::
      * @see deliveryReadyItemRepository#findSelectedReleased
      */
-    public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewReleased(String date1, String date2) {
+    public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate = null;
         Date endDate = null;
 
         try{
-            startDate = dateFormat.parse(date1);
-            endDate = dateFormat.parse(date2);
+            if(query.get("startDate") != null && query.get("endDate") != null) {
+                startDate = dateFormat.parse(query.get("startDate").toString());
+                endDate = dateFormat.parse(query.get("endDate").toString());
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
-        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDto(itemViewProj);
+        List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;
     }
@@ -406,7 +416,7 @@ public class DeliveryReadyService {
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
         List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyItemRepository.findAllOptionInfo();
-        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDto(optionInfoProjs);
+        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDtos(optionInfoProjs);
 
         return optionInfoDto;
     }
@@ -417,18 +427,17 @@ public class DeliveryReadyService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
      *
      * @param dto : DeliveryReadyItemDto
-     * @param optionCode : String
+     * @param query : Map[optionCode]
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto, String optionCode) {
+    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto, Map<String, Object> query) {
+        String optionCode = query.get("optionCode") != null ? query.get("optionCode").toString() : "";
+
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            if(optionCode.equals("null")) {
-                item.setOptionManagementCode("");
-            }
-            else{
-                item.setOptionManagementCode(optionCode);
-            }
+            
+            item.setOptionManagementCode(optionCode);
+
             deliveryReadyItemRepository.save(item);
 
         }, null);
@@ -444,14 +453,13 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto, String optionCode) {
+    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto, Map<String, Object> query) {
+        String optionCode = query.get("optionCode") != null ? query.get("optionCode").toString() : "";
+
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            if(optionCode.equals("null")) {
-                item.setOptionManagementCode("");
-            }
-            else{
-                item.setOptionManagementCode(optionCode);
-            }
+            
+            item.setOptionManagementCode(optionCode);
+
             deliveryReadyItemRepository.save(item);
 
             // 같은 상품의 옵션을 모두 변경
@@ -493,11 +501,17 @@ public class DeliveryReadyService {
      * @return List::DeliveryReadyItemExcelFormDto::
      */
     public List<DeliveryReadyItemExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {
+        List<DeliveryReadyItemExcelFormDto> formDtos = new ArrayList<>();
 
-        // // DeliveryReadyItemViewDto로 DeliveryReadyItemExcelFromDto를 만든다
-        List<DeliveryReadyItemExcelFormDto> formDtos = DeliveryReadyItemExcelFormDto.toFormDto(viewDtos);
+        // DeliveryReadyItemViewDto로 DeliveryReadyItemExcelFromDto를 만든다
+        for(DeliveryReadyItemViewDto viewDto : viewDtos) {
+            formDtos.add(DeliveryReadyItemExcelFormDto.toFormDto(viewDto));
+        }
 
-        return changeDuplicationDtos(formDtos);
+        // 중복데이터 처리
+        List<DeliveryReadyItemExcelFormDto> excelFormDtos = changeDuplicationDtos(formDtos);
+
+        return excelFormDtos;
     }
 
     /**
@@ -539,7 +553,6 @@ public class DeliveryReadyService {
             if(!optionSet.add(receiverStr)){
                 newOrderList.get(prevOrderIdx).setDuplication(true);
                 dtos.get(i).setDuplication(true);
-                System.out.println(prevOrderIdx + " " + dtos.get(prevOrderIdx).getReceiver() + ", " + i + " " + dtos.get(i).getReceiver());
             }
 
             // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우

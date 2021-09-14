@@ -7,8 +7,11 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class DeliveryReadyItemViewResDto {
     DeliveryReadyItemDto deliveryReadyItem;
+    String prodManufacturingCode;
+    String prodManagementName;
     String optionDefaultName;
     String optionManagementName;
     Integer optionStockUnit;
-    String prodManagementName;
+    String sender;
+    String senderContact1;
 }

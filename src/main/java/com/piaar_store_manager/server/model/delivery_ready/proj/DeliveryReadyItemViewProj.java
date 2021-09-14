@@ -9,25 +9,33 @@ import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyI
 
 public interface DeliveryReadyItemViewProj {
     DeliveryReadyItemEntity getDeliveryReadyItem();
+    String getProdManufacturingCode();
     String getOptionDefaultName();
     String getOptionManagementName();
     Integer getOptionStockUnit();
     String getProdManagementName();
 
-    public static List<DeliveryReadyItemViewResDto> toResDto(List<DeliveryReadyItemViewProj> itemViewProj) {
-        List<DeliveryReadyItemViewResDto> itemViewResDto = new ArrayList<>();
+    public static DeliveryReadyItemViewResDto toResDto(DeliveryReadyItemViewProj itemViewProj) {
+        DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
 
-        for(DeliveryReadyItemViewProj proj : itemViewProj){
-            DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
+        dto.setDeliveryReadyItem(DeliveryReadyItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
+            .setProdManufacturingCode(itemViewProj.getProdManufacturingCode())
+            .setProdManagementName(itemViewProj.getProdManagementName())
+            .setOptionDefaultName(itemViewProj.getOptionDefaultName())
+            .setOptionManagementName(itemViewProj.getOptionManagementName())
+            .setOptionStockUnit(itemViewProj.getOptionStockUnit());
 
-            dto.setDeliveryReadyItem(DeliveryReadyItemDto.toDto(proj.getDeliveryReadyItem()))
-                .setOptionDefaultName(proj.getOptionDefaultName())
-                .setOptionManagementName(proj.getOptionManagementName())
-                .setOptionStockUnit(proj.getOptionStockUnit())
-                .setProdManagementName(proj.getProdManagementName());
 
-            itemViewResDto.add(dto);
+        return dto;
+    }
+
+    public static List<DeliveryReadyItemViewResDto> toResDtos(List<DeliveryReadyItemViewProj> itemViewProj) {
+        List<DeliveryReadyItemViewResDto> dtos = new ArrayList<>();
+
+        for(DeliveryReadyItemViewProj proj : itemViewProj) {
+            dtos.add(toResDto(proj));
         }
-        return itemViewResDto;
+        
+        return dtos;
     }
 }
