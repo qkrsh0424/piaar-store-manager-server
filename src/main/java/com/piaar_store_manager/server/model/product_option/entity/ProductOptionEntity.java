@@ -26,6 +26,9 @@ public class ProductOptionEntity {
     @Column(name = "code")
     private String code;
 
+    @Column(name = "nos_unique_code")
+    private String nosUniqueCode;
+
     @Column(name = "default_name")
     private String defaultName;
 

@@ -54,6 +54,7 @@ public class ProductOptionService {
                 .setCid(productOptionEntity.getCid())
                 .setId(productOptionEntity.getId())
                 .setCode(productOptionEntity.getCode())
+                .setNosUniqueCode(productOptionEntity.getNosUniqueCode())
                 .setDefaultName(productOptionEntity.getDefaultName())
                 .setManagementName(productOptionEntity.getManagementName())
                 .setSalesPrice(productOptionEntity.getSalesPrice())
@@ -81,7 +82,8 @@ public class ProductOptionService {
     private ProductOptionEntity convEntityByDto(ProductOptionGetDto productOptionDto, UUID userId, Integer productCid) {
         ProductOptionEntity productOptionEntity = new ProductOptionEntity();
 
-        productOptionEntity.setId(UUID.randomUUID()).setCode(productOptionDto.getCode()).setDefaultName(productOptionDto.getDefaultName())
+        productOptionEntity.setId(UUID.randomUUID()).setCode(productOptionDto.getCode())
+                .setNosUniqueCode(productOptionDto.getNosUniqueCode()).setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName()).setSalesPrice(productOptionDto.getSalesPrice())
                 .setStockUnit(productOptionDto.getStockUnit()).setStatus(productOptionDto.getStatus())
                 .setMemo(productOptionDto.getMemo()).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
@@ -260,7 +262,9 @@ public class ProductOptionService {
      */
     public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
         productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
-            productOptionEntity.setCode(productOptionDto.getCode()).setDefaultName(productOptionDto.getDefaultName())
+            productOptionEntity.setCode(productOptionDto.getCode())
+                    .setNosUniqueCode(productOptionDto.getNosUniqueCode())
+                    .setDefaultName(productOptionDto.getDefaultName())
                     .setManagementName(productOptionDto.getManagementName())
                     .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
@@ -285,6 +289,9 @@ public class ProductOptionService {
         productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
             if (productOptionDto.getCode() != null) {
                 productOptionEntity.setCode(productOptionDto.getCode());
+            }
+            if (productOptionDto.getNosUniqueCode() != null) {
+                productOptionEntity.setNosUniqueCode(productOptionDto.getNosUniqueCode());
             }
             if (productOptionDto.getDefaultName() != null) {
                 productOptionEntity.setDefaultName(productOptionDto.getDefaultName());
