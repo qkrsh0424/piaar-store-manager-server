@@ -1,11 +1,13 @@
 package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
@@ -44,6 +46,9 @@ public class DeliveryReadyApiController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DateHandler dateHandler;
 
     /**
      * Upload excel data for delivery ready.
@@ -320,13 +325,13 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOption")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @RequestParam Map<String, Object> query) {
+    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto, query);
+                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
@@ -355,13 +360,13 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOptions")
-    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto, @RequestParam Map<String, Object> query) {
+    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto, query);
+                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
@@ -391,7 +396,7 @@ public class DeliveryReadyApiController {
 
         // 중복데이터 처리
         List<DeliveryReadyItemExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
-
+        
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("발주서 양식");

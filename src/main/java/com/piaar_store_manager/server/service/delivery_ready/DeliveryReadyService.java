@@ -431,12 +431,11 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto, Map<String, Object> query) {
-        String optionCode = query.get("optionCode") != null ? query.get("optionCode").toString() : "";
+    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto) {
 
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
-            item.setOptionManagementCode(optionCode);
+            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
             deliveryReadyItemRepository.save(item);
 
@@ -449,21 +448,19 @@ public class DeliveryReadyService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
      * @param dto : DeliveryReadyItemDto
-     * @param optionCode : String
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto, Map<String, Object> query) {
-        String optionCode = query.get("optionCode") != null ? query.get("optionCode").toString() : "";
+    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto) {
 
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
-            item.setOptionManagementCode(optionCode);
+            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
             deliveryReadyItemRepository.save(item);
 
             // 같은 상품의 옵션을 모두 변경
-            this.updateDeliveryReadyItemChangedOption(item, optionCode);
+            this.updateDeliveryReadyItemChangedOption(item);
 
         }, null);
     }
@@ -474,20 +471,15 @@ public class DeliveryReadyService {
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
      * @param item : DeliveryReadyItemEntity
-     * @param optionCode : String
      * @see deliveryReadyItemRepository#findByItems
      * @see deliveryReadyItemRepository#delete
      */
-    public void updateDeliveryReadyItemChangedOption(DeliveryReadyItemEntity item, String optionCode) {
+    public void updateDeliveryReadyItemChangedOption(DeliveryReadyItemEntity item) {
         List<DeliveryReadyItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
 
         for(DeliveryReadyItemEntity entity : entities) {
-            if(optionCode.equals("null")) {
-                entity.setOptionManagementCode("");
-            }
-            else{
-                entity.setOptionManagementCode(optionCode);
-            }
+            entity.setOptionManagementCode(item.getOptionManagementCode());
+
             deliveryReadyItemRepository.save(entity);
         }
     }
