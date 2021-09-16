@@ -2,9 +2,7 @@ package com.piaar_store_manager.server.model.delivery_ready.repository;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
@@ -21,13 +19,13 @@ public interface DeliveryReadyItemRepository extends JpaRepository<DeliveryReady
     @Query("SELECT dri.prodOrderNumber FROM DeliveryReadyItemEntity dri")
     Set<String> findAllProdOrderNumber();
 
-    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
+    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE dri.released=false")
-    List<DeliveryReadyItemViewProj> findAllUnreleased();
+    List<DeliveryReadyItemViewProj> findSelectedUnreleased();
 
-    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
+    @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacuringCode FROM DeliveryReadyItemEntity dri\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")

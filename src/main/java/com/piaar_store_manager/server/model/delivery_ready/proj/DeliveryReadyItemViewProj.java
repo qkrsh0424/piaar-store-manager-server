@@ -14,6 +14,7 @@ public interface DeliveryReadyItemViewProj {
     String getOptionManagementName();
     Integer getOptionStockUnit();
     String getProdManagementName();
+    String getOptionNosUniqueCode();
 
     public static DeliveryReadyItemViewResDto toResDto(DeliveryReadyItemViewProj itemViewProj) {
         DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
@@ -23,7 +24,8 @@ public interface DeliveryReadyItemViewProj {
             .setProdManagementName(itemViewProj.getProdManagementName())
             .setOptionDefaultName(itemViewProj.getOptionDefaultName())
             .setOptionManagementName(itemViewProj.getOptionManagementName())
-            .setOptionStockUnit(itemViewProj.getOptionStockUnit());
+            .setOptionStockUnit(itemViewProj.getOptionStockUnit())
+            .setOptionNosUniqueCode(itemViewProj.getOptionNosUniqueCode());
 
 
         return dto;

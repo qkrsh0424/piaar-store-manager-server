@@ -49,10 +49,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class DeliveryReadyService {
 
     private AmazonS3 s3Client;
@@ -338,7 +335,7 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findAllUnreleased
      */
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
-        List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findAllUnreleased();
+        List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedUnreleased();
         List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;

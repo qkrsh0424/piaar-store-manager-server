@@ -14,4 +14,5 @@ public class DeliveryReadyItemViewResDto {
     Integer optionStockUnit;
     String sender;
     String senderContact1;
+    String optionNosUniqueCode;
 }
