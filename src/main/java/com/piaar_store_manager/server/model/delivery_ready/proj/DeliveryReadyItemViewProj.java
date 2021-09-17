@@ -27,7 +27,6 @@ public interface DeliveryReadyItemViewProj {
             .setOptionStockUnit(itemViewProj.getOptionStockUnit())
             .setOptionNosUniqueCode(itemViewProj.getOptionNosUniqueCode());
 
-
         return dto;
     }
 
