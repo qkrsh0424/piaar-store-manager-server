@@ -106,7 +106,7 @@ public class DeliveryReadyService {
      * @return List::DeliveryReadyItemDto::
      * @throws IOException
      */
-    public List<DeliveryReadyItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) throws IOException {
+    public List<DeliveryReadyItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) {
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -115,10 +115,19 @@ public class DeliveryReadyService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
+        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
+        
+        try{
+            dtos = this.getDeliveryReadyExcelForm(sheet);
+        } catch (NullPointerException e) {      // 엑셀 파일 데이터의 값이 올바르지 않은 경우
+            throw new NullPointerException();
+        } catch (IllegalStateException e) {     // 배송 준비 엑셀 파일이 아닌 경우
+            throw new IllegalStateException();
+        }
 
         return dtos;
     }
+
 
     /**
      * <b>Convert Method</b>
@@ -131,13 +140,12 @@ public class DeliveryReadyService {
     private List<DeliveryReadyItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
         List<DeliveryReadyItemDto> dtos = new ArrayList<>();
 
-        for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for (int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
             DeliveryReadyItemDto dto = DeliveryReadyItemDto.builder().id(UUID.randomUUID())
                     .prodOrderNumber(row.getCell(0).getStringCellValue())
-                    .orderNumber(row.getCell(1).getStringCellValue())
-                    .salesChannel(row.getCell(7).getStringCellValue())
+                    .orderNumber(row.getCell(1).getStringCellValue()).salesChannel(row.getCell(7).getStringCellValue())
                     .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
                     .buyerId(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
                     .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
@@ -160,8 +168,7 @@ public class DeliveryReadyService {
                     .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                     .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(56) != null ? row.getCell(56).getDateCellValue() : new Date())
-                    .build();
+                    .orderDateTime(row.getCell(56) != null ? row.getCell(56).getDateCellValue() : new Date()).build();
 
             dtos.add(dto);
         }

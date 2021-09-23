@@ -85,8 +85,16 @@ public class DeliveryReadyApiController {
                 message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
                 message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("data_error");
+                message.setMemo("excel file data error");
+            } catch (IllegalStateException e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("excel_type_error");
+                message.setMemo("This is not a delivery-ready excel file");
+            } catch (Exception e) {
+                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
                 message.setMessage("error");
             }
         }
@@ -130,7 +138,7 @@ public class DeliveryReadyApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
                 message.setMessage("error");
             }
         } else {
