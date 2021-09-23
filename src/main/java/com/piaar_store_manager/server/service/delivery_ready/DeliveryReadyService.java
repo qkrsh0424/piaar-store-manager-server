@@ -115,15 +115,7 @@ public class DeliveryReadyService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
-        
-        try{
-            dtos = this.getDeliveryReadyExcelForm(sheet);
-        } catch (NullPointerException e) {      // 엑셀 파일 데이터의 값이 올바르지 않은 경우
-            throw new NullPointerException();
-        } catch (IllegalStateException e) {     // 배송 준비 엑셀 파일이 아닌 경우
-            throw new IllegalStateException();
-        }
+        List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
 
         return dtos;
     }
@@ -261,7 +253,7 @@ public class DeliveryReadyService {
      * @return DeliveryReadyFileEntity
      * @throws IllegalArgumentException
      */
-    public void createDeliveryReadyItemData(MultipartFile file, DeliveryReadyFileDto fileDto) throws IllegalArgumentException {
+    public void createDeliveryReadyItemData(MultipartFile file, DeliveryReadyFileDto fileDto) {
 
         Workbook workbook = null;
         try{
