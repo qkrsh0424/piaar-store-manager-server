@@ -40,15 +40,8 @@ public class FileUploadApiController {
         Message message = new Message();
         
         // file extension check.
-        try{
-            fileUploadservice.isImageFile(files);
-        } catch(Exception e){
-            message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-            message.setMessage("file_extension_error");
-            message.setMemo("This is not an image file.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
-
+        fileUploadservice.isImageFile(files);
+        
         if (userService.isManager()) {
             try{
                 message.setData(fileUploadservice.uploadFilesToLocal(files));
@@ -80,24 +73,12 @@ public class FileUploadApiController {
         Message message = new Message();
 
         // file extension check.
-        try{
-            fileUploadservice.isImageFile(files);
-        } catch(Exception e){
-            message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-            message.setMessage("file_extension_error");
-            message.setMemo("This is not an image file.");
-            return new ResponseEntity<>(message, message.getStatus());
-        }
+        fileUploadservice.isImageFile(files);
 
         if (userService.isManager()) {
-            try{
-                message.setData(fileUploadservice.uploadFilesToCloud(files));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
+            message.setData(fileUploadservice.uploadFilesToCloud(files));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         } else {
             userService.userDenyCheck(message);
         }

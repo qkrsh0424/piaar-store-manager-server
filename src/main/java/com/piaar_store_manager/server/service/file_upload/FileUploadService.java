@@ -132,7 +132,7 @@ public class FileUploadService{
      * @param file : MultipartFile
      * @return FileUploadResponse
      */
-    public FileUploadResponse uploadFileToCloud(MultipartFile file) throws IOException {
+    public FileUploadResponse uploadFileToCloud(MultipartFile file) {
         String uploadPath = bucket + "/upload/image";
         String fileName = "PiaarMS_" + UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename();
 
@@ -140,9 +140,13 @@ public class FileUploadService{
         objMeta.setContentLength(file.getSize());
         objMeta.setContentType(file.getContentType());
         
-        s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta)
+        try{
+            s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
-                                                      
+        } catch (IOException e) {
+            e.printStackTrace();
+        }   
+
         return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
     }
 
@@ -153,7 +157,7 @@ public class FileUploadService{
      * @param file : List::MultipartFile::
      * @return List::FileUploadResponse::
      */
-    public List<FileUploadResponse> uploadFilesToCloud(List<MultipartFile> files) throws IOException {
+    public List<FileUploadResponse> uploadFilesToCloud(List<MultipartFile> files){
         List<FileUploadResponse> uploadFiles = new ArrayList<>();
 
         for(MultipartFile file : files){

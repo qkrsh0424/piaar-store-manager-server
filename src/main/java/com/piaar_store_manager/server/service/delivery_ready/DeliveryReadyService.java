@@ -44,6 +44,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -86,15 +87,15 @@ public class DeliveryReadyService {
      * <p>
      * 
      * @param file : MultipartFile
-     * @throws IOException
+     * @throws FileUploadException
      */
-    public void isExcelFile(MultipartFile file) throws IOException{
+    public void isExcelFile(MultipartFile file) {
         String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
 
         if(EXTENSIONS_EXCEL.contains(extension)){
             return;
         }
-        throw new IOException("엑셀파일만 업로드 해주세요.");
+        throw new FileUploadException("This is not an excel file.");
     }
     
     /**
@@ -115,6 +116,8 @@ public class DeliveryReadyService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
+        
+        // try{
         List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
 
         return dtos;
@@ -177,16 +180,19 @@ public class DeliveryReadyService {
      * @return FileUploadResponse
      * @see ProductRepository#findById
      */
-    public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws IOException {
+    public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
         String fileName = file.getOriginalFilename();
         String uploadPath = bucket + "/naver-order";
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(file.getSize());
 
-        // AWS S3 업로드
-        s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta)
-                .withCannedAcl(CannedAccessControlList.PublicRead));
+        try{
+            // AWS S3 업로드
+            s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // file DB저장
         // DeliveryReadyFileEntity 생성

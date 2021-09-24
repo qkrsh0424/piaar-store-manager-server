@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,32 +72,11 @@ public class DeliveryReadyApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            try {
-                deliveryReadyService.isExcelFile(file);
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-                message.setMessage("file_extension_error");
-                message.setMemo("엑셀 파일을 업로드 해주세요.");
-                return new ResponseEntity<>(message, message.getStatus());
-            }
+            deliveryReadyService.isExcelFile(file);
 
-            try {
-                message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("data_error");
-                message.setMemo("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("excel_type_error");
-                message.setMemo("배송 준비 엑셀 파일을 업로드해주세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
-            }
+            message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -126,28 +104,11 @@ public class DeliveryReadyApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            try {
-                deliveryReadyService.isExcelFile(file);
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-                message.setMessage("file_extension_error");
-                message.setMemo("엑셀 파일을 업로드 해주세요.");
-                return new ResponseEntity<>(message, message.getStatus());
-            }
+            deliveryReadyService.isExcelFile(file);
 
-            try {
-                message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
-            }
+            message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         } else {
             userService.userDenyCheck(message);
         }
@@ -173,19 +134,9 @@ public class DeliveryReadyApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            try {
-                message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
-            }
+            message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         } else {
             userService.userDenyCheck(message);
         }
@@ -212,19 +163,9 @@ public class DeliveryReadyApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            try {
-                message.setData(deliveryReadyService.getDeliveryReadyViewReleased(query));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
-            }catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
-            }
+            message.setData(deliveryReadyService.getDeliveryReadyViewReleased(query));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         } else {
             userService.userDenyCheck(message);
         }
@@ -250,22 +191,14 @@ public class DeliveryReadyApiController {
         Message message = new Message();
 
         if (userService.isManager()) {
-            try {
+            try{
                 deliveryReadyService.deleteOneDeliveryReadyViewData(itemCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
             } catch (NullPointerException e) {
                 message.setStatus(HttpStatus.NOT_FOUND);
                 message.setMessage("not_found");
                 message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
             }
         } else {
             userService.userDenyCheck(message);
@@ -297,18 +230,10 @@ public class DeliveryReadyApiController {
                 deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
             } catch (NullPointerException e) {
                 message.setStatus(HttpStatus.NOT_FOUND);
                 message.setMessage("not_found");
                 message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
             }
         } else {
             userService.userDenyCheck(message);
@@ -335,19 +260,9 @@ public class DeliveryReadyApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            try {
-                message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
-            }
+            message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
         } else {
             userService.userDenyCheck(message);
         }
@@ -378,18 +293,10 @@ public class DeliveryReadyApiController {
                 deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
             } catch (NullPointerException e) {
                 message.setStatus(HttpStatus.NOT_FOUND);
                 message.setMessage("not_found");
                 message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
             }
         } else {
             userService.userDenyCheck(message);
@@ -422,18 +329,10 @@ public class DeliveryReadyApiController {
                 deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch (DataAccessException e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("db_error");
-                message.setMemo("데이터베이스 오류. 관리자에게 문의하세요.");
             } catch (NullPointerException e) {
                 message.setStatus(HttpStatus.NOT_FOUND);
                 message.setMessage("not_found");
                 message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            } catch (Exception e) {
-                message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-                message.setMessage("error");
-                message.setMemo("undefined error.");
             }
         } else {
             userService.userDenyCheck(message);
