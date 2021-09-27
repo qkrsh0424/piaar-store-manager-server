@@ -132,7 +132,7 @@ public class DeliveryReadyItemEntity {
             .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
             .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
             .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-            .setSellerProdCode(entity.getSellerProdCode()).setSellerInnerCode1(entity.getSellerInnerCode1())
+            .setSellerProdCode(dto.getSellerProdCode()).setSellerInnerCode1(dto.getSellerInnerCode1())
             .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
             .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
             .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())

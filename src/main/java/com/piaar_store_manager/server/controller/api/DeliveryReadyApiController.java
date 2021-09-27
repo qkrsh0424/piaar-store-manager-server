@@ -1,12 +1,14 @@
 package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
@@ -74,9 +76,15 @@ public class DeliveryReadyApiController {
             // file extension check.
             deliveryReadyService.isExcelFile(file);
 
-            message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
+            try{
+                message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+            } catch (IllegalStateException e) {
+                throw new DeliveryReadyFileUploadException("배송 준비 엑셀 파일이 아닙니다. 배송 준비 엑셀 파일을 업로드해주세요");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -158,7 +166,7 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @GetMapping("/view/release")
-    public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) {
+    public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
 
         // 유저의 권한을 체크한다.
@@ -464,7 +472,7 @@ public class DeliveryReadyApiController {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException();
         }
 
         // released, released_at 설정
@@ -606,7 +614,7 @@ public class DeliveryReadyApiController {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalArgumentException();
         }
 
         // released, released_at 설정

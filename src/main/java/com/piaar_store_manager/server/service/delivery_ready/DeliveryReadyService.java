@@ -44,6 +44,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+
 import com.piaar_store_manager.server.exception.FileUploadException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,15 +110,16 @@ public class DeliveryReadyService {
      */
     public List<DeliveryReadyItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) {
         Workbook workbook = null;
+        
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IllegalArgumentException();
         }
 
+        // TODO : 타입체크 메서드 구현해야됨.
         Sheet sheet = workbook.getSheetAt(0);
-        
-        // try{
+
         List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
 
         return dtos;
@@ -191,7 +193,7 @@ public class DeliveryReadyService {
             // AWS S3 업로드
             s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException();
         }
 
         // file DB저장
@@ -264,7 +266,7 @@ public class DeliveryReadyService {
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new IllegalArgumentException();
         }
 
@@ -354,9 +356,10 @@ public class DeliveryReadyService {
      * @param date1 : String
      * @param date2 : String
      * @return List::DeliveryReadyItemViewResDto::
+     * @throws ParseException
      * @see deliveryReadyItemRepository#findSelectedReleased
      */
-    public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) {
+    public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate = null;
         Date endDate = null;
@@ -367,7 +370,7 @@ public class DeliveryReadyService {
                 endDate = dateFormat.parse(query.get("endDate").toString());
             }
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new ParseException("date format parse error", -1);
         }
 
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
