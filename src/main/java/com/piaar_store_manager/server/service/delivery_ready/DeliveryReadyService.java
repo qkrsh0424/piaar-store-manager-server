@@ -271,7 +271,18 @@ public class DeliveryReadyService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        this.getDeliveryReadyExcelData(sheet, fileDto);
+        List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelData(sheet, fileDto);
+        List<DeliveryReadyItemEntity> entities = new ArrayList<>();
+        
+        dtos.sort(Comparator.comparing(DeliveryReadyItemDto::getProdName)
+                .thenComparing(DeliveryReadyItemDto::getOptionInfo)
+                .thenComparing(DeliveryReadyItemDto::getReceiver));
+
+        for(DeliveryReadyItemDto dto : dtos) {
+            entities.add(DeliveryReadyItemEntity.toEntity(dto));
+        }
+
+        deliveryReadyItemRepository.saveAll(entities);
     }
 
     /**
@@ -283,8 +294,8 @@ public class DeliveryReadyService {
      * @param fileDto : DeliveryReadyFileDto
      * @see DeliveryReadyItemRepository#findAllProdOrderNumber
      */
-    private void getDeliveryReadyExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) {
-        List<DeliveryReadyItemEntity> entities = new ArrayList<>();
+    private List<DeliveryReadyItemDto> getDeliveryReadyExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) {
+        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
 
         Set<String> storedProdOrderNumber = deliveryReadyItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
 
@@ -305,7 +316,7 @@ public class DeliveryReadyService {
                 .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
                 .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
                 .unit((int) row.getCell(20).getNumericCellValue())
-                .orderConfirmationDate(row.getCell(27) != null ? row.getCell(27).getDateCellValue() : new Date())
+                .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? row.getCell(27).getDateCellValue() : new Date())
                 .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getDateCellValue() : new Date())
                 .shipmentCostBundleNumber(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
                 .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
@@ -326,11 +337,10 @@ public class DeliveryReadyService {
 
             // 상품주문번호가 중복되지 않는다면
             if(storedProdOrderNumber.add(dto.getProdOrderNumber())){
-                DeliveryReadyItemEntity entity = DeliveryReadyItemEntity.toEntity(dto);
-                entities.add(entity);
+                dtos.add(dto);
             }
         }
-        deliveryReadyItemRepository.saveAll(entities);
+        return dtos;
     }
 
     /**
