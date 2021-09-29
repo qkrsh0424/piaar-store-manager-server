@@ -142,6 +142,7 @@ public class UserService {
             message.setMemo("need login");
         }else{
             message.setMessage("access_denied");
+            message.setMemo("access denied");
         }
 
         message.setStatus(HttpStatus.FORBIDDEN);
