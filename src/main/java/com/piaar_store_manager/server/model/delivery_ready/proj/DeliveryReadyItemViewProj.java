@@ -3,12 +3,12 @@ package com.piaar_store_manager.server.model.delivery_ready.proj;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewResDto;
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
 
 public interface DeliveryReadyItemViewProj {
-    DeliveryReadyItemEntity getDeliveryReadyItem();
+    DeliveryReadyNaverItemEntity getDeliveryReadyItem();
     String getProdManufacturingCode();
     String getOptionDefaultName();
     String getOptionManagementName();
@@ -19,7 +19,7 @@ public interface DeliveryReadyItemViewProj {
     public static DeliveryReadyItemViewResDto toResDto(DeliveryReadyItemViewProj itemViewProj) {
         DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
 
-        dto.setDeliveryReadyItem(DeliveryReadyItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
+        dto.setDeliveryReadyItem(DeliveryReadyNaverItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
             .setProdManufacturingCode(itemViewProj.getProdManufacturingCode())
             .setProdManagementName(itemViewProj.getProdManagementName())
             .setOptionDefaultName(itemViewProj.getOptionDefaultName())

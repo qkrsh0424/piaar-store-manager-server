@@ -10,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
 
 import org.hibernate.annotations.Type;
 
@@ -19,9 +19,9 @@ import lombok.experimental.Accessors;
 
 @Entity
 @Data
-@Table(name = "delivery_ready_item")
+@Table(name = "delivery_ready_naver_item")
 @Accessors(chain=true)
-public class DeliveryReadyItemEntity {
+public class DeliveryReadyNaverItemEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -122,8 +122,8 @@ public class DeliveryReadyItemEntity {
     @Column(name = "delivery_ready_file_cid")
     private Integer deliveryReadyFileCid;
 
-    public static DeliveryReadyItemEntity toEntity(DeliveryReadyItemDto dto){
-        DeliveryReadyItemEntity entity = new DeliveryReadyItemEntity();
+    public static DeliveryReadyNaverItemEntity toEntity(DeliveryReadyNaverItemDto dto){
+        DeliveryReadyNaverItemEntity entity = new DeliveryReadyNaverItemEntity();
 
         entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
             .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())

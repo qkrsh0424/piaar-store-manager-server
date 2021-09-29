@@ -7,7 +7,7 @@ import lombok.experimental.Accessors;
 @Data
 @Builder
 @Accessors(chain = true)
-public class DeliveryReadyItemExcelFormDto {
+public class DeliveryReadyItemHansanExcelFormDto {
     private String receiver; // 수취인명
     private String receiverContact1; // 수취인연락처1
     private String zipCode; // 우편번호
@@ -30,28 +30,28 @@ public class DeliveryReadyItemExcelFormDto {
 
     private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 
-    public static DeliveryReadyItemExcelFormDto toFormDto(DeliveryReadyItemViewDto viewDto) {
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyItemViewDto viewDto) {
 
-        DeliveryReadyItemExcelFormDto formDto = DeliveryReadyItemExcelFormDto.builder()
-                .receiver(viewDto.getDeliveryReadyItem().getReceiver())
-                .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
-                .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
-                .destination(viewDto.getDeliveryReadyItem().getDestination())
+        DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
+                .receiver(viewDto.getDeliveryReadyNaverItem().getReceiver())
+                .receiverContact1(viewDto.getDeliveryReadyNaverItem().getReceiverContact1())
+                .zipCode(viewDto.getDeliveryReadyNaverItem().getZipCode())
+                .destination(viewDto.getDeliveryReadyNaverItem().getDestination())
                 .transportNumber("")
-                .prodName(viewDto.getDeliveryReadyItem().getProdName())
+                .prodName(viewDto.getDeliveryReadyNaverItem().getProdName())
                 .sender(viewDto.getSender())
                 .senderContact1(viewDto.getSenderContact1())
-                .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
-                .unit(viewDto.getDeliveryReadyItem().getUnit())
-                .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
+                .optionInfo(viewDto.getDeliveryReadyNaverItem().getOptionInfo())
+                .unit(viewDto.getDeliveryReadyNaverItem().getUnit())
+                .deliveryMessage(viewDto.getDeliveryReadyNaverItem().getDeliveryMessage())
                 .unitA("")
-                .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
-                .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .orderNumber(viewDto.getDeliveryReadyNaverItem().getOrderNumber())
+                .prodOrderNumber(viewDto.getDeliveryReadyNaverItem().getProdOrderNumber())
                 .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
                 .storeProdName(viewDto.getProdManagementName())
                 .storeOptionName(viewDto.getOptionManagementName())
-                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
-                .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .optionManagementCode(viewDto.getDeliveryReadyNaverItem().getOptionManagementCode())
+                .allProdOrderNumber(viewDto.getDeliveryReadyNaverItem().getProdOrderNumber())
                 .duplication(false)
                 .build();
 

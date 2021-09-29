@@ -26,13 +26,13 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
@@ -105,10 +105,10 @@ public class DeliveryReadyService {
      * 엑셀 파일을 업로드하여 화면에 출력한다.
      * 
      * @param file : MultipartFile
-     * @return List::DeliveryReadyItemDto::
+     * @return List::DeliveryReadyNaverItemDto::
      * @throws IOException
      */
-    public List<DeliveryReadyItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) {
+    public List<DeliveryReadyNaverItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) {
         Workbook workbook = null;
         
         try{
@@ -120,7 +120,7 @@ public class DeliveryReadyService {
         // TODO : 타입체크 메서드 구현해야됨.
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
+        List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
 
         return dtos;
     }
@@ -132,15 +132,15 @@ public class DeliveryReadyService {
      * 선택된 엑셀파일의 데이터들을 Dto로 만든다.
      * 
      * @param worksheet : Sheet
-     * @return List::DeliveryReadyItemDto::
+     * @return List::DeliveryReadyNaverItemDto::
      */
-    private List<DeliveryReadyItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
-        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
+    private List<DeliveryReadyNaverItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
+        List<DeliveryReadyNaverItemDto> dtos = new ArrayList<>();
 
         for (int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
-            DeliveryReadyItemDto dto = DeliveryReadyItemDto.builder().id(UUID.randomUUID())
+            DeliveryReadyNaverItemDto dto = DeliveryReadyNaverItemDto.builder().id(UUID.randomUUID())
                     .prodOrderNumber(row.getCell(0).getStringCellValue())
                     .orderNumber(row.getCell(1).getStringCellValue()).salesChannel(row.getCell(7).getStringCellValue())
                     .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
@@ -271,15 +271,15 @@ public class DeliveryReadyService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyItemDto> dtos = this.getDeliveryReadyExcelData(sheet, fileDto);
-        List<DeliveryReadyItemEntity> entities = new ArrayList<>();
+        List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyNaverExcelData(sheet, fileDto);
+        List<DeliveryReadyNaverItemEntity> entities = new ArrayList<>();
         
-        dtos.sort(Comparator.comparing(DeliveryReadyItemDto::getProdName)
-                .thenComparing(DeliveryReadyItemDto::getOptionInfo)
-                .thenComparing(DeliveryReadyItemDto::getReceiver));
+        dtos.sort(Comparator.comparing(DeliveryReadyNaverItemDto::getProdName)
+                .thenComparing(DeliveryReadyNaverItemDto::getOptionInfo)
+                .thenComparing(DeliveryReadyNaverItemDto::getReceiver));
 
-        for(DeliveryReadyItemDto dto : dtos) {
-            entities.add(DeliveryReadyItemEntity.toEntity(dto));
+        for(DeliveryReadyNaverItemDto dto : dtos) {
+            entities.add(DeliveryReadyNaverItemEntity.toEntity(dto));
         }
 
         deliveryReadyItemRepository.saveAll(entities);
@@ -294,15 +294,15 @@ public class DeliveryReadyService {
      * @param fileDto : DeliveryReadyFileDto
      * @see DeliveryReadyItemRepository#findAllProdOrderNumber
      */
-    private List<DeliveryReadyItemDto> getDeliveryReadyExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) {
-        List<DeliveryReadyItemDto> dtos = new ArrayList<>();
+    private List<DeliveryReadyNaverItemDto> getDeliveryReadyNaverExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) {
+        List<DeliveryReadyNaverItemDto> dtos = new ArrayList<>();
 
         Set<String> storedProdOrderNumber = deliveryReadyItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
 
         for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
-            DeliveryReadyItemDto dto = DeliveryReadyItemDto.builder()
+            DeliveryReadyNaverItemDto dto = DeliveryReadyNaverItemDto.builder()
                 .id(UUID.randomUUID())
                 .prodOrderNumber(row.getCell(0).getStringCellValue())
                 .orderNumber(row.getCell(1).getStringCellValue())
@@ -413,7 +413,7 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#delete
      */
-    public void updateReleasedDeliveryReadyItem(DeliveryReadyItemDto dto) {
+    public void updateReleasedDeliveryReadyItem(DeliveryReadyNaverItemDto dto) {
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
@@ -446,7 +446,7 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyItemDto dto) {
+    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyNaverItemDto dto) {
 
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
@@ -466,7 +466,7 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findById
      * @see deliveryReadyItemRepository#save
      */
-    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyItemDto dto) {
+    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyNaverItemDto dto) {
 
         deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
@@ -489,10 +489,10 @@ public class DeliveryReadyService {
      * @see deliveryReadyItemRepository#findByItems
      * @see deliveryReadyItemRepository#delete
      */
-    public void updateDeliveryReadyItemChangedOption(DeliveryReadyItemEntity item) {
-        List<DeliveryReadyItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
+    public void updateDeliveryReadyItemChangedOption(DeliveryReadyNaverItemEntity item) {
+        List<DeliveryReadyNaverItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
 
-        for(DeliveryReadyItemEntity entity : entities) {
+        for(DeliveryReadyNaverItemEntity entity : entities) {
             entity.setOptionManagementCode(item.getOptionManagementCode());
 
             deliveryReadyItemRepository.save(entity);
@@ -507,16 +507,16 @@ public class DeliveryReadyService {
      * @param viewDtos : List::DeliveryReadyItemViewDto::
      * @return List::DeliveryReadyItemExcelFormDto::
      */
-    public List<DeliveryReadyItemExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {
-        List<DeliveryReadyItemExcelFormDto> formDtos = new ArrayList<>();
+    public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyItemViewDto> viewDtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = new ArrayList<>();
 
         // DeliveryReadyItemViewDto로 DeliveryReadyItemExcelFromDto를 만든다
         for(DeliveryReadyItemViewDto viewDto : viewDtos) {
-            formDtos.add(DeliveryReadyItemExcelFormDto.toFormDto(viewDto));
+            formDtos.add(DeliveryReadyItemHansanExcelFormDto.toFormDto(viewDto));
         }
 
         // 중복데이터 처리
-        List<DeliveryReadyItemExcelFormDto> excelFormDtos = changeDuplicationDtos(formDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = changeDuplicationDtos(formDtos);
 
         return excelFormDtos;
     }
@@ -529,14 +529,14 @@ public class DeliveryReadyService {
      * @param dtos : List::DeliveryReadyItemExcelFormDto::
      * @return List::DeliveryReadyItemExcelFormDto::
      */
-    public List<DeliveryReadyItemExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemExcelFormDto> dtos) {
-        List<DeliveryReadyItemExcelFormDto> newOrderList = new ArrayList<>();
+    public List<DeliveryReadyItemHansanExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemHansanExcelFormDto> dtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> newOrderList = new ArrayList<>();
 
         // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
-        dtos.sort(Comparator.comparing(DeliveryReadyItemExcelFormDto::getReceiver)
-                                .thenComparing(DeliveryReadyItemExcelFormDto::getOrderNumber)
-                                .thenComparing(DeliveryReadyItemExcelFormDto::getProdName)
-                                .thenComparing(DeliveryReadyItemExcelFormDto::getOptionInfo));
+        dtos.sort(Comparator.comparing(DeliveryReadyItemHansanExcelFormDto::getReceiver)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOrderNumber)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getProdName)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOptionInfo));
 
         Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
 
@@ -564,8 +564,8 @@ public class DeliveryReadyService {
 
             // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
             if(!optionSet.add(resultStr)){
-                DeliveryReadyItemExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
-                DeliveryReadyItemExcelFormDto currentProd = dtos.get(i);
+                DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
 
                 newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
                 newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + " / " + currentProd.getProdOrderNumber());     // 총 상품번호 수정
@@ -591,7 +591,7 @@ public class DeliveryReadyService {
         List<Integer> cidList = new ArrayList<>();
         
         for(DeliveryReadyItemViewDto dto : dtos){
-            cidList.add(dto.getDeliveryReadyItem().getCid());
+            cidList.add(dto.getDeliveryReadyNaverItem().getCid());
         }
         deliveryReadyItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }

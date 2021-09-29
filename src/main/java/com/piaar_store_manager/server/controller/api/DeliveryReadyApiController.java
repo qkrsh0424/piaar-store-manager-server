@@ -9,8 +9,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
@@ -220,7 +220,7 @@ public class DeliveryReadyApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/view/updateOne</b>
      *
-     * @param deliveryReadyItemDto : DeliveryReadyItemDto
+     * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -229,13 +229,13 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOne")
-    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
+    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyItemDto);
+                deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -292,13 +292,13 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOption")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
+    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyItemDto);
+                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -318,7 +318,7 @@ public class DeliveryReadyApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/view/updateOptions</b>
      *
-     * @param deliveryReadyItemDto : DeliveryReadyItemDto
+     * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @param query : Map[optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -328,13 +328,13 @@ public class DeliveryReadyApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/view/updateOptions")
-    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyItemDto deliveryReadyItemDto) {
+    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
         
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyItemDto);
+                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -364,7 +364,7 @@ public class DeliveryReadyApiController {
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx

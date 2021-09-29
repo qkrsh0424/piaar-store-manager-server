@@ -3,7 +3,7 @@ package com.piaar_store_manager.server.model.delivery_ready.dto;
 import java.util.Date;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain=true)
-public class DeliveryReadyItemDto {
+public class DeliveryReadyNaverItemDto {
     private Integer cid;
     private UUID id;
     private String prodOrderNumber;     // 상품주문번호(0)
@@ -50,8 +50,8 @@ public class DeliveryReadyItemDto {
     private Date createdAt;
     private Integer deliveryReadyFileCid;
 
-    public static DeliveryReadyItemDto toDto(DeliveryReadyItemEntity entity) {
-        DeliveryReadyItemDto itemDto = DeliveryReadyItemDto.builder()
+    public static DeliveryReadyNaverItemDto toDto(DeliveryReadyNaverItemEntity entity) {
+        DeliveryReadyNaverItemDto itemDto = DeliveryReadyNaverItemDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
             .prodOrderNumber(entity.getProdOrderNumber())

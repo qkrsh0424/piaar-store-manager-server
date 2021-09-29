@@ -1,13 +1,13 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
 
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
 
 import lombok.Data;
 
 @Data
 public class DeliveryReadyItemViewDto {
-    private DeliveryReadyItemEntity deliveryReadyItem;
+    private DeliveryReadyNaverItemEntity deliveryReadyNaverItem;
     private String prodManufacturingCode;
     private String prodManagementName;
     private String optionDefaultName;
