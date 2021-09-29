@@ -591,7 +591,7 @@ public class DeliveryReadyService {
         List<Integer> cidList = new ArrayList<>();
         
         for(DeliveryReadyItemViewDto dto : dtos){
-            cidList.add(dto.getDeliveryReadyNaverItem().getCid());
+            cidList.add(dto.getDeliveryReadyItem().getCid());
         }
         deliveryReadyItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }

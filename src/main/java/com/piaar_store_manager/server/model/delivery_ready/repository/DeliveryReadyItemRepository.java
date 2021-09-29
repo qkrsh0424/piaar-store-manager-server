@@ -25,8 +25,6 @@ public interface DeliveryReadyItemRepository extends JpaRepository<DeliveryReady
         + "WHERE dri.released=false")
     List<DeliveryReadyItemViewProj> findSelectedUnreleased();
 
-    // Naver, deliveryReadyItem : DTO, dri : naver entity
-    // deliveryReadyItemDto [ naver entity, coupang entity ]
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyNaverItemEntity dri\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class DeliveryReadyItemViewDto {
-    private DeliveryReadyNaverItemEntity deliveryReadyNaverItem;
+    private DeliveryReadyNaverItemEntity deliveryReadyItem;
     private String prodManufacturingCode;
     private String prodManagementName;
     private String optionDefaultName;
