@@ -1,12 +1,11 @@
-package com.piaar_store_manager.server.model.delivery_ready.repository;
+package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemViewProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

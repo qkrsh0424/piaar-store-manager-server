@@ -1,9 +1,9 @@
-package com.piaar_store_manager.server.model.delivery_ready.dto;
+package com.piaar_store_manager.server.model.delivery_ready.naver.dto;
 
 import java.util.Date;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

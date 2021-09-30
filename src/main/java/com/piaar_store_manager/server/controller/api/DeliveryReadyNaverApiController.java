@@ -9,12 +9,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.message.Message;
-import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyService;
+import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -43,11 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/delivery-ready")
-public class DeliveryReadyApiController {
+@RequestMapping("/api/v1/delivery-ready/naver")
+public class DeliveryReadyNaverApiController {
     
     @Autowired
-    private DeliveryReadyService deliveryReadyService;
+    private DeliveryReadyNaverService deliveryReadyService;
 
     @Autowired
     private UserService userService;
@@ -62,8 +62,8 @@ public class DeliveryReadyApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyService#isExcelFile
-     * @see DeliveryReadyService#uploadDeliveryReadyExcelFile
+     * @see DeliveryReadyNaverService#isExcelFile
+     * @see DeliveryReadyNaverService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      * @see UserService#userDenyCheck
      */
@@ -86,7 +86,7 @@ public class DeliveryReadyApiController {
             } catch (NullPointerException e) {
                 throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                throw new DeliveryReadyFileUploadException("배송 준비 엑셀 파일이 아닙니다. 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다. 올바른 배송 준비 엑셀 파일을 업로드해주세요");
             }
         }
 
@@ -103,8 +103,8 @@ public class DeliveryReadyApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyService#isExcelFile
-     * @see DeliveryReadyService#storeDeliveryReadyExcelFile
+     * @see DeliveryReadyNaverService#isExcelFile
+     * @see DeliveryReadyNaverService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -135,7 +135,7 @@ public class DeliveryReadyApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyService#getDeliveryReadyViewUnreleasedData
+     * @see DeliveryReadyNaverService#getDeliveryReadyViewUnreleasedData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -164,11 +164,11 @@ public class DeliveryReadyApiController {
      * @param query : Map[startDate, endDate]
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyService#getDeliveryReadyViewReleased
+     * @see DeliveryReadyNaverService#getDeliveryReadyViewReleased
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @GetMapping("/view/release")
+    @GetMapping("/view/released")
     public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
 
@@ -261,7 +261,7 @@ public class DeliveryReadyApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyService#searchDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyNaverService#searchDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -402,13 +402,13 @@ public class DeliveryReadyApiController {
         cell = row.createCell(11);
         cell.setCellValue("수량(A타입)");
         cell = row.createCell(12);
-        cell.setCellValue("주문번호");
+        cell.setCellValue("묶음배송번호");
         cell = row.createCell(13);
         cell.setCellValue("상품주문번호");
         cell = row.createCell(14);
-        cell.setCellValue("스마트스토어 상품명");
+        cell.setCellValue("오픈마켓 상품명");
         cell = row.createCell(15);
-        cell.setCellValue("스마트스토어 옵션명");
+        cell.setCellValue("오픈마켓 옵션명");
         cell = row.createCell(16);
         cell.setCellValue("옵션관리코드");
         cell = row.createCell(17);
@@ -534,7 +534,7 @@ public class DeliveryReadyApiController {
         cell = row.createCell(11);
         cell.setCellValue("배송메세지");
         cell = row.createCell(12);
-        cell.setCellValue("주문번호");
+        cell.setCellValue("묶음배송번호");
         cell = row.createCell(13);
         cell.setCellValue("관리번호1");
         cell = row.createCell(14);

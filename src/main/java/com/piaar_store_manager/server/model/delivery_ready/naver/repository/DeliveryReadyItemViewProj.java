@@ -1,11 +1,11 @@
-package com.piaar_store_manager.server.model.delivery_ready.proj;
+package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewResDto;
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewResDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 
 public interface DeliveryReadyItemViewProj {
     DeliveryReadyNaverItemEntity getDeliveryReadyItem();

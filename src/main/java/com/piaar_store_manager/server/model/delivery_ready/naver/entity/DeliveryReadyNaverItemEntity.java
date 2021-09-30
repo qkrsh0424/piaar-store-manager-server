@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.delivery_ready.entity;
+package com.piaar_store_manager.server.model.delivery_ready.naver.entity;
 
 import java.util.Date;
 import java.util.UUID;
@@ -10,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 
 import org.hibernate.annotations.Type;
 

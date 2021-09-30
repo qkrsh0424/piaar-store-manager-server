@@ -26,17 +26,17 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewResDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyItemRepository;
+import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
-import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyItemRepository;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
 import org.apache.commons.io.FilenameUtils;
@@ -51,8 +51,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
-public class DeliveryReadyService {
+@Slf4j
+public class DeliveryReadyNaverService {
 
     private AmazonS3 s3Client;
 
@@ -184,6 +187,7 @@ public class DeliveryReadyService {
      */
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
         String fileName = file.getOriginalFilename();
+        String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = bucket + "/naver-order";
 
         ObjectMetadata objMeta = new ObjectMetadata();
@@ -191,19 +195,19 @@ public class DeliveryReadyService {
 
         try{
             // AWS S3 업로드
-            s3Client.putObject(new PutObjectRequest(uploadPath, fileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
+            s3Client.putObject(new PutObjectRequest(uploadPath, newFileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
             throw new IllegalStateException();
         }
 
         // file DB저장
         // DeliveryReadyFileEntity 생성
-        DeliveryReadyFileEntity entity = this.createDeliveryReadyFileDto(s3Client.getUrl(uploadPath, fileName).toString(), fileName, (int)file.getSize(), userId);
+        DeliveryReadyFileEntity entity = this.createDeliveryReadyFileDto(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize(), userId);
 
         // item 중복데이터 제거 후 items DB저장
         this.createDeliveryReadyItemData(file, DeliveryReadyFileDto.toDto(entity));
                                                       
-        return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
+        return new FileUploadResponse(newFileName, s3Client.getUrl(uploadPath, newFileName).toString(), file.getContentType(), file.getSize());
     }
 
     /**

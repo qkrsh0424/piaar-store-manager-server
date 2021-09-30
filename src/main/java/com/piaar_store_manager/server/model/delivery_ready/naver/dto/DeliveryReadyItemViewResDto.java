@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.delivery_ready.dto;
+package com.piaar_store_manager.server.model.delivery_ready.naver.dto;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

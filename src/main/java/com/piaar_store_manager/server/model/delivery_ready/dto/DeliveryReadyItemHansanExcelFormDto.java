@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;

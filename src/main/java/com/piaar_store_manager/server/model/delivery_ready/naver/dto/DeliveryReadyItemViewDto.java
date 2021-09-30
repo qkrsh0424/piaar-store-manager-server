@@ -1,7 +1,7 @@
-package com.piaar_store_manager.server.model.delivery_ready.dto;
+package com.piaar_store_manager.server.model.delivery_ready.naver.dto;
 
 
-import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 
 import lombok.Data;
 
