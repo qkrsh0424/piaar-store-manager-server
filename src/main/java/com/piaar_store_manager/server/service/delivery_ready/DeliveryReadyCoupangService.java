@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.Transactional;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -25,13 +27,17 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.entity.DeliveryReadyCoupangItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.proj.DeliveryReadyCoupangItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.repository.DeliveryReadyCoupangItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewResDto;
+import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
@@ -144,14 +150,22 @@ public class DeliveryReadyCoupangService {
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyExcelForm(Sheet worksheet) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
             if (row == null) break;
 
+            String prodOrderNumber = null;
+
+            if((row.getCell(2) != null) && (row.getCell(13) != null) && (row.getCell(14) != null)){
+                prodOrderNumber = row.getCell(2).getStringCellValue() + " | " + row.getCell(13).getStringCellValue() + " | " + row.getCell(14).getStringCellValue();
+            }
+
             DeliveryReadyCoupangItemDto dto = DeliveryReadyCoupangItemDto.builder().id(UUID.randomUUID())
-                    .prodOrderNumber(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
+                    .prodOrderNumber(prodOrderNumber != null ? prodOrderNumber : "")
+                    .orderNumber(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
                     .buyer(row.getCell(24) != null ? row.getCell(24).getStringCellValue() : "")
                     .receiver(row.getCell(26) != null ? row.getCell(26).getStringCellValue() : "")
                     .prodNumber(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
@@ -168,7 +182,7 @@ public class DeliveryReadyCoupangService {
                     .buyerContact(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
                     .zipCode(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(9) != null ? dateFormat.parse(row.getCell(9).getStringCellValue()) : new Date()).build();
+                    .orderDateTime(row.getCell(9) != null ? dateFormat2.parse(row.getCell(9).getStringCellValue()) : new Date()).build();
 
             dtos.add(dto);
         }
@@ -281,6 +295,7 @@ public class DeliveryReadyCoupangService {
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyCoupangExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         
 
         Set<String> storedProdOrderNumber = deliveryReadyItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
@@ -291,8 +306,15 @@ public class DeliveryReadyCoupangService {
 
             if(row == null) break;
 
+            String prodOrderNumber = null;
+            
+            if((row.getCell(2) != null) && (row.getCell(13) != null) && (row.getCell(14) != null)){
+                prodOrderNumber = row.getCell(2).getStringCellValue() + " | " + row.getCell(13).getStringCellValue() + " | " + row.getCell(14).getStringCellValue();
+            }
+
             DeliveryReadyCoupangItemDto dto = DeliveryReadyCoupangItemDto.builder().id(UUID.randomUUID())
-                .prodOrderNumber(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
+                .prodOrderNumber(prodOrderNumber != null ? prodOrderNumber : "")
+                .orderNumber(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
                 .buyer(row.getCell(24) != null ? row.getCell(24).getStringCellValue() : "")
                 .receiver(row.getCell(26) != null ? row.getCell(26).getStringCellValue() : "")
                 .prodNumber(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
@@ -309,7 +331,7 @@ public class DeliveryReadyCoupangService {
                 .buyerContact(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
                 .zipCode(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
                 .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                .orderDateTime(row.getCell(9) != null ? dateFormat.parse(row.getCell(9).getStringCellValue()) : new Date())
+                .orderDateTime(row.getCell(9) != null ? dateFormat2.parse(row.getCell(9).getStringCellValue()) : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .deliveryReadyFileCid(fileDto.getCid())
@@ -367,5 +389,214 @@ public class DeliveryReadyCoupangService {
         List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = DeliveryReadyCoupangItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;
+    }
+
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * DeliveryReadyItem 미출고 데이터 중 itemId에 대응하는 데이터를 삭제한다.
+     *
+     * @param itemCid : Integer
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void deleteOneDeliveryReadyViewData(Integer itemCid) {
+        deliveryReadyItemRepository.findById(itemCid).ifPresent(item -> {
+            deliveryReadyItemRepository.delete(item);
+        });
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
+     *
+     * @param dto : DeliveryReadyItemDto
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void updateReleasedDeliveryReadyItem(DeliveryReadyCoupangItemDto dto) {
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+            item.setReleased(false).setReleasedAt(null);
+
+            deliveryReadyItemRepository.save(item);
+        }, null);
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 등록된 모든 상품의 옵션정보들을 조회한다.
+     *
+     * @return List::DeliveryReadyItemOptionInfoResDto::
+     * @see deliveryReadyItemRepository#findAllOptionInfo
+     */
+    public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
+        List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyItemRepository.findAllOptionInfo();
+        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDtos(optionInfoProjs);
+
+        return optionInfoDto;
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
+     *
+     * @param dto : DeliveryReadyItemDto
+     * @param query : Map[optionCode]
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#save
+     */
+    public void updateDeliveryReadyItemOptionInfo(DeliveryReadyCoupangItemDto dto) {
+
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+            
+            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+
+            deliveryReadyItemRepository.save(item);
+
+        }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
+     *
+     * @param dto : DeliveryReadyItemDto
+     * @see deliveryReadyItemRepository#findById
+     * @see deliveryReadyItemRepository#save
+     */
+    public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyCoupangItemDto dto) {
+
+        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+            
+            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+
+            deliveryReadyItemRepository.save(item);
+
+            // 같은 상품의 옵션을 모두 변경
+            this.updateDeliveryReadyItemChangedOption(item);
+
+        }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
+     *
+     * @param item : DeliveryReadyItemEntity
+     * @see deliveryReadyItemRepository#findByItems
+     * @see deliveryReadyItemRepository#delete
+     */
+    public void updateDeliveryReadyItemChangedOption(DeliveryReadyCoupangItemEntity item) {
+        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
+
+        for(DeliveryReadyCoupangItemEntity entity : entities) {
+            entity.setOptionManagementCode(item.getOptionManagementCode());
+
+            deliveryReadyItemRepository.save(entity);
+        }
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * DeliveryReadyItem 다운로드 시 중복데이터 처리 및 셀 색상을 지정한다.
+     *
+     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @return List::DeliveryReadyItemExcelFormDto::
+     */
+    public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = new ArrayList<>();
+
+        // DeliveryReadyCoupangItemViewDto로 DeliveryReadyItemExcelFromDto를 만든다
+        for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+            formDtos.add(DeliveryReadyItemHansanExcelFormDto.toFormDto(viewDto));
+        }
+
+        // 중복데이터 처리
+        List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = changeDuplicationDtos(formDtos);
+
+        return excelFormDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * (주문번호 + 받는사람 + 상품명 + 상품상세) 중복데이터 가공
+     *
+     * @param dtos : List::DeliveryReadyItemExcelFormDto::
+     * @return List::DeliveryReadyItemExcelFormDto::
+     */
+    public List<DeliveryReadyItemHansanExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemHansanExcelFormDto> dtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> newOrderList = new ArrayList<>();
+
+        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
+        dtos.sort(Comparator.comparing(DeliveryReadyItemHansanExcelFormDto::getReceiver)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOrderNumber)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getProdName)
+                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOptionInfo));
+
+        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
+
+        for(int i = 0; i < dtos.size(); i++){
+            StringBuilder sb = new StringBuilder();
+            sb.append(dtos.get(i).getReceiver());
+            sb.append(dtos.get(i).getDestination());
+            sb.append(dtos.get(i).getProdName());
+            sb.append(dtos.get(i).getOptionInfo());
+
+            StringBuilder receiverSb = new StringBuilder();
+            receiverSb.append(dtos.get(i).getReceiver());
+            receiverSb.append(dtos.get(i).getReceiverContact1());
+            receiverSb.append(dtos.get(i).getDestination());
+
+            String resultStr = sb.toString();
+            String receiverStr = receiverSb.toString();
+            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
+
+            
+            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
+            if(!optionSet.add(resultStr)){
+                DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
+                
+                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + " / " + currentProd.getProdOrderNumber());     // 총 상품번호 수정
+            }else{
+                // 받는사람 + 번호 + 주소 : 중복인 경우
+                if(!optionSet.add(receiverStr)){
+                    newOrderList.get(prevOrderIdx).setDuplication(true);
+                    dtos.get(i).setDuplication(true);
+                }
+
+                newOrderList.add(dtos.get(i));
+            }
+            
+        }
+
+        return newOrderList;
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 데이터 다운로드 시 출고 정보를 설정한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see deliveryReadyItemRepository#updateReleasedAtByCid
+     */
+    @Transactional
+    public void releasedDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
+
+        List<Integer> cidList = new ArrayList<>();
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos){
+            cidList.add(dto.getDeliveryReadyItem().getCid());
+        }
+        deliveryReadyItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
 }

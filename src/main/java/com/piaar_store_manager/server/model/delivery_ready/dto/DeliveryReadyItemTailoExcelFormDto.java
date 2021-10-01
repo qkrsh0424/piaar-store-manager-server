@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
+import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
 
 import lombok.Builder;
@@ -63,6 +64,36 @@ public class DeliveryReadyItemTailoExcelFormDto {
                 .build();
 
         return formDto;
+    }
 
+    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
+
+        DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
+                .prodUniqueCode(viewDto.getOptionNosUniqueCode() != null ? viewDto.getOptionNosUniqueCode() : "*지정바람")
+                .salesProdName(viewDto.getProdManagementName() != null ? viewDto.getProdManagementName() + " | " + viewDto.getOptionManagementName() : "*지정 바람")
+                .unit(viewDto.getDeliveryReadyItem().getUnit())
+                .transportType("택배")
+                .buyer(viewDto.getDeliveryReadyItem().getBuyer())
+                .receiver(viewDto.getDeliveryReadyItem().getReceiver())
+                .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
+                .receiverContact2("")
+                .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
+                .destination1(viewDto.getDeliveryReadyItem().getDestination())
+                .destination2("")
+                .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
+                .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+                .managementMemo1(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .managementMemo2(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .managementMemo3("")
+                .managementMemo4("")
+                .managementMemo5("")
+                .prodMemo1(viewDto.getDeliveryReadyItem().getProdName())
+                .prodMemo2(viewDto.getDeliveryReadyItem().getOptionInfo())
+                .prodMemo3("")
+                .orderType("")
+                .releaseDesiredDate("")
+                .build();
+
+        return formDto;
     }
 }

@@ -19,7 +19,8 @@ import lombok.experimental.Accessors;
 public class DeliveryReadyCoupangItemDto {
     private Integer cid;
     private UUID id;
-    private String prodOrderNumber;     // 주문번호(2)
+    private String prodOrderNumber;     // 상품주문번호 : 주문번호 | 노출상품ID | 옵션ID
+    private String orderNumber;     // 주문번호(2)
     private String buyer;       // 구매자(24)
     private String receiver;        // 수취인이름(26)
     private String prodNumber;        // 노출상품ID(13)
@@ -47,6 +48,7 @@ public class DeliveryReadyCoupangItemDto {
             .cid(entity.getCid())
             .id(entity.getId())
             .prodOrderNumber(entity.getProdOrderNumber())
+            .orderNumber(entity.getOrderNumber())
             .buyer(entity.getBuyer())
             .receiver(entity.getReceiver())
             .prodNumber(entity.getProdNumber())

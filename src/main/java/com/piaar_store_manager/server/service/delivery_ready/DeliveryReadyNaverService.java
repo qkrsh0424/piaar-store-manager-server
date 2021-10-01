@@ -358,7 +358,7 @@ public class DeliveryReadyNaverService {
     public List<DeliveryReadyItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedUnreleased();
         List<DeliveryReadyItemViewResDto> itemViewResDto = DeliveryReadyItemViewProj.toResDtos(itemViewProj);
-
+        
         return itemViewResDto;
     }
 
@@ -457,7 +457,7 @@ public class DeliveryReadyNaverService {
             item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
             deliveryReadyItemRepository.save(item);
-
+            
         }, null);
     }
 
@@ -560,20 +560,21 @@ public class DeliveryReadyNaverService {
             String receiverStr = receiverSb.toString();
             int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
 
-            // 받는사람 + 번호 + 주소 : 중복인 경우
-            if(!optionSet.add(receiverStr)){
-                newOrderList.get(prevOrderIdx).setDuplication(true);
-                dtos.get(i).setDuplication(true);
-            }
-
+            
             // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
             if(!optionSet.add(resultStr)){
                 DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
                 DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
-
+                
                 newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
                 newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + " / " + currentProd.getProdOrderNumber());     // 총 상품번호 수정
             }else{
+                // 받는사람 + 번호 + 주소 : 중복인 경우
+                if(!optionSet.add(receiverStr)){
+                    newOrderList.get(prevOrderIdx).setDuplication(true);
+                    dtos.get(i).setDuplication(true);
+                }
+
                 newOrderList.add(dtos.get(i));
             }
         }

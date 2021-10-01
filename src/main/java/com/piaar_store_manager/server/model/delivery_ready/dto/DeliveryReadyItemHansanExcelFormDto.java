@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
+import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
 
 import lombok.Builder;
@@ -33,6 +34,35 @@ public class DeliveryReadyItemHansanExcelFormDto {
     private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 
     public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyItemViewDto viewDto) {
+
+        DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
+                .receiver(viewDto.getDeliveryReadyItem().getReceiver())
+                .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
+                .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
+                .destination(viewDto.getDeliveryReadyItem().getDestination())
+                .transportNumber("")
+                .prodName(viewDto.getDeliveryReadyItem().getProdName())
+                .sender(viewDto.getSender())
+                .senderContact1(viewDto.getSenderContact1())
+                .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
+                .unit(viewDto.getDeliveryReadyItem().getUnit())
+                .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
+                .unitA("")
+                .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+                .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
+                .storeProdName(viewDto.getProdManagementName())
+                .storeOptionName(viewDto.getOptionManagementName())
+                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .duplication(false)
+                .build();
+
+        return formDto;
+
+    }
+
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
 
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())

@@ -33,7 +33,10 @@ public class DeliveryReadyCoupangItemEntity {
     private UUID id;
 
     @Column(name = "prod_order_number")
-    private String prodOrderNumber;     // 주문번호(2)
+    private String prodOrderNumber;     // 상품주문번호 : 주문번호 | 노출상품ID | 옵션ID
+
+    @Column(name = "order_number")
+    private String orderNumber;     // 주문번호(2)
 
     @Column(name = "buyer")
     private String buyer;       // 구매자(24)
@@ -102,7 +105,7 @@ public class DeliveryReadyCoupangItemEntity {
         DeliveryReadyCoupangItemEntity entity = new DeliveryReadyCoupangItemEntity();
 
         entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber()).setBuyer(dto.getBuyer())
-                .setReceiver(dto.getReceiver()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
+                .setOrderNumber(dto.getOrderNumber()).setReceiver(dto.getReceiver()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
                 .setProdExposureName(dto.getProdExposureName()).setOptionInfo(dto.getOptionInfo())
                 .setOptionManagementCode(dto.getOptionManagementCode()).setCoupangOptionId(dto.getCoupangOptionId())
                 .setUnit(dto.getUnit()).setShipmentDueDate(dto.getShipmentDueDate())
