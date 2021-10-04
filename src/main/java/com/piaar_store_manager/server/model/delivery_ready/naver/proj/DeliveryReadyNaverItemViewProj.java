@@ -1,13 +1,13 @@
-package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
+package com.piaar_store_manager.server.model.delivery_ready.naver.proj;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewResDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 
-public interface DeliveryReadyItemViewProj {
+public interface DeliveryReadyNaverItemViewProj {
     DeliveryReadyNaverItemEntity getDeliveryReadyItem();
     String getProdManufacturingCode();
     String getOptionDefaultName();
@@ -16,8 +16,8 @@ public interface DeliveryReadyItemViewProj {
     String getProdManagementName();
     String getOptionNosUniqueCode();
 
-    public static DeliveryReadyItemViewResDto toResDto(DeliveryReadyItemViewProj itemViewProj) {
-        DeliveryReadyItemViewResDto dto = new DeliveryReadyItemViewResDto();
+    public static DeliveryReadyNaverItemViewResDto toResDto(DeliveryReadyNaverItemViewProj itemViewProj) {
+        DeliveryReadyNaverItemViewResDto dto = new DeliveryReadyNaverItemViewResDto();
 
         dto.setDeliveryReadyItem(DeliveryReadyNaverItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
             .setProdManufacturingCode(itemViewProj.getProdManufacturingCode())
@@ -30,10 +30,10 @@ public interface DeliveryReadyItemViewProj {
         return dto;
     }
 
-    public static List<DeliveryReadyItemViewResDto> toResDtos(List<DeliveryReadyItemViewProj> itemViewProj) {
-        List<DeliveryReadyItemViewResDto> dtos = new ArrayList<>();
+    public static List<DeliveryReadyNaverItemViewResDto> toResDtos(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
+        List<DeliveryReadyNaverItemViewResDto> dtos = new ArrayList<>();
 
-        for(DeliveryReadyItemViewProj proj : itemViewProj) {
+        for(DeliveryReadyNaverItemViewProj proj : itemViewProj) {
             dtos.add(toResDto(proj));
         }
         

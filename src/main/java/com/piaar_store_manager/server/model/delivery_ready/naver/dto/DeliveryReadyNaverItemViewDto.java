@@ -6,7 +6,7 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.entity.Delivery
 import lombok.Data;
 
 @Data
-public class DeliveryReadyItemViewDto {
+public class DeliveryReadyNaverItemViewDto {
     private DeliveryReadyNaverItemEntity deliveryReadyItem;
     private String prodManufacturingCode;
     private String prodManagementName;

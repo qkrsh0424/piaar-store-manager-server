@@ -5,7 +5,7 @@ import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
-public class DeliveryReadyItemViewResDto {
+public class DeliveryReadyNaverItemViewResDto {
     DeliveryReadyNaverItemDto deliveryReadyItem;
     String prodManufacturingCode;
     String prodManagementName;

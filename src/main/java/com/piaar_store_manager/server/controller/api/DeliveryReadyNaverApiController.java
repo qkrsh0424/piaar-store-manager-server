@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -361,7 +361,7 @@ public class DeliveryReadyNaverApiController {
      * @see deliveryReadyService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
-    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyItemViewDto> viewDtos) {
+    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
 
         // 중복데이터 처리
         List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
@@ -491,10 +491,10 @@ public class DeliveryReadyNaverApiController {
      * @see deliveryReadyService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/tailo")
-    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyItemViewDto> viewDtos) {
+    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
         
-        for(DeliveryReadyItemViewDto viewDto : viewDtos) {
+        for(DeliveryReadyNaverItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
         

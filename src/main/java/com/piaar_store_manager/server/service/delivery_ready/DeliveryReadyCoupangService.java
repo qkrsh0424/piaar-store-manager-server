@@ -36,7 +36,7 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFile
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewResDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;

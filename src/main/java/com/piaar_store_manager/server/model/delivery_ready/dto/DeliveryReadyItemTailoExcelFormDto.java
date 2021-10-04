@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -35,7 +35,7 @@ public class DeliveryReadyItemTailoExcelFormDto {
     private String orderType; // 발주 타입
     private String releaseDesiredDate; // 출고희망일
 
-    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyItemViewDto viewDto) {
+    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
 
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode(viewDto.getOptionNosUniqueCode() != null ? viewDto.getOptionNosUniqueCode() : "*지정바람")

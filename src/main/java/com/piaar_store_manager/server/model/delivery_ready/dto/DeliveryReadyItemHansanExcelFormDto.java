@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyItemViewDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +33,7 @@ public class DeliveryReadyItemHansanExcelFormDto {
 
     private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 
-    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyItemViewDto viewDto) {
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
 
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
