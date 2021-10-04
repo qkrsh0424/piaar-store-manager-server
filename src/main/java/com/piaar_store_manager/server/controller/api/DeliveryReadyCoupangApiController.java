@@ -44,11 +44,27 @@ import org.springframework.web.multipart.MultipartFile;
 public class DeliveryReadyCoupangApiController {
     
     @Autowired
-    private DeliveryReadyCoupangService deliveryReadyService;
+    private DeliveryReadyCoupangService deliveryReadyCoupangService;
 
     @Autowired
     private UserService userService;
 
+    /**
+     * Upload excel data for delivery ready.
+     * <p>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/upload</b>
+     * 
+     * @param file
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws NullPointerException
+     * @throws IllegalStateException
+     * @throws ParseException
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyCoupangService#isExcelFile
+     * @see DeliveryReadyCoupangService#uploadDeliveryReadyExcelFile
+     * @see UserService#isUserLogin
+     */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws ParseException {
         Message message = new Message();
@@ -59,10 +75,10 @@ public class DeliveryReadyCoupangApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyService.isExcelFile(file);
+            deliveryReadyCoupangService.isExcelFile(file);
 
             try{
-                message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
+                message.setData(deliveryReadyCoupangService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -78,15 +94,16 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Store excel data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/store</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/store</b>
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws ParseException
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#isExcelFile
-     * @see DeliveryReadyNaverService#storeDeliveryReadyExcelFile
+     * @see DeliveryReadyCoupangService#isExcelFile
+     * @see DeliveryReadyCoupangService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -97,9 +114,9 @@ public class DeliveryReadyCoupangApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyService.isExcelFile(file);
+            deliveryReadyCoupangService.isExcelFile(file);
 
-            message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setData(deliveryReadyCoupangService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -112,12 +129,12 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Search unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/unreleased</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/unreleased</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#getDeliveryReadyViewUnreleasedData
+     * @see DeliveryReadyCoupangService#getDeliveryReadyViewUnreleasedData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -127,7 +144,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
+            message.setData(deliveryReadyCoupangService.getDeliveryReadyViewUnreleasedData());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -140,13 +157,13 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Search released data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/released</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/released</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @param query : Map[startDate, endDate]
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#getDeliveryReadyViewReleased
+     * @see DeliveryReadyCoupangService#getDeliveryReadyViewReleased
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -156,7 +173,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.getDeliveryReadyViewReleased(query));
+            message.setData(deliveryReadyCoupangService.getDeliveryReadyViewReleased(query));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -169,13 +186,13 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Destroy( Delete or Remove ) unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/view/deleteOne/{itemCid}</b>
+     * <b>DELETE : API URL => /api/v1/delivery-ready/coupang/view/deleteOne/{itemCid}</b>
      *
      * @param itemCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#deleteOneDeliveryReadyViewData
+     * @see deliveryReadyCoupangService#deleteOneDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -185,7 +202,7 @@ public class DeliveryReadyCoupangApiController {
 
         if (userService.isManager()) {
             try{
-                deliveryReadyService.deleteOneDeliveryReadyViewData(itemCid);
+                deliveryReadyCoupangService.deleteOneDeliveryReadyViewData(itemCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -203,13 +220,13 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOne</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateOne</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyCoupangService#updateReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -220,7 +237,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -238,12 +255,12 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Search option info for product.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/seachList/optionInfo</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/seachList/optionInfo</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#searchDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyCoupangService#searchDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -253,7 +270,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
+            message.setData(deliveryReadyCoupangService.searchDeliveryReadyItemOptionInfo());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -266,13 +283,13 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/view/updateOption</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/updateOption</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateDeliveryReadyItemOptionInfo
+     * @see deliveryReadyCoupangService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -283,7 +300,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -301,14 +318,14 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOptions</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateOptions</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @param query : Map[optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateDeliveryReadyItemsOptionInfo
+     * @see deliveryReadyCoupangService#updateDeliveryReadyItemsOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -319,7 +336,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -337,19 +354,19 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Download data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/view/download/hansan</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/hansan</b>
      *
-     * @param viewDtos : List::DeliveryReadyItemDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#changeDeliveryReadyItem
-     * @see deliveryReadyService#releasedDeliveryReadyItem
+     * @see deliveryReadyCoupangService#changeDeliveryReadyItem
+     * @see deliveryReadyCoupangService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangService.changeDeliveryReadyItem(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -461,19 +478,18 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangService.releasedDeliveryReadyItem(viewDtos);
     }
 
     /**
      * Download data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/view/download/tailo</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/tailo</b>
      *
-     * @param viewDtos : List::DeliveryReadyItemDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#changeDeliveryReadyItem
-     * @see deliveryReadyService#releasedDeliveryReadyItem
+     * @see deliveryReadyCoupangService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
@@ -603,6 +619,6 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangService.releasedDeliveryReadyItem(viewDtos);
     }
 }

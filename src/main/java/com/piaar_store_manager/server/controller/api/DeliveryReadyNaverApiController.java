@@ -40,11 +40,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/delivery-ready/naver")
+@RequestMapping("/api/v1/delivery-ready/naver/naver")
 public class DeliveryReadyNaverApiController {
     
     @Autowired
-    private DeliveryReadyNaverService deliveryReadyService;
+    private DeliveryReadyNaverService deliveryReadyNaverService;
 
     @Autowired
     private UserService userService;
@@ -52,17 +52,17 @@ public class DeliveryReadyNaverApiController {
     /**
      * Upload excel data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/upload</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/upload</b>
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
-     * @throws IOException
+     * @throws NullPointerException
+     * @throws IllegalStateException
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyNaverService#isExcelFile
      * @see DeliveryReadyNaverService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
-     * @see UserService#userDenyCheck
      */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
@@ -74,10 +74,10 @@ public class DeliveryReadyNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyService.isExcelFile(file);
+            deliveryReadyNaverService.isExcelFile(file);
 
             try{
-                message.setData(deliveryReadyService.uploadDeliveryReadyExcelFile(file));
+                message.setData(deliveryReadyNaverService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -93,11 +93,10 @@ public class DeliveryReadyNaverApiController {
      /**
      * Store excel data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/store</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/store</b>
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
-     * @throws IOException
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyNaverService#isExcelFile
@@ -112,9 +111,9 @@ public class DeliveryReadyNaverApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyService.isExcelFile(file);
+            deliveryReadyNaverService.isExcelFile(file);
 
-            message.setData(deliveryReadyService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setData(deliveryReadyNaverService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -127,7 +126,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Search unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/unreleased</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/unreleased</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -142,7 +141,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.getDeliveryReadyViewUnreleasedData());
+            message.setData(deliveryReadyNaverService.getDeliveryReadyViewUnreleasedData());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -155,10 +154,11 @@ public class DeliveryReadyNaverApiController {
     /**
      * Search released data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/released</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/released</b>
      * 
-     * @return ResponseEntity(message, HttpStatus)
      * @param query : Map[startDate, endDate]
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws ParseException
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyNaverService#getDeliveryReadyViewReleased
@@ -171,7 +171,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.getDeliveryReadyViewReleased(query));
+            message.setData(deliveryReadyNaverService.getDeliveryReadyViewReleased(query));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -184,13 +184,13 @@ public class DeliveryReadyNaverApiController {
      /**
      * Destroy( Delete or Remove ) unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/view/deleteOne/{itemCid}</b>
+     * <b>DELETE : API URL => /api/v1/delivery-ready/naver/view/deleteOne/{itemCid}</b>
      *
      * @param itemCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#deleteOneDeliveryReadyViewData
+     * @see deliveryReadyNaverService#deleteOneDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -200,7 +200,7 @@ public class DeliveryReadyNaverApiController {
 
         if (userService.isManager()) {
             try{
-                deliveryReadyService.deleteOneDeliveryReadyViewData(itemCid);
+                deliveryReadyNaverService.deleteOneDeliveryReadyViewData(itemCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -218,13 +218,13 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOne</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateOne</b>
      *
      * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyNaverService#updateReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -235,7 +235,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
+                deliveryReadyNaverService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -253,7 +253,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Search option info for product.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/view/seachList/optionInfo</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/seachList/optionInfo</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -268,7 +268,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyService.searchDeliveryReadyItemOptionInfo());
+            message.setData(deliveryReadyNaverService.searchDeliveryReadyItemOptionInfo());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -281,13 +281,13 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/view/updateOption</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/updateOption</b>
      *
-     * @param deliveryReadyItemDto : DeliveryReadyItemDto
+     * @param DeliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateDeliveryReadyItemOptionInfo
+     * @see deliveryReadyNaverService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -298,7 +298,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
+                deliveryReadyNaverService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -316,14 +316,14 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/view/updateOptions</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateOptions</b>
      *
      * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @param query : Map[optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#updateDeliveryReadyItemsOptionInfo
+     * @see deliveryReadyNaverService#updateDeliveryReadyItemsOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -334,7 +334,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
+                deliveryReadyNaverService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -352,19 +352,20 @@ public class DeliveryReadyNaverApiController {
     /**
      * Download data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/view/download/hansan</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/hansan</b>
      *
-     * @param viewDtos : List::DeliveryReadyItemDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#changeDeliveryReadyItem
-     * @see deliveryReadyService#releasedDeliveryReadyItem
+     * @see deliveryReadyNaverService#changeDeliveryReadyItem
+     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverService.changeDeliveryReadyItem(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -476,19 +477,19 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverService.releasedDeliveryReadyItem(viewDtos);
     }
 
     /**
      * Download data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/view/download/tailo</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/tailo</b>
      *
-     * @param viewDtos : List::DeliveryReadyItemDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyService#changeDeliveryReadyItem
-     * @see deliveryReadyService#releasedDeliveryReadyItem
+     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -618,6 +619,6 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverService.releasedDeliveryReadyItem(viewDtos);
     }
 }

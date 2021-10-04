@@ -36,9 +36,7 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFile
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
-import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
 import org.apache.commons.io.FilenameUtils;
@@ -54,10 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class DeliveryReadyCoupangService {
     
     private AmazonS3 s3Client;
@@ -84,10 +79,7 @@ public class DeliveryReadyCoupangService {
     private DateHandler dateHandler;
 
     @Autowired
-    private DeliveryReadyFileRepository deliveryReadyFileRepository;
-
-    @Autowired
-    private DeliveryReadyCoupangItemRepository deliveryReadyItemRepository;
+    private DeliveryReadyCoupangItemRepository deliveryReadyCoupangItemRepository;
 
     @Autowired
     private DeliveryReadyNaverService deliveryReadyNaverItemService;
@@ -115,7 +107,8 @@ public class DeliveryReadyCoupangService {
      * 
      * @param file : MultipartFile
      * @return List::DeliveryReadyCoupangItemDto::
-     * @throws IOException
+     * @throws ParseException
+     * @throws IllegalArgumentException
      */
     public List<DeliveryReadyCoupangItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
         Workbook workbook = null;
@@ -146,6 +139,7 @@ public class DeliveryReadyCoupangService {
      * 
      * @param worksheet : Sheet
      * @return List::DeliveryReadyCoupangItemDto::
+     * @throws ParseException
      */
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyExcelForm(Sheet worksheet) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
@@ -197,7 +191,8 @@ public class DeliveryReadyCoupangService {
      *
      * @param file : MultipartFile
      * @return FileUploadResponse
-     * @see ProductRepository#findById
+     * @throws ParseException
+     * @see DeliveryReadyNaverItemService#createDeliveryReadyFileDto
      */
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws ParseException {
         String fileName = file.getOriginalFilename();
@@ -249,8 +244,9 @@ public class DeliveryReadyCoupangService {
      *
      * @param file : MultipartFile
      * @param fileDto : DeliveryReadyFileDto
-     * @return DeliveryReadyFileEntity
      * @throws IllegalArgumentException
+     * @throws ParseException
+     * @see DeliveryReadyCoupangItemRepository#saveAll
      */
     public void createDeliveryReadyItemData(MultipartFile file, DeliveryReadyFileDto fileDto) throws ParseException {
 
@@ -280,7 +276,7 @@ public class DeliveryReadyCoupangService {
             entities.add(DeliveryReadyCoupangItemEntity.toEntity(dto));
         }
 
-        deliveryReadyItemRepository.saveAll(entities);
+        deliveryReadyCoupangItemRepository.saveAll(entities);
     }
 
     /**
@@ -290,7 +286,8 @@ public class DeliveryReadyCoupangService {
      *
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
-     * @see DeliveryReadyItemRepository#findAllProdOrderNumber
+     * @return List::DeliveryReadyCoupangItemDto::
+     * @see DeliveryReadyCoupangItemRepository#findAllProdOrderNumber
      */
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyCoupangExcelData(Sheet worksheet, DeliveryReadyFileDto fileDto) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
@@ -298,7 +295,7 @@ public class DeliveryReadyCoupangService {
         SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
         
 
-        Set<String> storedProdOrderNumber = deliveryReadyItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
+        Set<String> storedProdOrderNumber = deliveryReadyCoupangItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
 
 
         for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
@@ -350,11 +347,12 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
-     * @return List::DeliveryReadyCoupangViewResDto::
-     * @see deliveryReadyItemRepository#findAllUnreleased
+     * @return List::DeliveryReadyCoupangItemViewResDto::
+     * @see DeliveryReadyCoupangItemRepository#findSelectedUnreleased
+     * @see DeliveryReadyCoupangitemViewProj#toResDtos
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewUnreleasedData() {
-        List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedUnreleased();
+        List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangItemRepository.findSelectedUnreleased();
         List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = DeliveryReadyCoupangItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;
@@ -365,11 +363,11 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem 중 선택된 기간의 출 데이터를 조회한다.
      *
-     * @param date1 : String
-     * @param date2 : String
-     * @return List::DeliveryReadyItemViewResDto::
+     * @param query : Map[startDate, endDate]
+     * @return List::DeliveryReadyCoupangItemViewResDto::
      * @throws ParseException
-     * @see deliveryReadyItemRepository#findSelectedReleased
+     * @see DeliveryReadyCoupangItemRepository#findSelectedReleased
+     * @see DeliveryReadyCoupangItemViewProj#toResDtos
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -385,7 +383,7 @@ public class DeliveryReadyCoupangService {
             throw new ParseException("date format parse error", -1);
         }
 
-        List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyItemRepository.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangItemRepository.findSelectedReleased(startDate, endDate);
         List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = DeliveryReadyCoupangItemViewProj.toResDtos(itemViewProj);
 
         return itemViewResDto;
@@ -397,12 +395,12 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem 미출고 데이터 중 itemId에 대응하는 데이터를 삭제한다.
      *
      * @param itemCid : Integer
-     * @see deliveryReadyItemRepository#findById
-     * @see deliveryReadyItemRepository#delete
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#delete
      */
     public void deleteOneDeliveryReadyViewData(Integer itemCid) {
-        deliveryReadyItemRepository.findById(itemCid).ifPresent(item -> {
-            deliveryReadyItemRepository.delete(item);
+        deliveryReadyCoupangItemRepository.findById(itemCid).ifPresent(item -> {
+            deliveryReadyCoupangItemRepository.delete(item);
         });
     }
 
@@ -411,15 +409,15 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
-     * @param dto : DeliveryReadyItemDto
-     * @see deliveryReadyItemRepository#findById
-     * @see deliveryReadyItemRepository#delete
+     * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateReleasedDeliveryReadyItem(DeliveryReadyCoupangItemDto dto) {
-        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
-            deliveryReadyItemRepository.save(item);
+            deliveryReadyCoupangItemRepository.save(item);
         }, null);
     }
 
@@ -429,10 +427,11 @@ public class DeliveryReadyCoupangService {
      * 등록된 모든 상품의 옵션정보들을 조회한다.
      *
      * @return List::DeliveryReadyItemOptionInfoResDto::
-     * @see deliveryReadyItemRepository#findAllOptionInfo
+     * @see DeliveryReadyCoupangItemRepository#findAllOptionInfo
+     * @see DeliveryReadyItemOptionInfoProj#toResDtos
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
-        List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyItemRepository.findAllOptionInfo();
+        List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyCoupangItemRepository.findAllOptionInfo();
         List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDtos(optionInfoProjs);
 
         return optionInfoDto;
@@ -443,18 +442,17 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
      *
-     * @param dto : DeliveryReadyItemDto
-     * @param query : Map[optionCode]
-     * @see deliveryReadyItemRepository#findById
-     * @see deliveryReadyItemRepository#save
+     * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateDeliveryReadyItemOptionInfo(DeliveryReadyCoupangItemDto dto) {
 
-        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
             item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
-            deliveryReadyItemRepository.save(item);
+            deliveryReadyCoupangItemRepository.save(item);
 
         }, null);
     }
@@ -464,17 +462,17 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
-     * @param dto : DeliveryReadyItemDto
-     * @see deliveryReadyItemRepository#findById
-     * @see deliveryReadyItemRepository#save
+     * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyCoupangItemDto dto) {
 
-        deliveryReadyItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
             
             item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
-            deliveryReadyItemRepository.save(item);
+            deliveryReadyCoupangItemRepository.save(item);
 
             // 같은 상품의 옵션을 모두 변경
             this.updateDeliveryReadyItemChangedOption(item);
@@ -487,17 +485,17 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
-     * @param item : DeliveryReadyItemEntity
-     * @see deliveryReadyItemRepository#findByItems
-     * @see deliveryReadyItemRepository#delete
+     * @param item : DeliveryReadyCoupangItemEntity
+     * @see DeliveryReadyCoupangItemRepository#findByItems
+     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateDeliveryReadyItemChangedOption(DeliveryReadyCoupangItemEntity item) {
-        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
+        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangItemRepository.findByItems(item.getProdName(), item.getOptionInfo());
 
         for(DeliveryReadyCoupangItemEntity entity : entities) {
             entity.setOptionManagementCode(item.getOptionManagementCode());
 
-            deliveryReadyItemRepository.save(entity);
+            deliveryReadyCoupangItemRepository.save(entity);
         }
     }
 
@@ -507,7 +505,8 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem 다운로드 시 중복데이터 처리 및 셀 색상을 지정한다.
      *
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
-     * @return List::DeliveryReadyItemExcelFormDto::
+     * @return List::DeliveryReadyItemHansanExcelFormDto::
+     * @see DeliveryReadyItemHansanExcelFormDto#toFormDto
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyItemHansanExcelFormDto> formDtos = new ArrayList<>();
@@ -528,8 +527,8 @@ public class DeliveryReadyCoupangService {
      * <p>
      * (주문번호 + 받는사람 + 상품명 + 상품상세) 중복데이터 가공
      *
-     * @param dtos : List::DeliveryReadyItemExcelFormDto::
-     * @return List::DeliveryReadyItemExcelFormDto::
+     * @param dtos : List::DeliveryReadyItemHansanExcelFormDto::
+     * @return List::DeliveryReadyItemHansanExcelFormDto::
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDuplicationDtos(List<DeliveryReadyItemHansanExcelFormDto> dtos) {
         List<DeliveryReadyItemHansanExcelFormDto> newOrderList = new ArrayList<>();
@@ -587,7 +586,7 @@ public class DeliveryReadyCoupangService {
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @see deliveryReadyItemRepository#updateReleasedAtByCid
+     * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
      */
     @Transactional
     public void releasedDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
@@ -597,6 +596,6 @@ public class DeliveryReadyCoupangService {
         for(DeliveryReadyCoupangItemViewDto dto : dtos){
             cidList.add(dto.getDeliveryReadyItem().getCid());
         }
-        deliveryReadyItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
+        deliveryReadyCoupangItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
 }
