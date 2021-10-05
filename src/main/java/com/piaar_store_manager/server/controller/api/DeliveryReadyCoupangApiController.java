@@ -84,10 +84,12 @@ public class DeliveryReadyCoupangApiController {
             } catch (NullPointerException e) {
                 throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                throw new DeliveryReadyFileUploadException("쿠팡 배송 준비 엑셀 파일이 아닙니다. 올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new DeliveryReadyFileUploadException("쿠팡 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+            } catch (IllegalArgumentException e) {
+                throw new DeliveryReadyFileUploadException("쿠팡 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
             }
         }
-
+    
         return new ResponseEntity<>(message, message.getStatus());
     }
 

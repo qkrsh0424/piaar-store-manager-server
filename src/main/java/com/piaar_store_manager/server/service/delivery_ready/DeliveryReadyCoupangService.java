@@ -149,12 +149,12 @@ public class DeliveryReadyCoupangService {
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
-            if (row == null) break;
+            if(row == null) break;
 
             String prodOrderNumber = null;
 
             if((row.getCell(2) != null) && (row.getCell(13) != null) && (row.getCell(14) != null)){
-                prodOrderNumber = row.getCell(2).getStringCellValue() + " | " + row.getCell(13).getStringCellValue() + " | " + row.getCell(14).getStringCellValue();
+                prodOrderNumber = row.getCell(2).getStringCellValue() + "|" + row.getCell(13).getStringCellValue() + "|" + row.getCell(14).getStringCellValue();
             }
 
             DeliveryReadyCoupangItemDto dto = DeliveryReadyCoupangItemDto.builder().id(UUID.randomUUID())
@@ -298,7 +298,7 @@ public class DeliveryReadyCoupangService {
         Set<String> storedProdOrderNumber = deliveryReadyCoupangItemRepository.findAllProdOrderNumber();   // 상품 주문번호로 중복데이터를 구분
 
 
-        for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for(int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
             if(row == null) break;
@@ -306,7 +306,7 @@ public class DeliveryReadyCoupangService {
             String prodOrderNumber = null;
             
             if((row.getCell(2) != null) && (row.getCell(13) != null) && (row.getCell(14) != null)){
-                prodOrderNumber = row.getCell(2).getStringCellValue() + " | " + row.getCell(13).getStringCellValue() + " | " + row.getCell(14).getStringCellValue();
+                prodOrderNumber = row.getCell(2).getStringCellValue() + "|" + row.getCell(13).getStringCellValue() + "|" + row.getCell(14).getStringCellValue();
             }
 
             DeliveryReadyCoupangItemDto dto = DeliveryReadyCoupangItemDto.builder().id(UUID.randomUUID())
