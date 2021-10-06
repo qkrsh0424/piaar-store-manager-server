@@ -405,6 +405,19 @@ public class DeliveryReadyCoupangService {
     }
 
     /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * DeliveryReadyItem 미출고 데이터 중 선택된 데이터를 삭제한다.
+     *
+     * @param itemCid : List::Integer::
+     */
+    public void deleteListDeliveryReadyViewData(List<Integer> itemCids) {
+        for(Integer itemCid : itemCids) {
+            this.deleteOneDeliveryReadyViewData(itemCid);
+        }
+    }
+
+    /**
      * <b>DB Update Related Method</b>
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
@@ -419,6 +432,19 @@ public class DeliveryReadyCoupangService {
 
             deliveryReadyCoupangItemRepository.save(item);
         }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 선택된 데이터들을 미출고 데이터로 변경한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemDto::
+     */
+    public void updateListToUnreleasedDeliveryReadyItem(List<DeliveryReadyCoupangItemDto> dtos) {
+        for(DeliveryReadyCoupangItemDto dto : dtos) {
+            this.updateReleasedDeliveryReadyItem(dto);
+        }
     }
 
     /**
@@ -590,6 +616,25 @@ public class DeliveryReadyCoupangService {
      */
     @Transactional
     public void releasedDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
+
+        List<Integer> cidList = new ArrayList<>();
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos){
+            cidList.add(dto.getDeliveryReadyItem().getCid());
+        }
+        deliveryReadyCoupangItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 데이터 다운로드 시 출고 정보를 설정한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
+     */
+    @Transactional
+    public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
 
         List<Integer> cidList = new ArrayList<>();
         

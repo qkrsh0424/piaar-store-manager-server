@@ -12,7 +12,7 @@ public class DeliveryReadyNaverItemViewDto {
     private String prodManagementName;
     private String optionDefaultName;
     private String optionManagementName;
-    private String optionStockUnit;
+    private Integer optionStockUnit;
     private String sender;
     private String senderContact1;
     private String optionNosUniqueCode;

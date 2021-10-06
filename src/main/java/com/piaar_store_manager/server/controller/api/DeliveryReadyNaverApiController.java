@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
@@ -526,7 +528,6 @@ public class DeliveryReadyNaverApiController {
         for (int i=0; i<dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
-
             // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
             if(dtos.get(i).isDuplication()){
                 cell.setCellStyle(cellStyle);
@@ -726,5 +727,168 @@ public class DeliveryReadyNaverApiController {
 
         // released, released_at 설정
         deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
+    }
+
+    @PostMapping("/view/download/excel")
+    public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+        List<DeliveryReadyNaverItemExcelFormDto> dtos = new ArrayList<>();
+        
+        for(DeliveryReadyNaverItemViewDto viewDto : viewDtos) {
+            dtos.add(DeliveryReadyNaverItemExcelFormDto.toNaverFormDto(viewDto));
+        }
+        
+        // 엑셀 생성
+        Workbook workbook = new XSSFWorkbook();     // .xlsx
+        Sheet sheet = workbook.createSheet("네이버 배송준비 데이터");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(0);
+        cell.setCellValue("상품주문번호");
+        cell = row.createCell(1);
+        cell.setCellValue("주문번호");
+        cell = row.createCell(2);
+        cell.setCellValue("구매자명");
+        cell = row.createCell(3);
+        cell.setCellValue("구매자ID");
+        cell = row.createCell(4);
+        cell.setCellValue("수취인명");
+        cell = row.createCell(5);
+        cell.setCellValue("피아르 상품관리명");
+        cell = row.createCell(6);
+        cell.setCellValue("피아르 상품제조번호");
+        cell = row.createCell(7);
+        cell.setCellValue("피아르 옵션관리코드");
+        cell = row.createCell(8);
+        cell.setCellValue("피아르 옵션관리명1");
+        cell = row.createCell(9);
+        cell.setCellValue("피아르 옵션관리명2");
+        cell = row.createCell(10);
+        cell.setCellValue("수량");
+        cell = row.createCell(11);
+        cell.setCellValue("재고수량");
+        cell = row.createCell(12);
+        cell.setCellValue("결제일");
+        cell = row.createCell(13);
+        cell.setCellValue("발주확인일");
+        cell = row.createCell(14);
+        cell.setCellValue("발송기한");
+        cell = row.createCell(15);
+        cell.setCellValue("배송비 묶음번호");
+        cell = row.createCell(16);
+        cell.setCellValue("상품번호");
+        cell = row.createCell(17);
+        cell.setCellValue("판매자 상품코드");
+        cell = row.createCell(18);
+        cell.setCellValue("상품명");
+        cell = row.createCell(19);
+        cell.setCellValue("옵션정보");
+        cell = row.createCell(20);
+        cell.setCellValue("노스노스 고유번호");
+        cell = row.createCell(21);
+        cell.setCellValue("수취인연락처1");
+        cell = row.createCell(22);
+        cell.setCellValue("수취인연락처2");
+        cell = row.createCell(23);
+        cell.setCellValue("우편번호");
+        cell = row.createCell(24);
+        cell.setCellValue("배송지");
+        cell = row.createCell(25);
+        cell.setCellValue("구매자연락처");
+        cell = row.createCell(26);
+        cell.setCellValue("배송메세지");
+        cell = row.createCell(27);
+        cell.setCellValue("주문일시");
+        cell = row.createCell(28);
+        cell.setCellValue("출고여부");
+        cell = row.createCell(29);
+        cell.setCellValue("출고일시");
+
+        for (int i=0; i<dtos.size(); i++) {
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellValue(dtos.get(i).getProdOrderNumber());
+            cell = row.createCell(1);
+            cell.setCellValue(dtos.get(i).getOrderNumber());
+            cell = row.createCell(2);
+            cell.setCellValue(dtos.get(i).getBuyer());
+            cell = row.createCell(3);
+            cell.setCellValue(dtos.get(i).getBuyerId());
+            cell = row.createCell(4);
+            cell.setCellValue(dtos.get(i).getReceiver());
+            cell = row.createCell(5);
+            cell.setCellValue(dtos.get(i).getProdManagementName());
+            cell = row.createCell(6);
+            cell.setCellValue(dtos.get(i).getProdManufacturingCode());
+            cell = row.createCell(7);
+            cell.setCellValue(dtos.get(i).getOptionManagementCode());
+            cell = row.createCell(8);
+            cell.setCellValue(dtos.get(i).getOptionDefaultName());
+            cell = row.createCell(9);
+            cell.setCellValue(dtos.get(i).getOptionManagementName());
+            cell = row.createCell(10);
+            cell.setCellValue(dtos.get(i).getUnit());
+            cell = row.createCell(11);
+            cell.setCellValue(dtos.get(i).getOptionStockUnit());
+            cell = row.createCell(12);
+            cell.setCellValue(dtos.get(i).getPaymentDate() != null ? dateFormat.format(dtos.get(i).getPaymentDate()) : null);
+            cell = row.createCell(13);
+            cell.setCellValue(dtos.get(i).getOrderConfirmationDate() != null ? dateFormat.format(dtos.get(i).getOrderConfirmationDate()) : null);
+            cell = row.createCell(14);
+            cell.setCellValue(dtos.get(i).getShipmentDueDate() != null ? dateFormat.format(dtos.get(i).getShipmentDueDate()) : null);
+            cell = row.createCell(15);
+            cell.setCellValue(dtos.get(i).getShipmentCostBundleNumber());
+            cell = row.createCell(16);
+            cell.setCellValue(dtos.get(i).getProdNumber());
+            cell = row.createCell(17);
+            cell.setCellValue(dtos.get(i).getSellerProdCode());
+            cell = row.createCell(18);
+            cell.setCellValue(dtos.get(i).getProdName());
+            cell = row.createCell(19);
+            cell.setCellValue(dtos.get(i).getOptionInfo());
+            cell = row.createCell(20);
+            cell.setCellValue(dtos.get(i).getOptionNosUniqueCode());
+            cell = row.createCell(21);
+            cell.setCellValue(dtos.get(i).getReceiverContact1());
+            cell = row.createCell(22);
+            cell.setCellValue(dtos.get(i).getReceiverContact2());
+            cell = row.createCell(23);
+            cell.setCellValue(dtos.get(i).getZipCode());
+            cell = row.createCell(24);
+            cell.setCellValue(dtos.get(i).getDestination());
+            cell = row.createCell(25);
+            cell.setCellValue(dtos.get(i).getBuyerContact());
+            cell = row.createCell(26);
+            cell.setCellValue(dtos.get(i).getDeliveryMessage());
+            cell = row.createCell(27);
+            cell.setCellValue(dtos.get(i).getOrderDateTime() != null ? dateFormat.format(dtos.get(i).getOrderDateTime()) : null);
+            cell = row.createCell(28);
+            if(dtos.get(i).getReleased()) {
+                cell.setCellValue("O");
+            } else {
+                cell.setCellValue("X");
+            }
+            cell = row.createCell(29);
+            cell.setCellValue(dtos.get(i).getReleasedAt() != null ? dateFormat.format(dtos.get(i).getReleasedAt()) : null);
+
+        }
+
+        for(int i = 0; i < 30; i++){
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        try{
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
     }
 }
