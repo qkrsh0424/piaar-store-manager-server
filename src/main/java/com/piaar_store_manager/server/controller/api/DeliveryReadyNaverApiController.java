@@ -218,6 +218,40 @@ public class DeliveryReadyNaverApiController {
     }
 
     /**
+     * Destroy( Delete or Remove ) checked unreleased data for delivery ready.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/delivery-ready/naver/view/deleteList/{itemCids}</b>
+     *
+     * @param itemCids : List::Integer::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyNaverService#deleteListDeliveryReadyViewData
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @DeleteMapping("/view/deleteList/{itemCids}")
+    public ResponseEntity<?> deleteListDeliveryReadyViewData(@PathVariable(value = "itemCids") List<Integer> itemCids) {
+        Message message = new Message();
+
+        if (userService.isManager()) {
+            try{
+                deliveryReadyNaverService.deleteListDeliveryReadyViewData(itemCids);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
      * Change released data to unreleased data for delivery ready.
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateOne</b>
@@ -238,6 +272,76 @@ public class DeliveryReadyNaverApiController {
         if (userService.isManager()) {
             try {
                 deliveryReadyNaverService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Change released data to unreleased data for delivery ready.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateListToUnrelease</b>
+     *
+     * @param deliveryReadyNaverItemDto : List::DeliveryReadyNaverItemDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyNaverService#updateListReleasedDeliveryReadyItem
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @PutMapping("/view/updateListToUnrelease")
+    public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
+        Message message = new Message();
+
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyNaverService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyNaverItemDtos);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Change unreleased data to released data for delivery ready.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateListToRelease</b>
+     *
+     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @PutMapping("/view/updateListToRelease")
+    public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -479,7 +583,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
@@ -621,6 +725,6 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 }

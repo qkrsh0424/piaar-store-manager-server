@@ -395,7 +395,7 @@ public class DeliveryReadyNaverService {
     /**
      * <b>DB Delete Related Method</b>
      * <p>
-     * DeliveryReadyItem 미출고 데이터 중 itemId에 대응하는 데이터를 삭제한다.
+     * DeliveryReadyItem 미출고 데이터 중 itemCid에 대응하는 데이터를 삭제한다.
      *
      * @param itemCid : Integer
      * @see DeliveryReadyNaverItemRepository#findById
@@ -405,6 +405,19 @@ public class DeliveryReadyNaverService {
         deliveryReadyNaverItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyNaverItemRepository.delete(item);
         });
+    }
+
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * DeliveryReadyItem 미출고 데이터 중 선택된 데이터를 삭제한다.
+     *
+     * @param itemCid : List::Integer::
+     */
+    public void deleteListDeliveryReadyViewData(List<Integer> itemCids) {
+        for(Integer itemCid : itemCids) {
+            this.deleteOneDeliveryReadyViewData(itemCid);
+        }
     }
 
     /**
@@ -422,6 +435,19 @@ public class DeliveryReadyNaverService {
 
             deliveryReadyNaverItemRepository.save(item);
         }, null);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem의 출고 데이터 중 선택된 데이터들을 미출고 데이터로 변경한다.
+     *
+     * @param dtos : List::DeliveryReadyNaverItemDto::
+     */
+    public void updateListToUnreleasedDeliveryReadyItem(List<DeliveryReadyNaverItemDto> dtos) {
+        for(DeliveryReadyNaverItemDto dto : dtos) {
+            this.updateReleasedDeliveryReadyItem(dto);
+        }
     }
 
     /**
@@ -591,7 +617,7 @@ public class DeliveryReadyNaverService {
      * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
      */
     @Transactional
-    public void releasedDeliveryReadyItem(List<DeliveryReadyNaverItemViewDto> dtos) {
+    public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyNaverItemViewDto> dtos) {
 
         List<Integer> cidList = new ArrayList<>();
         
