@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -458,7 +459,7 @@ public class DeliveryReadyCoupangApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
-
+    
     /**
      * Download data for delivery ready.
      * <p>
@@ -509,7 +510,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(11);
         cell.setCellValue("수량(A타입)");
         cell = row.createCell(12);
-        cell.setCellValue("묶음배송번호");
+        cell.setCellValue("주문번호");
         cell = row.createCell(13);
         cell.setCellValue("상품주문번호(주문번호 | 노출상품ID | 옵션ID)");
         cell = row.createCell(14);
@@ -606,6 +607,13 @@ public class DeliveryReadyCoupangApiController {
         for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
+
+        Comparator comparing = Comparator.comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
+                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
+                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
+
+        // 상품명 > 수취인명 > 주소
+        dtos.sort(comparing);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -640,7 +648,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(11);
         cell.setCellValue("배송메세지");
         cell = row.createCell(12);
-        cell.setCellValue("묶음배송번호");
+        cell.setCellValue("주문번호");
         cell = row.createCell(13);
         cell.setCellValue("관리번호1");
         cell = row.createCell(14);

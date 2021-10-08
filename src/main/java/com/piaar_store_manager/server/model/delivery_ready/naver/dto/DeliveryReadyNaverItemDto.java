@@ -46,9 +46,10 @@ public class DeliveryReadyNaverItemDto {
     private String releaseArea;        // 출고지(46)
     private Date orderDateTime;        // 주문일시(56)
     private Boolean released;   // 출고여부
-    private Date releasedAt;
-    private Date createdAt;
-    private Integer deliveryReadyFileCid;
+    private Date releasedAt;    // 출고일시
+    private Date createdAt;     // 업로드 일시
+    private Boolean releaseCompleted;       // 재고반영 여부
+    private Integer deliveryReadyFileCid;       // 파일 cid
 
     public static DeliveryReadyNaverItemDto toDto(DeliveryReadyNaverItemEntity entity) {
         DeliveryReadyNaverItemDto itemDto = DeliveryReadyNaverItemDto.builder()
@@ -83,6 +84,7 @@ public class DeliveryReadyNaverItemDto {
             .released(entity.getReleased())
             .releasedAt(entity.getReleasedAt())
             .createdAt(entity.getCreatedAt())
+            .releaseCompleted(entity.getReleaseCompleted())
             .deliveryReadyFileCid(entity.getDeliveryReadyFileCid())
             .build();
 

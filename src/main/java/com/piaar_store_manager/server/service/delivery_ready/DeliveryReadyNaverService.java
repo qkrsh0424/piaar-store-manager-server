@@ -38,6 +38,9 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.repository.Deli
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
+import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -82,6 +85,9 @@ public class DeliveryReadyNaverService {
 
     @Autowired
     private DeliveryReadyNaverItemRepository deliveryReadyNaverItemRepository;
+
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
 
     /**
      * <b>Extension Check</b>
@@ -334,6 +340,7 @@ public class DeliveryReadyNaverService {
                 .orderDateTime(row.getCell(56) != null ? row.getCell(56).getDateCellValue() : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
+                .releaseCompleted(false)
                 .deliveryReadyFileCid(fileDto.getCid())
                 .build();
 
@@ -618,12 +625,37 @@ public class DeliveryReadyNaverService {
      */
     @Transactional
     public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyNaverItemViewDto> dtos) {
-
         List<Integer> cidList = new ArrayList<>();
         
         for(DeliveryReadyNaverItemViewDto dto : dtos){
             cidList.add(dto.getDeliveryReadyItem().getCid());
         }
         deliveryReadyNaverItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
+    }
+
+    public void releaseStockUnit(DeliveryReadyNaverItemViewDto dto) {
+        deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            item.setReleaseCompleted(true);
+            deliveryReadyNaverItemRepository.save(item);
+        }, null);
+    }
+
+    public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
+        for(DeliveryReadyNaverItemViewDto dto : dtos) {
+            this.releaseStockUnit(dto);
+        }
+    }
+
+    public void cancleReleaseStockUnit(DeliveryReadyNaverItemViewDto dto) {
+        deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            item.setReleaseCompleted(false);
+            deliveryReadyNaverItemRepository.save(item);
+        }, null);
+    }
+
+    public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
+        for(DeliveryReadyNaverItemViewDto dto : dtos) {
+            this.cancleReleaseStockUnit(dto);
+        }
     }
 }

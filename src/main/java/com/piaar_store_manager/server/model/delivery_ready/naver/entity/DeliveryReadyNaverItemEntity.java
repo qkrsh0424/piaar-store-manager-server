@@ -119,6 +119,9 @@ public class DeliveryReadyNaverItemEntity {
     @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "release_completed")
+    private Boolean releaseCompleted;   // 재고반영 여부
+
     @Column(name = "delivery_ready_file_cid")
     private Integer deliveryReadyFileCid;
 
@@ -138,7 +141,7 @@ public class DeliveryReadyNaverItemEntity {
             .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
             .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
             .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
-            .setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
+            .setReleaseCompleted(dto.getReleaseCompleted()).setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
 
         return entity;
     }

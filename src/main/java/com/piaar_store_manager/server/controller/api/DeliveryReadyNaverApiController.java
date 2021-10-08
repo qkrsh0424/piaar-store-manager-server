@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +18,10 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverBusinessService;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -41,12 +46,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 @RequestMapping("/api/v1/delivery-ready/naver")
 public class DeliveryReadyNaverApiController {
     
     @Autowired
     private DeliveryReadyNaverService deliveryReadyNaverService;
+
+    @Autowired
+    private DeliveryReadyNaverBusinessService deliveryReadyNaverBusinessService;
 
     @Autowired
     private UserService userService;
@@ -457,6 +468,50 @@ public class DeliveryReadyNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PutMapping("/view/releaseStockUnit")
+    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyNaverBusinessService.releaseListStockUnit(dtos, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+    
+    @PutMapping("/view/cancelReleasedStockUnit")
+    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyNaverBusinessService.cancelReleaseListStockUnit(dtos, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Download data for delivery ready.
      * <p>
@@ -508,7 +563,7 @@ public class DeliveryReadyNaverApiController {
         cell = row.createCell(11);
         cell.setCellValue("수량(A타입)");
         cell = row.createCell(12);
-        cell.setCellValue("묶음배송번호");
+        cell.setCellValue("주문번호");
         cell = row.createCell(13);
         cell.setCellValue("상품주문번호");
         cell = row.createCell(14);
@@ -542,13 +597,13 @@ public class DeliveryReadyNaverApiController {
             cell = row.createCell(4);
             cell.setCellValue(dtos.get(i).getTransportNumber());
             cell = row.createCell(5);
-            cell.setCellValue(dtos.get(i).getStoreProdName() != null ? dtos.get(i).getStoreProdName() + " | " + dtos.get(i).getProdManufacturingCode() : "*지정 바람");       // 피아르 상품관리명 + 상품제조번호
+            cell.setCellValue(dtos.get(i).getStoreProdName() != null ? dtos.get(i).getStoreProdName() + " | " + dtos.get(i).getProdManufacturingCode() : "*지정바람");       // 피아르 상품관리명 + 피아르 상품제조번호
             cell = row.createCell(6);
             cell.setCellValue(dtos.get(i).getSender() != null ? dtos.get(i).getSender() : "*지정바람");
             cell = row.createCell(7);
             cell.setCellValue(dtos.get(i).getSenderContact1() != null ? dtos.get(i).getSenderContact1() : "*지정바람");
             cell = row.createCell(8);
-            cell.setCellValue(dtos.get(i).getStoreOptionName() != null ? dtos.get(i).getStoreOptionName() + " | " + dtos.get(i).getOptionManagementCode() : "*지정 바람");       // 피아르 옵션관리명 + 피아르 옵션관리코드
+            cell.setCellValue(dtos.get(i).getStoreOptionName() != null ? dtos.get(i).getStoreOptionName() + " | " + dtos.get(i).getOptionManagementCode() : "*지정바람");       // 피아르 옵션관리명 + 피아르 옵션관리코드
             cell = row.createCell(9);
             cell.setCellValue(dtos.get(i).getUnit());
             cell = row.createCell(10);
@@ -606,6 +661,13 @@ public class DeliveryReadyNaverApiController {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
         
+        Comparator comparing = Comparator.comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
+                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
+                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
+
+        // 상품명 > 수취인명 > 주소
+        dtos.sort(comparing);
+
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("테일로 발주서");
@@ -639,7 +701,7 @@ public class DeliveryReadyNaverApiController {
         cell = row.createCell(11);
         cell.setCellValue("배송메세지");
         cell = row.createCell(12);
-        cell.setCellValue("묶음배송번호");
+        cell.setCellValue("주문번호");
         cell = row.createCell(13);
         cell.setCellValue("관리번호1");
         cell = row.createCell(14);

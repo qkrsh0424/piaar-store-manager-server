@@ -39,7 +39,7 @@ public class DeliveryReadyItemTailoExcelFormDto {
 
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode(viewDto.getOptionNosUniqueCode() != null ? viewDto.getOptionNosUniqueCode() : "*지정바람")
-                .salesProdName(viewDto.getProdManagementName() != null ? viewDto.getProdManagementName() + " | " + viewDto.getOptionManagementName() : "*지정 바람")
+                .salesProdName(viewDto.getProdManagementName() != null ? viewDto.getProdManagementName() + " | " + viewDto.getOptionManagementName() : "*지정바람")
                 .unit(viewDto.getDeliveryReadyItem().getUnit())
                 .transportType("택배")
                 .buyer(viewDto.getDeliveryReadyItem().getBuyer())

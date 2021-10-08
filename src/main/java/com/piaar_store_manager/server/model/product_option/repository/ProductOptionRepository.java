@@ -37,4 +37,12 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
 
     )
     List<ProductOptionProj> selectAll();
+
+    Optional<ProductOptionEntity> findByCode(String code);
+
+    @Query(
+        "SELECT po.cid FROM ProductOptionEntity po\n" +
+        "WHERE po.code=:code"
+    )
+    Integer findCidByCode(String code);
 }
