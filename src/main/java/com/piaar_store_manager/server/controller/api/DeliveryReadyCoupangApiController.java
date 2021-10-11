@@ -17,6 +17,7 @@ import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryR
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -48,6 +49,9 @@ public class DeliveryReadyCoupangApiController {
     
     @Autowired
     private DeliveryReadyCoupangService deliveryReadyCoupangService;
+
+    @Autowired
+    private DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService;
 
     @Autowired
     private UserService userService;
@@ -460,6 +464,50 @@ public class DeliveryReadyCoupangApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
     
+    @PutMapping("/view/releaseStockUnit")
+    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyCoupangBusinessService.releaseListStockUnit(dtos, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+    
+    @PutMapping("/view/cancelReleasedStockUnit")
+    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyCoupangBusinessService.cancelReleaseListStockUnit(dtos, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Download data for delivery ready.
      * <p>
@@ -608,7 +656,8 @@ public class DeliveryReadyCoupangApiController {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
 
-        Comparator comparing = Comparator.comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
+        Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
+                .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 

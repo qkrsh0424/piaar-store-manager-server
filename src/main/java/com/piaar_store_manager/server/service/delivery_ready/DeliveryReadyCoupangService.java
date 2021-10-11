@@ -38,6 +38,9 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
+import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -83,6 +86,9 @@ public class DeliveryReadyCoupangService {
 
     @Autowired
     private DeliveryReadyNaverService deliveryReadyNaverItemService;
+
+    @Autowired
+    private ProductOptionRepository productOptionRepository;
 
     /**
      * <b>Extension Check</b>
@@ -631,7 +637,7 @@ public class DeliveryReadyCoupangService {
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
+     * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
      */
     @Transactional
     public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
@@ -642,5 +648,85 @@ public class DeliveryReadyCoupangService {
             cidList.add(dto.getDeliveryReadyItem().getCid());
         }
         deliveryReadyCoupangItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
+    }
+
+    public void releaseStockUnit(DeliveryReadyCoupangItemViewDto dto) {
+        deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            item.setReleaseCompleted(true);
+            deliveryReadyCoupangItemRepository.save(item);
+        }, null);
+    }
+
+    public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            this.releaseStockUnit(dto);
+        }
+    }
+
+    public List<ProductReleaseGetDto> createReleaseDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+        List<ProductReleaseGetDto> releaseDtos = new ArrayList<>();
+        int optionCid = -1;
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
+
+            // 상품 옵션의 cid
+            optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+
+            // 출고 데이터 생성
+            ProductReleaseGetDto releaseDto = ProductReleaseGetDto.builder()
+                .id(UUID.randomUUID())
+                .releaseUnit(dto.getDeliveryReadyItem().getUnit())
+                .memo(dto.getReleaseMemo())
+                .createdAt(dateHandler.getCurrentDate())
+                .createdBy(userId)
+                .productOptionCid(optionCid)
+                .build();
+
+            releaseDtos.add(releaseDto);
+        }
+
+        return releaseDtos;
+    }
+
+    public void cancleReleaseStockUnit(DeliveryReadyCoupangItemViewDto dto) {
+        deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            item.setReleaseCompleted(false);
+            deliveryReadyCoupangItemRepository.save(item);
+        }, null);
+    }
+
+    public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            this.cancleReleaseStockUnit(dto);
+        }
+    }
+
+    public List<ProductReceiveGetDto> createReceiveDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+        List<ProductReceiveGetDto> receiveDtos = new ArrayList<>();
+        int optionCid = -1;
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
+
+            // 상품 옵션의 cid
+            optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+
+            // 출고 데이터 생성
+            ProductReceiveGetDto receiveDto = ProductReceiveGetDto.builder()
+                .id(UUID.randomUUID())
+                .receiveUnit(dto.getDeliveryReadyItem().getUnit())
+                .memo(dto.getReceiveMemo())
+                .createdAt(dateHandler.getCurrentDate())
+                .createdBy(userId)
+                .productOptionCid(optionCid)
+                .build();
+
+            receiveDtos.add(receiveDto);
+        }
+
+        return receiveDtos;
     }
 }

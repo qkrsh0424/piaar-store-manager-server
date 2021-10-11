@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +17,8 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverBusinessService;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -46,10 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @RestController
-@Slf4j
 @RequestMapping("/api/v1/delivery-ready/naver")
 public class DeliveryReadyNaverApiController {
     
@@ -661,7 +655,8 @@ public class DeliveryReadyNaverApiController {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
         
-        Comparator comparing = Comparator.comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
+        Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
+                .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 

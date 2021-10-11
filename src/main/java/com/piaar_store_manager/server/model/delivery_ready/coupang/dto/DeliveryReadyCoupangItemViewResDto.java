@@ -15,4 +15,6 @@ public class DeliveryReadyCoupangItemViewResDto {
     String sender;
     String senderContact1;
     String optionNosUniqueCode;
+    String releaseMemo;
+    String receiveMemo;
 }

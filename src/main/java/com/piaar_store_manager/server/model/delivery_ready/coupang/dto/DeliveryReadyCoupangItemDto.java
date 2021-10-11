@@ -41,6 +41,7 @@ public class DeliveryReadyCoupangItemDto {
     private Boolean released;   // 출고여부
     private Date releasedAt;
     private Date createdAt;
+    private Boolean releaseCompleted;       // 재고반영 여부
     private Integer deliveryReadyFileCid;
 
     public static DeliveryReadyCoupangItemDto toDto(DeliveryReadyCoupangItemEntity entity) {
@@ -69,6 +70,7 @@ public class DeliveryReadyCoupangItemDto {
             .released(entity.getReleased())
             .releasedAt(entity.getReleasedAt())
             .createdAt(entity.getCreatedAt())
+            .releaseCompleted(entity.getReleaseCompleted())
             .deliveryReadyFileCid(entity.getDeliveryReadyFileCid())
             .build();
 
