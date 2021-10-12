@@ -633,16 +633,16 @@ public class DeliveryReadyNaverService {
         deliveryReadyNaverItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
 
-    public void releaseStockUnit(DeliveryReadyNaverItemViewDto dto) {
+    public void updateReleaseCompleted(DeliveryReadyNaverItemViewDto dto) {
         deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
             item.setReleaseCompleted(true);
             deliveryReadyNaverItemRepository.save(item);
         }, null);
     }
 
-    public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
+    public void updateListReleaseCompleted(List<DeliveryReadyNaverItemViewDto> dtos) {
         for(DeliveryReadyNaverItemViewDto dto : dtos) {
-            this.releaseStockUnit(dto);
+            this.updateReleaseCompleted(dto);
         }
     }
 
@@ -711,5 +711,25 @@ public class DeliveryReadyNaverService {
         }
 
         return receiveDtos;
+    }
+
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <p>
+     * 배송준비 데이터의 출고완료 항목을 업데이트한다.
+     *
+     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     */
+    public void updateListReleaseCompleted(List<DeliveryReadyNaverItemViewDto> dtos, boolean reflected) {
+        for(DeliveryReadyNaverItemViewDto dto : dtos) {
+            deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+                item.setReleaseCompleted(reflected);
+                deliveryReadyNaverItemRepository.save(item);
+            }, null);
+        }
+    }
+
+    public int getOptionCid(DeliveryReadyNaverItemViewDto dto) {
+        return productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
     }
 }

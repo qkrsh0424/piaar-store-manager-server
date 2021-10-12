@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.service.delivery_ready;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,17 +24,65 @@ public class DeliveryReadyCoupangBusinessService {
     @Autowired
     ProductReceiveService productReceiveService;
     
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Reflect the stock unit of product options.</b>
+     * <p>
+     * 배송준비 데이터의 출고완료 항목을 업데이트한다.
+     * 출고(재고 반영) 데이터를 생성하여 재고에 반영한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param userId : UUID
+     * @see DeliveryReadyCoupangService#updateListReleaseCompleted
+     * @see DeliveryReadyCoupangService#getOptionCid
+     * @see ProductReleaseGetDto#toDto
+     * @see ProductReleaseService#createPRList
+     */
     public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
-        deliveryReadyCoupangService.releaseListStockUnit(dtos);
-        List<ProductReleaseGetDto> releaseDtos = deliveryReadyCoupangService.createReleaseDtos(dtos, userId);
+        deliveryReadyCoupangService.updateListReleaseCompleted(dtos, true);
+        
+        List<ProductReleaseGetDto> productReleaseGetDtos = new ArrayList<>();
+        for(DeliveryReadyCoupangItemViewDto dto : dtos){
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
 
-        productReleaseService.createPRList(releaseDtos, userId);
+            int optionCid = deliveryReadyCoupangService.getOptionCid(dto);
+
+            ProductReleaseGetDto productReleaseGetDto = ProductReleaseGetDto.toDto(dto, optionCid);
+            productReleaseGetDtos.add(productReleaseGetDto);
+        }
+
+        productReleaseService.createPRList(productReleaseGetDtos, userId);
     }
 
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Cancel the stock unit reflection of product options.</b>
+     * <p>
+     * 배송준비 데이터의 출고완료 항목을 업데이트한다.
+     * 입고(재고 반영 취소) 데이터를 생성하여 재고에 반영한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param userId : UUID
+     * @see DeliveryReadyCoupangService#updateListReleaseCompleted
+     * @see DeliveryReadyCoupangService#getOptionCid
+     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveService#createPRList
+     */
     public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
-        deliveryReadyCoupangService.cancelReleaseListStockUnit(dtos);
-        List<ProductReceiveGetDto> receiveDtos = deliveryReadyCoupangService.createReceiveDtos(dtos, userId);
+        deliveryReadyCoupangService.updateListReleaseCompleted(dtos, false);
+
+        List<ProductReceiveGetDto> productReceiveGetDtos = new ArrayList<>();
+        for(DeliveryReadyCoupangItemViewDto dto : dtos){
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
+
+            int optionCid = deliveryReadyCoupangService.getOptionCid(dto);
+
+            ProductReceiveGetDto productRceiveGetDto = ProductReceiveGetDto.toDto(dto, optionCid);
+            productReceiveGetDtos.add(productRceiveGetDto);
+        }
         
-        productReceiveService.createPRList(receiveDtos, userId);
+        productReceiveService.createPRList(productReceiveGetDtos, userId);
     }
 }

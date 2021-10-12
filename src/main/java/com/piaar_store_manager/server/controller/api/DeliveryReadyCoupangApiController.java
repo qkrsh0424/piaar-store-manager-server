@@ -168,8 +168,9 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/released</b>
      * 
-     * @return ResponseEntity(message, HttpStatus)
      * @param query : Map[startDate, endDate]
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws ParseException
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyCoupangService#getDeliveryReadyViewReleased
@@ -464,6 +465,21 @@ public class DeliveryReadyCoupangApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
     
+    /**
+     * Update data for delivery ready data.
+     * Reflect the stock unit of product options.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/releaseStockUnit</b>
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyCoupangBusinessService#releaseListStockUnit
+     * @see UserService#isManager
+     * @see UserService#getUserId
+     * @see UserService#userDenyCheck
+     */
     @PutMapping("/view/releaseStockUnit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
@@ -486,6 +502,21 @@ public class DeliveryReadyCoupangApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
     
+    /**
+     * Update data for delivery ready.
+     * Cancel the stock unit reflection of product options.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/cancelReleasedStockUnit</b>
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyCoupangBusinessService#cancelReleaseListStockUnit
+     * @see UserService#isManager
+     * @see UserService#getUserId
+     * @see UserService#userDenyCheck
+     */
     @PutMapping("/view/cancelReleasedStockUnit")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
@@ -656,12 +687,12 @@ public class DeliveryReadyCoupangApiController {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
 
+        // 상품명 > 수취인명 > 주소
         Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
                 .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 
-        // 상품명 > 수취인명 > 주소
         dtos.sort(comparing);
         
         // 엑셀 생성
@@ -791,7 +822,6 @@ public class DeliveryReadyCoupangApiController {
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyCoupangItemExcelFormDto> dtos = new ArrayList<>();
 
-        
         for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyCoupangItemExcelFormDto.toCoupangFormDto(viewDto));
         }

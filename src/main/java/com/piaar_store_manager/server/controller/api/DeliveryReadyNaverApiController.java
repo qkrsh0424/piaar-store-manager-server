@@ -462,6 +462,21 @@ public class DeliveryReadyNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Update data for delivery ready data.
+     * Reflect the stock unit of product options.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/releaseStockUnit</b>
+     *
+     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyNaverBusinessService#releaseListStockUnit
+     * @see UserService#isManager
+     * @see UserService#getUserId
+     * @see UserService#userDenyCheck
+     */
     @PutMapping("/view/releaseStockUnit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
         Message message = new Message();
@@ -484,6 +499,21 @@ public class DeliveryReadyNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
     
+    /**
+     * Update data for delivery ready.
+     * Cancel the stock unit reflection of product options.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/cancelReleasedStockUnit</b>
+     *
+     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyNaverBusinessService#cancelReleaseListStockUnit
+     * @see UserService#isManager
+     * @see UserService#getUserId
+     * @see UserService#userDenyCheck
+     */
     @PutMapping("/view/cancelReleasedStockUnit")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
         Message message = new Message();
@@ -655,12 +685,12 @@ public class DeliveryReadyNaverApiController {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
         
+        // 상품명 > 수취인명 > 주소
         Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
                 .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 
-        // 상품명 > 수취인명 > 주소
         dtos.sort(comparing);
 
         // 엑셀 생성

@@ -235,14 +235,17 @@ public class ProductReceiveService {
      * @see ProductOptionService#receiveProductUnit
      */
     public void createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
-        ProductReceiveEntity entity = new ProductReceiveEntity();
+        List<ProductReceiveEntity> entities = new ArrayList<>();
         
         for(ProductReceiveGetDto dto : productReceiveGetDtos) {
-            entity = convEntityByDto(dto, userId);
-            productReceiveRepository.save(entity);
+            ProductReceiveEntity entity = convEntityByDto(dto, userId);
+            entities.add(entity);
             productOptionService.receiveProductUnit(dto.getProductOptionCid(), userId, entity.getReceiveUnit());
         }
+        productReceiveRepository.saveAll(entities);
     }
+
+    
 
     /**
      * <b>DB Delete Related Method</b>

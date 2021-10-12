@@ -235,13 +235,15 @@ public class ProductReleaseService {
      * @see ProductOptionService#releaseProductUnit
      */
     public void createPRList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
-        ProductReleaseEntity entity = new ProductReleaseEntity();
+        List<ProductReleaseEntity> entities = new ArrayList<>();
         
         for(ProductReleaseGetDto dto : productReleaseGetDtos) {
-            entity = convEntityByDto(dto, userId);
-            productReleaseRepository.save(entity);
+            ProductReleaseEntity entity = convEntityByDto(dto, userId);
+            entities.add(entity);
             productOptionService.releaseProductUnit(dto.getProductOptionCid(), userId, entity.getReleaseUnit());
         }
+
+        productReleaseRepository.saveAll(entities);
     }
 
     /**
