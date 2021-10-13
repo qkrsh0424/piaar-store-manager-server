@@ -14,13 +14,19 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 
 import org.hibernate.annotations.Type;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Entity
 @Data
 @Table(name = "delivery_ready_naver_item")
 @Accessors(chain=true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeliveryReadyNaverItemEntity {
     
     @Id
@@ -126,22 +132,40 @@ public class DeliveryReadyNaverItemEntity {
     private Integer deliveryReadyFileCid;
 
     public static DeliveryReadyNaverItemEntity toEntity(DeliveryReadyNaverItemDto dto){
-        DeliveryReadyNaverItemEntity entity = new DeliveryReadyNaverItemEntity();
-
-        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber())
-            .setOrderNumber(dto.getOrderNumber()).setSalesChannel(dto.getSalesChannel())
-            .setBuyer(dto.getBuyer()).setBuyerId(dto.getBuyerId()).setReceiver(dto.getReceiver())
-            .setPaymentDate(dto.getPaymentDate()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
-            .setOptionInfo(dto.getOptionInfo()).setOptionManagementCode(dto.getOptionManagementCode())
-            .setUnit(dto.getUnit()).setOrderConfirmationDate(dto.getOrderConfirmationDate())
-            .setShipmentDueDate(dto.getShipmentDueDate()).setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-            .setSellerProdCode(dto.getSellerProdCode()).setSellerInnerCode1(dto.getSellerInnerCode1())
-            .setSellerInnerCode2(dto.getSellerInnerCode2()).setReceiverContact1(dto.getReceiverContact1())
-            .setReceiverContact2(dto.getReceiverContact2()).setDestination(dto.getDestination())
-            .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode()).setDeliveryMessage(dto.getDeliveryMessage())
-            .setReleaseArea(dto.getReleaseArea()).setOrderDateTime(dto.getOrderDateTime())
-            .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
-            .setReleaseCompleted(dto.getReleaseCompleted()).setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
+        DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.builder()
+            .id(dto.getId())
+            .prodOrderNumber(dto.getProdOrderNumber())
+            .orderNumber(dto.getOrderNumber())
+            .salesChannel(dto.getSalesChannel())
+            .buyer(dto.getBuyer())
+            .buyerId(dto.getBuyerId())
+            .receiver(dto.getReceiver())
+            .paymentDate(dto.getPaymentDate())
+            .prodNumber(dto.getProdNumber())
+            .prodName(dto.getProdName())
+            .optionInfo(dto.getOptionInfo())
+            .optionManagementCode(dto.getOptionManagementCode())
+            .unit(dto.getUnit())
+            .orderConfirmationDate(dto.getOrderConfirmationDate())
+            .shipmentDueDate(dto.getShipmentDueDate())
+            .shipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
+            .sellerProdCode(dto.getSellerProdCode())
+            .sellerInnerCode1(dto.getSellerInnerCode1())
+            .sellerInnerCode2(dto.getSellerInnerCode2())
+            .receiverContact1(dto.getReceiverContact1())
+            .receiverContact2(dto.getReceiverContact2())
+            .destination(dto.getDestination())
+            .buyerContact(dto.getBuyerContact())
+            .zipCode(dto.getZipCode())
+            .deliveryMessage(dto.getDeliveryMessage())
+            .releaseArea(dto.getReleaseArea())
+            .orderDateTime(dto.getOrderDateTime())
+            .released(dto.getReleased())
+            .releasedAt(dto.getReleasedAt())
+            .createdAt(dto.getCreatedAt())
+            .releaseCompleted(dto.getReleaseCompleted())
+            .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
+            .build();
 
         return entity;
     }

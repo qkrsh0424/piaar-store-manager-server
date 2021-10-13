@@ -1,10 +1,16 @@
 package com.piaar_store_manager.server.model.product_option.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,6 +18,9 @@ import java.util.UUID;
 @Data
 @Table(name = "product_option")
 @Accessors(chain = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductOptionEntity {
 
     @Id
@@ -64,4 +73,34 @@ public class ProductOptionEntity {
     @Column(name = "product_cid")
     private Integer productCid;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductOptionGetDto => ProductOptionEntity
+     * 
+     * @param productOptionDto : ProductOptionGetDto
+     * @param userId : UUID
+     * @param productCid : Integer
+     * @return ProductOptionEntity
+     */
+    public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
+        ProductOptionEntity productOptionEntity = ProductOptionEntity.builder()
+                .id(UUID.randomUUID())
+                .code(productOptionDto.getCode())
+                .nosUniqueCode(productOptionDto.getNosUniqueCode())
+                .defaultName(productOptionDto.getDefaultName())
+                .managementName(productOptionDto.getManagementName())
+                .salesPrice(productOptionDto.getSalesPrice())
+                .stockUnit(productOptionDto.getStockUnit())
+                .status(productOptionDto.getStatus())
+                .memo(productOptionDto.getMemo())
+                .createdAt(productOptionDto.getCreatedAt())
+                .createdBy(productOptionDto.getCreatedBy())
+                .updatedAt(productOptionDto.getUpdatedAt())
+                .updatedBy(productOptionDto.getUpdatedBy())
+                .productCid(productOptionDto.getProductCid())
+                .build();
+
+        return productOptionEntity;
+    }
 }

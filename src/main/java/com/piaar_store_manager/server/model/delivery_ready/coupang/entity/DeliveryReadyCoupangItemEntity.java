@@ -14,13 +14,19 @@ import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryR
 
 import org.hibernate.annotations.Type;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Entity
 @Data
 @Table(name = "delivery_ready_coupang_item")
 @Accessors(chain=true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DeliveryReadyCoupangItemEntity {
     
     @Id
@@ -105,19 +111,33 @@ public class DeliveryReadyCoupangItemEntity {
     private Integer deliveryReadyFileCid;
     
     public static DeliveryReadyCoupangItemEntity toEntity(DeliveryReadyCoupangItemDto dto){
-        DeliveryReadyCoupangItemEntity entity = new DeliveryReadyCoupangItemEntity();
-
-        entity.setId(dto.getId()).setProdOrderNumber(dto.getProdOrderNumber()).setBuyer(dto.getBuyer())
-                .setOrderNumber(dto.getOrderNumber()).setReceiver(dto.getReceiver()).setProdNumber(dto.getProdNumber()).setProdName(dto.getProdName())
-                .setProdExposureName(dto.getProdExposureName()).setOptionInfo(dto.getOptionInfo())
-                .setOptionManagementCode(dto.getOptionManagementCode()).setCoupangOptionId(dto.getCoupangOptionId())
-                .setUnit(dto.getUnit()).setShipmentDueDate(dto.getShipmentDueDate())
-                .setShipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-                .setReceiverContact1(dto.getReceiverContact1()).setDestination(dto.getDestination())
-                .setBuyerContact(dto.getBuyerContact()).setZipCode(dto.getZipCode())
-                .setDeliveryMessage(dto.getDeliveryMessage()).setOrderDateTime(dto.getOrderDateTime())
-                .setReleased(dto.getReleased()).setReleasedAt(dto.getReleasedAt()).setCreatedAt(dto.getCreatedAt())
-                .setReleaseCompleted(dto.getReleaseCompleted()).setDeliveryReadyFileCid(dto.getDeliveryReadyFileCid());
+        DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.builder()
+            .id(dto.getId())
+            .prodOrderNumber(dto.getProdOrderNumber())
+            .orderNumber(dto.getOrderNumber())
+            .buyer(dto.getBuyer())
+            .receiver(dto.getReceiver())
+            .prodNumber(dto.getProdNumber())
+            .prodName(dto.getProdName())
+            .prodExposureName(dto.getProdExposureName())
+            .optionInfo(dto.getOptionInfo())
+            .optionManagementCode(dto.getOptionManagementCode())
+            .coupangOptionId(dto.getCoupangOptionId())
+            .unit(dto.getUnit())
+            .shipmentDueDate(dto.getShipmentDueDate())
+            .shipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
+            .receiverContact1(dto.getReceiverContact1())
+            .destination(dto.getDestination())
+            .buyerContact(dto.getBuyerContact())
+            .zipCode(dto.getZipCode())
+            .deliveryMessage(dto.getDeliveryMessage())
+            .orderDateTime(dto.getOrderDateTime())
+            .released(dto.getReleased())
+            .releasedAt(dto.getReleasedAt())
+            .createdAt(dto.getCreatedAt())
+            .releaseCompleted(dto.getReleaseCompleted())
+            .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
+            .build();
 
         return entity;
     }

@@ -15,8 +15,6 @@ import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiv
 import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.model.product_receive.repository.ProductReceiveRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.product.ProductService;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -36,57 +34,7 @@ public class ProductReceiveService {
     private DateHandler dateHandler;
 
     @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private ProductCategoryService productCategoryService;
-
-    @Autowired
     private UserService userService;
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductReceiveEntity => ProductReceiveGetDto
-     * 
-     * @param productReceiveEntity : ProductReceiveEntity
-     * @return ProductReceiveGetDto
-     */
-    public ProductReceiveGetDto getDtoByEntity(ProductReceiveEntity entity) {
-        ProductReceiveGetDto dto = new ProductReceiveGetDto();
-
-        dto.setCid(entity.getCid())
-           .setId(entity.getId())
-           .setReceiveUnit(entity.getReceiveUnit())
-           .setMemo(entity.getMemo())
-           .setCreatedAt(entity.getCreatedAt())
-           .setCreatedBy(entity.getCreatedBy())
-           .setProductOptionCid(entity.getProductOptionCid());
-
-        return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductReceiveGetDto => ProductReceiveEntity
-     * 
-     * @param dto : ProductReceiveGetDto
-     * @param userId : UUID
-     * @return ProductReceiveEntity
-     */
-    public ProductReceiveEntity convEntityByDto(ProductReceiveGetDto dto, UUID userId) {
-        ProductReceiveEntity entity = new ProductReceiveEntity();
-
-        entity.setId(UUID.randomUUID())
-              .setReceiveUnit(dto.getReceiveUnit())
-              .setMemo(dto.getMemo())
-              .setCreatedAt(dateHandler.getCurrentDate())
-              .setCreatedBy(userId)
-              .setProductOptionCid(dto.getProductOptionCid());
-
-        return entity;
-    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -96,13 +44,14 @@ public class ProductReceiveService {
      * @param productCid : Integer
      * @return ProductReceiveGetDto
      * @see ProductReceiveRepository#findById
+     * @see ProductReceiveGetDto#toDto
      */
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
         Optional<ProductReceiveEntity> productEntityOpt = productReceiveRepository.findById(productReceiveCid);
         ProductReceiveGetDto dto = new ProductReceiveGetDto();
 
         if (productEntityOpt.isPresent()) {
-            dto = getDtoByEntity(productEntityOpt.get());
+            dto = ProductReceiveGetDto.toDto(productEntityOpt.get());
         } else {
             throw new NullPointerException();
         }
@@ -119,9 +68,10 @@ public class ProductReceiveService {
      * @param productReceiveCid : Integer
      * @return ProductReceiveJoinResDto
      * @see ProductReceiveRepository#selectByCid
-     * @see ProductOptionService#getDtoByEntity
-     * @see ProductService#getDtoByEntity
-     * @see ProductCategoryService#getDtoByEntity
+     * @see ProductReceiveGetDto#toDto
+     * @see ProductOptionGetDto#toDto
+     * @see ProductGetDto#toDto
+     * @see ProductCategoryGetDto#toDto
      * @see UserService#getDtoByEntity
      */
     public ProductReceiveJoinResDto searchOneM2OJ(Integer productReceiveCid){
@@ -130,10 +80,10 @@ public class ProductReceiveService {
         Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.selectByCid(productReceiveCid);
 
         if(productReceiveProjOpt.isPresent()) {
-            ProductReceiveGetDto productReceiveDto = this.getDtoByEntity(productReceiveProjOpt.get().getProductReceive());
-            ProductOptionGetDto productOptionDto = productOptionService.getDtoByEntity(productReceiveProjOpt.get().getProductOption());
-            ProductGetDto productDto = productService.getDtoByEntity(productReceiveProjOpt.get().getProduct());
-            ProductCategoryGetDto productCategoryDto = productCategoryService.getDtoByEntity(productReceiveProjOpt.get().getCategory());
+            ProductReceiveGetDto productReceiveDto = ProductReceiveGetDto.toDto(productReceiveProjOpt.get().getProductReceive());
+            ProductOptionGetDto productOptionDto = ProductOptionGetDto.toDto(productReceiveProjOpt.get().getProductOption());
+            ProductGetDto productDto = ProductGetDto.toDto(productReceiveProjOpt.get().getProduct());
+            ProductCategoryGetDto productCategoryDto = ProductCategoryGetDto.toDto(productReceiveProjOpt.get().getCategory());
             UserGetDto userDto = userService.getDtoByEntity(productReceiveProjOpt.get().getUser());
 
             productReceiveResDto.setReceive(productReceiveDto)
@@ -156,13 +106,14 @@ public class ProductReceiveService {
      * 
      * @return List::ProductReceiveGetDto::
      * @see ProductReceiveRepository#findAll
+     * @see ProductReceiveGetDto#toDto
      */
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveRepository.findAll();
         List<ProductReceiveGetDto> dtos = new ArrayList<>();
 
         for(ProductReceiveEntity entity : entities){
-            dtos.add(getDtoByEntity(entity));
+            dtos.add(ProductReceiveGetDto.toDto(entity));
         }
         return dtos;
     }
@@ -175,13 +126,14 @@ public class ProductReceiveService {
      * @param productOptionCid : Integer
      * @return List::ProductReceiveGetDto
      * @see ProductReceiveRepository#findByProductOptionCid
+     * @see ProductReceiveGetDto#toDto
      */
     public List<ProductReceiveGetDto> searchList(Integer productOptionCid) {
         List<ProductReceiveEntity> productEntities = productReceiveRepository.findByProductOptionCid(productOptionCid);
         List<ProductReceiveGetDto> dtos = new ArrayList<>();
 
         for(ProductReceiveEntity entity : productEntities){
-            dtos.add(getDtoByEntity(entity));
+            dtos.add(ProductReceiveGetDto.toDto(entity));
         }
 
         return dtos;
@@ -214,13 +166,16 @@ public class ProductReceiveService {
      * 
      * @param productReceiveGetDto : ProductReceiveGetDto
      * @param userId : UUID
+     * @see ProductReceiveEntity#toEntity
      * @see ProductReceiveRepository#save
-     * @see ProductOptionService#receiveProductUnit
      */
-    public void createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
-        ProductReceiveEntity entity = convEntityByDto(productReceiveGetDto, userId);
+    public ProductReceiveEntity createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
+        productReceiveGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+
+        ProductReceiveEntity entity = ProductReceiveEntity.toEntity(productReceiveGetDto);
         productReceiveRepository.save(entity);
-        productOptionService.receiveProductUnit(productReceiveGetDto.getProductOptionCid(), userId, entity.getReceiveUnit());
+
+        return entity;
     }
 
     /**
@@ -231,18 +186,22 @@ public class ProductReceiveService {
      * 
      * @param productReceiveGetDto : List::ProductReceiveGetDto::
      * @param userId : UUID
-     * @see ProductReceiveRepository#save
+     * @see ProductReceiveEntity#toEntity
      * @see ProductOptionService#receiveProductUnit
+     * @see ProductReceiveRepository#saveAll
      */
-    public void createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
+    public List<ProductReceiveEntity> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
         List<ProductReceiveEntity> entities = new ArrayList<>();
         
         for(ProductReceiveGetDto dto : productReceiveGetDtos) {
-            ProductReceiveEntity entity = convEntityByDto(dto, userId);
+            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+            
+            ProductReceiveEntity entity = ProductReceiveEntity.toEntity(dto);
             entities.add(entity);
-            productOptionService.receiveProductUnit(dto.getProductOptionCid(), userId, entity.getReceiveUnit());
         }
+
         productReceiveRepository.saveAll(entities);
+        return entities;
     }
 
     

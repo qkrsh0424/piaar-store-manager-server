@@ -9,8 +9,6 @@ import com.piaar_store_manager.server.model.product_option.entity.ProductOptionE
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.product.ProductService;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,66 +29,7 @@ public class ProductOptionService {
     private DateHandler dateHandler;
 
     @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private ProductCategoryService productCategoryService;
-
-    @Autowired
     private UserService userService;
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductOptionEntity => ProductOptionGetDto
-     * 
-     * @param productOptionEntity : ProductOptionEntity
-     * @return ProductOptionGetDto
-     */
-    public ProductOptionGetDto getDtoByEntity(ProductOptionEntity productOptionEntity) {
-        ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
-
-        productOptionDto
-                .setCid(productOptionEntity.getCid())
-                .setId(productOptionEntity.getId())
-                .setCode(productOptionEntity.getCode())
-                .setNosUniqueCode(productOptionEntity.getNosUniqueCode())
-                .setDefaultName(productOptionEntity.getDefaultName())
-                .setManagementName(productOptionEntity.getManagementName())
-                .setSalesPrice(productOptionEntity.getSalesPrice())
-                .setStockUnit(productOptionEntity.getStockUnit())
-                .setStatus(productOptionEntity.getStatus())
-                .setMemo(productOptionEntity.getMemo())
-                .setCreatedAt(productOptionEntity.getCreatedAt())
-                .setCreatedBy(productOptionEntity.getCreatedBy())
-                .setUpdatedAt(productOptionEntity.getUpdatedAt())
-                .setUpdatedBy(productOptionEntity.getUpdatedBy())
-                .setProductCid(productOptionEntity.getProductCid());
-
-        return productOptionDto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductOptionGetDto => ProductOptionEntity
-     * 
-     * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @return ProductOptionEntity
-     */
-    private ProductOptionEntity convEntityByDto(ProductOptionGetDto productOptionDto, UUID userId, Integer productCid) {
-        ProductOptionEntity productOptionEntity = new ProductOptionEntity();
-
-        productOptionEntity.setId(UUID.randomUUID()).setCode(productOptionDto.getCode())
-                .setNosUniqueCode(productOptionDto.getNosUniqueCode()).setDefaultName(productOptionDto.getDefaultName())
-                .setManagementName(productOptionDto.getManagementName()).setSalesPrice(productOptionDto.getSalesPrice())
-                .setStockUnit(productOptionDto.getStockUnit()).setStatus(productOptionDto.getStatus())
-                .setMemo(productOptionDto.getMemo()).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId).setProductCid(productCid);
-
-        return productOptionEntity;
-    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -100,13 +39,14 @@ public class ProductOptionService {
      * @param productOptionCid : Integer
      * @return ProductOptionGetDto
      * @see ProductOptionRepository#findById
+     * @see ProductOptionGetDto#toDto
      */
     public ProductOptionGetDto searchOne(Integer productOptionCid) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
         ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
 
         if (productOptionEntityOpt.isPresent()) {
-            productOptionDto = getDtoByEntity(productOptionEntityOpt.get());
+            productOptionDto = ProductOptionGetDto.toDto(productOptionEntityOpt.get());
         } else {
             throw new NullPointerException();
         }
@@ -123,9 +63,10 @@ public class ProductOptionService {
      * @param productOptionCid : Integer
      * @return ProductOptionJoinResDto
      * @see ProductOptionRepository#selectByCid
-     * @see ProductSerivce#getDtoByEntity
+     * @see ProductGetDto#toDto
      * @see UserService#getDtoByEntity
-     * @see ProductCategoryService#getDtoByEntity
+     * @see ProductCategoryGetDto#toDto
+     * @see ProductOptionGetDto#toDto
      */
     public ProductOptionJoinResDto searchOneM2OJ(Integer productOptionCid) {
         ProductOptionJoinResDto productOptionResDto = new ProductOptionJoinResDto();
@@ -133,10 +74,10 @@ public class ProductOptionService {
         Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.selectByCid(productOptionCid);
 
         if (productOptionProjOpt.isPresent()) {
-            ProductGetDto productGetDto = productService.getDtoByEntity(productOptionProjOpt.get().getProduct());
+            ProductGetDto productGetDto = ProductGetDto.toDto(productOptionProjOpt.get().getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(productOptionProjOpt.get().getUser());
-            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productOptionProjOpt.get().getCategory());
-            ProductOptionGetDto productOptionGetDto = this.getDtoByEntity(productOptionProjOpt.get().getProductOption());
+            ProductCategoryGetDto categoryGetDto = ProductCategoryGetDto.toDto(productOptionProjOpt.get().getCategory());
+            ProductOptionGetDto productOptionGetDto = ProductOptionGetDto.toDto(productOptionProjOpt.get().getProductOption());
 
             productOptionResDto.setProduct(productGetDto).setUser(userGetDto).setCategory(categoryGetDto)
                     .setOption(productOptionGetDto);
@@ -153,13 +94,14 @@ public class ProductOptionService {
      *
      * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#findAll
+     * @see ProductOptionGetDto#toDto
      */
     public List<ProductOptionGetDto> searchList() {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll();
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
         for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(getDtoByEntity(optionEntity));
+            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
         }
         return productOptionDto;
     }
@@ -178,7 +120,7 @@ public class ProductOptionService {
         List<ProductOptionProj> productOptionProjs = productOptionRepository.selectAll();
         
         for (ProductOptionProj projOptionOpt : productOptionProjs) {
-            productOptionJoinResDtos.add(searchOneM2OJ(projOptionOpt.getProductOption().getCid()));
+            productOptionJoinResDtos.add(this.searchOneM2OJ(projOptionOpt.getProductOption().getCid()));
         }
         return productOptionJoinResDtos;
     }
@@ -190,13 +132,14 @@ public class ProductOptionService {
      *
      * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#findAll
+     * @see ProductOptionGetDto#toDto
      */
     public List<ProductOptionGetDto> searchList(Integer productCid) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
         for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(getDtoByEntity(optionEntity));
+            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
         }
         return productOptionDto;
     }
@@ -208,10 +151,14 @@ public class ProductOptionService {
      * 
      * @param productOptionGetDto : ProductOptionGetDto
      * @param userId : UUID
+     * @see ProductOptionEntity#toEntity
      * @see ProductOptionRepository#save
      */
-    public void createOne(ProductOptionGetDto productOptionGetDto, UUID userId) {
-        ProductOptionEntity entity = convEntityByDto(productOptionGetDto, userId, productOptionGetDto.getProductCid());
+    public void createOne(ProductOptionGetDto dto, UUID userId) {
+        dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+        ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
         productOptionRepository.save(entity);
     }
 
@@ -223,13 +170,18 @@ public class ProductOptionService {
      * @param productOptionGetDto : List::ProductOptionGetDto::
      * @param userId : UUID
      * @param productCid : Integer
+     * @see ProductOptionEntity#toEntity
      * @see ProductOptionRepository#saveAll
      */
     public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid) {
         List<ProductOptionEntity> entities = new ArrayList<>();
 
         for (ProductOptionGetDto dto : productOptionGetDtos) {
-            ProductOptionEntity entity = convEntityByDto(dto, userId, productCid);
+            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+                .setProductCid(productCid);
+
+            ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
             entities.add(entity);
         }
         productOptionRepository.saveAll(entities);
@@ -355,7 +307,6 @@ public class ProductOptionService {
      * @see ProductOptionRepository#save
      */
     public void releaseProductUnit(Integer optionCid, UUID userId, Integer releaseUnit){
-
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() - releaseUnit)
                                .setUpdatedAt(dateHandler.getCurrentDate())

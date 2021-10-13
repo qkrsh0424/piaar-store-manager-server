@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
+import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,28 @@ public class ProductReleaseGetDto {
     private Date createdAt;
     private UUID createdBy;
     private Integer productOptionCid;
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReleaseEntity => ProductReleaseGetDto
+     * 
+     * @param entity : ProductReleaseEntity
+     * @return ProductReleaseGetDto
+     */
+    public static ProductReleaseGetDto toDto(ProductReleaseEntity entity) {
+        ProductReleaseGetDto dto = ProductReleaseGetDto.builder()
+           .cid(entity.getCid())
+           .id(entity.getId())
+           .releaseUnit(entity.getReleaseUnit())
+           .memo(entity.getMemo())
+           .createdAt(entity.getCreatedAt())
+           .createdBy(entity.getCreatedBy())
+           .productOptionCid(entity.getProductOptionCid())
+           .build();
+
+        return dto;
+    }
 
     public static ProductReleaseGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, int optionCid){
         ProductReleaseGetDto dto = ProductReleaseGetDto.builder()

@@ -10,7 +10,6 @@ import com.piaar_store_manager.server.model.product.repository.ProductRepository
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
 import com.piaar_store_manager.server.service.user.UserService;
@@ -35,56 +34,7 @@ public class ProductService {
     private ProductOptionService productOptionService;
 
     @Autowired
-    private ProductCategoryService productCategoryService; 
-
-    @Autowired
     private UserService userService;
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductEntity => ProductGetDto
-     * 
-     * @param productEntity : ProductEntity
-     * @return ProductGetDto
-     */
-    public ProductGetDto getDtoByEntity(ProductEntity productEntity) {
-        ProductGetDto productDto = new ProductGetDto();
-
-        productDto.setCid(productEntity.getCid()).setId(productEntity.getId()).setCode(productEntity.getCode())
-                .setManufacturingCode(productEntity.getManufacturingCode())
-                .setNaverProductCode(productEntity.getNaverProductCode()).setDefaultName(productEntity.getDefaultName())
-                .setManagementName(productEntity.getManagementName()).setImageUrl(productEntity.getImageUrl())
-                .setImageFileName(productEntity.getImageFileName()).setMemo(productEntity.getMemo())
-                .setCreatedAt(productEntity.getCreatedAt()).setCreatedBy(productEntity.getCreatedBy())
-                .setUpdatedAt(productEntity.getUpdatedAt()).setUpdatedBy(productEntity.getUpdatedBy())
-                .setProductCategoryCid(productEntity.getProductCategoryCid());
-
-        return productDto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductGetDto => ProductEntity
-     * 
-     * @param productDto : ProductGetDto
-     * @param userId : UUID
-     * @return ProductEntity
-     */
-    private ProductEntity convEntityByDto(ProductGetDto productDto, UUID userId) {
-        ProductEntity productEntity = new ProductEntity();
-
-        productEntity.setId(UUID.randomUUID()).setCode(productDto.getCode())
-                .setManufacturingCode(productDto.getManufacturingCode()).setNaverProductCode(productDto.getNaverProductCode())
-                .setDefaultName(productDto.getDefaultName()).setManagementName(productDto.getManagementName())
-                .setImageUrl(productDto.getImageUrl()).setImageFileName(productDto.getImageFileName())
-                .setMemo(productDto.getMemo()).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-                .setProductCategoryCid(productDto.getProductCategoryCid());
-
-        return productEntity;
-    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -100,7 +50,7 @@ public class ProductService {
         ProductGetDto productDto = new ProductGetDto();
 
         if (productEntityOpt.isPresent()) {
-            productDto = getDtoByEntity(productEntityOpt.get());
+            productDto = ProductGetDto.toDto(productEntityOpt.get());
         } else {
             throw new NullPointerException();
         }
@@ -117,8 +67,9 @@ public class ProductService {
      * @param productCid : Integer
      * @return ProductJoinResDto
      * @see ProductRepository#selectByCid
+     * @see ProductGetDto#toDto
      * @see UserService#getDtoByEntity
-     * @see ProductCategoryService#getDtoByEntity
+     * @see ProductCategoryGetDto#toDto
      */
     public ProductJoinResDto searchOneM2OJ(Integer productCid) {
         ProductJoinResDto productResDto = new ProductJoinResDto();
@@ -126,9 +77,9 @@ public class ProductService {
         Optional<ProductProj> productProjOpt = productRepository.selectByCid(productCid);
 
         if(productProjOpt.isPresent()){
-            ProductGetDto productGetDto = this.getDtoByEntity(productProjOpt.get().getProduct());
+            ProductGetDto productGetDto = ProductGetDto.toDto(productProjOpt.get().getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(productProjOpt.get().getUser());
-            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productProjOpt.get().getCategory());
+            ProductCategoryGetDto categoryGetDto = ProductCategoryGetDto.toDto(productProjOpt.get().getCategory());
 
             productResDto
                 .setProduct(productGetDto)
@@ -151,7 +102,7 @@ public class ProductService {
      * @return ProductJoinResDto
      * @see ProductRepository#selectByCid
      * @see UserService#getDtoByEntity
-     * @see ProductCategoryService#getDtoByEntity
+     * @see ProductCategoryGetDto#toDto
      * @see ProductOptionService#searchList
      */
     public ProductJoinResDto searchOneFJ(Integer productCid) {
@@ -160,9 +111,9 @@ public class ProductService {
         Optional<ProductProj> productProjOpt = productRepository.selectByCid(productCid);
 
         if(productProjOpt.isPresent()){
-            ProductGetDto productGetDto = this.getDtoByEntity(productProjOpt.get().getProduct());
+            ProductGetDto productGetDto = ProductGetDto.toDto(productProjOpt.get().getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(productProjOpt.get().getUser());
-            ProductCategoryGetDto categoryGetDto = productCategoryService.getDtoByEntity(productProjOpt.get().getCategory());
+            ProductCategoryGetDto categoryGetDto = ProductCategoryGetDto.toDto(productProjOpt.get().getCategory());
             List<ProductOptionGetDto> optionGetDtos = productOptionService.searchList(productProjOpt.get().getProduct().getCid());
             
             productResDto
@@ -184,13 +135,14 @@ public class ProductService {
      * 
      * @return List::ProductGetDto::
      * @see ProductRepository#findAll
+     * @see ProductGetDto#toDto
      */
     public List<ProductGetDto> searchList() {
         List<ProductEntity> productEntities = productRepository.findAll();
         List<ProductGetDto> productDto = new ArrayList<>();
 
         for(ProductEntity entity : productEntities){
-            productDto.add(getDtoByEntity(entity));
+            productDto.add(ProductGetDto.toDto(entity));
         }
         return productDto;
     }
@@ -244,10 +196,14 @@ public class ProductService {
      * 
      * @param productGetDto : ProductGetDto
      * @param userId : UUID
+     * @see ProductEntity#toEntity
      * @see ProductRepository#save
      */
     public void createOne(ProductGetDto productGetDto, UUID userId) {
-        ProductEntity entity = convEntityByDto(productGetDto, userId);
+        productGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+        ProductEntity entity = ProductEntity.toEntity(productGetDto);
         productRepository.save(entity);
     }
 
@@ -258,11 +214,16 @@ public class ProductService {
      * 
      * @param productCreateReqDto : ProductCreateReqDto
      * @param userId : UUID
+     * @see ProductEntity#toEntity
      * @see ProductRepository#save
      * @see ProductOptionService#createList
      */
     public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
-        ProductEntity entity = convEntityByDto(productCreateReqDto.getProductDto(), userId);
+        ProductGetDto dto = productCreateReqDto.getProductDto();
+        dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+        ProductEntity entity = ProductEntity.toEntity(productCreateReqDto.getProductDto());
         ProductEntity savedProductEntity = productRepository.save(entity);
 
         productOptionService.createList(productCreateReqDto.getOptionDtos(), userId, savedProductEntity.getCid());
@@ -275,6 +236,7 @@ public class ProductService {
      * 
      * @param productCreateReqDtos : List::ProductCreateReqDto::
      * @param userId : UUID
+     * @see ProductEntity#toEntity
      * @see ProductRepository#save
      * @see ProductOptionService#createList
      */
@@ -282,10 +244,14 @@ public class ProductService {
         ProductEntity entity = new ProductEntity();
         ProductEntity savedProductEntity = new ProductEntity();
 
-        for (ProductCreateReqDto dto : productCreateReqDtos) {
-            entity = convEntityByDto(dto.getProductDto(), userId);
+        for (ProductCreateReqDto reqDto : productCreateReqDtos) {
+            ProductGetDto dto = reqDto.getProductDto();
+            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+            entity = ProductEntity.toEntity(reqDto.getProductDto());
             savedProductEntity = productRepository.save(entity);
-            productOptionService.createList(dto.getOptionDtos(), userId, savedProductEntity.getCid());
+            productOptionService.createList(reqDto.getOptionDtos(), userId, savedProductEntity.getCid());
         }
     }
 

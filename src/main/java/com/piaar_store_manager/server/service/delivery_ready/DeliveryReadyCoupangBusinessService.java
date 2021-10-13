@@ -16,13 +16,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class DeliveryReadyCoupangBusinessService {
     @Autowired
-    DeliveryReadyCoupangService deliveryReadyCoupangService;
+    private DeliveryReadyCoupangService deliveryReadyCoupangService;
 
     @Autowired
-    ProductReleaseService productReleaseService;
+    private ProductReleaseService productReleaseService;
 
     @Autowired
-    ProductReceiveService productReceiveService;
+    private ProductReceiveService productReceiveService;
     
     /**
      * <b>Update data for delivery ready.</b>

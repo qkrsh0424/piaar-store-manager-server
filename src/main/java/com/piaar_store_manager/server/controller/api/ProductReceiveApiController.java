@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -26,6 +27,9 @@ public class ProductReceiveApiController {
     
     @Autowired
     private ProductReceiveService productReceiveService;
+
+    @Autowired
+    private ProductReceiveBusinessService productReceiveBusinessService;
 
     @Autowired
     private UserService userService;
@@ -197,7 +201,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#createPR
+     * @see ProductBusinessReceiveService#createPR
      * @see UserService#getUserId
      */
     @PostMapping("/one")
@@ -207,7 +211,7 @@ public class ProductReceiveApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.createPR(productReceiveGetDto, userService.getUserId());
+                productReceiveBusinessService.createPR(productReceiveGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -230,7 +234,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#createPRList
+     * @see ProductBusinessReceiveService#createPRList
      * @see UserService#getUserId
      */
     @PostMapping("/list")
@@ -240,7 +244,7 @@ public class ProductReceiveApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.createPRList(productReceiveGetDtos, userService.getUserId());
+                productReceiveBusinessService.createPRList(productReceiveGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
@@ -44,4 +46,26 @@ public class ProductReceiveEntity {
 
     @Column(name = "product_option_cid")
     private Integer productOptionCid;
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReceiveGetDto => ProductReceiveEntity
+     * 
+     * @param dto : ProductReceiveGetDto
+     * @param userId : UUID
+     * @return ProductReceiveEntity
+     */
+    public static ProductReceiveEntity toEntity(ProductReceiveGetDto dto) {
+        ProductReceiveEntity entity = new ProductReceiveEntity();
+
+        entity.setId(UUID.randomUUID())
+              .setReceiveUnit(dto.getReceiveUnit())
+              .setMemo(dto.getMemo())
+              .setCreatedAt(dto.getCreatedAt())
+              .setCreatedBy(dto.getCreatedBy())
+              .setProductOptionCid(dto.getProductOptionCid());
+
+        return entity;
+    }
 }

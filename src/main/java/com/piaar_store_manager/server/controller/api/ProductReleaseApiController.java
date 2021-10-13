@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -26,6 +27,9 @@ public class ProductReleaseApiController {
     
     @Autowired
     private ProductReleaseService productReleaseService;
+
+    @Autowired
+    private ProductReleaseBusinessService productReleaseBusinessService;
 
     @Autowired
     private UserService userService;
@@ -197,7 +201,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#createPR
+     * @see productReleaseBusinessService#createPR
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -208,7 +212,7 @@ public class ProductReleaseApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.createPR(productReleaseGetDto, userService.getUserId());
+                productReleaseBusinessService.createPR(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -231,7 +235,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#createPRList
+     * @see productReleaseBusinessService#createPRList
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -242,7 +246,7 @@ public class ProductReleaseApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.createPRList(productReleaseGetDtos, userService.getUserId());
+                productReleaseBusinessService.createPRList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

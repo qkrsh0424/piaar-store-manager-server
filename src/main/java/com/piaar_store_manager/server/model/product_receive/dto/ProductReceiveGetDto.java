@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
+import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,38 @@ public class ProductReceiveGetDto {
     private UUID createdBy;
     private Integer productOptionCid;
 
-    public static ProductReceiveGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, int optionCid){
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReceiveEntity => ProductReceiveGetDto
+     * 
+     * @param productReceiveEntity : ProductReceiveEntity
+     * @return ProductReceiveGetDto
+     */
+    public static ProductReceiveGetDto toDto(ProductReceiveEntity entity) {
+        ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
+            .cid(entity.getCid())
+            .id(entity.getId())
+            .receiveUnit(entity.getReceiveUnit())
+            .memo(entity.getMemo())
+            .createdAt(entity.getCreatedAt())
+            .createdBy(entity.getCreatedBy())
+            .productOptionCid(entity.getProductOptionCid())
+            .build();
+
+        return dto;
+    }
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemViewDto => ProductReceiveGetDto
+     * 
+     * @param reqDto : DeliveryReadyCoupangItemViewDto
+     * @param optionCid : Integer
+     * @return ProductReceiveGetDto
+     */
+    public static ProductReceiveGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, Integer optionCid){
         ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
             .id(UUID.randomUUID())
             .receiveUnit(reqDto.getDeliveryReadyItem().getUnit())
@@ -37,7 +69,16 @@ public class ProductReceiveGetDto {
         return dto;
     }
 
-    public static ProductReceiveGetDto toDto(DeliveryReadyNaverItemViewDto reqDto, int optionCid){
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewDto => ProductReceiveGetDto
+     * 
+     * @param reqDto : DeliveryReadyNaverItemViewDto
+     * @param optionCid : Integer
+     * @return ProductReceiveGetDto
+     */
+    public static ProductReceiveGetDto toDto(DeliveryReadyNaverItemViewDto reqDto, Integer optionCid){
         ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
             .id(UUID.randomUUID())
             .receiveUnit(reqDto.getDeliveryReadyItem().getUnit())

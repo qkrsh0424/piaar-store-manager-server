@@ -15,8 +15,6 @@ import com.piaar_store_manager.server.model.product_release.entity.ProductReleas
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.product.ProductService;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -36,57 +34,7 @@ public class ProductReleaseService {
     private DateHandler dateHandler;
 
     @Autowired
-    private ProductService productService;
-
-    @Autowired
-    private ProductCategoryService productCategoryService;
-
-    @Autowired
     private UserService userService;
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductReleaseEntity => ProductReleaseGetDto
-     * 
-     * @param entity : ProductReleaseEntity
-     * @return ProductReleaseGetDto
-     */
-    public ProductReleaseGetDto getDtoByEntity(ProductReleaseEntity entity) {
-        ProductReleaseGetDto dto = new ProductReleaseGetDto();
-
-        dto.setCid(entity.getCid())
-           .setId(entity.getId())
-           .setReleaseUnit(entity.getReleaseUnit())
-           .setMemo(entity.getMemo())
-           .setCreatedAt(entity.getCreatedAt())
-           .setCreatedBy(entity.getCreatedBy())
-           .setProductOptionCid(entity.getProductOptionCid());
-
-        return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * ProductReleaseGetDto => ProductReleaseEntity
-     * 
-     * @param dto : ProductReleaseGetDto
-     * @param userId : UUID
-     * @return ProductReleaseEntity
-     */
-    public ProductReleaseEntity convEntityByDto(ProductReleaseGetDto dto, UUID userId) {
-        ProductReleaseEntity entity = new ProductReleaseEntity();
-
-        entity.setId(UUID.randomUUID())
-              .setReleaseUnit(dto.getReleaseUnit())
-              .setMemo(dto.getMemo())
-              .setCreatedAt(dateHandler.getCurrentDate())
-              .setCreatedBy(userId)
-              .setProductOptionCid(dto.getProductOptionCid());
-
-        return entity;
-    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -96,13 +44,14 @@ public class ProductReleaseService {
      * @param productReleaseId : Integer
      * @return ProductReleaseGetDto
      * @see ProductReleaseRepository#findById
+     * @see ProductReleaseGetDto#toDto
      */
     public ProductReleaseGetDto searchOne(Integer productReleaseId) {
         Optional<ProductReleaseEntity> productEntityOpt = productReleaseRepository.findById(productReleaseId);
         ProductReleaseGetDto dto = new ProductReleaseGetDto();
 
         if (productEntityOpt.isPresent()) {
-            dto = getDtoByEntity(productEntityOpt.get());
+            dto = ProductReleaseGetDto.toDto(productEntityOpt.get());
         } else {
             throw new NullPointerException();
         }
@@ -119,9 +68,9 @@ public class ProductReleaseService {
      * @param productReleaseId : Integer
      * @return ProductReleaseJoinResDto
      * @see ProductReleaseRepository#selectByCid
-     * @see ProductOptionService#getDtoByEntity
-     * @see ProductService#getDtoByEntity
-     * @see ProductCategoryService#getDtoByEntity
+     * @see ProductOptionGetDto#toDto
+     * @see ProductGetDto#toDto
+     * @see ProductCategoryGetDto#toDto
      * @see UserService#getDtoByEntity
      */
     public ProductReleaseJoinResDto searchOneM2OJ(Integer productReleaseId){
@@ -130,10 +79,10 @@ public class ProductReleaseService {
         Optional<ProductReleaseProj> productReleaseProjOpt = productReleaseRepository.selectByCid(productReleaseId);
 
         if(productReleaseProjOpt.isPresent()) {
-            ProductReleaseGetDto productReleaseDto = this.getDtoByEntity(productReleaseProjOpt.get().getProductRelease());
-            ProductOptionGetDto productOptionDto = productOptionService.getDtoByEntity(productReleaseProjOpt.get().getProductOption());
-            ProductGetDto productDto = productService.getDtoByEntity(productReleaseProjOpt.get().getProduct());
-            ProductCategoryGetDto productCategoryDto = productCategoryService.getDtoByEntity(productReleaseProjOpt.get().getCategory());
+            ProductReleaseGetDto productReleaseDto = ProductReleaseGetDto.toDto(productReleaseProjOpt.get().getProductRelease());
+            ProductOptionGetDto productOptionDto = ProductOptionGetDto.toDto(productReleaseProjOpt.get().getProductOption());
+            ProductGetDto productDto = ProductGetDto.toDto(productReleaseProjOpt.get().getProduct());
+            ProductCategoryGetDto productCategoryDto = ProductCategoryGetDto.toDto(productReleaseProjOpt.get().getCategory());
             UserGetDto userDto = userService.getDtoByEntity(productReleaseProjOpt.get().getUser());
 
             productReleaseResDto.setRelease(productReleaseDto)
@@ -156,13 +105,14 @@ public class ProductReleaseService {
      * 
      * @return List::ProductReleaseGetDto::
      * @see ProductReleaseRepository#findAll
+     * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> searchList() {
         List<ProductReleaseEntity> entities = productReleaseRepository.findAll();
         List<ProductReleaseGetDto> dtos = new ArrayList<>();
 
         for(ProductReleaseEntity entity : entities){
-            dtos.add(getDtoByEntity(entity));
+            dtos.add(ProductReleaseGetDto.toDto(entity));
         }
         return dtos;
     }
@@ -175,13 +125,14 @@ public class ProductReleaseService {
      * @param productOptionCid : Integer
      * @return List::ProductReceiveGetDto
      * @see ProductReceiveRepository#findByProductOptionCid
+     * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> searchList(Integer productOptionCid) {
         List<ProductReleaseEntity> productEntities = productReleaseRepository.findByProductOptionCid(productOptionCid);
         List<ProductReleaseGetDto> dtos = new ArrayList<>();
 
         for(ProductReleaseEntity entity : productEntities){
-            dtos.add(getDtoByEntity(entity));
+            dtos.add(ProductReleaseGetDto.toDto(entity));
         }
 
         return dtos;
@@ -214,13 +165,17 @@ public class ProductReleaseService {
      * 
      * @param productReleaseGetDto : ProductReleaseGetDto
      * @param userId : UUID
+     * @return ProductReleaseEntity
+     * @see ProductReleaseEntity#toEntity
      * @see ProductReleaseRepository#save
-     * @see ProductOptionService#releaseProductUnit
      */
-    public void createPR(ProductReleaseGetDto productReleaseGetDto, UUID userId) {
-        ProductReleaseEntity entity = convEntityByDto(productReleaseGetDto, userId);
+    public ProductReleaseEntity createPR(ProductReleaseGetDto productReleaseGetDto, UUID userId) {
+        productReleaseGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+
+        ProductReleaseEntity entity = ProductReleaseEntity.toEntity(productReleaseGetDto);
         productReleaseRepository.save(entity);
-        productOptionService.releaseProductUnit(productReleaseGetDto.getProductOptionCid(), userId, entity.getReleaseUnit());
+
+        return entity;
     }
 
     /**
@@ -231,19 +186,22 @@ public class ProductReleaseService {
      * 
      * @param productReleaseGetDtos : List::ProductReleaseGetDto::
      * @param userId : UUID
-     * @see ProductReceiveRepository#save
-     * @see ProductOptionService#releaseProductUnit
+     * @return List::ProductReleaseEntity::
+     * @see ProductReleaseEntity#toEntity
+     * @see ProductReleaseRepository#saveAll
      */
-    public void createPRList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
+    public List<ProductReleaseEntity> createPRList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
         List<ProductReleaseEntity> entities = new ArrayList<>();
         
         for(ProductReleaseGetDto dto : productReleaseGetDtos) {
-            ProductReleaseEntity entity = convEntityByDto(dto, userId);
+            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+
+            ProductReleaseEntity entity = ProductReleaseEntity.toEntity(dto);
             entities.add(entity);
-            productOptionService.releaseProductUnit(dto.getProductOptionCid(), userId, entity.getReleaseUnit());
         }
 
         productReleaseRepository.saveAll(entities);
+        return entities;
     }
 
     /**
@@ -302,7 +260,6 @@ public class ProductReleaseService {
      * @param userId :: UUID
      */
     public void changeList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
-
         for(ProductReleaseGetDto dto : productReleaseGetDtos) {
             changeOne(dto, userId);
         }
@@ -323,7 +280,6 @@ public class ProductReleaseService {
     public void patchOne(ProductReleaseGetDto releaseDto, UUID userId) {
         productReleaseRepository.findById(releaseDto.getCid()).ifPresentOrElse(releaseEntity -> {
             if(releaseDto.getReleaseUnit() != null){
-               
                 // 현재 저장된 출고 상품 개수 삭제
                 productOptionService.receiveProductUnit(releaseEntity.getProductOptionCid(), userId, releaseEntity.getReleaseUnit());
 

@@ -1,10 +1,16 @@
 package com.piaar_store_manager.server.model.product.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+
+import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
+
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,6 +18,9 @@ import java.util.UUID;
 @Data
 @Table(name = "product")
 @Accessors(chain = true)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductEntity {
 
     @Id
@@ -63,4 +72,34 @@ public class ProductEntity {
 
     @Column(name = "product_category_cid")
     private Integer productCategoryCid;
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductGetDto => ProductEntity
+     * 
+     * @param productDto : ProductGetDto
+     * @param userId : UUID
+     * @return ProductEntity
+     */
+    public static ProductEntity toEntity(ProductGetDto productDto) {
+        ProductEntity entity = ProductEntity.builder()
+            .id(UUID.randomUUID())
+            .code(productDto.getCode())
+            .manufacturingCode(productDto.getManufacturingCode())
+            .naverProductCode(productDto.getNaverProductCode())
+            .defaultName(productDto.getDefaultName())
+            .managementName(productDto.getManagementName())
+            .imageUrl(productDto.getImageUrl())
+            .imageFileName(productDto.getImageFileName())
+            .memo(productDto.getMemo())
+            .createdAt(productDto.getCreatedAt())
+            .createdBy(productDto.getCreatedBy())
+            .updatedAt(productDto.getUpdatedAt())
+            .updatedBy(productDto.getUpdatedBy())
+            .productCategoryCid(productDto.getProductCategoryCid())
+            .build();
+
+        return entity;
+    }
 }

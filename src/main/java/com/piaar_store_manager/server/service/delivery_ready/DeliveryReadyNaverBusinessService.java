@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 public class DeliveryReadyNaverBusinessService {
 
     @Autowired
-    DeliveryReadyNaverService deliveryReadyNaverService;
+    private DeliveryReadyNaverService deliveryReadyNaverService;
 
     @Autowired
-    ProductReleaseService productReleaseService;
+    private ProductReleaseService productReleaseService;
 
     @Autowired
-    ProductReceiveService productReceiveService;
+    private ProductReceiveService productReceiveService;
 
     /**
      * <b>Update data for delivery ready.</b>
