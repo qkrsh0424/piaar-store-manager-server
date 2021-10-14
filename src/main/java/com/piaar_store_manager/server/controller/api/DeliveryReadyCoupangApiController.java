@@ -666,7 +666,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
@@ -815,7 +815,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangService.releasedDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     @PostMapping("/view/download/excel")

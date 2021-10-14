@@ -39,6 +39,8 @@ import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyF
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -335,6 +337,7 @@ public class DeliveryReadyCoupangService {
                 .orderDateTime(row.getCell(9) != null ? dateFormat2.parse(row.getCell(9).getStringCellValue()) : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
+                .releaseCompleted(false)
                 .deliveryReadyFileCid(fileDto.getCid())
                 .build();
 
@@ -619,7 +622,7 @@ public class DeliveryReadyCoupangService {
      * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
      */
     @Transactional
-    public void releasedDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
+    public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
 
         List<Integer> cidList = new ArrayList<>();
         
@@ -632,20 +635,110 @@ public class DeliveryReadyCoupangService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * 데이터 다운로드 시 출고 정보를 설정한다.
+     * 재고 반영 시 출고완료 값을 변경한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
      */
-    @Transactional
-    public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
-
-        List<Integer> cidList = new ArrayList<>();
-        
-        for(DeliveryReadyCoupangItemViewDto dto : dtos){
-            cidList.add(dto.getDeliveryReadyItem().getCid());
+    public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemViewDto> dtos) {
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+                item.setReleaseCompleted(true);
+                deliveryReadyCoupangItemRepository.save(item);
+            }, null);
         }
-        deliveryReadyCoupangItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
+    }
+
+    /**
+     * <b>DB Create Related Method</b>
+     * <p>
+     * 재고 반영 시 출고 dto를 생성한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param userId : UUID
+     * @return List::ProductReleaseGetDto::
+     * @see ProductOptionRepository#findCidByCode
+     */
+    public List<ProductReleaseGetDto> createReleaseDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+        List<ProductReleaseGetDto> releaseDtos = new ArrayList<>();
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
+
+            // 상품 옵션의 cid
+            int optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+
+            // 출고 데이터 생성
+            ProductReleaseGetDto releaseDto = ProductReleaseGetDto.builder()
+                .id(UUID.randomUUID())
+                .releaseUnit(dto.getDeliveryReadyItem().getUnit())
+                .memo(dto.getReleaseMemo())
+                .createdAt(dateHandler.getCurrentDate())
+                .createdBy(userId)
+                .productOptionCid(optionCid)
+                .build();
+
+            releaseDtos.add(releaseDto);
+        }
+
+        return releaseDtos;
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 재고 반영 취소 시 출고완료 값을 변경한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
+     */
+    public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+                item.setReleaseCompleted(false);
+                deliveryReadyCoupangItemRepository.save(item);
+            }, null);
+        }
+    }
+
+    /**
+     * <b>DB Create Related Method</b>
+     * <p>
+     * 재고 반영 취소 시 입고 dto를 생성한다.
+     *
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param userId : UUID
+     * @return List::ProductReleaseGetDto::
+     * @see ProductOptionRepository#findCidByCode
+     */
+    public List<ProductReceiveGetDto> createReceiveDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+        List<ProductReceiveGetDto> receiveDtos = new ArrayList<>();
+        int optionCid = -1;
+        
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            // 옵션명이 존재하지 않는 경우
+            if(dto.getOptionDefaultName() == null) continue;
+
+            // 상품 옵션의 cid
+            optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+
+            // 입고 데이터 생성
+            ProductReceiveGetDto receiveDto = ProductReceiveGetDto.builder()
+                .id(UUID.randomUUID())
+                .receiveUnit(dto.getDeliveryReadyItem().getUnit())
+                .memo(dto.getReceiveMemo())
+                .createdAt(dateHandler.getCurrentDate())
+                .createdBy(userId)
+                .productOptionCid(optionCid)
+                .build();
+
+            receiveDtos.add(receiveDto);
+        }
+
+        return receiveDtos;
     }
 
     /**
@@ -654,6 +747,7 @@ public class DeliveryReadyCoupangService {
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param reflected : boolean
      */
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemViewDto> dtos, boolean reflected) {
         for(DeliveryReadyCoupangItemViewDto dto : dtos) {
@@ -664,7 +758,15 @@ public class DeliveryReadyCoupangService {
         }
     }
 
-    public int getOptionCid(DeliveryReadyCoupangItemViewDto dto) {
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
+     *
+     * @param dto : DeliveryReadyCoupangItemViewDto
+     * @return Integer
+     */
+    public Integer getOptionCid(DeliveryReadyCoupangItemViewDto dto) {
         return productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
     }
 }

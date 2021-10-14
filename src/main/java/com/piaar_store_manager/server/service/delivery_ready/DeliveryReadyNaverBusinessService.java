@@ -7,8 +7,8 @@ import java.util.UUID;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
+import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,10 +20,10 @@ public class DeliveryReadyNaverBusinessService {
     private DeliveryReadyNaverService deliveryReadyNaverService;
 
     @Autowired
-    private ProductReleaseService productReleaseService;
+    private ProductReleaseBusinessService productReleaseBusinessService;
 
     @Autowired
-    private ProductReceiveService productReceiveService;
+    private ProductReceiveBusinessService productReceiveBusinessService;
 
     /**
      * <b>Update data for delivery ready.</b>
@@ -37,7 +37,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverService#updateListReleaseCompleted
      * @see DeliveryReadyNaverService#getOptionCid
      * @see ProductReleaseGetDto#toDto
-     * @see ProductReleaseService#createPRList
+     * @see productReleaseBusinessService#createPRList
      */
     public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
 
@@ -58,7 +58,7 @@ public class DeliveryReadyNaverBusinessService {
             productReleaseGetDtos.add(productReleaseGetDto);
         }
 
-        productReleaseService.createPRList(productReleaseGetDtos, userId);
+        productReleaseBusinessService.createPRList(productReleaseGetDtos, userId);
     }
 
     /**
@@ -73,7 +73,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverService#updateListReleaseCompleted
      * @see DeliveryReadyNaverService#getOptionCid
      * @see ProductReceiveGetDto#toDto
-     * @see ProductReceiveService#createPRList
+     * @see productReceiveBusinessService#createPRList
      */
     public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
         
@@ -94,6 +94,6 @@ public class DeliveryReadyNaverBusinessService {
             productReceiveGetDtos.add(productRceiveGetDto);
         }
         
-        productReceiveService.createPRList(productReceiveGetDtos, userId);
+        productReceiveBusinessService.createPRList(productReceiveGetDtos, userId);
     }
 }

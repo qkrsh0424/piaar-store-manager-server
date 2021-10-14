@@ -7,8 +7,8 @@ import java.util.UUID;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
+import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +19,10 @@ public class DeliveryReadyCoupangBusinessService {
     private DeliveryReadyCoupangService deliveryReadyCoupangService;
 
     @Autowired
-    private ProductReleaseService productReleaseService;
+    private ProductReleaseBusinessService productReleaseBuisnessService;
 
     @Autowired
-    private ProductReceiveService productReceiveService;
+    private ProductReceiveBusinessService productReceiveBusinessService;
     
     /**
      * <b>Update data for delivery ready.</b>
@@ -36,10 +36,15 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangService#getOptionCid
      * @see ProductReleaseGetDto#toDto
-     * @see ProductReleaseService#createPRList
+     * @see productReleaseBusinessService#createPRList
      */
     public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
-        deliveryReadyCoupangService.updateListReleaseCompleted(dtos, true);
+
+        // 재고 반영되지 않은 데이터들만 재고 반영
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            if(!dto.getDeliveryReadyItem().getReleaseCompleted())
+                deliveryReadyCoupangService.updateListReleaseCompleted(dtos, true);
+        }
         
         List<ProductReleaseGetDto> productReleaseGetDtos = new ArrayList<>();
         for(DeliveryReadyCoupangItemViewDto dto : dtos){
@@ -52,7 +57,7 @@ public class DeliveryReadyCoupangBusinessService {
             productReleaseGetDtos.add(productReleaseGetDto);
         }
 
-        productReleaseService.createPRList(productReleaseGetDtos, userId);
+        productReleaseBuisnessService.createPRList(productReleaseGetDtos, userId);
     }
 
     /**
@@ -67,10 +72,15 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangService#getOptionCid
      * @see ProductReceiveGetDto#toDto
-     * @see ProductReceiveService#createPRList
+     * @see productReceiveBusinessService#createPRList
      */
     public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
-        deliveryReadyCoupangService.updateListReleaseCompleted(dtos, false);
+        
+        // 재고 반영이 선행된 데이터들만 재고 반영 취소
+        for(DeliveryReadyCoupangItemViewDto dto : dtos) {
+            if(dto.getDeliveryReadyItem().getReleaseCompleted())
+                deliveryReadyCoupangService.updateListReleaseCompleted(dtos, false);
+        }
 
         List<ProductReceiveGetDto> productReceiveGetDtos = new ArrayList<>();
         for(DeliveryReadyCoupangItemViewDto dto : dtos){
@@ -83,6 +93,6 @@ public class DeliveryReadyCoupangBusinessService {
             productReceiveGetDtos.add(productRceiveGetDto);
         }
         
-        productReceiveService.createPRList(productReceiveGetDtos, userId);
+        productReceiveBusinessService.createPRList(productReceiveGetDtos, userId);
     }
 }
