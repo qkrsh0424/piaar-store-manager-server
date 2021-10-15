@@ -598,6 +598,8 @@ public class DeliveryReadyNaverApiController {
         cell.setCellValue("옵션관리코드");
         cell = row.createCell(17);
         cell.setCellValue("총 상품주문번호");
+        cell = row.createCell(18);
+        cell.setCellValue("플랫폼명");
 
 
         CellStyle cellStyle = workbook.createCellStyle();
@@ -646,9 +648,11 @@ public class DeliveryReadyNaverApiController {
             cell.setCellValue(dtos.get(i).getOptionManagementCode());
             cell = row.createCell(17);
             cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
+            cell = row.createCell(18);
+            cell.setCellValue("네이버");
         }
 
-        for(int i = 0; i < 18; i++){
+        for(int i = 0; i < 19; i++){
             sheet.autoSizeColumn(i);
         }
 

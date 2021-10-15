@@ -600,7 +600,7 @@ public class DeliveryReadyNaverService {
                 DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
                 
                 newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
-                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + " / " + currentProd.getProdOrderNumber());     // 총 상품번호 수정
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정
             }else{
                 // 받는사람 + 번호 + 주소 : 중복인 경우
                 if(!optionSet.add(receiverStr)){
