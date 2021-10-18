@@ -195,7 +195,7 @@ public class OrderRegistrationNaverService {
         List<OrderRegistrationNaverFormDto> naverDtos = new ArrayList<>();
 
         // 네이버 대량등록에 등록될 테일로 발주 데이터 추출
-        List<DeliveryReadyItemTailoExcelFormDto> orderDtos = this.orderRegistrationDtos(tailoDto.getSendedDto(), tailoDto.getReceivedDto());
+        List<DeliveryReadyItemTailoExcelFormDto> orderDtos = this.getOrderRegistrationDtos(tailoDto.getSendedDto(), tailoDto.getReceivedDto());
 
         // 5.
         for(int i = 0; i < orderDtos.size(); i++) {
@@ -212,7 +212,7 @@ public class OrderRegistrationNaverService {
     }
 
     // 네이버 대량등록에 등록될 데이터 추출 + 합배송상품들 나누기
-    public List<DeliveryReadyItemTailoExcelFormDto> orderRegistrationDtos(List<DeliveryReadyItemTailoExcelFormDto> sendedDtos, List<DeliveryReadyItemTailoExcelFormDto> receivedDtos) {
+    public List<DeliveryReadyItemTailoExcelFormDto> getOrderRegistrationDtos(List<DeliveryReadyItemTailoExcelFormDto> sendedDtos, List<DeliveryReadyItemTailoExcelFormDto> receivedDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> tailoReceivedDtos = new ArrayList<>();     // 등록해야 할 발주 데이터
         
         Set<String> receivedSet = new HashSet<>();    // 받는사람 + 주소 + 고유코드 / 받는사람 + 주소 + 고유코드 + 상품주문번호
