@@ -34,6 +34,8 @@ public class DeliveryReadyItemTailoExcelFormDto {
     private String prodMemo3; // 상품별 메모3
     private String orderType; // 발주 타입
     private String releaseDesiredDate; // 출고희망일
+    private String deliveryService; // 택배사
+    private String transportNumber; // 송장번호
 
     public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
 

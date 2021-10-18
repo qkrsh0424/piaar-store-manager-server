@@ -732,13 +732,13 @@ public class DeliveryReadyNaverApiController {
         cell = row.createCell(12);
         cell.setCellValue("주문번호");
         cell = row.createCell(13);
-        cell.setCellValue("관리번호1");
+        cell.setCellValue("관리메모1");
         cell = row.createCell(14);
-        cell.setCellValue("관리번호2");
+        cell.setCellValue("관리메모2");
         cell = row.createCell(15);
-        cell.setCellValue("관리번호3");
+        cell.setCellValue("관리메모3");
         cell = row.createCell(16);
-        cell.setCellValue("관리번호4");
+        cell.setCellValue("관리메모4");
         cell = row.createCell(17);
         cell.setCellValue("관리번호5");
         cell = row.createCell(18);
