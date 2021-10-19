@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
@@ -22,10 +20,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class OrderRegistrationNaverService {
     
     // excel file extension.
@@ -212,53 +207,31 @@ public class OrderRegistrationNaverService {
     }
 
     // 네이버 대량등록에 등록될 데이터 추출 + 합배송상품들 나누기
+    // 1. 걸러진 receivedDtos를 모두 추가
+    // 2. senedDtos에서 주문번호가 동일한 아이들 중 이미 추가 되지 않은 애들(상품관리번호이 고유한)만 송장번호를 기입해서 추가
+    // 3. 추가된 애들 반환
     public List<DeliveryReadyItemTailoExcelFormDto> getOrderRegistrationDtos(List<DeliveryReadyItemTailoExcelFormDto> sendedDtos, List<DeliveryReadyItemTailoExcelFormDto> receivedDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> tailoReceivedDtos = new ArrayList<>();     // 등록해야 할 발주 데이터
-        
-        Set<String> receivedSet = new HashSet<>();    // 받는사람 + 주소 + 고유코드 / 받는사람 + 주소 + 고유코드 + 상품주문번호
-        Map<String, DeliveryReadyItemTailoExcelFormDto> receivedMap = new HashMap<>();  // <받는사람+주소, TailoExcelDto>
+        Map<String, DeliveryReadyItemTailoExcelFormDto> transportNumInfo = new HashMap<>();  // <주문번호, receivedDtos 데이터>
 
-        // 2.
         for(int i = 0; i < receivedDtos.size(); i++) {
-            if(receivedDtos.get(i).getManagementMemo3() != null && receivedDtos.get(i).getManagementMemo3().equals("네이버") && receivedDtos.get(i).getTransportNumber() != null){
-                StringBuilder sb = new StringBuilder();
-                sb.append(receivedDtos.get(i).getReceiver());
-                sb.append(receivedDtos.get(i).getDestination1());
-                sb.append(receivedDtos.get(i).getProdUniqueCode());
-                String resultStr = sb.toString();  // sendedDtos에서 운송장번호 기입된 애들을 걸러내기 위한 string
-
-                sb.append(receivedDtos.get(i).getManagementMemo2());
-                String resultStr2 = sb.toString();  // 합배송 상품을 찾기 위한 string
-
-                receivedSet.add(resultStr);
-                receivedSet.add(resultStr2);
+            if(receivedDtos.get(i).getManagementMemo3() != null && receivedDtos.get(i).getManagementMemo3().equals("네이버")
+                    && receivedDtos.get(i).getTransportNumber() != null){
+                
+                transportNumInfo.put(receivedDtos.get(i).getOrderNumber(), receivedDtos.get(i));
                 tailoReceivedDtos.add(receivedDtos.get(i));
-                receivedMap.put(resultStr, receivedDtos.get(i));
             }
         }
-        
-        // 2.
+
         for(int i = 0; i < sendedDtos.size(); i++) {
-            if(sendedDtos.get(i).getManagementMemo3() != null && sendedDtos.get(i).getManagementMemo3().equals("네이버")){
-                StringBuilder sb = new StringBuilder();
-                sb.append(sendedDtos.get(i).getReceiver());
-                sb.append(sendedDtos.get(i).getDestination1());
-                sb.append(sendedDtos.get(i).getProdUniqueCode());           
-                String resultStr = sb.toString();
+            // sendDtos에서 주문번호가 동일한 데이터 중 이미 추가 되지 않은 데이터(상품관리번호가 고유한) 값만 송장번호와 택배사 기입해서 추가
+            if(sendedDtos.get(i).getManagementMemo3() != null && sendedDtos.get(i).getManagementMemo3().equals("네이버")
+                        && transportNumInfo.get(sendedDtos.get(i).getOrderNumber()) != null
+                        && !transportNumInfo.get(sendedDtos.get(i).getOrderNumber()).getManagementMemo2().equals(sendedDtos.get(i).getManagementMemo2())) {
 
-                sb.append(sendedDtos.get(i).getManagementMemo2());
-                String resultStr2 = sb.toString();
-
-                // 3.
-                // 동일한 주문은 tailoReceivedDtos에 추가하지 않고, 옵션관리코드가 다른경우
-                // 합배송 상품이라면 운송장번호를 기입하고, 등록될 발주 데이터에 추가한다
-                if(!receivedSet.add(resultStr)) {
-                    if(receivedSet.add(resultStr2)) {
-                        sendedDtos.get(i).setTransportNumber(receivedMap.get(resultStr).getTransportNumber());
-                        sendedDtos.get(i).setDeliveryService(receivedMap.get(resultStr).getDeliveryService());
-                        tailoReceivedDtos.add(sendedDtos.get(i));
-                    }
-                }
+                    sendedDtos.get(i).setTransportNumber(transportNumInfo.get(sendedDtos.get(i).getOrderNumber()).getTransportNumber());
+                    sendedDtos.get(i).setDeliveryService(transportNumInfo.get(sendedDtos.get(i).getOrderNumber()).getDeliveryService());
+                    tailoReceivedDtos.add(sendedDtos.get(i));
             }
         }
 
