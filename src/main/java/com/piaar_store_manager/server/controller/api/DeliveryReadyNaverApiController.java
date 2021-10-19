@@ -10,7 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
+import com.piaar_store_manager.server.exception.ExcelFileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
@@ -88,11 +88,11 @@ public class DeliveryReadyNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("스마트스토어 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
             }
         }
 

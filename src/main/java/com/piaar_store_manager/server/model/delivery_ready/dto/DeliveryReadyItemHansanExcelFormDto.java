@@ -30,6 +30,9 @@ public class DeliveryReadyItemHansanExcelFormDto {
     private String storeOptionName; // 스토어 옵션명
     private String optionManagementCode; // 옵션관리코드
     private String allProdOrderNumber; // 총 상품주문번호
+    private String platformName;    // 플랫폼명
+    private String transportType;   // 배송방식
+    private String deliveryService; // 택배사
 
     private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 

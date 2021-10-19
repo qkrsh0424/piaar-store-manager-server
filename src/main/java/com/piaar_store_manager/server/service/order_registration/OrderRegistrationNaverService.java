@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.piaar_store_manager.server.exception.FileUploadException;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoDownloadFormDto;
@@ -50,7 +51,7 @@ public class OrderRegistrationNaverService {
      *  - d. return dto (업로드한 객체를 네이버 대량등록 dto로 return)
      * 2. 네이버 발주 등록 엑셀 다운로드
      */ 
-    public List<OrderRegistrationNaverFormDto> uploadHansanExcelFile(MultipartFile file) {
+    public List<DeliveryReadyItemHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
         
         Workbook workbook = null;
         try{
@@ -60,47 +61,70 @@ public class OrderRegistrationNaverService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = new ArrayList<>();
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
             Row row = sheet.getRow(i);
 
             if(row == null) break;
+            if(row.getCell(0) == null) break;
+
+            DeliveryReadyItemHansanExcelFormDto dto = DeliveryReadyItemHansanExcelFormDto.builder()
+                .receiver(row.getCell(0) != null ? row.getCell(0).getStringCellValue() : null)
+                .receiverContact1(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : null)
+                .unit(row.getCell(9) != null ? (int) (row.getCell(9).getNumericCellValue()) : null)
+                .destination(row.getCell(3) != null ? row.getCell(3).getStringCellValue() : null)
+                .orderNumber(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : null)
+                .optionManagementCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : null)
+                .prodOrderNumber(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : null)
+                .platformName(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : null)
+                .transportType("택배,등기,소포")
+                .deliveryService("롯데택배")
+                .transportNumber(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : null)
+                .allProdOrderNumber(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : null)
+                .build();
+
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+
+    public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByHansanFormDto(List<DeliveryReadyItemHansanExcelFormDto> hansanDtos) {
+        List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
+
+        for (DeliveryReadyItemHansanExcelFormDto hansanDto : hansanDtos) {
 
             // '송장번호 존재, 총 상품주문번호 존재, 네이버' 데이터 추출
-            String transportNumber = row.getCell(4) != null ? row.getCell(4).getStringCellValue() : null;
-            String allProdOrderNumber = row.getCell(17) != null ? row.getCell(17).getStringCellValue() : null;
-            String platformName = row.getCell(18) != null ? row.getCell(18).getStringCellValue() : null;
+            String transportNumber = hansanDto.getTransportNumber();
+            String allProdOrderNumber = hansanDto.getAllProdOrderNumber();
+            String platformName = hansanDto.getPlatformName();
 
-            if(platformName != null && platformName.equals("네이버") 
-                && transportNumber != null && allProdOrderNumber != null) {
+            if (platformName != null && platformName.equals("네이버") && transportNumber != null && allProdOrderNumber != null) {
 
                 // 총 상품주문번호 '/' 분리
                 String[] prodOrderNumber = allProdOrderNumber.split("/");
 
                 OrderRegistrationNaverFormDto dto = OrderRegistrationNaverFormDto.builder()
-                    .prodOrderNumber(prodOrderNumber[0])
-                    .transportType("택배,등기,소포")
-                    .deliveryService("롯데택배")
-                    .transportNumber(transportNumber)
-                    .build();
+                        .prodOrderNumber(prodOrderNumber[0])
+                        .transportType(hansanDto.getTransportType())
+                        .deliveryService(hansanDto.getDeliveryService())
+                        .transportNumber(transportNumber).build();
 
                 dtos.add(dto);
 
-                
                 // 합배송 상품의 데이터를 생성한다
-                for(int j = 1; j < prodOrderNumber.length; j++) {
+                for (int j = 1; j < prodOrderNumber.length; j++) {
                     OrderRegistrationNaverFormDto combinedDto = OrderRegistrationNaverFormDto.builder()
-                        .prodOrderNumber(prodOrderNumber[j])
-                        .transportType("택배,등기,소포")
-                        .deliveryService("롯데택배")
-                        .transportNumber(transportNumber)
-                        .build();
+                            .prodOrderNumber(prodOrderNumber[j])
+                            .transportType(hansanDto.getTransportType())
+                            .deliveryService(hansanDto.getDeliveryService())
+                            .transportNumber(transportNumber).build();
 
                     dtos.add(combinedDto);
                 }
             }
         }
+
         return dtos;
     }
 

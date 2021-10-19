@@ -2,7 +2,7 @@ package com.piaar_store_manager.server.controller;
 
 import java.text.ParseException;
 
-import com.piaar_store_manager.server.exception.DeliveryReadyFileUploadException;
+import com.piaar_store_manager.server.exception.ExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.message.Message;
 
@@ -65,8 +65,8 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @ExceptionHandler({ DeliveryReadyFileUploadException.class })
-    public ResponseEntity<?> DeliveryReadyExceptionHandler(DeliveryReadyFileUploadException e) {
+    @ExceptionHandler({ ExcelFileUploadException.class })
+    public ResponseEntity<?> DeliveryReadyExceptionHandler(ExcelFileUploadException e) {
         log.error("ERROR STACKTRACE => {}", e.getStackTrace());
 
         Message message = new Message();

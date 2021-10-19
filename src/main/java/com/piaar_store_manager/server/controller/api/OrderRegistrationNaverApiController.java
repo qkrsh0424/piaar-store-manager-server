@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoDownloadFormDto;
@@ -54,11 +56,11 @@ public class OrderRegistrationNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                // throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
         }
 
@@ -67,8 +69,11 @@ public class OrderRegistrationNaverApiController {
 
     // 한산엑셀 -> 네이버 대량등록 엑셀 형식으로 다운
     @PostMapping("/download/hansan")
-    public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationNaverFormDto> dtos) {
+    public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<DeliveryReadyItemHansanExcelFormDto> hansanDto) {
        
+         // 테일로 엑셀 dto를 naverFormDto로 바꾼다.
+         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByHansanFormDto(hansanDto);
+
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("발송처리");
@@ -131,11 +136,11 @@ public class OrderRegistrationNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                // throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("피아르에서 다운받은 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("피아르에서 다운받은 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
         }
 
@@ -160,11 +165,11 @@ public class OrderRegistrationNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                // throw new DeliveryReadyFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                // throw new DeliveryReadyFileUploadException("스마트스토어 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
         }
 
@@ -174,7 +179,7 @@ public class OrderRegistrationNaverApiController {
     // 테일로 엑셀 -> 네이버 대량등록 엑셀 형식으로 다운
     @PostMapping("/download/tailo")
     public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody OrderRegistrationTailoDownloadFormDto tailoDto) {
-       
+
         // 테일로 엑셀 dto를 naverFormDto로 바꾼다.
         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByTailoFormDto(tailoDto);
 
