@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoDownloadFormDto;
 import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -118,9 +118,9 @@ public class OrderRegistrationNaverApiController {
         }
     }
 
-    // 피아르 테일로 발주서 다운 엑셀파일 - 엑셀1 업로드
-    @PostMapping("/upload/tailo/sended")
-    public ResponseEntity<?> uploadSendedTailoExcelFile(@RequestParam("file") MultipartFile file) {
+    // 테일로에서 송장번호 기입한 엑셀파일
+    @PostMapping("/upload/tailo")
+    public ResponseEntity<?> uploadTailoExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
         if (!userService.isUserLogin()) {
@@ -132,36 +132,7 @@ public class OrderRegistrationNaverApiController {
             orderRegistrationNaverService.isExcelFile(file);
 
             try{
-                message.setData(orderRegistrationNaverService.uploadSendedTailoExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("피아르에서 다운받은 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
-            } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("피아르에서 다운받은 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
-            }
-        }
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    // 테일로에서 송장번호 기입한 엑셀파일 - 엑셀2 업로드
-    @PostMapping("/upload/tailo/received")
-    public ResponseEntity<?> uploadReceivedTailoExcelFile(@RequestParam("file") MultipartFile file) {
-        Message message = new Message();
-
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
-            // file extension check.
-            orderRegistrationNaverService.isExcelFile(file);
-
-            try{
-                message.setData(orderRegistrationNaverService.uploadReceivedTailoExcelFile(file));
+                message.setData(orderRegistrationNaverService.uploadTailoExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -178,7 +149,7 @@ public class OrderRegistrationNaverApiController {
 
     // 테일로 엑셀 -> 네이버 대량등록 엑셀 형식으로 다운
     @PostMapping("/download/tailo")
-    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody OrderRegistrationTailoDownloadFormDto tailoDto) {
+    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<DeliveryReadyItemTailoExcelFormDto> tailoDto) {
 
         // 테일로 엑셀 dto를 naverFormDto로 바꾼다.
         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByTailoFormDto(tailoDto);
