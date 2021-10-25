@@ -65,6 +65,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @throws NullPointerException
      * @throws IllegalStateException
+     * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyNaverService#isExcelFile
@@ -541,6 +542,7 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/hansan</b>
      *
+     * @param response : HttpServletResponse
      * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
      * @throws IOException
      * @see Message

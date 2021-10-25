@@ -6,10 +6,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
+import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -38,7 +38,22 @@ public class OrderRegistrationNaverApiController {
     @Autowired
     private UserService userService;
 
-    // 한산엑셀 업로드
+    /**
+     * Upload excel data for hansan order form.
+     * <p>
+     * <b>POST : API URL => /api/v1/order-registration/naver/upload/hansan</b>
+     * 
+     * @param file
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws NullPointerException
+     * @throws IllegalStateException
+     * @throws IllegalArgumentException
+     * @see Message
+     * @see HttpStatus
+     * @see OrderRegistrationNaverService#isExcelFile
+     * @see OrderRegistrationNaverService#uploadHansanExcelFile
+     * @see UserService#isUserLogin
+     */
     @PostMapping("/upload/hansan")
     public ResponseEntity<?> uploadHansanExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -67,11 +82,22 @@ public class OrderRegistrationNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 한산엑셀 -> 네이버 대량등록 엑셀 형식으로 다운
+    /**
+     * Download data for order registration.
+     * <p>
+     * <b>POST : API URL => /api/v1/order-registration/naver/download/hansan</b>
+     *
+     * @param response : HttpServletResponse
+     * @param viewDtos : List::DeliveryReadyItemHansanExcelFormDto::
+     * @throws IOException
+     * @see Message
+     * @see HttpStatus
+     * @see OrderRegistrationNaverService#changeNaverFormDtoByHansanFormDto
+     */
     @PostMapping("/download/hansan")
-    public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<DeliveryReadyItemHansanExcelFormDto> hansanDto) {
+    public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationHansanExcelFormDto> hansanDto) {
        
-         // 테일로 엑셀 dto를 naverFormDto로 바꾼다.
+        // 한산 엑셀 dto를 네이버 대량등록 양식으로 변환
          List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByHansanFormDto(hansanDto);
 
         // 엑셀 생성
@@ -118,7 +144,22 @@ public class OrderRegistrationNaverApiController {
         }
     }
 
-    // 테일로에서 송장번호 기입한 엑셀파일
+    /**
+     * Upload excel data for tailo order form.
+     * <p>
+     * <b>POST : API URL => /api/v1/order-registration/naver/upload/tailo</b>
+     * 
+     * @param file
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws NullPointerException
+     * @throws IllegalStateException
+     * @throws IllegalArgumentException
+     * @see Message
+     * @see HttpStatus
+     * @see OrderRegistrationNaverService#isExcelFile
+     * @see OrderRegistrationNaverService#uploadTailoExcelFile
+     * @see UserService#isUserLogin
+     */
     @PostMapping("/upload/tailo")
     public ResponseEntity<?> uploadTailoExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -147,11 +188,22 @@ public class OrderRegistrationNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 테일로 엑셀 -> 네이버 대량등록 엑셀 형식으로 다운
+    /**
+     * Download data for order registration.
+     * <p>
+     * <b>POST : API URL => /api/v1/order-registration/naver/download/tailo</b>
+     *
+     * @param response : HttpServletResponse
+     * @param viewDtos : List::DeliveryReadyItemHansanExcelFormDto::
+     * @throws IOException
+     * @see Message
+     * @see HttpStatus
+     * @see OrderRegistrationNaverService#changeNaverFormDtoByTailoFormDto
+     */
     @PostMapping("/download/tailo")
-    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<DeliveryReadyItemTailoExcelFormDto> tailoDto) {
+    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDto) {
 
-        // 테일로 엑셀 dto를 naverFormDto로 바꾼다.
+        // 테일로 엑셀 dto를 네이버 대량등록 양식으로 변환
         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByTailoFormDto(tailoDto);
 
         // 엑셀 생성

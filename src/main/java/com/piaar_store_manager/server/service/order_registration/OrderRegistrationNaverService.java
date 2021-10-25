@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.piaar_store_manager.server.exception.FileUploadException;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
+import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
+import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
@@ -41,14 +41,14 @@ public class OrderRegistrationNaverService {
     }
 
     /**
-     * 1. 한산 엑셀 업로드
-     *  - a. 한산 엑셀에서 송장번호 존재, 총 상품주문번호 존재, 네이버 데이터 뽑아내기
-     *  - b. 총 상품주문번호 '/' 분리
-     *  - c. 분리된 총 상품주문번호로 상품주문번호 작성, 운송장번호 추가
-     *  - d. return dto (업로드한 객체를 네이버 대량등록 dto로 return)
-     * 2. 네이버 발주 등록 엑셀 다운로드
-     */ 
-    public List<DeliveryReadyItemHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * 업로드된 한산 발주서 양식에서 필요한 데이터만 추출해 dto를 생성한다.
+     *
+     * @param file : MultipartFile
+     * @return List::OrderRegistrationHansanExcelFormDto::
+     */
+    public List<OrderRegistrationHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
         
         Workbook workbook = null;
         try{
@@ -58,7 +58,7 @@ public class OrderRegistrationNaverService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = new ArrayList<>();
+        List<OrderRegistrationHansanExcelFormDto> dtos = new ArrayList<>();
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
             Row row = sheet.getRow(i);
@@ -66,7 +66,7 @@ public class OrderRegistrationNaverService {
             if(row == null) break;
             if(row.getCell(0) == null) break;
 
-            DeliveryReadyItemHansanExcelFormDto dto = DeliveryReadyItemHansanExcelFormDto.builder()
+            OrderRegistrationHansanExcelFormDto dto = OrderRegistrationHansanExcelFormDto.builder()
                 .receiver(row.getCell(0) != null ? row.getCell(0).getStringCellValue() : null)
                 .receiverContact1(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : null)
                 .prodName(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : null)
@@ -88,10 +88,19 @@ public class OrderRegistrationNaverService {
         return dtos;
     }
 
-    public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByHansanFormDto(List<DeliveryReadyItemHansanExcelFormDto> hansanDtos) {
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * 한산 발주서 양식에서 등록가능한 데이터를 추출한다.
+     * 합배송 상품들을 분리하고 발주 데이터를 채워 네이버 대량등록 양식으로 변환한다.
+     *
+     * @param hansanDtos : List::OrderRegistrationHansanExcelFormDto::
+     * @return List::OrderRegistrationNaverFormDto::
+     */
+    public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByHansanFormDto(List<OrderRegistrationHansanExcelFormDto> hansanDtos) {
         List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyItemHansanExcelFormDto hansanDto : hansanDtos) {
+        for (OrderRegistrationHansanExcelFormDto hansanDto : hansanDtos) {
 
             // '송장번호 존재, 총 상품주문번호 존재, 네이버' 데이터 추출
             String transportNumber = hansanDto.getTransportNumber();
@@ -127,8 +136,15 @@ public class OrderRegistrationNaverService {
         return dtos;
     }
 
-    // 테일로에서 송장번호 기입한 엑셀파일 업로드
-    public List<DeliveryReadyItemTailoExcelFormDto> uploadTailoExcelFile(MultipartFile file) {
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * 업로드된 테일로 발주서 양식에서 필요한 데이터만 추출해 dto를 생성한다.
+     *
+     * @param file : MultipartFile
+     * @return List::OrderRegistrationTailoExcelFormDto::
+     */
+    public List<OrderRegistrationTailoExcelFormDto> uploadTailoExcelFile(MultipartFile file) {
         
         Workbook workbook = null;
         try{
@@ -138,14 +154,14 @@ public class OrderRegistrationNaverService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
+        List<OrderRegistrationTailoExcelFormDto> dtos = new ArrayList<>();
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
             Row row = sheet.getRow(i);
 
             if(row == null) break;
 
-            DeliveryReadyItemTailoExcelFormDto dto = DeliveryReadyItemTailoExcelFormDto.builder()
+            OrderRegistrationTailoExcelFormDto dto = OrderRegistrationTailoExcelFormDto.builder()
                 .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : null)
                 .receiverContact1(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : null)
                 .prodUniqueCode(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : null)
@@ -153,8 +169,8 @@ public class OrderRegistrationNaverService {
                 .unit(row.getCell(7) != null ? (int)(row.getCell(7).getNumericCellValue()) : null)
                 .destination1(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : null)
                 .orderNumber(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : null)
-                .managementMemo1(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : null)
-                .managementMemo2(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : null)
+                .prodMemo1(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : null)
+                .prodMemo3(row.getCell(24) != null ? row.getCell(24).getStringCellValue() : null)
                 .managementMemo3(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : null)
                 .transportType(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : null)
                 .deliveryService(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : null)
@@ -167,11 +183,19 @@ public class OrderRegistrationNaverService {
         return dtos;
     }
 
-    public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByTailoFormDto(List<DeliveryReadyItemTailoExcelFormDto> tailoDtos) {
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * 테일로 발주서 양식에서 등록가능한 데이터를 추출해 네이버 대량등록 양식으로 변환한다.
+     *
+     * @param tailoDtos : List::OrderRegistrationTailoExcelFormDto::
+     * @return List::OrderRegistrationNaverFormDto::
+     */
+    public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByTailoFormDto(List<OrderRegistrationTailoExcelFormDto> tailoDtos) {
 
         List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyItemTailoExcelFormDto tailoDto : tailoDtos) {
+        for (OrderRegistrationTailoExcelFormDto tailoDto : tailoDtos) {
 
             // '송장번호 존재, 네이버' 데이터 추출
             String transportNumber = tailoDto.getTransportNumber();
@@ -180,7 +204,7 @@ public class OrderRegistrationNaverService {
             if (platformName != null && platformName.equals("네이버") && transportNumber != null) {
 
                 OrderRegistrationNaverFormDto dto = OrderRegistrationNaverFormDto.builder()
-                        .prodOrderNumber(tailoDto.getManagementMemo2())
+                        .prodOrderNumber(tailoDto.getProdMemo1())
                         .transportType(tailoDto.getTransportType())
                         .deliveryService(tailoDto.getDeliveryService())
                         .transportNumber(transportNumber).build();
