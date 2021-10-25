@@ -196,7 +196,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Destroy( Delete or Remove ) unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/delivery-ready/coupang/view/deleteOne/{itemCid}</b>
+     * <b>DELETE : API URL => /api/v1/delivery-ready/coupang/view/delete/one/{itemCid}</b>
      *
      * @param itemCid : Integer
      * @return ResponseEntity(message, HttpStatus)
@@ -206,7 +206,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @DeleteMapping("/view/deleteOne/{itemCid}")
+    @DeleteMapping("/view/delete/one/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
@@ -230,7 +230,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Destroy( Delete or Remove ) checked unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/delivery-ready/coupang/view/deleteList/{itemCids}</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/delete/batch</b>
      *
      * @param itemCids : List::Integer::
      * @return ResponseEntity(message, HttpStatus)
@@ -240,13 +240,13 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @DeleteMapping("/view/deleteList/{itemCids}")
-    public ResponseEntity<?> deleteListDeliveryReadyViewData(@PathVariable(value = "itemCids") List<Integer> itemCids) {
+    @PostMapping("/view/delete/batch")
+    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
         if (userService.isManager()) {
             try{
-                deliveryReadyCoupangService.deleteListDeliveryReadyViewData(itemCids);
+                deliveryReadyCoupangService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -264,7 +264,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateOne</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/one</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @return ResponseEntity(message, HttpStatus)
@@ -274,7 +274,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOne")
+    @PutMapping("/view/update/one")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
 
@@ -299,7 +299,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateListToUnrelease</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/list/unrelease</b>
      *
      * @param deliveryReadyCoupangItemDto : List::DeliveryReadyCoupangItemDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -309,7 +309,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateListToUnrelease")
+    @PutMapping("/view/update/list/unrelease")
     public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
@@ -334,7 +334,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change unreleased data to released data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateListToRelease</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/list/release</b>
      *
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -344,7 +344,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateListToRelease")
+    @PutMapping("/view/update/list/release")
     public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         Message message = new Message();
         
@@ -369,7 +369,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Search option info for product.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/seachList/optionInfo</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/seach/list/option-info</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -378,7 +378,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @GetMapping("/view/searchList/optionInfo")
+    @GetMapping("/view/search/list/option-info")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
         Message message = new Message();
 
@@ -397,7 +397,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/updateOption</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/update/option</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @return ResponseEntity(message, HttpStatus)
@@ -407,7 +407,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOption")
+    @PutMapping("/view/update/option")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
         
@@ -432,7 +432,7 @@ public class DeliveryReadyCoupangApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/updateOptions</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/options</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
      * @param query : Map[optionCode]
@@ -443,7 +443,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOptions")
+    @PutMapping("/view/update/options")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
         
@@ -469,7 +469,7 @@ public class DeliveryReadyCoupangApiController {
      * Update data for delivery ready data.
      * Reflect the stock unit of product options.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/releaseStockUnit</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/stock-unit</b>
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -480,7 +480,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/releaseStockUnit")
+    @PutMapping("/view/stock-unit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
         
@@ -506,7 +506,7 @@ public class DeliveryReadyCoupangApiController {
      * Update data for delivery ready.
      * Cancel the stock unit reflection of product options.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/cancelReleasedStockUnit</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/stock-unit/cancel</b>
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -517,7 +517,7 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/cancelReleasedStockUnit")
+    @PutMapping("/view/stock-unit/cancel")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
         

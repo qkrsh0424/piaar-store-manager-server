@@ -112,6 +112,7 @@ public class DeliveryReadyCoupangItemEntity {
     
     public static DeliveryReadyCoupangItemEntity toEntity(DeliveryReadyCoupangItemDto dto){
         DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.builder()
+            .cid(dto.getCid())
             .id(dto.getId())
             .prodOrderNumber(dto.getProdOrderNumber())
             .orderNumber(dto.getOrderNumber())

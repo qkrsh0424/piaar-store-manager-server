@@ -194,7 +194,7 @@ public class DeliveryReadyNaverApiController {
      /**
      * Destroy( Delete or Remove ) unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/delivery-ready/naver/view/deleteOne/{itemCid}</b>
+     * <b>DELETE : API URL => /api/v1/delivery-ready/naver/view/delete/one/{itemCid}</b>
      *
      * @param itemCid : Integer
      * @return ResponseEntity(message, HttpStatus)
@@ -204,7 +204,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @DeleteMapping("/view/deleteOne/{itemCid}")
+    @DeleteMapping("/view/delete/one/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
@@ -228,9 +228,9 @@ public class DeliveryReadyNaverApiController {
     /**
      * Destroy( Delete or Remove ) checked unreleased data for delivery ready.
      * <p>
-     * <b>DELETE : API URL => /api/v1/delivery-ready/naver/view/deleteList/{itemCids}</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/view/delete/batch</b>
      *
-     * @param itemCids : List::Integer::
+     * @param DeliveryReadyNaverItemDtos : List::DeliveryReadyNaverItemDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -238,13 +238,13 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @DeleteMapping("/view/deleteList/{itemCids}")
-    public ResponseEntity<?> deleteListDeliveryReadyViewData(@PathVariable(value = "itemCids") List<Integer> itemCids) {
+    @PostMapping("/view/delete/batch")
+    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
         if (userService.isManager()) {
             try{
-                deliveryReadyNaverService.deleteListDeliveryReadyViewData(itemCids);
+                deliveryReadyNaverService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -262,7 +262,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateOne</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/one</b>
      *
      * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
@@ -272,7 +272,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOne")
+    @PutMapping("/view/update/one")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
@@ -297,7 +297,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateListToUnrelease</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/list/unrelease</b>
      *
      * @param deliveryReadyNaverItemDto : List::DeliveryReadyNaverItemDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -307,7 +307,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateListToUnrelease")
+    @PutMapping("/view/update/list/unrelease")
     public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
@@ -332,7 +332,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change unreleased data to released data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateListToRelease</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/list/release</b>
      *
      * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -342,7 +342,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateListToRelease")
+    @PutMapping("/view/update/list/release")
     public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
         Message message = new Message();
         
@@ -367,7 +367,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Search option info for product.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/seachList/optionInfo</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/seach/list/option-info</b>
      * 
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -376,7 +376,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @GetMapping("/view/searchList/optionInfo")
+    @GetMapping("/view/search/list/option-info")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
         Message message = new Message();
 
@@ -395,7 +395,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/updateOption</b>
+     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/update/option</b>
      *
      * @param DeliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
@@ -405,7 +405,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOption")
+    @PutMapping("/view/update/option")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
         
@@ -430,7 +430,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/updateOptions</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/options</b>
      *
      * @param deliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @param query : Map[optionCode]
@@ -441,7 +441,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/updateOptions")
+    @PutMapping("/view/update/options")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
         
@@ -467,7 +467,7 @@ public class DeliveryReadyNaverApiController {
      * Update data for delivery ready data.
      * Reflect the stock unit of product options.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/releaseStockUnit</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/stock-unit</b>
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -478,7 +478,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/releaseStockUnit")
+    @PutMapping("/view/stock-unit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
         Message message = new Message();
         
@@ -504,7 +504,7 @@ public class DeliveryReadyNaverApiController {
      * Update data for delivery ready.
      * Cancel the stock unit reflection of product options.
      * <p>
-     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/cancelReleasedStockUnit</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/stock-unit/cancel</b>
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @return ResponseEntity(message, HttpStatus)
@@ -515,7 +515,7 @@ public class DeliveryReadyNaverApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
-    @PutMapping("/view/cancelReleasedStockUnit")
+    @PutMapping("/view/stock-unit/cancel")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
         Message message = new Message();
         

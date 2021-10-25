@@ -419,11 +419,13 @@ public class DeliveryReadyNaverService {
      * <p>
      * DeliveryReadyItem 미출고 데이터 중 선택된 데이터를 삭제한다.
      *
-     * @param itemCid : List::Integer::
+     * @param dtos : List::DeliveryReadyNaverItemDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      */
-    public void deleteListDeliveryReadyViewData(List<Integer> itemCids) {
-        for(Integer itemCid : itemCids) {
-            this.deleteOneDeliveryReadyViewData(itemCid);
+    public void deleteListDeliveryReadyViewData(List<DeliveryReadyNaverItemDto> dtos) {
+        for(DeliveryReadyNaverItemDto dto : dtos) {
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto);
+            this.deleteOneDeliveryReadyViewData(entity.getCid());
         }
     }
 
@@ -433,11 +435,14 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#save
      */
     public void updateReleasedDeliveryReadyItem(DeliveryReadyNaverItemDto dto) {
-        deliveryReadyNaverItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+        DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto);
+        
+        deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
             deliveryReadyNaverItemRepository.save(item);
@@ -479,17 +484,16 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#save
      */
     public void updateDeliveryReadyItemOptionInfo(DeliveryReadyNaverItemDto dto) {
+        DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto);
 
-        deliveryReadyNaverItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            
-            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
-
+        deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
+            item.setOptionManagementCode(entity.getOptionManagementCode() != null ? entity.getOptionManagementCode() : "");  
             deliveryReadyNaverItemRepository.save(item);
-            
         }, null);
     }
 
@@ -499,15 +503,15 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#save
      */
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyNaverItemDto dto) {
+        DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto);
 
-        deliveryReadyNaverItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            
-            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
-
+        deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
+            item.setOptionManagementCode(entity.getOptionManagementCode() != null ? entity.getOptionManagementCode() : "");
             deliveryReadyNaverItemRepository.save(item);
 
             // 같은 상품의 옵션을 모두 변경
@@ -530,7 +534,6 @@ public class DeliveryReadyNaverService {
 
         for(DeliveryReadyNaverItemEntity entity : entities) {
             entity.setOptionManagementCode(item.getOptionManagementCode());
-
             deliveryReadyNaverItemRepository.save(entity);
         }
     }
@@ -621,6 +624,7 @@ public class DeliveryReadyNaverService {
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
      */
     @Transactional
@@ -628,7 +632,8 @@ public class DeliveryReadyNaverService {
         List<Integer> cidList = new ArrayList<>();
         
         for(DeliveryReadyNaverItemViewDto dto : dtos){
-            cidList.add(dto.getDeliveryReadyItem().getCid());
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+            cidList.add(entity.getCid());
         }
         deliveryReadyNaverItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
@@ -639,12 +644,15 @@ public class DeliveryReadyNaverService {
      * 재고 반영 시 출고완료 값을 변경한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#save
      */
     public void updateListReleaseCompleted(List<DeliveryReadyNaverItemViewDto> dtos) {
         for(DeliveryReadyNaverItemViewDto dto : dtos) {
-            deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+            deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(true);
                 deliveryReadyNaverItemRepository.save(item);
             }, null);
@@ -659,6 +667,7 @@ public class DeliveryReadyNaverService {
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @param userId : UUID
      * @return List::ProductReleaseGetDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see ProductOptionRepository#findCidByCode
      */
     public List<ProductReleaseGetDto> createReleaseDtos(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
@@ -668,8 +677,10 @@ public class DeliveryReadyNaverService {
             // 옵션명이 존재하지 않는 경우
             if(dto.getOptionDefaultName() == null) continue;
 
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+
             // 상품 옵션의 cid
-            int optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+            int optionCid = productOptionRepository.findCidByCode(entity.getOptionManagementCode());
 
             // 출고 데이터 생성
             ProductReleaseGetDto releaseDto = ProductReleaseGetDto.builder()
@@ -693,12 +704,15 @@ public class DeliveryReadyNaverService {
      * 재고 반영 취소 시 출고완료 값을 변경한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#save
      */
     public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
         for(DeliveryReadyNaverItemViewDto dto : dtos) {
-            deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+            deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(false);
                 deliveryReadyNaverItemRepository.save(item);
             }, null);
@@ -713,6 +727,7 @@ public class DeliveryReadyNaverService {
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @param userId : UUID
      * @return List::ProductReleaseGetDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      * @see ProductOptionRepository#findCidByCode
      */
     public List<ProductReceiveGetDto> createReceiveDtos(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
@@ -723,8 +738,10 @@ public class DeliveryReadyNaverService {
             // 옵션명이 존재하지 않는 경우
             if(dto.getOptionDefaultName() == null) continue;
 
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+
             // 상품 옵션의 cid
-            optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+            optionCid = productOptionRepository.findCidByCode(entity.getOptionManagementCode());
 
             // 입고 데이터 생성
             ProductReceiveGetDto receiveDto = ProductReceiveGetDto.builder()
@@ -749,10 +766,15 @@ public class DeliveryReadyNaverService {
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @param reflected : boolean
+     * @see DeliveryReadyNaverItemEntity#toEntity
+     * @see DeliveryReadyNaverItemRepository#findById
+     * @see DeliveryReadyNaverItemRepository#save
      */
     public void updateListReleaseCompleted(List<DeliveryReadyNaverItemViewDto> dtos, boolean reflected) {
         for(DeliveryReadyNaverItemViewDto dto : dtos) {
-            deliveryReadyNaverItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+            
+            deliveryReadyNaverItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(reflected);
                 deliveryReadyNaverItemRepository.save(item);
             }, null);
@@ -766,8 +788,12 @@ public class DeliveryReadyNaverService {
      *
      * @param dto : DeliveryReadyNaverItemViewDto
      * @return Integer
+     * @see DeliveryReadyNaverItemEntity#toEntity
+     * @see ProductOptionRepository#findCidByCode
      */
     public Integer getOptionCid(DeliveryReadyNaverItemViewDto dto) {
-        return productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+        DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+        return productOptionRepository.findCidByCode(entity.getOptionManagementCode());
     }
 }

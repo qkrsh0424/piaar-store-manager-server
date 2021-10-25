@@ -252,6 +252,7 @@ public class DeliveryReadyCoupangService {
      * @param fileDto : DeliveryReadyFileDto
      * @throws IllegalArgumentException
      * @throws ParseException
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#saveAll
      */
     public void createDeliveryReadyItemData(MultipartFile file, DeliveryReadyFileDto fileDto) throws ParseException {
@@ -416,11 +417,14 @@ public class DeliveryReadyCoupangService {
      * <p>
      * DeliveryReadyItem 미출고 데이터 중 선택된 데이터를 삭제한다.
      *
-     * @param itemCid : List::Integer::
+     * @param dtos : List::DeliveryReadyCoupangItemDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      */
-    public void deleteListDeliveryReadyViewData(List<Integer> itemCids) {
-        for(Integer itemCid : itemCids) {
-            this.deleteOneDeliveryReadyViewData(itemCid);
+    public void deleteListDeliveryReadyViewData(List<DeliveryReadyCoupangItemDto> dtos) {
+        for(DeliveryReadyCoupangItemDto dto : dtos) {
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto);
+
+            this.deleteOneDeliveryReadyViewData(entity.getCid());
         }
     }
 
@@ -430,11 +434,14 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
      * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateReleasedDeliveryReadyItem(DeliveryReadyCoupangItemDto dto) {
-        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
+        DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto);
+
+        deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
             item.setReleased(false).setReleasedAt(null);
 
             deliveryReadyCoupangItemRepository.save(item);
@@ -476,17 +483,16 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터의 옵션관리코드를 수정한다.
      *
      * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateDeliveryReadyItemOptionInfo(DeliveryReadyCoupangItemDto dto) {
-
-        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            
-            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
-
+        DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto);
+        
+        deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
+            item.setOptionManagementCode(entity.getOptionManagementCode() != null ? entity.getOptionManagementCode() : "");
             deliveryReadyCoupangItemRepository.save(item);
-
         }, null);
     }
 
@@ -496,15 +502,15 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
      * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyCoupangItemDto dto) {
+        DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto);
 
-        deliveryReadyCoupangItemRepository.findById(dto.getCid()).ifPresentOrElse(item -> {
-            
-            item.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
-
+        deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
+            item.setOptionManagementCode(entity.getOptionManagementCode() != null ? entity.getOptionManagementCode() : "");
             deliveryReadyCoupangItemRepository.save(item);
 
             // 같은 상품의 옵션을 모두 변경
@@ -619,6 +625,7 @@ public class DeliveryReadyCoupangService {
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
      */
     @Transactional
@@ -627,7 +634,8 @@ public class DeliveryReadyCoupangService {
         List<Integer> cidList = new ArrayList<>();
         
         for(DeliveryReadyCoupangItemViewDto dto : dtos){
-            cidList.add(dto.getDeliveryReadyItem().getCid());
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+            cidList.add(entity.getCid());
         }
         deliveryReadyCoupangItemRepository.updateReleasedAtByCid(cidList, dateHandler.getCurrentDate());
     }
@@ -638,12 +646,15 @@ public class DeliveryReadyCoupangService {
      * 재고 반영 시 출고완료 값을 변경한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemViewDto> dtos) {
         for(DeliveryReadyCoupangItemViewDto dto : dtos) {
-            deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+            deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(true);
                 deliveryReadyCoupangItemRepository.save(item);
             }, null);
@@ -658,6 +669,7 @@ public class DeliveryReadyCoupangService {
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param userId : UUID
      * @return List::ProductReleaseGetDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see ProductOptionRepository#findCidByCode
      */
     public List<ProductReleaseGetDto> createReleaseDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
@@ -667,8 +679,10 @@ public class DeliveryReadyCoupangService {
             // 옵션명이 존재하지 않는 경우
             if(dto.getOptionDefaultName() == null) continue;
 
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
             // 상품 옵션의 cid
-            int optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+            int optionCid = productOptionRepository.findCidByCode(entity.getOptionManagementCode());
 
             // 출고 데이터 생성
             ProductReleaseGetDto releaseDto = ProductReleaseGetDto.builder()
@@ -692,12 +706,15 @@ public class DeliveryReadyCoupangService {
      * 재고 반영 취소 시 출고완료 값을 변경한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#save
      */
     public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
         for(DeliveryReadyCoupangItemViewDto dto : dtos) {
-            deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+            deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(false);
                 deliveryReadyCoupangItemRepository.save(item);
             }, null);
@@ -712,6 +729,7 @@ public class DeliveryReadyCoupangService {
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param userId : UUID
      * @return List::ProductReleaseGetDto::
+     * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see ProductOptionRepository#findCidByCode
      */
     public List<ProductReceiveGetDto> createReceiveDtos(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
@@ -722,8 +740,10 @@ public class DeliveryReadyCoupangService {
             // 옵션명이 존재하지 않는 경우
             if(dto.getOptionDefaultName() == null) continue;
 
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
             // 상품 옵션의 cid
-            optionCid = productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+            optionCid = productOptionRepository.findCidByCode(entity.getOptionManagementCode());
 
             // 입고 데이터 생성
             ProductReceiveGetDto receiveDto = ProductReceiveGetDto.builder()
@@ -748,10 +768,15 @@ public class DeliveryReadyCoupangService {
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param reflected : boolean
+     * @see DeliveryReadyCoupangItemEntity#toEntity
+     * @see DeliveryReadyCoupangItemRepository#findById
+     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemViewDto> dtos, boolean reflected) {
         for(DeliveryReadyCoupangItemViewDto dto : dtos) {
-            deliveryReadyCoupangItemRepository.findById(dto.getDeliveryReadyItem().getCid()).ifPresentOrElse(item -> {
+            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+            deliveryReadyCoupangItemRepository.findById(entity.getCid()).ifPresentOrElse(item -> {
                 item.setReleaseCompleted(reflected);
                 deliveryReadyCoupangItemRepository.save(item);
             }, null);
@@ -765,8 +790,12 @@ public class DeliveryReadyCoupangService {
      *
      * @param dto : DeliveryReadyCoupangItemViewDto
      * @return Integer
+     * @see DeliveryReadyCoupangItemEntity#toEntity
+     * @see ProductOptionRepository#findCidByCode
      */
     public Integer getOptionCid(DeliveryReadyCoupangItemViewDto dto) {
-        return productOptionRepository.findCidByCode(dto.getDeliveryReadyItem().getOptionManagementCode());
+        DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.toEntity(dto.getDeliveryReadyItem());
+
+        return productOptionRepository.findCidByCode(entity.getOptionManagementCode());
     }
 }

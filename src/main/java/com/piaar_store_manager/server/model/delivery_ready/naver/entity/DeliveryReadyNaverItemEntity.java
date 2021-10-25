@@ -133,6 +133,7 @@ public class DeliveryReadyNaverItemEntity {
 
     public static DeliveryReadyNaverItemEntity toEntity(DeliveryReadyNaverItemDto dto){
         DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.builder()
+            .cid(dto.getCid())
             .id(dto.getId())
             .prodOrderNumber(dto.getProdOrderNumber())
             .orderNumber(dto.getOrderNumber())
