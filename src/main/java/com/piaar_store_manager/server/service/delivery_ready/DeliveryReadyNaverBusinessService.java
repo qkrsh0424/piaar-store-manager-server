@@ -40,14 +40,15 @@ public class DeliveryReadyNaverBusinessService {
      * @see productReleaseBusinessService#createPRList
      */
     public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
-
+        
         // 재고 반영되지 않은 데이터들만 재고 반영
         for(DeliveryReadyNaverItemViewDto dto : dtos) {
             if(!dto.getDeliveryReadyItem().getReleaseCompleted())
-                deliveryReadyNaverService.updateListReleaseCompleted(dtos, true);
+            deliveryReadyNaverService.updateListReleaseCompleted(dtos, true);
         }
-        
+
         List<ProductReleaseGetDto> productReleaseGetDtos = new ArrayList<>();
+        
         for(DeliveryReadyNaverItemViewDto dto : dtos){
             // 옵션명이 존재하지 않는 경우
             if(dto.getOptionDefaultName() == null) continue;

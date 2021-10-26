@@ -232,7 +232,7 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/delete/batch</b>
      *
-     * @param itemCids : List::Integer::
+     * @param deliveryReadyNaverItemDtos : List::DeliveryReadyCoupangItemDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -626,13 +626,13 @@ public class DeliveryReadyCoupangApiController {
             cell = row.createCell(4);
             cell.setCellValue(dtos.get(i).getTransportNumber());
             cell = row.createCell(5);
-            cell.setCellValue(dtos.get(i).getStoreProdName() != null ? dtos.get(i).getStoreProdName() + " | " + dtos.get(i).getProdManufacturingCode() : "*지정 바람");       // 피아르 상품관리명 + 상품제조번호
+            cell.setCellValue(dtos.get(i).getStoreProdName() != null ? dtos.get(i).getStoreProdName() + "|" + dtos.get(i).getProdManufacturingCode() : "*지정 바람");       // 피아르 상품관리명 + 상품제조번호
             cell = row.createCell(6);
             cell.setCellValue(dtos.get(i).getSender() != null ? dtos.get(i).getSender() : "*지정바람");
             cell = row.createCell(7);
             cell.setCellValue(dtos.get(i).getSenderContact1() != null ? dtos.get(i).getSenderContact1() : "*지정바람");
             cell = row.createCell(8);
-            cell.setCellValue(dtos.get(i).getStoreOptionName() != null ? dtos.get(i).getStoreOptionName() + " | " + dtos.get(i).getOptionManagementCode() : "*지정 바람");       // 피아르 옵션관리명 + 피아르 옵션관리코드
+            cell.setCellValue(dtos.get(i).getStoreOptionName() != null ? dtos.get(i).getStoreOptionName() + "|" + dtos.get(i).getOptionManagementCode() : "*지정 바람");       // 피아르 옵션관리명 + 피아르 옵션관리코드
             cell = row.createCell(9);
             cell.setCellValue(dtos.get(i).getUnit());
             cell = row.createCell(10);
@@ -693,7 +693,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 상품명 > 수취인명 > 주소
         Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
-                .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
+                .comparing(DeliveryReadyItemTailoExcelFormDto::getProdMemo2)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 

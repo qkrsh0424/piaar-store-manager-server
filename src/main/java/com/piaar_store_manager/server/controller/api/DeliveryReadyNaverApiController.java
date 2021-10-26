@@ -690,18 +690,14 @@ public class DeliveryReadyNaverApiController {
         for(DeliveryReadyNaverItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
-        System.out.println(viewDtos);
-//        TODO : Check Comparator, Before => getManagementMemo1, After => getProdMemo2
+
         // 상품명 > 수취인명 > 주소
-//        Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
-//                .comparing(DeliveryReadyItemTailoExcelFormDto::getManagementMemo1)
-//                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
-//                .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
         Comparator<DeliveryReadyItemTailoExcelFormDto> comparing = Comparator
                 .comparing(DeliveryReadyItemTailoExcelFormDto::getProdMemo2)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
         dtos.sort(comparing);
+
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
