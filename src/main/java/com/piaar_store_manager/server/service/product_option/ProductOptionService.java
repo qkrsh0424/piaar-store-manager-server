@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
@@ -9,7 +10,7 @@ import com.piaar_store_manager.server.model.product_option.entity.ProductOptionE
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-
+import com.piaar_store_manager.server.service.product_detail.ProductDetailService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,9 @@ public class ProductOptionService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProductDetailService productDetailService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -165,6 +169,26 @@ public class ProductOptionService {
     /**
      * <b>DB Insert Related Method</b>
      * <p>
+     * Product에 종속되는 옵션(ProductOption)을 한개 등록한다.
+     * 
+     * @param productOptionGetDto : ProductOptionGetDto
+     * @param userId : UUID
+     * @param productCid : Integer
+     * @see ProductOptionEntity#toEntity
+     * @see ProductOptionRepository#save
+     */
+    public ProductOptionEntity createOne(ProductOptionGetDto dto, UUID userId, Integer productCid) {
+        dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+            .setProductCid(productCid);
+
+        ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
+        return productOptionRepository.save(entity);
+    }
+
+    /**
+     * <b>DB Insert Related Method</b>
+     * <p>
      * Product에 해당하는 ProductOption 내용을 여러개 등록한다.
      * 
      * @param productOptionGetDto : List::ProductOptionGetDto::
@@ -173,19 +197,50 @@ public class ProductOptionService {
      * @see ProductOptionEntity#toEntity
      * @see ProductOptionRepository#saveAll
      */
-    public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid) {
-        List<ProductOptionEntity> entities = new ArrayList<>();
+    // public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid) {
+    //     List<ProductOptionEntity> entities = new ArrayList<>();
+    //     List<ProductOptionEntity> savedOptionEntities = new ArrayList<>();
 
-        for (ProductOptionGetDto dto : productOptionGetDtos) {
-            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-                .setProductCid(productCid);
+    //     for (ProductOptionGetDto dto : productOptionGetDtos) {
+    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+    //             .setProductCid(productCid);
 
-            ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
-            entities.add(entity);
-        }
-        productOptionRepository.saveAll(entities);
-    }
+    //         ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
+    //         productOptionRepository.save(entity);
+    //         // entities.add(entity);
+    //     }
+    //     // savedOptionEntities = productOptionRepository.saveAll(entities); 
+    // }
+
+    // public void createList(ProductCreateReqDto reqDto, UUID userId, Integer productCid) {
+
+    //     List<ProductOptionGetDto> dtos = reqDto.getOptionDtos();
+
+    //     for (ProductOptionGetDto dto : dtos) {
+    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+    //             .setProductCid(productCid);
+
+    //         ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
+    //         productOptionRepository.save(entity);
+    //         productDetailService.createOne(reqDto, userId, entity.getCid());
+    //     }
+    // }
+
+    // public void createOAD(ProductCreateReqDto reqDto, UUID userId, Integer productCid) {
+    //     List<ProductOptionGetDto> dtos = reqDto.getOptionDtos();
+    //     ProductOptionEntity entity = new ProductOptionEntity();
+
+    //     for (ProductOptionGetDto dto : dtos) {
+    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+    //             .setProductCid(productCid);
+
+    //         entity = ProductOptionEntity.toEntity(dto);
+        
+    //     productOptionRepository.save(entity);
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -218,9 +273,12 @@ public class ProductOptionService {
                     .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                     .setDefaultName(productOptionDto.getDefaultName())
                     .setManagementName(productOptionDto.getManagementName())
+                    .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                     .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
-                    .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+                    .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
+                    .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
+                    .setUnitKrw(productOptionDto.getUnitKrw()).setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
                     .setProductCid(productOptionDto.getProductCid());
 
             productOptionRepository.save(productOptionEntity);
@@ -262,6 +320,21 @@ public class ProductOptionService {
             }
             if (productOptionDto.getMemo() != null) {
                 productOptionEntity.setMemo(productOptionDto.getMemo());
+            }
+            if (productOptionDto.getImageUrl() != null) {
+                productOptionEntity.setImageUrl(productOptionDto.getImageUrl());
+            }
+            if (productOptionDto.getImageFileName() != null) {
+                productOptionEntity.setImageFileName(productOptionDto.getImageFileName());
+            }
+            if (productOptionDto.getColor() != null) {
+                productOptionEntity.setColor(productOptionDto.getColor());
+            }
+            if (productOptionDto.getUnitCny() != null) {
+                productOptionEntity.setUnitCny(productOptionDto.getUnitCny());
+            }
+            if (productOptionDto.getUnitKrw() != null) {
+                productOptionEntity.setUnitKrw(productOptionDto.getUnitKrw());
             }
             if (productOptionDto.getProductCid() != null) {
                 productOptionEntity.setProductCid(productOptionDto.getProductCid());

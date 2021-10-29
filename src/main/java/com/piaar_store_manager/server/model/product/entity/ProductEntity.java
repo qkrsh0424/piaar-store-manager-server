@@ -56,6 +56,30 @@ public class ProductEntity {
     @Column(name = "memo")
     private String memo;
 
+    @Column(name = "hs_code")
+    private String hsCode;
+
+    @Column(name = "style")
+    private String style;
+
+    @Column(name = "tariff_rate")
+    private String tariffRate;
+
+    @Column(name = "default_width")
+    private Integer defaultWidth;
+
+    @Column(name = "default_length")
+    private Integer defaultLength;
+
+    @Column(name = "default_height")
+    private Integer defaultHeight;
+
+    @Column(name = "default_quantity")
+    private Integer defaultQuantity;
+
+    @Column(name = "default_weight")
+    private Integer defaultWeight;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -69,6 +93,9 @@ public class ProductEntity {
     @Type(type = "uuid-char")
     @Column(name = "updated_by")
     private UUID updatedBy;
+
+    @Column(name = "stock_management")
+    private Boolean stockManagement;
 
     @Column(name = "product_category_cid")
     private Integer productCategoryCid;
@@ -93,10 +120,20 @@ public class ProductEntity {
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
             .memo(productDto.getMemo())
+            .hsCode(productDto.getHsCode())
+            .tariffRate(productDto.getTariffRate())
+            .style(productDto.getStyle())
+            .tariffRate(productDto.getTariffRate())
+            .defaultWidth(productDto.getDefaultWidth())
+            .defaultLength(productDto.getDefaultLength())
+            .defaultHeight(productDto.getDefaultHeight())
+            .defaultQuantity(productDto.getDefaultQuantity())
+            .defaultWeight(productDto.getDefaultWeight())
             .createdAt(productDto.getCreatedAt())
             .createdBy(productDto.getCreatedBy())
             .updatedAt(productDto.getUpdatedAt())
             .updatedBy(productDto.getUpdatedBy())
+            .stockManagement(productDto.getStockManagement())
             .productCategoryCid(productDto.getProductCategoryCid())
             .build();
 

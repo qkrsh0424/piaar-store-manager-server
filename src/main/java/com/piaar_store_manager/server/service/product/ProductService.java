@@ -183,7 +183,10 @@ public class ProductService {
 
             // TODO
             // log.info("projOpt => {}", projOpt.getProduct().getDefaultName());
-            productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
+
+            // 재고관리 여부
+            if(projOpt.getProduct().getStockManagement())
+                productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
         }
         return productJoinResDtos;
 
@@ -199,13 +202,13 @@ public class ProductService {
      * @see ProductEntity#toEntity
      * @see ProductRepository#save
      */
-    public void createOne(ProductGetDto productGetDto, UUID userId) {
-        productGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+    // public void createOne(ProductGetDto productGetDto, UUID userId) {
+    //     productGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //         .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
 
-        ProductEntity entity = ProductEntity.toEntity(productGetDto);
-        productRepository.save(entity);
-    }
+    //     ProductEntity entity = ProductEntity.toEntity(productGetDto);
+    //     productRepository.save(entity);
+    // }
 
     /**
      * <b>DB Insert Related Method</b>
@@ -218,15 +221,25 @@ public class ProductService {
      * @see ProductRepository#save
      * @see ProductOptionService#createList
      */
-    public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
-        ProductGetDto dto = productCreateReqDto.getProductDto();
+    // public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
+    //     ProductGetDto dto = productCreateReqDto.getProductDto();
+    //     dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //         .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+
+    //     ProductEntity entity = ProductEntity.toEntity(productCreateReqDto.getProductDto());
+    //     ProductEntity savedProductEntity = productRepository.save(entity);
+
+    //     productOptionService.createList(productCreateReqDto, userId, savedProductEntity.getCid());
+    // }
+
+    public ProductEntity createOne(ProductGetDto dto, UUID userId) {
+        
         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
 
-        ProductEntity entity = ProductEntity.toEntity(productCreateReqDto.getProductDto());
-        ProductEntity savedProductEntity = productRepository.save(entity);
+        ProductEntity entity = ProductEntity.toEntity(dto);
 
-        productOptionService.createList(productCreateReqDto.getOptionDtos(), userId, savedProductEntity.getCid());
+        return productRepository.save(entity);
     }
 
     /**
@@ -240,20 +253,20 @@ public class ProductService {
      * @see ProductRepository#save
      * @see ProductOptionService#createList
      */
-    public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
-        ProductEntity entity = new ProductEntity();
-        ProductEntity savedProductEntity = new ProductEntity();
+    // public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
+    //     ProductEntity entity = new ProductEntity();
+    //     ProductEntity savedProductEntity = new ProductEntity();
 
-        for (ProductCreateReqDto reqDto : productCreateReqDtos) {
-            ProductGetDto dto = reqDto.getProductDto();
-            dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-                .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+    //     for (ProductCreateReqDto reqDto : productCreateReqDtos) {
+    //         ProductGetDto dto = reqDto.getProductDto();
+    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
 
-            entity = ProductEntity.toEntity(reqDto.getProductDto());
-            savedProductEntity = productRepository.save(entity);
-            productOptionService.createList(reqDto.getOptionDtos(), userId, savedProductEntity.getCid());
-        }
-    }
+    //         entity = ProductEntity.toEntity(reqDto.getProductDto());
+    //         savedProductEntity = productRepository.save(entity);
+    //         productOptionService.createList(reqDto, userId, savedProductEntity.getCid());
+    //     }
+    // }
 
     /**
      * <b>DB Delete Related Method</b>
@@ -286,7 +299,11 @@ public class ProductService {
                     .setNaverProductCode(productDto.getNaverProductCode()).setDefaultName(productDto.getDefaultName())
                     .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
                     .setImageFileName(productDto.getImageFileName()).setMemo(productDto.getMemo())
-                    .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+                    .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
+                    .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
+                    .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
+                    .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
+                    .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId).setStockManagement(productDto.getStockManagement())
                     .setProductCategoryCid(productDto.getProductCategoryCid());
 
             productRepository.save(productEntity);
@@ -348,6 +365,33 @@ public class ProductService {
             }
             if (productDto.getMemo() != null) {
                 productEntity.setMemo(productDto.getMemo());
+            }
+            if (productDto.getHsCode() != null) {
+                productEntity.setHsCode(productDto.getHsCode());
+            }
+            if (productDto.getStyle() != null) {
+                productEntity.setStyle(productDto.getStyle());
+            }
+            if (productDto.getTariffRate() != null) {
+                productEntity.setTariffRate(productDto.getTariffRate());
+            }
+            if (productDto.getDefaultWidth() != null) {
+                productEntity.setDefaultWidth(productDto.getDefaultWidth());
+            }
+            if (productDto.getDefaultLength() != null) {
+                productEntity.setDefaultLength(productDto.getDefaultLength());
+            }
+            if (productDto.getDefaultHeight() != null) {
+                productEntity.setDefaultHeight(productDto.getDefaultHeight());
+            }
+            if (productDto.getDefaultQuantity() != null) {
+                productEntity.setDefaultQuantity(productDto.getDefaultQuantity());
+            }
+            if (productDto.getDefaultWeight() != null) {
+                productEntity.setDefaultWeight(productDto.getDefaultWeight());
+            }
+            if (productDto.getStockManagement() != null) {
+                productEntity.setStockManagement(productDto.getStockManagement());
             }
             if (productDto.getProductCategoryCid() != null) {
                 productEntity.setProductCategoryCid(productDto.getProductCategoryCid());

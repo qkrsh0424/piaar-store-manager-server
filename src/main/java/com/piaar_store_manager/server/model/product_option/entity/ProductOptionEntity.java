@@ -56,6 +56,21 @@ public class ProductOptionEntity {
     @Column(name = "memo")
     private String memo;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "image_file_name")
+    private String imageFileName;
+
+    @Column(name = "color")
+    private String color;
+
+    @Column(name = "unit_cny")
+    private String unitCny;
+
+    @Column(name = "unit_krw")
+    private String unitKrw;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -94,6 +109,11 @@ public class ProductOptionEntity {
                 .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
+                .imageUrl(productOptionDto.getImageUrl())
+                .imageFileName(productOptionDto.getImageFileName())
+                .color(productOptionDto.getColor())
+                .unitCny(productOptionDto.getUnitCny())
+                .unitKrw(productOptionDto.getUnitKrw())
                 .createdAt(productOptionDto.getCreatedAt())
                 .createdBy(productOptionDto.getCreatedBy())
                 .updatedAt(productOptionDto.getUpdatedAt())

@@ -17,6 +17,11 @@ public class ExpenditureTypeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "expenditure_type_id")
     private Integer expenditureTypeId;
+
     @Column(name = "expenditure_type")
     private String expenditureType;
+
+    @Column(name = "expenditure_type_desc")
+    private String expenditureTypeDesc;
+
 }

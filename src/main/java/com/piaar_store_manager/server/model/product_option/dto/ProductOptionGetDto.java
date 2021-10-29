@@ -27,6 +27,11 @@ public class ProductOptionGetDto {
     private Integer stockUnit;
     private String status;
     private String memo;
+    private String imageUrl;
+    private String imageFileName;
+    private String color;
+    private String unitCny;
+    private String unitKrw;
     private Date createdAt;
     private UUID createdBy;
     private Date updatedAt;
@@ -54,6 +59,11 @@ public class ProductOptionGetDto {
                 .stockUnit(productOptionEntity.getStockUnit())
                 .status(productOptionEntity.getStatus())
                 .memo(productOptionEntity.getMemo())
+                .imageUrl(productOptionEntity.getImageUrl())
+                .imageFileName(productOptionEntity.getImageFileName())
+                .color(productOptionEntity.getColor())
+                .unitCny(productOptionEntity.getUnitCny())
+                .unitKrw(productOptionEntity.getUnitKrw())
                 .createdAt(productOptionEntity.getCreatedAt())
                 .createdBy(productOptionEntity.getCreatedBy())
                 .updatedAt(productOptionEntity.getUpdatedAt())

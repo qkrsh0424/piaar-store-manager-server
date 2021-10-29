@@ -63,6 +63,7 @@ public class ExpenditureTypeService {
             ExpenditureTypeDto dto = new ExpenditureTypeDto();
             dto.setExpenditureTypeId(entity.getExpenditureTypeId());
             dto.setExpenditureType(entity.getExpenditureType());
+            dto.setExpenditureTypeDesc(entity.getExpenditureTypeDesc());
             dtos.add(dto);
         }
         return dtos;

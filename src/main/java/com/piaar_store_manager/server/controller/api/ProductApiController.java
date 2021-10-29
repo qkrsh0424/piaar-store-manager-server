@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.service.product.ProductBusinessService;
 import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class ProductApiController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductBusinessService productBusinessService;
 
     @Autowired
     private UserService userService;
@@ -228,7 +232,7 @@ public class ProductApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productService.createPAO(productCreateReqDto, userService.getUserId());
+                productBusinessService.createPAO(productCreateReqDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -251,7 +255,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#createList
+     * @see ProductBusinessService#createPAOList
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -262,7 +266,7 @@ public class ProductApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productService.createPAOList(productCreateReqDtos, userService.getUserId());
+                productBusinessService.createPAOList(productCreateReqDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

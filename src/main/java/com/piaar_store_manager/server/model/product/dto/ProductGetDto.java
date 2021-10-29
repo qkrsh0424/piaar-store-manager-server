@@ -27,10 +27,19 @@ public class ProductGetDto {
     private String imageUrl;
     private String imageFileName;
     private String memo;
+    private String hsCode;
+    private String style;
+    private String tariffRate;
+    private Integer defaultWidth;
+    private Integer defaultLength;
+    private Integer defaultHeight;
+    private Integer defaultQuantity;
+    private Integer defaultWeight;
     private Date createdAt;
     private UUID createdBy;
     private Date updatedAt;
     private UUID updatedBy;
+    private Boolean stockManagement;
     private Integer productCategoryCid;
 
     /**
@@ -53,10 +62,20 @@ public class ProductGetDto {
             .imageUrl(entity.getImageUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
+            .hsCode(entity.getHsCode())
+            .tariffRate(entity.getTariffRate())
+            .style(entity.getStyle())
+            .tariffRate(entity.getTariffRate())
+            .defaultWidth(entity.getDefaultWidth())
+            .defaultLength(entity.getDefaultLength())
+            .defaultHeight(entity.getDefaultHeight())
+            .defaultQuantity(entity.getDefaultQuantity())
+            .defaultWeight(entity.getDefaultWeight())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
+            .stockManagement(entity.getStockManagement())
             .productCategoryCid(entity.getProductCategoryCid())
             .build();
 
