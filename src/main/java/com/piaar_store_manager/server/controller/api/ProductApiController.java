@@ -195,6 +195,23 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductService#searchListFJ
      */
+    @GetMapping("/list-fj/stock")
+    public ResponseEntity<?> searchStockListFJ() {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productService.searchStockListFJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @GetMapping("/list-fj")
     public ResponseEntity<?> searchListFJ() {
         Message message = new Message();

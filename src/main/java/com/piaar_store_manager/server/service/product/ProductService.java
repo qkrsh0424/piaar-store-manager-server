@@ -171,11 +171,12 @@ public class ProductService {
      * <p>
      * Product 데이터를 모두 조회한다.
      * 해당 Product와 연관관계에 놓여있는 모든 Full JOIN(fj) 상태를 조회한다.
+     * 재고관리 여부가 true인 데이터를 추출한다.
      *
      * @return List::ProductJoinResDto::
      * @see ProductRepository#selectAll
      */
-    public List<ProductJoinResDto> searchListFJ(){
+    public List<ProductJoinResDto> searchStockListFJ(){
         List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
         List<ProductProj> productProjsOpt = productRepository.selectAll();
         
@@ -189,7 +190,26 @@ public class ProductService {
                 productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
         }
         return productJoinResDtos;
+    }
 
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * Product 데이터를 모두 조회한다.
+     * 해당 Product와 연관관계에 놓여있는 모든 Full JOIN(fj) 상태를 조회한다.
+     *
+     * @return List::ProductJoinResDto::
+     * @see ProductRepository#selectAll
+     */
+    public List<ProductJoinResDto> searchListFJ(){
+        List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
+        List<ProductProj> productProjsOpt = productRepository.selectAll();
+        
+        for(ProductProj projOpt : productProjsOpt) {
+            productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
+        }
+
+        return productJoinResDtos;
     }
 
     /**

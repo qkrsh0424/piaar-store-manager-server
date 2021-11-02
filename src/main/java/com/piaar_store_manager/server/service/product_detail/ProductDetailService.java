@@ -9,12 +9,16 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
+import com.piaar_store_manager.server.model.product_detail.proj.ProductDetailProj;
 import com.piaar_store_manager.server.model.product_detail.repository.ProductDetailRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class ProductDetailService {
 
     @Autowired
@@ -54,13 +58,14 @@ public class ProductDetailService {
      * @see ProductDetailRepository#findAll
      * @see ProductDetailGetDto#toDto
      */
-    public List<ProductDetailGetDto> searchList() {
-        List<ProductDetailEntity> detailEntities = productDetailRepository.findAll();
+    public List<ProductDetailGetDto> searchList(Integer optionCid) {
+        List<ProductDetailProj> detailProjs = productDetailRepository.findAllByCid(optionCid);
         List<ProductDetailGetDto> detailDtos = new ArrayList<>();
-
-        for(ProductDetailEntity entity : detailEntities){
-            detailDtos.add(ProductDetailGetDto.toDto(entity));
+        
+        for(ProductDetailProj detailProj : detailProjs) {
+            detailDtos.add(ProductDetailGetDto.toDto(detailProj.getDetail()));
         }
+
         return detailDtos;
     }
 

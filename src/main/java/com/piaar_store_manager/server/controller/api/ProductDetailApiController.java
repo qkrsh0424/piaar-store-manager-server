@@ -64,15 +64,15 @@ public class ProductDetailApiController {
     /**
      * Search list api for product.
      * <p>
-     * <b>GET : API URL => /api/v1/product-detail/list</b>
+     * <b>GET : API URL => /api/v1/product-detail/list/{detailCid}</b>
      *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductDetailService#searchList
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/list/{optionCid}")
+    public ResponseEntity<?> searchList(@PathVariable(value = "optionCid") Integer optionCid) {
         Message message = new Message();
 
         if (!userService.isUserLogin()) {
@@ -80,9 +80,14 @@ public class ProductDetailApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productDetailService.searchList());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
+            try {
+                message.setData(productDetailService.searchList(optionCid));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("Not found optionCid=" + optionCid + " value.");
+            }
         }
 
         return new ResponseEntity<>(message, message.getStatus());
