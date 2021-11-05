@@ -15,10 +15,7 @@ import com.piaar_store_manager.server.model.product_detail.repository.ProductDet
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class ProductDetailService {
 
     @Autowired
@@ -80,7 +77,9 @@ public class ProductDetailService {
      * @see ProductDetailRepository#save
      */
     public void createOne(ProductDetailGetDto productDetailGetDto, UUID userId) {
-        productDetailGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
+        Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / 1000000;
+
+        productDetailGetDto.setDetailCbm(detailCbmValue).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
 
         ProductDetailEntity entity = ProductDetailEntity.toEntity(productDetailGetDto);
@@ -90,7 +89,7 @@ public class ProductDetailService {
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * ProductOption에 종속되는 상세 정보(ProductDetail)을 한개 등록한다.
+     * 상품등록 시 ProductOption에 종속되는 상세 정보(ProductDetail)을 한개 등록한다.
      * 
      * @param reqDtp : ProductCreateReqDto
      * @param userId : UUID
@@ -107,7 +106,7 @@ public class ProductDetailService {
             .detailHeight(reqDto.getProductDto().getDefaultHeight())
             .detailQuantity(reqDto.getProductDto().getDefaultQuantity())
             .detailWeight(reqDto.getProductDto().getDefaultWeight())
-            .detailCbm(detailCbmValue.toString())
+            .detailCbm(detailCbmValue)
             .createdAt(dateHandler.getCurrentDate())
             .createdBy(userId)
             .updatedAt(dateHandler.getCurrentDate())
@@ -145,13 +144,15 @@ public class ProductDetailService {
      * @see ProductDetailRepository#save
      */
     public void changeOne(ProductDetailGetDto dto, UUID userId) {
+        Float detailCbmValue = ((float)(dto.getDetailWidth() * dto.getDetailLength() * dto.getDetailHeight())) / 1000000;
+
         productDetailRepository.findById(dto.getCid()).ifPresentOrElse(productDetailEntity -> {
             productDetailEntity.setDetailWidth(dto.getDetailWidth())
                         .setDetailLength(dto.getDetailLength())
                         .setDetailHeight(dto.getDetailHeight())
                         .setDetailQuantity(dto.getDetailQuantity())
                         .setDetailWeight(dto.getDetailWeight())
-                        .setDetailCbm(dto.getDetailCbm())
+                        .setDetailCbm(detailCbmValue)
                         .setUpdatedAt(dateHandler.getCurrentDate())
                         .setUpdatedBy(userId)
                         .setProductOptionCid(dto.getProductOptionCid());

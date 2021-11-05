@@ -54,7 +54,7 @@ public class ProductDetailEntity {
     private Integer detailWeight;
 
     @Column(name = "detail_cbm")
-    private String detailCbm;
+    private Float detailCbm;
 
     @Column(name = "created_at")
     private Date createdAt;

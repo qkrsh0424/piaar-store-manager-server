@@ -24,7 +24,7 @@ public class ProductDetailGetDto {
     private Integer detailHeight;
     private Integer detailQuantity;
     private Integer detailWeight;
-    private String detailCbm;
+    private Float detailCbm;
     private Date createdAt;
     private UUID createdBy;
     private Date updatedAt;
