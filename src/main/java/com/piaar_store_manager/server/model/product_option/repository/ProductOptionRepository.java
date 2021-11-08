@@ -12,11 +12,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer> {
-    @Query(
-        "SELECT po FROM ProductOptionEntity po\n"+
-        "WHERE po.productCid=:productCid"
-    )
-    List<ProductOptionEntity> findAll(Integer productCid);
 
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
@@ -45,4 +40,6 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "WHERE po.code=:code"
     )
     Integer findCidByCode(String code);
+
+    List<ProductOptionEntity> findByProductCid(Integer productCid);
 }

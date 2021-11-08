@@ -64,7 +64,7 @@ public class ProductDetailApiController {
     /**
      * Search list api for product.
      * <p>
-     * <b>GET : API URL => /api/v1/product-detail/list/{detailCid}</b>
+     * <b>GET : API URL => /api/v1/product-detail/list/{optionCid}</b>
      *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -72,7 +72,7 @@ public class ProductDetailApiController {
      * @see ProductDetailService#searchList
      */
     @GetMapping("/list/{optionCid}")
-    public ResponseEntity<?> searchList(@PathVariable(value = "optionCid") Integer optionCid) {
+    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "optionCid") Integer optionCid) {
         Message message = new Message();
 
         if (!userService.isUserLogin()) {

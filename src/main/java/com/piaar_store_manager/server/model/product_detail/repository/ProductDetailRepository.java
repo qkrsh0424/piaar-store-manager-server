@@ -11,9 +11,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetailEntity, Integer> {
-    @Query(
-        "SELECT pd AS detail FROM ProductDetailEntity pd\n"+
-        "WHERE pd.productOptionCid=:cid"
-    )
-    List<ProductDetailProj> findAllByCid(Integer cid);
+    List<ProductDetailEntity> findByProductOptionCid(Integer productOptionCid);
 }

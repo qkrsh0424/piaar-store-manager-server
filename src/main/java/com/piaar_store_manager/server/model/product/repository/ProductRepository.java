@@ -29,4 +29,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
         "ORDER BY p.createdAt ASC"
     )
     List<ProductProj> selectAll();
+
+    List<ProductEntity> findByProductCategoryCid(Integer productCategoryCid);
 }

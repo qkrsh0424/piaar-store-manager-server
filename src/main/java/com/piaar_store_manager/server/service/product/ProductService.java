@@ -114,7 +114,7 @@ public class ProductService {
             ProductGetDto productGetDto = ProductGetDto.toDto(productProjOpt.get().getProduct());
             UserGetDto userGetDto = userService.getDtoByEntity(productProjOpt.get().getUser());
             ProductCategoryGetDto categoryGetDto = ProductCategoryGetDto.toDto(productProjOpt.get().getCategory());
-            List<ProductOptionGetDto> optionGetDtos = productOptionService.searchList(productProjOpt.get().getProduct().getCid());
+            List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProduct(productProjOpt.get().getProduct().getCid());
             
             productResDto
                 .setProduct(productGetDto)
@@ -139,6 +139,25 @@ public class ProductService {
      */
     public List<ProductGetDto> searchList() {
         List<ProductEntity> productEntities = productRepository.findAll();
+        List<ProductGetDto> productDto = new ArrayList<>();
+
+        for(ProductEntity entity : productEntities){
+            productDto.add(ProductGetDto.toDto(entity));
+        }
+        return productDto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * Product 데이터를 모두 조회한다.
+     * 
+     * @return List::ProductGetDto::
+     * @see ProductRepository#findAll
+     * @see ProductGetDto#toDto
+     */
+    public List<ProductGetDto> searchListByCategory(Integer categoryCid) {
+        List<ProductEntity> productEntities = productRepository.findByProductCategoryCid(categoryCid);
         List<ProductGetDto> productDto = new ArrayList<>();
 
         for(ProductEntity entity : productEntities){

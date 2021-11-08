@@ -161,6 +161,33 @@ public class ProductApiController {
     /**
      * Search list api for product.
      * <p>
+     * <b>GET : API URL => /api/v1/product/list/{categoryCid}</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductService#searchList
+     */
+    @GetMapping("/list/{categoryCid}")
+    public ResponseEntity<?> searchListByCategory(@PathVariable(value = "categoryCid") Integer categoryCid) {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productService.searchListByCategory(categoryCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api for product.
+     * <p>
      * <b>GET : API URL => /api/v1/product/list-m2oj</b>
      *
      * @return ResponseEntity(message, HttpStatus)

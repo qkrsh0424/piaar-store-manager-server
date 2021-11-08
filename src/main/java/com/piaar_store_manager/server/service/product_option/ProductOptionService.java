@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
@@ -10,7 +9,6 @@ import com.piaar_store_manager.server.model.product_option.entity.ProductOptionE
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.product_detail.ProductDetailService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,9 +29,6 @@ public class ProductOptionService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private ProductDetailService productDetailService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -114,6 +109,26 @@ public class ProductOptionService {
      * <b>DB Select Related Method</b>
      * <p>
      * ProductOption 데이터를 모두 조회한다.
+     *
+     * @return List::ProductOptionGetDto::
+     * @see ProductOptionRepository#findAll
+     * @see ProductOptionGetDto#toDto
+     */
+    public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
+        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
+
+        for (ProductOptionEntity optionEntity : productOptionEntities) {
+            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
+        }
+        return productOptionDto;
+    }
+
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption 데이터를 모두 조회한다.
      * 해당 ProductOption와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
      * @return List::ProductOptionJoinResDto::
@@ -138,15 +153,15 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findAll
      * @see ProductOptionGetDto#toDto
      */
-    public List<ProductOptionGetDto> searchList(Integer productCid) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
-        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
+    // public List<ProductOptionGetDto> searchList(Integer productCid) {
+    //     List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
+    //     List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
 
-        for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
-        }
-        return productOptionDto;
-    }
+    //     for (ProductOptionEntity optionEntity : productOptionEntities) {
+    //         productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
+    //     }
+    //     return productOptionDto;
+    // }
 
     /**
      * <b>DB Insert Related Method</b>

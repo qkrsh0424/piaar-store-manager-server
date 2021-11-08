@@ -117,6 +117,33 @@ public class ProductOptionApiController {
     /**
      * Search list api for productOption.
      * <p>
+     * <b>GET : API URL => /api/v1/product-option/list/{productCid}</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductOptionService#searchList
+     */
+    @GetMapping("/list/{productCid}")
+    public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid){
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productOptionService.searchListByProduct(productCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+        
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api for productOption.
+     * <p>
      * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
      * <p>
      * ProductOption 데이터를 조회한다.

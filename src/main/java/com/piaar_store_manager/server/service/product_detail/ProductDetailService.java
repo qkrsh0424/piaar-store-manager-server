@@ -56,11 +56,11 @@ public class ProductDetailService {
      * @see ProductDetailGetDto#toDto
      */
     public List<ProductDetailGetDto> searchList(Integer optionCid) {
-        List<ProductDetailProj> detailProjs = productDetailRepository.findAllByCid(optionCid);
+        List<ProductDetailEntity> entities = productDetailRepository.findByProductOptionCid(optionCid);
         List<ProductDetailGetDto> detailDtos = new ArrayList<>();
         
-        for(ProductDetailProj detailProj : detailProjs) {
-            detailDtos.add(ProductDetailGetDto.toDto(detailProj.getDetail()));
+        for(ProductDetailEntity entity : entities) {
+            detailDtos.add(ProductDetailGetDto.toDto(entity));
         }
 
         return detailDtos;
