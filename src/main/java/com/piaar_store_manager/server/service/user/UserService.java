@@ -90,6 +90,17 @@ public class UserService {
     }
 
     /**
+     * 슈퍼 관리자 권한인지 체크한다.
+     * @return Boolean : if admin then true / else false
+     */
+    public boolean isSuperAdmin(){
+        if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(r->r.getAuthority().equals("ROLE_SUPERADMIN"))){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 관리자 권한인지 체크한다.
      * @return Boolean : if admin then true / else false
      */

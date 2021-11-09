@@ -224,7 +224,7 @@ public class ProductOptionApiController {
         Message message = new Message();
 
         // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
+        if (userService.isSuperAdmin()) {
             try{
                 productOptionService.destroyOne(productOptionCid);
                 message.setStatus(HttpStatus.OK);

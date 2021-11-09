@@ -9,7 +9,6 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
-import com.piaar_store_manager.server.model.product_detail.proj.ProductDetailProj;
 import com.piaar_store_manager.server.model.product_detail.repository.ProductDetailRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
