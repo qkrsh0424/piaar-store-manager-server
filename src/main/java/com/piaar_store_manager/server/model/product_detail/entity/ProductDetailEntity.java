@@ -70,6 +70,9 @@ public class ProductDetailEntity {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
+    @Column(name = "default_detail")
+    private Boolean defaultDetail;
+
     @Column(name = "product_option_cid")
     private Integer productOptionCid;
 
@@ -86,6 +89,7 @@ public class ProductDetailEntity {
             .createdBy(dto.getCreatedBy())
             .updatedAt(dto.getUpdatedAt())
             .updatedBy(dto.getUpdatedBy())
+            .defaultDetail(dto.getDefaultDetail())
             .productOptionCid(dto.getProductOptionCid())
             .build();
 

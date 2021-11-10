@@ -77,9 +77,9 @@ public class ProductDetailService {
      */
     public void createOne(ProductDetailGetDto productDetailGetDto, UUID userId) {
         Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / 1000000;
-
+        
         productDetailGetDto.setDetailCbm(detailCbmValue).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
+            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId).setDefaultDetail(false);
 
         ProductDetailEntity entity = ProductDetailEntity.toEntity(productDetailGetDto);
         productDetailRepository.save(entity);
@@ -110,6 +110,7 @@ public class ProductDetailService {
             .createdBy(userId)
             .updatedAt(dateHandler.getCurrentDate())
             .updatedBy(userId)
+            .defaultDetail(true)
             .productOptionCid(optionCid)
             .build();
 
