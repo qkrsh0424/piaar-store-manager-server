@@ -10,4 +10,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetailEntity, Integer> {
     List<ProductDetailEntity> findByProductOptionCid(Integer productOptionCid);
+    // test
 }
