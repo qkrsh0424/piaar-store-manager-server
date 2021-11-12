@@ -145,25 +145,6 @@ public class ProductOptionService {
     }
 
     /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 등록된 ProductOption에서 product cid와 대응되는 값을 모두 조회한다.
-     *
-     * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#findAll
-     * @see ProductOptionGetDto#toDto
-     */
-    // public List<ProductOptionGetDto> searchList(Integer productCid) {
-    //     List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll(productCid);
-    //     List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
-
-    //     for (ProductOptionEntity optionEntity : productOptionEntities) {
-    //         productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
-    //     }
-    //     return productOptionDto;
-    // }
-
-    /**
      * <b>DB Insert Related Method</b>
      * <p>
      * ProductOption 내용을 한개 등록한다.
@@ -202,67 +183,11 @@ public class ProductOptionService {
     }
 
     /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product에 해당하는 ProductOption 내용을 여러개 등록한다.
-     * 
-     * @param productOptionGetDto : List::ProductOptionGetDto::
-     * @param userId : UUID
-     * @param productCid : Integer
-     * @see ProductOptionEntity#toEntity
-     * @see ProductOptionRepository#saveAll
-     */
-    // public void createList(List<ProductOptionGetDto> productOptionGetDtos, UUID userId, Integer productCid) {
-    //     List<ProductOptionEntity> entities = new ArrayList<>();
-    //     List<ProductOptionEntity> savedOptionEntities = new ArrayList<>();
-
-    //     for (ProductOptionGetDto dto : productOptionGetDtos) {
-    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-    //             .setProductCid(productCid);
-
-    //         ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
-    //         productOptionRepository.save(entity);
-    //         // entities.add(entity);
-    //     }
-    //     // savedOptionEntities = productOptionRepository.saveAll(entities); 
-    // }
-
-    // public void createList(ProductCreateReqDto reqDto, UUID userId, Integer productCid) {
-
-    //     List<ProductOptionGetDto> dtos = reqDto.getOptionDtos();
-
-    //     for (ProductOptionGetDto dto : dtos) {
-    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-    //             .setProductCid(productCid);
-
-    //         ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
-    //         productOptionRepository.save(entity);
-    //         productDetailService.createOne(reqDto, userId, entity.getCid());
-    //     }
-    // }
-
-    // public void createOAD(ProductCreateReqDto reqDto, UUID userId, Integer productCid) {
-    //     List<ProductOptionGetDto> dtos = reqDto.getOptionDtos();
-    //     ProductOptionEntity entity = new ProductOptionEntity();
-
-    //     for (ProductOptionGetDto dto : dtos) {
-    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-    //             .setProductCid(productCid);
-
-    //         entity = ProductOptionEntity.toEntity(dto);
-        
-    //     productOptionRepository.save(entity);
-    // }
-
-    /**
      * <b>DB Select Related Method</b>
      * <p>
      * ProductOption cid 값과 상응되는 데이터를 삭제한다.
      * 
-     * @param productOptionCid
+     * @param productOptionCid : Integer
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#delete
      */

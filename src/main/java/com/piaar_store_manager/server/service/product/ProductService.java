@@ -241,36 +241,6 @@ public class ProductService {
      * @see ProductEntity#toEntity
      * @see ProductRepository#save
      */
-    // public void createOne(ProductGetDto productGetDto, UUID userId) {
-    //     productGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //         .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
-
-    //     ProductEntity entity = ProductEntity.toEntity(productGetDto);
-    //     productRepository.save(entity);
-    // }
-
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product와 ProductOption 내용을 한개 등록한다.
-     * 
-     * @param productCreateReqDto : ProductCreateReqDto
-     * @param userId : UUID
-     * @see ProductEntity#toEntity
-     * @see ProductRepository#save
-     * @see ProductOptionService#createList
-     */
-    // public void createPAO(ProductCreateReqDto productCreateReqDto, UUID userId) {
-    //     ProductGetDto dto = productCreateReqDto.getProductDto();
-    //     dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //         .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
-
-    //     ProductEntity entity = ProductEntity.toEntity(productCreateReqDto.getProductDto());
-    //     ProductEntity savedProductEntity = productRepository.save(entity);
-
-    //     productOptionService.createList(productCreateReqDto, userId, savedProductEntity.getCid());
-    // }
-
     public ProductEntity createOne(ProductGetDto dto, UUID userId) {
         
         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
@@ -280,32 +250,6 @@ public class ProductService {
 
         return productRepository.save(entity);
     }
-
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product와 ProductOption 내용을 여러개 등록한다.
-     * 
-     * @param productCreateReqDtos : List::ProductCreateReqDto::
-     * @param userId : UUID
-     * @see ProductEntity#toEntity
-     * @see ProductRepository#save
-     * @see ProductOptionService#createList
-     */
-    // public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
-    //     ProductEntity entity = new ProductEntity();
-    //     ProductEntity savedProductEntity = new ProductEntity();
-
-    //     for (ProductCreateReqDto reqDto : productCreateReqDtos) {
-    //         ProductGetDto dto = reqDto.getProductDto();
-    //         dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-    //             .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
-
-    //         entity = ProductEntity.toEntity(reqDto.getProductDto());
-    //         savedProductEntity = productRepository.save(entity);
-    //         productOptionService.createList(reqDto, userId, savedProductEntity.getCid());
-    //     }
-    // }
 
     /**
      * <b>DB Delete Related Method</b>

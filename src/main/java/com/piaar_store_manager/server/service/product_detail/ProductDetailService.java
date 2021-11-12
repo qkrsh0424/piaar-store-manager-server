@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
 import com.piaar_store_manager.server.model.product_detail.repository.ProductDetailRepository;
@@ -78,43 +77,13 @@ public class ProductDetailService {
     public void createOne(ProductDetailGetDto productDetailGetDto, UUID userId) {
         Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / 1000000;
         
-        productDetailGetDto.setDetailCbm(detailCbmValue).setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId).setDefaultDetail(false);
+        productDetailGetDto.setDetailCbm(detailCbmValue)
+            .setCreatedAt(dateHandler.getCurrentDate())
+            .setCreatedBy(userId)
+            .setUpdatedAt(dateHandler.getCurrentDate())
+            .setUpdatedBy(userId);
 
         ProductDetailEntity entity = ProductDetailEntity.toEntity(productDetailGetDto);
-        productDetailRepository.save(entity);
-    }
-
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * 상품등록 시 ProductOption에 종속되는 상세 정보(ProductDetail)을 한개 등록한다.
-     * 
-     * @param reqDtp : ProductCreateReqDto
-     * @param userId : UUID
-     * @param optionCid : Integer
-     * @see ProductDetailEntity#toEntity
-     * @see ProductDetailRepository#save
-     */
-    public void createOne(ProductCreateReqDto reqDto, UUID userId, Integer optionCid) {
-        Float detailCbmValue = ((float)(reqDto.getProductDto().getDefaultWidth() * reqDto.getProductDto().getDefaultLength() * reqDto.getProductDto().getDefaultHeight())) / 1000000;
-
-        ProductDetailGetDto dto = ProductDetailGetDto.builder()
-            .detailWidth(reqDto.getProductDto().getDefaultWidth())
-            .detailLength(reqDto.getProductDto().getDefaultLength())
-            .detailHeight(reqDto.getProductDto().getDefaultHeight())
-            .detailQuantity(reqDto.getProductDto().getDefaultQuantity())
-            .detailWeight(reqDto.getProductDto().getDefaultWeight())
-            .detailCbm(detailCbmValue)
-            .createdAt(dateHandler.getCurrentDate())
-            .createdBy(userId)
-            .updatedAt(dateHandler.getCurrentDate())
-            .updatedBy(userId)
-            .defaultDetail(true)
-            .productOptionCid(optionCid)
-            .build();
-
-        ProductDetailEntity entity = ProductDetailEntity.toEntity(dto);
         productDetailRepository.save(entity);
     }
 

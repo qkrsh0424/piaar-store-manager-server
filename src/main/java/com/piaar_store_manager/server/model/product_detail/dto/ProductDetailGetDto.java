@@ -29,7 +29,6 @@ public class ProductDetailGetDto {
     private UUID createdBy;
     private Date updatedAt;
     private UUID updatedBy;
-    private Boolean defaultDetail;
     private Integer productOptionCid;
 
     public static ProductDetailGetDto toDto(ProductDetailEntity entity) {
@@ -46,7 +45,6 @@ public class ProductDetailGetDto {
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
-            .defaultDetail(entity.getDefaultDetail())
             .productOptionCid(entity.getProductOptionCid())
             .build();
 
