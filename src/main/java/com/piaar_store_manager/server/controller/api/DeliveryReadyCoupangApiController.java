@@ -15,6 +15,7 @@ import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryR
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemLotteExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
@@ -805,6 +806,131 @@ public class DeliveryReadyCoupangApiController {
         }
 
         for(int i = 0; i < 23; i++){
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        try{
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+
+        // released, released_at 설정
+        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
+    }
+
+    /**
+     * Download data for delivery ready.
+     * <p>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/lotte</b>
+     *
+     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @throws IOException
+     * @see Message
+     * @see HttpStatus
+     */
+    @PostMapping("/view/download/lotte")
+    public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+        List<DeliveryReadyItemLotteExcelFormDto> dtos = new ArrayList<>();
+        
+        for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+            dtos.add(DeliveryReadyItemLotteExcelFormDto.toFormDto(viewDto));
+        }
+
+        // 수취인명 > 주소 > 상품명
+        Comparator<DeliveryReadyItemLotteExcelFormDto> comparing = Comparator
+                .comparing(DeliveryReadyItemLotteExcelFormDto::getReceiver)
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getDestination)
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getProdName1);
+        dtos.sort(comparing);
+
+
+        // 엑셀 생성
+        Workbook workbook = new XSSFWorkbook();     // .xlsx
+        Sheet sheet = workbook.createSheet("롯데 발주서");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        row = sheet.createRow(rowNum++);
+        cell = row.createCell(0);
+        cell.setCellValue("받는사람");
+        cell = row.createCell(1);
+        cell.setCellValue("우편번호");
+        cell = row.createCell(2);
+        cell.setCellValue("주소");
+        cell = row.createCell(3);
+        cell.setCellValue("전화번호1");
+        cell = row.createCell(4);
+        cell.setCellValue("전화번호2");
+        cell = row.createCell(5);
+        cell.setCellValue("배송메시지");
+        cell = row.createCell(6);
+        cell.setCellValue("불필요한항목");
+        cell = row.createCell(7);
+        cell.setCellValue("보내는사람(지정)");
+        cell = row.createCell(8);
+        cell.setCellValue("전화번호1(지정)");
+        cell = row.createCell(9);
+        cell.setCellValue("주소(지정)");
+        cell = row.createCell(10);
+        cell.setCellValue("수량(A타입)");
+        cell = row.createCell(11);
+        cell.setCellValue("상품명1");
+        cell = row.createCell(12);
+        cell.setCellValue("상품상세1");
+        cell = row.createCell(13);
+        cell.setCellValue("상품명2");
+        cell = row.createCell(14);
+        cell.setCellValue("내품수량1");
+        cell = row.createCell(15);
+        cell.setCellValue("운송장번호");
+        cell = row.createCell(16);
+        cell.setCellValue("날짜");
+
+        for (int i=0; i<dtos.size(); i++) {
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellValue(dtos.get(i).getReceiver());
+            cell = row.createCell(1);
+            cell.setCellValue(dtos.get(i).getZipCode());
+            cell = row.createCell(2);
+            cell.setCellValue(dtos.get(i).getDestination());
+            cell = row.createCell(3);
+            cell.setCellValue(dtos.get(i).getReceiverContact1());
+            cell = row.createCell(4);
+            cell.setCellValue(dtos.get(i).getReceiverContact2());
+            cell = row.createCell(5);
+            cell.setCellValue(dtos.get(i).getDeliveryMessage());
+            cell = row.createCell(6);
+            cell.setCellValue(dtos.get(i).getUnnecessaryCell());
+            cell = row.createCell(7);
+            cell.setCellValue(dtos.get(i).getSender());
+            cell = row.createCell(8);
+            cell.setCellValue(dtos.get(i).getSenderContact1());
+            cell = row.createCell(9);
+            cell.setCellValue(dtos.get(i).getSenderAddress());
+            cell = row.createCell(10);
+            cell.setCellValue(dtos.get(i).getUnitA());
+            cell = row.createCell(11);
+            cell.setCellValue(dtos.get(i).getProdName1());
+            cell = row.createCell(12);
+            cell.setCellValue(dtos.get(i).getOptionInfo1());
+            cell = row.createCell(13);
+            cell.setCellValue(dtos.get(i).getProdName2());
+            cell = row.createCell(14);
+            cell.setCellValue(dtos.get(i).getUnit());
+            cell = row.createCell(15);
+            cell.setCellValue(dtos.get(i).getTransportNumber());
+            cell = row.createCell(16);
+            cell.setCellValue(dtos.get(i).getPurchaseDate());
+        }
+
+        for(int i = 0; i < 17; i++){
             sheet.autoSizeColumn(i);
         }
 
