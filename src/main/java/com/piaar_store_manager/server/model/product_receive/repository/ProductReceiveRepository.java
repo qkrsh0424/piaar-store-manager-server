@@ -30,6 +30,5 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
     )
     List<ProductReceiveProj> selectAll();
 
-    public List<ProductReceiveEntity> findByProductOptionCid(Integer productOptionCid);
-
+    List<ProductReceiveEntity> findByProductOptionCid(Integer productOptionCid);
 }

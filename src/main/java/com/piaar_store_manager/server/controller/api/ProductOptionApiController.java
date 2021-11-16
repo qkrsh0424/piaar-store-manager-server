@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.service.product_option.ProductOptionBusinessService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class ProductOptionApiController {
 
     @Autowired
     private ProductOptionService productOptionService;
+
+    @Autowired
+    private ProductOptionBusinessService productOptionBusinessService;
 
     @Autowired
     private UserService userService;
@@ -164,6 +168,36 @@ public class ProductOptionApiController {
             message.setMemo("need login");
         } else{
             message.setData(productOptionService.searchListM2OJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api of status(release & receive) for productOption.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/stock/status/{optionCid}</b>
+     * <p>
+     * ProductOption 데이터의 입출고 현황을 조회한다.
+     * 입출고 현황(출고 + 입고 데이터)를 날짜순서로 조회한다.
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductOptionService#searchListM2OJ
+     */
+    @GetMapping("/stock/status/{optionCid}")
+    public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productOptionBusinessService.searchStockStatus(optionCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }

@@ -8,6 +8,10 @@ import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoin
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.model.product_receive.repository.ProductReceiveRepository;
+import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,12 @@ public class ProductOptionService {
 
     @Autowired
     private ProductOptionRepository productOptionRepository;
+
+    @Autowired
+    private ProductReceiveRepository productReceiveRepository;
+
+    @Autowired
+    private ProductReleaseRepository productReleaseRepository;
 
     @Autowired
     private DateHandler dateHandler;
@@ -117,10 +127,28 @@ public class ProductOptionService {
     public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
-
+        
         for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
+            ProductOptionGetDto dto = ProductOptionGetDto.toDto(optionEntity);
+            
+            // ProductReceive, ProductRelease 조회
+            List<ProductReceiveEntity> productReceiveEntities = productReceiveRepository.findByProductOptionCid(optionEntity.getCid());
+            List<ProductReleaseEntity> productReleaseEntities = productReleaseRepository.findByProductOptionCid(optionEntity.getCid());
+
+            int optionStockUnit = 0;
+            for(ProductReceiveEntity entity : productReceiveEntities){
+                optionStockUnit += entity.getReceiveUnit();
+            }
+
+            for(ProductReleaseEntity entity : productReleaseEntities) {
+                optionStockUnit -= entity.getReleaseUnit();
+            } 
+
+            // ProductOption dto에 재고수량(receive-release) 셋팅
+            dto.setStockUnit(optionStockUnit);
+            productOptionDto.add(dto);
         }
+
         return productOptionDto;
     }
 

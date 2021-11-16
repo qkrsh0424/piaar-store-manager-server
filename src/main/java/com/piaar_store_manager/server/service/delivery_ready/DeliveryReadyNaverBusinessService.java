@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.transaction.Transactional;
+
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
@@ -39,6 +41,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see ProductReleaseGetDto#toDto
      * @see productReleaseBusinessService#createPRList
      */
+    @Transactional
     public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
         
         // 재고 반영되지 않은 데이터들만 재고 반영
@@ -76,6 +79,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see ProductReceiveGetDto#toDto
      * @see productReceiveBusinessService#createPRList
      */
+    @Transactional
     public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
         
         // 재고 반영이 선행된 데이터들만 재고 반영 취소

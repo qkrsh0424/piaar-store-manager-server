@@ -135,6 +135,7 @@ public class FileUploadService{
     public FileUploadResponse uploadFileToCloud(MultipartFile file) {
         String uploadPath = bucket + "/upload/image";
         String fileName = "PiaarMS_" + UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename();
+        // String fileUrl = "https://" + bucket + "/" + fileName;
 
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(file.getSize());
@@ -147,6 +148,7 @@ public class FileUploadService{
             e.printStackTrace();
         }   
 
+        // return new FileUploadResponse(fileName, fileUrl, file.getContentType(), file.getSize());
         return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
     }
 

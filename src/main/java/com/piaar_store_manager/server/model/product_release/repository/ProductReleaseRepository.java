@@ -30,5 +30,5 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
     )
     List<ProductReleaseProj> selectAll();
 
-    public List<ProductReleaseEntity> findByProductOptionCid(Integer productOptionCid);
+    List<ProductReleaseEntity> findByProductOptionCid(Integer productOptionCid);
 }
