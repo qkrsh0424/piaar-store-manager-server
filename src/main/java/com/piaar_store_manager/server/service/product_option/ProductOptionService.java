@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductOptionService {
@@ -127,25 +129,41 @@ public class ProductOptionService {
     public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
+        // TODO : option cid list
         
         for (ProductOptionEntity optionEntity : productOptionEntities) {
             ProductOptionGetDto dto = ProductOptionGetDto.toDto(optionEntity);
             
+            // [1]
             // ProductReceive, ProductRelease 조회
-            List<ProductReceiveEntity> productReceiveEntities = productReceiveRepository.findByProductOptionCid(optionEntity.getCid());
-            List<ProductReleaseEntity> productReleaseEntities = productReleaseRepository.findByProductOptionCid(optionEntity.getCid());
+            // List<ProductReceiveEntity> productReceiveEntities = productReceiveRepository.findByProductOptionCid(optionEntity.getCid());
+            // List<ProductReleaseEntity> productReleaseEntities = productReleaseRepository.findByProductOptionCid(optionEntity.getCid());
 
-            int optionStockUnit = 0;
-            for(ProductReceiveEntity entity : productReceiveEntities){
-                optionStockUnit += entity.getReceiveUnit();
-            }
+            // int optionStockUnit = 0;
+            // for(ProductReceiveEntity entity : productReceiveEntities){
+            //     optionStockUnit += entity.getReceiveUnit();
+            // }
 
-            for(ProductReleaseEntity entity : productReleaseEntities) {
-                optionStockUnit -= entity.getReleaseUnit();
-            } 
+            // for(ProductReleaseEntity entity : productReleaseEntities) {
+            //     optionStockUnit -= entity.getReleaseUnit();
+            // }  
+            // Integer optionStockUnit = productOptionRepository.findStockStatus(optionEntity.getCid());
 
+            // [2]
+            Integer receiveStockUnit = productReceiveRepository.sumByProductOptionCid(optionEntity.getCid());
+            Integer releaseStockUnit = productReleaseRepository.sumByProductOptionCid(optionEntity.getCid());
+
+            if(receiveStockUnit == null) receiveStockUnit = 0;
+            if(releaseStockUnit == null) releaseStockUnit = 0;
+            // if(optionStockUnit == null) optionStockUnit = 0;
+
+            // [3]
+            // Integer optionStockUnit = productOptionRepository.sumByStockUnit(optionEntity.getCid());
+
+            // if(optionStockUnit == null) optionStockUnit = 0;
+            
             // ProductOption dto에 재고수량(receive-release) 셋팅
-            dto.setStockUnit(optionStockUnit);
+            dto.setStockUnit(receiveStockUnit- releaseStockUnit);
             productOptionDto.add(dto);
         }
 
@@ -354,5 +372,14 @@ public class ProductOptionService {
 
             productOptionRepository.save(productOptionEntity);
         }, null);
+    }
+
+    public List<ProductOptionGetDto> searchListByProductCids(List<Integer> cids){
+        List<ProductOptionEntity> entities = productOptionRepository.selectAllByProductCids(cids);
+
+        return entities.stream().map(r->{
+            ProductOptionGetDto dto = ProductOptionGetDto.toDto(r);
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

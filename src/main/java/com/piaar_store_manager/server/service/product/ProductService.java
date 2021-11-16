@@ -9,9 +9,12 @@ import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product.repository.ProductRepository;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-
+import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -32,6 +36,12 @@ public class ProductService {
 
     @Autowired
     private ProductOptionService productOptionService;
+
+    @Autowired
+    private ProductReceiveService productReceiveService;
+
+    @Autowired
+    private ProductReleaseService productReleaseService;
 
     @Autowired
     private UserService userService;
@@ -199,15 +209,39 @@ public class ProductService {
         List<ProductJoinResDto> productJoinResDtos = new ArrayList<>();
         List<ProductProj> productProjsOpt = productRepository.selectAll();
         
-        for(ProductProj projOpt : productProjsOpt) {
+        List<Integer> productCids = new ArrayList<>();
 
-            // TODO
-            // log.info("projOpt => {}", projOpt.getProduct().getDefaultName());
-
-            // 재고관리 여부
-            if(projOpt.getProduct().getStockManagement())
-                productJoinResDtos.add(searchOneFJ(projOpt.getProduct().getCid()));
+        for(ProductProj proj : productProjsOpt){
+            productCids.add(proj.getProduct().getCid());
+            ProductJoinResDto resDto = ProductJoinResDto.toDto(proj);
+            productJoinResDtos.add(resDto);
         }
+
+        List<ProductOptionGetDto> productOptionGetDtos = productOptionService.searchListByProductCids(productCids);
+
+        List<Integer> productOptionCids = new ArrayList<>();
+        productOptionCids = productOptionGetDtos.stream().map(r -> r.getCid()).collect(Collectors.toList());
+
+        for(ProductJoinResDto joinResDto : productJoinResDtos){
+            joinResDto.setOptions(productOptionGetDtos.stream().filter(r -> r.getProductCid() == joinResDto.getProduct().getCid()).collect(Collectors.toList()));
+        }
+
+        // TODO : release Sum, receive Sum => productOptionGetDtos의 cids 를 통해서 썸 데이터 리스트 추출, 썸데이터 추출시 옵션 cid 장착.
+        // optionCid값이 필요하므로 integer Sum값만 가져오면 안된다.
+        List<ProductReceiveGetDto> receiveDtos = productReceiveService.searchReceiveData(productOptionCids);
+        List<ProductReleaseGetDto> releaseDtos = productReleaseService.searchReleaseData(productOptionCids);
+
+        for(ProductOptionGetDto optionGetDto : productOptionGetDtos) {
+            List<Integer> receiveUnitByProduct = receiveDtos.stream().map(r -> r.getProductOptionCid() == optionGetDto.getCid() ? r.getReceiveUnit() : 0).collect(Collectors.toList());
+            List<Integer> releaseUnitByProduct = releaseDtos.stream().map(r -> r.getProductOptionCid() == optionGetDto.getCid() ? r.getReleaseUnit() : 0).collect(Collectors.toList());
+
+            int receiveSum = 0, releaseSum = 0;
+            for(Integer receiveUnit : receiveUnitByProduct) receiveSum += receiveUnit;
+            for(Integer releaseUnit : releaseUnitByProduct) releaseSum += releaseUnit;
+
+            optionGetDto.setReceivedSumUnit(receiveSum).setReleasedSumUnit(releaseSum).setStockSumUnit(receiveSum - releaseSum);
+        }
+
         return productJoinResDtos;
     }
 

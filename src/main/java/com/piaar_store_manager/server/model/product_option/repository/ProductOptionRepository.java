@@ -42,4 +42,25 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     Integer findCidByCode(String code);
 
     List<ProductOptionEntity> findByProductCid(Integer productCid);
+
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" +
+        "WHERE po.productCid IN :productCids"
+    )
+    List<ProductOptionEntity> selectAllByProductCids(List<Integer> productCids);
+    // @Query(value = "SELECT receive.receive_stock - release.release_stock\n" + 
+    //                "FROM (SELECT SUM(rc.receive_unit) AS receive_stock FROM product_receive rc WHERE rc.product_option_cid=:optionCid) receive, \n" +
+    //                "(SELECT SUM(rl.release_unit) AS release_stock FROM product_release rl WHERE rl.product_option_cid=:optionCid) release"
+    // , nativeQuery = true)
+    // Integer findStockStatus(Integer optionCid);
+
+    // @Query(
+    //     "SELECT SUM(rc.receiveUnit)-SUM(rl.releaseUnit) FROM (SELECT * FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:optionCid) rc, (SELECT * FROM ProductReleaseEntity rl WHERE rl.productOptionCid=:optionCid) rl"
+    // )
+    // Integer sumByStockUnit(Integer optionCid);
+
+    // @Query(
+    //     "SELECT SUM(rc.receiveUnit) FROM SELECT * (FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:optionCid)"
+    // )
+    // Integer sumByStockUnit(Integer optionCid);
 }

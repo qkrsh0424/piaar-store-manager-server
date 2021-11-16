@@ -31,4 +31,15 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
     List<ProductReleaseProj> selectAll();
 
     List<ProductReleaseEntity> findByProductOptionCid(Integer productOptionCid);
+
+    @Query(
+        "SELECT sum(rl.releaseUnit) FROM ProductReleaseEntity rl WHERE rl.productOptionCid=:productOptionCid"
+    )
+    Integer sumByProductOptionCid(Integer productOptionCid);
+
+    @Query(
+        "SELECT prc FROM ProductReleaseEntity prc\n" +
+        "WHERE prc.productOptionCid IN :optionCids"
+    )
+    List<ProductReleaseEntity> selectAllByOptionCids(List<Integer> optionCids);
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -301,5 +302,14 @@ public class ProductReleaseService {
                 productOptionService.releaseProductUnit(releaseEntity.getProductOptionCid(), userId, releaseEntity.getReleaseUnit());
             }
         }, null);
+    }
+
+    public List<ProductReleaseGetDto> searchReleaseData(List<Integer> optionCids) {
+        List<ProductReleaseEntity> entities = productReleaseRepository.selectAllByOptionCids(optionCids);
+        
+        return entities.stream().map(r->{
+            ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(r);
+            return dto;
+        }).collect(Collectors.toList());
     }
 }

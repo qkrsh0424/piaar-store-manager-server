@@ -31,4 +31,15 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
     List<ProductReceiveProj> selectAll();
 
     List<ProductReceiveEntity> findByProductOptionCid(Integer productOptionCid);
+
+    @Query(
+        "SELECT sum(rc.receiveUnit) FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:productOptionCid"
+    )
+    Integer sumByProductOptionCid(Integer productOptionCid);
+
+    @Query(
+        "SELECT prc FROM ProductReceiveEntity prc\n" +
+        "WHERE prc.productOptionCid IN :optionCids"
+    )
+    List<ProductReceiveEntity> selectAllByOptionCids(List<Integer> optionCids);
 }

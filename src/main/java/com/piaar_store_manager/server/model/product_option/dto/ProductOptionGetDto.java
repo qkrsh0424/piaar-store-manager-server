@@ -38,6 +38,9 @@ public class ProductOptionGetDto {
     private UUID updatedBy;
     private Integer productCid;
     private UUID productId;
+    private Integer releasedSumUnit;
+    private Integer receivedSumUnit;
+    private Integer stockSumUnit;
 
     /**
      * <b>Convert Method</b>
