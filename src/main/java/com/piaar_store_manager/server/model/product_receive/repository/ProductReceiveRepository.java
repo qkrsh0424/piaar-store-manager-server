@@ -3,6 +3,8 @@ package com.piaar_store_manager.server.model.product_receive.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.Tuple;
+
 import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 
@@ -36,10 +38,4 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
         "SELECT sum(rc.receiveUnit) FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:productOptionCid"
     )
     Integer sumByProductOptionCid(Integer productOptionCid);
-
-    @Query(
-        "SELECT prc FROM ProductReceiveEntity prc\n" +
-        "WHERE prc.productOptionCid IN :optionCids"
-    )
-    List<ProductReceiveEntity> selectAllByOptionCids(List<Integer> optionCids);
 }

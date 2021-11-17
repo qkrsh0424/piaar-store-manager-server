@@ -3,6 +3,8 @@ package com.piaar_store_manager.server.model.product_option.repository;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.Tuple;
+
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
@@ -48,19 +50,17 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "WHERE po.productCid IN :productCids"
     )
     List<ProductOptionEntity> selectAllByProductCids(List<Integer> productCids);
-    // @Query(value = "SELECT receive.receive_stock - release.release_stock\n" + 
-    //                "FROM (SELECT SUM(rc.receive_unit) AS receive_stock FROM product_receive rc WHERE rc.product_option_cid=:optionCid) receive, \n" +
-    //                "(SELECT SUM(rl.release_unit) AS release_stock FROM product_release rl WHERE rl.product_option_cid=:optionCid) release"
-    // , nativeQuery = true)
-    // Integer findStockStatus(Integer optionCid);
 
-    // @Query(
-    //     "SELECT SUM(rc.receiveUnit)-SUM(rl.releaseUnit) FROM (SELECT * FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:optionCid) rc, (SELECT * FROM ProductReleaseEntity rl WHERE rl.productOptionCid=:optionCid) rl"
-    // )
-    // Integer sumByStockUnit(Integer optionCid);
-
-    // @Query(
-    //     "SELECT SUM(rc.receiveUnit) FROM SELECT * (FROM ProductReceiveEntity rc WHERE rc.productOptionCid=:optionCid)"
-    // )
-    // Integer sumByStockUnit(Integer optionCid);
+    /**
+     * The sum of the number of receive unit and the number of release unit of product options.
+     * Change the value of the ProductOptionGetDto to the returned value.
+     * 
+     * @param optionCids : List::Integer::
+     * @return po.cid, sum(receive_unit), sum(release_unit)
+     */
+    @Query(value="SELECT po.cid AS cid, \n" +
+                "(SELECT SUM(prl.release_unit) FROM product_release prl WHERE po.cid=prl.product_option_cid) AS releasedSum, \n" + 
+                "(SELECT SUM(prc.receive_unit) FROM product_receive prc WHERE po.cid=prc.product_option_cid) AS receivedSum \n" +
+                "FROM product_option po WHERE po.cid IN :optionCids", nativeQuery = true)
+    List<Tuple> sumStockUnitByOption(List<Integer> optionCids);
 }

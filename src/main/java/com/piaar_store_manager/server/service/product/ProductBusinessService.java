@@ -61,9 +61,4 @@ public class ProductBusinessService {
             }
         }
     }
-
-    public void searchProductList(){
-        // TODO : (1) Product List get => List cid [Array] get OptionList => Option cid [Array] get stock Sum => product -> product 조합, option -> option 조합, sum -> sum 조합;
-        // TODO : (2) Option List get => Option List cid [Array] get Sum;
-    }
 }

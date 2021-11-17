@@ -5,24 +5,25 @@ import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
+import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
-import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.model.product_receive.repository.ProductReceiveRepository;
-import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import javax.persistence.Tuple;
 
 @Service
 public class ProductOptionService {
@@ -129,40 +130,17 @@ public class ProductOptionService {
     public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
         List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
-        // TODO : option cid list
         
+        // TODO : ReceiveReleaseSumOnlyDto 사용
         for (ProductOptionEntity optionEntity : productOptionEntities) {
             ProductOptionGetDto dto = ProductOptionGetDto.toDto(optionEntity);
             
-            // [1]
-            // ProductReceive, ProductRelease 조회
-            // List<ProductReceiveEntity> productReceiveEntities = productReceiveRepository.findByProductOptionCid(optionEntity.getCid());
-            // List<ProductReleaseEntity> productReleaseEntities = productReleaseRepository.findByProductOptionCid(optionEntity.getCid());
-
-            // int optionStockUnit = 0;
-            // for(ProductReceiveEntity entity : productReceiveEntities){
-            //     optionStockUnit += entity.getReceiveUnit();
-            // }
-
-            // for(ProductReleaseEntity entity : productReleaseEntities) {
-            //     optionStockUnit -= entity.getReleaseUnit();
-            // }  
-            // Integer optionStockUnit = productOptionRepository.findStockStatus(optionEntity.getCid());
-
-            // [2]
             Integer receiveStockUnit = productReceiveRepository.sumByProductOptionCid(optionEntity.getCid());
             Integer releaseStockUnit = productReleaseRepository.sumByProductOptionCid(optionEntity.getCid());
 
             if(receiveStockUnit == null) receiveStockUnit = 0;
             if(releaseStockUnit == null) releaseStockUnit = 0;
-            // if(optionStockUnit == null) optionStockUnit = 0;
 
-            // [3]
-            // Integer optionStockUnit = productOptionRepository.sumByStockUnit(optionEntity.getCid());
-
-            // if(optionStockUnit == null) optionStockUnit = 0;
-            
-            // ProductOption dto에 재고수량(receive-release) 셋팅
             dto.setStockUnit(receiveStockUnit- releaseStockUnit);
             productOptionDto.add(dto);
         }
@@ -381,5 +359,22 @@ public class ProductOptionService {
             ProductOptionGetDto dto = ProductOptionGetDto.toDto(r);
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    public List<ReceiveReleaseSumOnlyDto> sumStockUnit(List<Integer> cids) {
+        List<Tuple> stockUnitTuple = productOptionRepository.sumStockUnitByOption(cids);
+        List<ReceiveReleaseSumOnlyDto> stockUnitByOption = new ArrayList<>();
+
+        stockUnitByOption = stockUnitTuple.stream().map(r -> {
+            ReceiveReleaseSumOnlyDto dto = ReceiveReleaseSumOnlyDto.builder()
+                    .optionCid(r.get("cid", Integer.class))
+                    .receivedSum(r.get("receivedSum", BigDecimal.class) != null ? r.get("receivedSum", BigDecimal.class).intValue() : 0)
+                    .releasedSum(r.get("releasedSum", BigDecimal.class) != null ? r.get("releasedSum", BigDecimal.class).intValue() : 0)
+                    .build();
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return stockUnitByOption;
     }
 }

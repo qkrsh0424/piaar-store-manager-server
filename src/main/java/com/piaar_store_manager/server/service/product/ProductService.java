@@ -9,12 +9,9 @@ import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product.repository.ProductRepository;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,12 +33,6 @@ public class ProductService {
 
     @Autowired
     private ProductOptionService productOptionService;
-
-    @Autowired
-    private ProductReceiveService productReceiveService;
-
-    @Autowired
-    private ProductReleaseService productReleaseService;
 
     @Autowired
     private UserService userService;
@@ -201,6 +192,7 @@ public class ProductService {
      * Product 데이터를 모두 조회한다.
      * 해당 Product와 연관관계에 놓여있는 모든 Full JOIN(fj) 상태를 조회한다.
      * 재고관리 여부가 true인 데이터를 추출한다.
+     * 옵션cid값에 대응하는 입출고 재고 개수, 재고 개수를 구한다.
      *
      * @return List::ProductJoinResDto::
      * @see ProductRepository#selectAll
@@ -212,9 +204,12 @@ public class ProductService {
         List<Integer> productCids = new ArrayList<>();
 
         for(ProductProj proj : productProjsOpt){
-            productCids.add(proj.getProduct().getCid());
-            ProductJoinResDto resDto = ProductJoinResDto.toDto(proj);
-            productJoinResDtos.add(resDto);
+            if(proj.getProduct().getStockManagement()){
+                productCids.add(proj.getProduct().getCid());
+                ProductJoinResDto resDto = ProductJoinResDto.toDto(proj);
+
+                productJoinResDtos.add(resDto);
+            }
         }
 
         List<ProductOptionGetDto> productOptionGetDtos = productOptionService.searchListByProductCids(productCids);
@@ -226,20 +221,17 @@ public class ProductService {
             joinResDto.setOptions(productOptionGetDtos.stream().filter(r -> r.getProductCid() == joinResDto.getProduct().getCid()).collect(Collectors.toList()));
         }
 
-        // TODO : release Sum, receive Sum => productOptionGetDtos의 cids 를 통해서 썸 데이터 리스트 추출, 썸데이터 추출시 옵션 cid 장착.
-        // optionCid값이 필요하므로 integer Sum값만 가져오면 안된다.
-        List<ProductReceiveGetDto> receiveDtos = productReceiveService.searchReceiveData(productOptionCids);
-        List<ProductReleaseGetDto> releaseDtos = productReleaseService.searchReleaseData(productOptionCids);
+        // ReceiveReleaseSumOnlyDto를 통해 productOption의 receivedSumUnit, releasedSumUnit, stockSumUnit 값 셋팅
+        List<ReceiveReleaseSumOnlyDto> stockUnitByOption = productOptionService.sumStockUnit(productOptionCids);
 
-        for(ProductOptionGetDto optionGetDto : productOptionGetDtos) {
-            List<Integer> receiveUnitByProduct = receiveDtos.stream().map(r -> r.getProductOptionCid() == optionGetDto.getCid() ? r.getReceiveUnit() : 0).collect(Collectors.toList());
-            List<Integer> releaseUnitByProduct = releaseDtos.stream().map(r -> r.getProductOptionCid() == optionGetDto.getCid() ? r.getReleaseUnit() : 0).collect(Collectors.toList());
-
-            int receiveSum = 0, releaseSum = 0;
-            for(Integer receiveUnit : receiveUnitByProduct) receiveSum += receiveUnit;
-            for(Integer releaseUnit : releaseUnitByProduct) releaseSum += releaseUnit;
-
-            optionGetDto.setReceivedSumUnit(receiveSum).setReleasedSumUnit(releaseSum).setStockSumUnit(receiveSum - releaseSum);
+        for(ProductOptionGetDto dto : productOptionGetDtos) {
+            stockUnitByOption.stream().forEach(r -> {
+                if(dto.getCid() == r.getOptionCid()){
+                    dto.setReceivedSumUnit(r.getReceivedSum())
+                        .setReleasedSumUnit(r.getReleasedSum())
+                        .setStockSumUnit(r.getReceivedSum() - r.getReleasedSum());
+                }
+            });
         }
 
         return productJoinResDtos;

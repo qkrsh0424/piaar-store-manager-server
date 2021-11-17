@@ -1,7 +1,10 @@
 package com.piaar_store_manager.server.model.product_release.repository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import javax.persistence.Tuple;
 
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
@@ -36,10 +39,4 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
         "SELECT sum(rl.releaseUnit) FROM ProductReleaseEntity rl WHERE rl.productOptionCid=:productOptionCid"
     )
     Integer sumByProductOptionCid(Integer productOptionCid);
-
-    @Query(
-        "SELECT prc FROM ProductReleaseEntity prc\n" +
-        "WHERE prc.productOptionCid IN :optionCids"
-    )
-    List<ProductReleaseEntity> selectAllByOptionCids(List<Integer> optionCids);
 }
