@@ -188,22 +188,22 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionService#searchListM2OJ
      */
-    @GetMapping("/stock/status/{optionCid}")
-    public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
-        Message message = new Message();
+    // @GetMapping("/stock/status/{optionCid}")
+    // public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
+    //     Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            message.setData(productOptionBusinessService.searchStockStatus(optionCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        }
+    //     if (!userService.isUserLogin()) {
+    //         message.setStatus(HttpStatus.FORBIDDEN);
+    //         message.setMessage("need_login");
+    //         message.setMemo("need login");
+    //     } else{
+    //         message.setData(productOptionBusinessService.searchStockStatus(optionCid));
+    //         message.setStatus(HttpStatus.OK);
+    //         message.setMessage("success");
+    //     }
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Create one api for productOption.

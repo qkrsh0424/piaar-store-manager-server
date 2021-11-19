@@ -5,7 +5,6 @@ import java.util.List;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-receive")
 public class ProductReceiveApiController {
-    
-    @Autowired
-    private ProductReceiveService productReceiveService;
 
     @Autowired
     private ProductReceiveBusinessService productReceiveBusinessService;
@@ -43,7 +39,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#searchOne
+     * @see ProductReceiveBusinessService#searchOne
      */
     @GetMapping("/one/{productReceiveCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
@@ -55,7 +51,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReceiveService.searchOne(productReceiveCid));
+                message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -70,7 +66,7 @@ public class ProductReceiveApiController {
     /**
      * Search one api for productReceive.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/one-m2oj/{productCid}</b>
+     * <b>GET : API URL => /api/v1/product-receive/one-m2oj/{productReceiveCid}</b>
      * <p>
      * ProductReceive cid 값과 상응되는 데이터를 조회한다.
      * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
@@ -79,7 +75,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#searchOneM2OJ
+     * @see ProductReceiveBusinessService#searchOneM2OJ
      */
     @GetMapping("/one-m2oj/{productReceiveCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
@@ -91,7 +87,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReceiveService.searchOneM2OJ(productReceiveCid));
+                message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -111,7 +107,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#searchList
+     * @see ProductReceiveBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
@@ -122,7 +118,7 @@ public class ProductReceiveApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productReceiveService.searchList());
+            message.setData(productReceiveBusinessService.searchList());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -139,10 +135,10 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#searchList
+     * @see ProductReceiveBusinessService#searchList
      */
     @GetMapping("/list/{productOptionCid}")
-    public ResponseEntity<?> searchList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
 
         if (!userService.isUserLogin()) {
@@ -151,7 +147,7 @@ public class ProductReceiveApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReceiveService.searchList(productOptionCid));
+                message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -173,7 +169,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#searchListM2OJ
+     * @see ProductReceiveBusinessService#searchListM2OJ
      */
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
@@ -184,7 +180,7 @@ public class ProductReceiveApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productReceiveService.searchListM2OJ());
+            message.setData(productReceiveBusinessService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -194,6 +190,7 @@ public class ProductReceiveApiController {
 
     /**
      * Create one api for productReceive.
+     * And Update list api for productOption.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/one</b>
      * 
@@ -201,8 +198,9 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductBusinessReceiveService#createPR
+     * @see ProductReceiveBusinessService#createPR
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
@@ -234,8 +232,9 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductBusinessReceiveService#createPRList
+     * @see ProductReceiveBusinessService#createPRList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
@@ -267,8 +266,9 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#destroyOne
+     * @see ProductReceiveBusinessService#destroyOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReceiveCid}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
@@ -277,7 +277,7 @@ public class ProductReceiveApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.destroyOne(productReceiveCid, userService.getUserId());
+                productReceiveBusinessService.destroyOne(productReceiveCid, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -300,8 +300,9 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#changeOne
+     * @see ProductReceiveBusinessService#changeOne
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
     public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
@@ -310,7 +311,7 @@ public class ProductReceiveApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.changeOne(receiveDto, userService.getUserId());
+                productReceiveBusinessService.changeOne(receiveDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -333,8 +334,9 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReceiveService#changeList
+     * @see productReceiveBusinessService#changeList
      * @see UserService#getUserId
+     * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
     public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
@@ -343,7 +345,7 @@ public class ProductReceiveApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.changeList(productReceiveGetDtos, userService.getUserId());
+                productReceiveBusinessService.changeList(productReceiveGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -358,7 +360,7 @@ public class ProductReceiveApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) one api for productReceive
+     * Patch one api for productReceive
      * <p>
      * <b>PATCH : API URL => /api/v1/product-receive/one</b>
      *
@@ -366,7 +368,7 @@ public class ProductReceiveApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReceiveService#patchOne
+     * @see ProductReceiveBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -377,7 +379,7 @@ public class ProductReceiveApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveService.patchOne(productReceiveGetDto, userService.getUserId());
+                productReceiveBusinessService.patchOne(productReceiveGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

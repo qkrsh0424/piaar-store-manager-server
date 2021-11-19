@@ -321,7 +321,7 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#save
      */
-    public void receiveProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
+    public void updateReceiveProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() + receiveUnit)
                                .setUpdatedAt(dateHandler.getCurrentDate())
@@ -342,7 +342,7 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#save
      */
-    public void releaseProductUnit(Integer optionCid, UUID userId, Integer releaseUnit){
+    public void updateReleaseProductUnit(Integer optionCid, UUID userId, Integer releaseUnit){
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() - releaseUnit)
                                .setUpdatedAt(dateHandler.getCurrentDate())

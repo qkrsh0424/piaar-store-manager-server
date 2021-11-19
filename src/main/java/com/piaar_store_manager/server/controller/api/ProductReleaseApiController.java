@@ -5,7 +5,6 @@ import java.util.List;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-release")
 public class ProductReleaseApiController {
-    
-    @Autowired
-    private ProductReleaseService productReleaseService;
 
     @Autowired
     private ProductReleaseBusinessService productReleaseBusinessService;
@@ -43,7 +39,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#searchOne
+     * @see productReleaseBusinessService#searchOne
      */
     @GetMapping("/one/{productReleaseCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
@@ -55,7 +51,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReleaseService.searchOne(productReleaseCid));
+                message.setData(productReleaseBusinessService.searchOne(productReleaseCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -70,7 +66,7 @@ public class ProductReleaseApiController {
     /**
      * Search one api for productRelease.
      * <p>
-     * <b>GET : API URL => /api/v1/product-release/one-m2oj/{productCid}</b>
+     * <b>GET : API URL => /api/v1/product-release/one-m2oj/{productReleaseCid}</b>
      * <p>
      * ProductRelease cid 값과 상응되는 데이터를 조회한다.
      * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
@@ -79,7 +75,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#searchOneM2OJ
+     * @see productReleaseBusinessService#searchOneM2OJ
      */
     @GetMapping("/one-m2oj/{productReleaseCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
@@ -91,7 +87,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReleaseService.searchOneM2OJ(productReleaseCid));
+                message.setData(productReleaseBusinessService.searchOneM2OJ(productReleaseCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -111,7 +107,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#searchList
+     * @see productReleaseBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
@@ -122,7 +118,7 @@ public class ProductReleaseApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productReleaseService.searchList());
+            message.setData(productReleaseBusinessService.searchList());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -139,7 +135,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#searchList
+     * @see ProductReleaseBusinessService#searchListByOptionCid
      */
     @GetMapping("/list/{productOptionCid}")
     public ResponseEntity<?> searchList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
@@ -151,7 +147,7 @@ public class ProductReleaseApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productReleaseService.searchList(productOptionCid));
+                message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -171,12 +167,12 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#searchList
+     * @see productReleaseBusinessService#searchList
      */
     @GetMapping("/test/list")
     public ResponseEntity<?> searchReleaseList() {
         Message message = new Message();
-        message.setData(productReleaseService.searchList());
+        message.setData(productReleaseBusinessService.searchList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -192,14 +188,14 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#searchList
+     * @see ProductReleaseBusinessService#searchListByOptionCid
      */
     @GetMapping("/test/list/{productOptionCid}")
     public ResponseEntity<?> searchReleaseList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
 
         try {
-            message.setData(productReleaseService.searchList(productOptionCid));
+            message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -220,7 +216,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#searchListM2OJ
+     * @see productReleaseBusinessService#searchListM2OJ
      */
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
@@ -231,7 +227,7 @@ public class ProductReleaseApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productReleaseService.searchListM2OJ());
+            message.setData(productReleaseBusinessService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -248,7 +244,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseBusinessService#createPR
+     * @see productReleaseBusinessService#createPL
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -259,7 +255,7 @@ public class ProductReleaseApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseBusinessService.createPR(productReleaseGetDto, userService.getUserId());
+                productReleaseBusinessService.createPL(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -282,7 +278,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseBusinessService#createPRList
+     * @see productReleaseBusinessService#createPLList
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -293,7 +289,7 @@ public class ProductReleaseApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseBusinessService.createPRList(productReleaseGetDtos, userService.getUserId());
+                productReleaseBusinessService.createPLList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -310,13 +306,13 @@ public class ProductReleaseApiController {
     /**
      * Destroy( Delete or Remove ) one api for productRelease.
      * <p>
-     * <b>DELETE : API URL => /api/v1/product-release/one/{productreleaseCid}</b>
+     * <b>DELETE : API URL => /api/v1/product-release/one/{productReleaseCid}</b>
      *
      * @param productReleaseCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#destroyOne
+     * @see ProductReleaseBusinessService#destroyOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -327,7 +323,7 @@ public class ProductReleaseApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.destroyOne(productReleaseCid, userService.getUserId());
+                productReleaseBusinessService.destroyOne(productReleaseCid, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -350,7 +346,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#changeOne
+     * @see ProductReleaseBusinessService#changeOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -361,7 +357,7 @@ public class ProductReleaseApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.changeOne(releaseDto, userService.getUserId());
+                productReleaseBusinessService.changeOne(releaseDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -384,7 +380,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productReleaseService#changeList
+     * @see productReleaseBusinessService#changeList
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -395,7 +391,7 @@ public class ProductReleaseApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.changeList(productReleaseGetDtos, userService.getUserId());
+                productReleaseBusinessService.changeList(productReleaseGetDtos, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -410,7 +406,7 @@ public class ProductReleaseApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) one api for productRelease
+     * Patch one api for productRelease
      * <p>
      * <b>PATCH : API URL => /api/v1/product-release/one</b>
      *
@@ -418,7 +414,7 @@ public class ProductReleaseApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductReleaseService#patchOne
+     * @see ProductReleaseBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -429,7 +425,7 @@ public class ProductReleaseApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseService.patchOne(productReleaseGetDto, userService.getUserId());
+                productReleaseBusinessService.patchOne(productReleaseGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

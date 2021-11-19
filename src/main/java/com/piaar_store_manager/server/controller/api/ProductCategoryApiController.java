@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.service.product_category.ProductCategoryBusinessService;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.user.UserService;
 
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductCategoryApiController {
 
     @Autowired
-    private ProductCategoryService productCategoryService;
+    private ProductCategoryBusinessService productCategoryBusinessService;
 
     @Autowired
     private UserService userService;
@@ -40,7 +41,7 @@ public class ProductCategoryApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productCategoryService.searchList());
+            message.setData(productCategoryBusinessService.searchList());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }

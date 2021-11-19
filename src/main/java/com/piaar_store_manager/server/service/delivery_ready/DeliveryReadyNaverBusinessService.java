@@ -39,7 +39,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverService#updateListReleaseCompleted
      * @see DeliveryReadyNaverService#getOptionCid
      * @see ProductReleaseGetDto#toDto
-     * @see productReleaseBusinessService#createPRList
+     * @see productReleaseBusinessService#createPLList
      */
     @Transactional
     public void releaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
@@ -62,7 +62,7 @@ public class DeliveryReadyNaverBusinessService {
             productReleaseGetDtos.add(productReleaseGetDto);
         }
 
-        productReleaseBusinessService.createPRList(productReleaseGetDtos, userId);
+        productReleaseBusinessService.createPLList(productReleaseGetDtos, userId);
     }
 
     /**

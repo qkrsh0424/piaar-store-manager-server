@@ -37,7 +37,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangService#getOptionCid
      * @see ProductReleaseGetDto#toDto
-     * @see productReleaseBusinessService#createPRList
+     * @see productReleaseBusinessService#createPLList
      */
     public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
 
@@ -58,7 +58,7 @@ public class DeliveryReadyCoupangBusinessService {
             productReleaseGetDtos.add(productReleaseGetDto);
         }
 
-        productReleaseBuisnessService.createPRList(productReleaseGetDtos, userId);
+        productReleaseBuisnessService.createPLList(productReleaseGetDtos, userId);
     }
 
     /**

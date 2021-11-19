@@ -218,7 +218,7 @@ public class ProductService {
         productOptionCids = productOptionGetDtos.stream().map(r -> r.getCid()).collect(Collectors.toList());
 
         for(ProductJoinResDto joinResDto : productJoinResDtos){
-            joinResDto.setOptions(productOptionGetDtos.stream().filter(r -> r.getProductCid() == joinResDto.getProduct().getCid()).collect(Collectors.toList()));
+            joinResDto.setOptions(productOptionGetDtos.stream().filter(r -> r.getProductCid().equals(joinResDto.getProduct().getCid())).collect(Collectors.toList()));
         }
 
         // ReceiveReleaseSumOnlyDto를 통해 productOption의 receivedSumUnit, releasedSumUnit, stockSumUnit 값 셋팅
