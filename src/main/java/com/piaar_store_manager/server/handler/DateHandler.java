@@ -11,4 +11,9 @@ public class DateHandler {
         Date date = Calendar.getInstance().getTime();
         return date;
     }
+
+    public static Date getCurrentDate2(){
+        Date date = Calendar.getInstance().getTime();
+        return date;
+    }
 }

@@ -14,12 +14,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductReceiveService {
-    
-    @Autowired
     private ProductReceiveRepository productReceiveRepository;
+    private ProductOptionService productOptionService;
 
     @Autowired
-    private ProductOptionService productOptionService;
+    public ProductReceiveService(
+        ProductReceiveRepository productReceiveRepository,
+        ProductOptionService productOptionService
+    ) {
+        this.productReceiveRepository = productReceiveRepository;
+        this.productOptionService = productOptionService;
+    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -32,15 +37,12 @@ public class ProductReceiveService {
      */
     public ProductReceiveEntity searchOne(Integer productReceiveCid) {
         Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveCid);
-        ProductReceiveEntity entity = new ProductReceiveEntity();
 
         if (receiveEntityOpt.isPresent()) {
-            entity = receiveEntityOpt.get();
+            return receiveEntityOpt.get();
         } else {
             throw new NullPointerException();
         }
-
-        return entity;
     }
 
     /**
@@ -86,7 +88,6 @@ public class ProductReceiveService {
      */
     public List<ProductReceiveEntity> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> productEntities = productReceiveRepository.findByProductOptionCid(productOptionCid);
-
         return productEntities;
     }
 
@@ -101,7 +102,6 @@ public class ProductReceiveService {
      */
     public List<ProductReceiveEntity> searchListByCid(List<Integer> cids) {
         List<ProductReceiveEntity> entities = productReceiveRepository.selectAllByCid(cids);
-
         return entities;
     }
 
@@ -157,7 +157,6 @@ public class ProductReceiveService {
     public void destroyOne(Integer productReceiveCid, UUID userId) {
         productReceiveRepository.findById(productReceiveCid).ifPresent(product -> {
             productOptionService.updateReleaseProductUnit(product.getProductOptionCid(), userId, product.getReceiveUnit());
-
             productReceiveRepository.delete(product);
         });
     }

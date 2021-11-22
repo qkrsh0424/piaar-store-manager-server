@@ -16,15 +16,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductReceiveBusinessService {
-    
-    @Autowired
-    private ProductReceiveService productReceiveService;
+    private final ProductReceiveService productReceiveService;
+    private final ProductOptionService productOptionService;
 
     @Autowired
-    private ProductOptionService productOptionService;
-
-    @Autowired
-    private DateHandler dateHandler;
+    public ProductReceiveBusinessService(
+        ProductReceiveService productReceiveService,
+        ProductOptionService productOptionService
+    ) {
+        this.productReceiveService = productReceiveService;
+        this.productOptionService = productOptionService;
+    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -38,8 +40,8 @@ public class ProductReceiveBusinessService {
      */
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
         ProductReceiveEntity entity = productReceiveService.searchOne(productReceiveCid);
-
-        return ProductReceiveGetDto.toDto(entity);
+        ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
+        return dto;
     }
 
     /**
@@ -55,8 +57,8 @@ public class ProductReceiveBusinessService {
      */
     public ProductReceiveJoinResDto searchOneM2OJ(Integer productReceiveCid){
         ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
-
-        return ProductReceiveJoinResDto.toDto(receiveProj);
+        ProductReceiveJoinResDto resDto = ProductReceiveJoinResDto.toDto(receiveProj);
+        return resDto;
     }
 
     /**
@@ -70,10 +72,8 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveService.searchList();
-
-        return entities.stream().map(r -> {
-            return ProductReceiveGetDto.toDto(r);
-        }).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -88,10 +88,8 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
-
-       return entities.stream().map(r -> {
-            return ProductReceiveGetDto.toDto(r);
-        }).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
     
     /**
@@ -106,8 +104,8 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveJoinResDto> searchListM2OJ() {
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-
-        return receiveProjs.stream().map(r -> ProductReceiveJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveJoinResDto> resDtos = receiveProjs.stream().map(r -> ProductReceiveJoinResDto.toDto(r)).collect(Collectors.toList());
+        return resDtos;
     }
 
     /**
@@ -123,15 +121,16 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveGetDto#toDto
      */
     public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
-        productReceiveGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+        productReceiveGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
 
         // ProductReceive 데이터 생성
         ProductReceiveEntity entity = productReceiveService.createPR(ProductReceiveEntity.toEntity(productReceiveGetDto));
-
+        ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
+        
         // ProductOption 재고 반영
         productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), userId, entity.getReceiveUnit());
-
-        return ProductReceiveGetDto.toDto(entity);
+        
+        return dto;
     }
 
     /**
@@ -147,20 +146,18 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveGetDto#toDto
      */
     public List<ProductReceiveGetDto> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
-
         List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
-            r.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
-
+            r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
             return ProductReceiveEntity.toEntity(r);
         }).collect(Collectors.toList());
 
         // ProductReceive 데이터 생성
         List<ProductReceiveEntity> entities = productReceiveService.createPRList(convertedEntities);
-
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), userId, r.getReceiveUnit()); });
 
-        return entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
 
@@ -194,8 +191,7 @@ public class ProductReceiveBusinessService {
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
         
         // 변경된 입고수량
-        int changedReceiveUnit = receiveDto.getReceiveUnit() - entity.getReceiveUnit(); 
-
+        int changedReceiveUnit = receiveDto.getReceiveUnit() - entity.getReceiveUnit();
         // 변경된 입고 데이터
         entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
         productReceiveService.createPR(entity);
@@ -226,7 +222,6 @@ public class ProductReceiveBusinessService {
      * @param receiveDto : ProductReceiveGetDto
      * @param userId : UUID
      * @see ProductReceiveService#searchOne
-     * @see ProductOptionService#updateReceiveProductUnit
      * @see ProductReceiveService#createPR
      * @see ProductOptionService#updateReceiveProductUnit
      */
@@ -234,18 +229,15 @@ public class ProductReceiveBusinessService {
         ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
 
         if (receiveDto.getReceiveUnit() != null) {
-
             int storedReceiveUnit = receiveEntity.getReceiveUnit();
-
             // 변경된 입고 데이터
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-
             productReceiveService.createPR(receiveEntity);
-
             productOptionService.updateReceiveProductUnit(receiveEntity.getProductOptionCid(), userId, receiveEntity.getReceiveUnit() - storedReceiveUnit);
         }
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());
+            productReceiveService.createPR(receiveEntity);
         }
     }
 }

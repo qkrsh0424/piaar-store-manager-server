@@ -16,15 +16,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductReleaseBusinessService {
-    
-    @Autowired
-    private ProductReleaseService productReleaseService;
+    private final ProductReleaseService productReleaseService;
+    private final ProductOptionService productOptionService;
 
     @Autowired
-    private ProductOptionService productOptionService;
-
-    @Autowired
-    private DateHandler dateHandler;
+    public ProductReleaseBusinessService(
+        ProductReleaseService productReleaseService,
+        ProductOptionService productOptionService
+    ) {
+        this.productReleaseService = productReleaseService;
+        this.productOptionService = productOptionService;
+    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -37,25 +39,25 @@ public class ProductReleaseBusinessService {
      */
     public ProductReleaseGetDto searchOne(Integer productReleaseCid) {
         ProductReleaseEntity entity = productReleaseService.searchOne(productReleaseCid);
-
-        return ProductReleaseGetDto.toDto(entity);
+        ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
+        return dto;
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductRelease cid 값과 상응되는 데이터를 조회한다.
-     * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * ProductRelease cid 값과 상응되는 데이터를 조회한다. 해당 ProductRelease와 연관관계에 놓여있는 Many To
+     * One JOIN(m2oj) 상태를 조회한다.
      *
      * @param productReleaseCid : Integer
      * @return ProductReleaseJoinResDto
      * @see ProductReleaseService#searchOneM2OJ
      * @see ProductReleaseJoinResDto#toDto
      */
-    public ProductReleaseJoinResDto searchOneM2OJ(Integer productReleaseCid){
+    public ProductReleaseJoinResDto searchOneM2OJ(Integer productReleaseCid) {
         ProductReleaseProj releaseProj = productReleaseService.searchOneM2OJ(productReleaseCid);
-
-        return ProductReleaseJoinResDto.toDto(releaseProj);
+        ProductReleaseJoinResDto resDto = ProductReleaseJoinResDto.toDto(releaseProj);
+        return resDto;
     }
 
     /**
@@ -69,35 +71,31 @@ public class ProductReleaseBusinessService {
      */
     public List<ProductReleaseGetDto> searchList() {
         List<ProductReleaseEntity> entities = productReleaseService.searchList();
-
-        return entities.stream().map(r -> {
-            return ProductReleaseGetDto.toDto(r);
-        }).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductOption cid 값과 상응되는 ProductRelease 데이터를 조회한다.
+     * ProductOption cid 값과 상응되는 ProductRelease 데이터를 모두 조회한다.
      *
      * @param productOptionCid : Integer
      * @return List::ProductReleaseGetDto
-     * @see  ProductReleaseService#searchListByOptionCid
+     * @see ProductReleaseService#searchListByOptionCid
      * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReleaseEntity> entities = productReleaseService.searchListByOptionCid(productOptionCid);
-
-       return entities.stream().map(r -> {
-            return ProductReleaseGetDto.toDto(r);
-        }).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductRelease 데이터를 모두 조회한다.
-     * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * ProductRelease 데이터를 모두 조회한다. 해당 ProductRelease와 연관관계에 놓여있는 Many To One
+     * JOIN(m2oj) 상태를 조회한다.
      *
      * @return List::ProductReleaseJoinResDto::
      * @see ProductReleaseService#searchListM2OJ
@@ -105,61 +103,58 @@ public class ProductReleaseBusinessService {
      */
     public List<ProductReleaseJoinResDto> searchListM2OJ() {
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-
-        return releaseProjs.stream().map(r -> ProductReleaseJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseJoinResDto> resDtos = releaseProjs.stream().map(r -> ProductReleaseJoinResDto.toDto(r)).collect(Collectors.toList());
+        return resDtos;
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * ProductRelease 내용을 한개 등록한다.
-     * 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
+     * ProductRelease 내용을 한개 등록한다. 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
      * 
      * @param productReleaseGetDto : ProductReleaseGetDto
-     * @param userId : UUID
+     * @param userId               : UUID
      * @see ProductReleaseService#createPL
-     * @see ProductOptionService#updateReleaseProductUnit
      * @see ProductReleaseGetDto#toDto
+     * @see ProductOptionService#updateReleaseProductUnit
      */
     public ProductReleaseGetDto createPL(ProductReleaseGetDto productReleaseGetDto, UUID userId) {
-        productReleaseGetDto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
+        productReleaseGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
 
         // ProductRelease 데이터 생성
         ProductReleaseEntity entity = productReleaseService.createPL(ProductReleaseEntity.toEntity(productReleaseGetDto));
-
+        ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
+        
         // ProductOption 재고 반영
         productOptionService.updateReleaseProductUnit(entity.getProductOptionCid(), userId, entity.getReleaseUnit());
-
-        return ProductReleaseGetDto.toDto(entity);
+        
+        return dto;
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * ProductRelease 내용을 여러개 등록한다.
-     * 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
+     * ProductRelease 내용을 여러개 등록한다. 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
      * 
      * @param productReleaseGetDto : List::ProductReleaseGetDto::
-     * @param userId : UUID
+     * @param userId               : UUID
      * @see ProductReleaseService#createPLList
      * @see ProductOptionService#updateReleaseProductUnit
      * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> createPLList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
-
         List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
-            r.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId);
-
+            r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
             return ProductReleaseEntity.toEntity(r);
         }).collect(Collectors.toList());
 
         // ProductRelease 데이터 생성
         List<ProductReleaseEntity> entities = productReleaseService.createPLList(convertedEntities);
-
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReleaseProductUnit(r.getProductOptionCid(), userId, r.getReleaseUnit()); });
 
-        return entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -168,7 +163,7 @@ public class ProductReleaseBusinessService {
      * ProductRelease cid 값과 상응되는 데이터를 삭제한다.
      * 
      * @param productReleaseCid : Integer
-     * @param userId : UUID
+     * @param userId            : UUID
      * @see ProductReleaseService#destroyOne
      */
     public void destroyOne(Integer productReleaseCid, UUID userId) {
@@ -178,11 +173,10 @@ public class ProductReleaseBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * 단일 ProductRelease cid 값과 상응되는 데이터를 업데이트한다.
-     * ProductOption 의 재고수량을 변경한다.
+     * 단일 ProductRelease cid 값과 상응되는 데이터를 업데이트한다. ProductOption 의 재고수량을 변경한다.
      * 
      * @param releaseDto : ProductReleaseGetDto
-     * @param userId : UUID
+     * @param userId     : UUID
      * @see ProductReleaseService#searchOne
      * @see ProductReleaseService#createPL
      * @see ProductOptionService#updateReleaseProductUnit
@@ -190,10 +184,9 @@ public class ProductReleaseBusinessService {
     public void changeOne(ProductReleaseGetDto releaseDto, UUID userId) {
         // 출고 데이터 조회
         ProductReleaseEntity entity = productReleaseService.searchOne(releaseDto.getCid());
-        
-        // 변경된 출고수량
-        int changedReleaseUnit = releaseDto.getReleaseUnit() - entity.getReleaseUnit(); 
 
+        // 변경된 출고수량
+        int changedReleaseUnit = releaseDto.getReleaseUnit() - entity.getReleaseUnit();
         // 변경된 출고 데이터
         entity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
         productReleaseService.createPL(entity);
@@ -205,11 +198,10 @@ public class ProductReleaseBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * 다중 ProductRelease cid 값과 상응되는 데이터를 업데이트한다.
-     * ProductOption 의 재고수량을 변경한다.
+     * 다중 ProductRelease cid 값과 상응되는 데이터를 업데이트한다. ProductOption 의 재고수량을 변경한다.
      * 
      * @param releaseDtos : List::roductReleaseGetDto::
-     * @param userId : UUID
+     * @param userId      : UUID
      * @see ProductReleaseBusinessService#changeOne
      */
     public void changeList(List<ProductReleaseGetDto> releaseDtos, UUID userId) {
@@ -222,7 +214,7 @@ public class ProductReleaseBusinessService {
      * ProductRelease cid 값과 상응되는 데이터의 일부분을 업데이트한다.
      * 
      * @param releaseDto : ProductReleaseGetDto
-     * @param userId : UUID
+     * @param userId     : UUID
      * @see ProductReleaseService#searchOne
      * @see ProductOptionService#releaseProductUnit
      * @see ProductReleaseService#createPL
@@ -232,18 +224,16 @@ public class ProductReleaseBusinessService {
         ProductReleaseEntity releaseEntity = productReleaseService.searchOne(releaseDto.getCid());
 
         if (releaseDto.getReleaseUnit() != null) {
-
             int storedReleaseUnit = releaseEntity.getReleaseUnit();
 
             // 변경된 출고 데이터
             releaseEntity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
-
             productReleaseService.createPL(releaseEntity);
-
             productOptionService.updateReleaseProductUnit(releaseEntity.getProductOptionCid(), userId, releaseEntity.getReleaseUnit() - storedReleaseUnit);
         }
         if (releaseDto.getMemo() != null) {
             releaseEntity.setMemo(releaseDto.getMemo());
+            productReleaseService.createPL(releaseEntity);
         }
     }
 }

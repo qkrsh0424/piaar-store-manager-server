@@ -27,7 +27,7 @@ public class ProductCategoryBusinessService {
      */
     public List<ProductCategoryGetDto> searchList(){
         List<ProductCategoryEntity> productCategoryEntities = productCategoryService.searchList();
-
-        return productCategoryEntities.stream().map(r -> ProductCategoryGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductCategoryGetDto> productCategoryGetDtos = productCategoryEntities.stream().map(r -> ProductCategoryGetDto.toDto(r)).collect(Collectors.toList());
+        return productCategoryGetDtos;
     }
 }

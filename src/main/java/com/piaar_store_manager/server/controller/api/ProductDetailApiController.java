@@ -2,7 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
-import com.piaar_store_manager.server.service.product_detail.ProductDetailService;
+import com.piaar_store_manager.server.service.product_detail.ProductDetailBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-detail")
 public class ProductDetailApiController {
-    
-    @Autowired
-    private ProductDetailService productDetailService;
+    private ProductDetailBusinessService productDetailBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductDetailApiController(
+        ProductDetailBusinessService productDetailBusinessService,
+        UserService userService
+    ) {
+        this.productDetailBusinessService = productDetailBusinessService;
+        this.userService = userService;
+    }
+
+
 
     /**
      * Search one api for product.
@@ -37,7 +44,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#searchOne
+     * @see ProductDetailBusinessService#searchOne
      */
     @GetMapping("/one/{detailCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "detailCid") Integer detailCid) {
@@ -49,7 +56,7 @@ public class ProductDetailApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productDetailService.searchOne(detailCid));
+                message.setData(productDetailBusinessService.searchOne(detailCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -69,7 +76,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#searchList
+     * @see ProductDetailBusinessService#searchList
      */
     @GetMapping("/list/{optionCid}")
     public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "optionCid") Integer optionCid) {
@@ -81,7 +88,7 @@ public class ProductDetailApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productDetailService.searchList(optionCid));
+                message.setData(productDetailBusinessService.searchList(optionCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -102,7 +109,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#createOne
+     * @see ProductDetailBusinessService#createOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -113,7 +120,7 @@ public class ProductDetailApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productDetailService.createOne(productDetailGetDto, userService.getUserId());
+                productDetailBusinessService.createOne(productDetailGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -136,7 +143,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#destroyOne
+     * @see ProductDetailBusinessService#destroyOne
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{detailCid}")
@@ -146,7 +153,7 @@ public class ProductDetailApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productDetailService.destroyOne(detailCid);
+                productDetailBusinessService.destroyOne(detailCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -169,7 +176,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#changeOne
+     * @see ProductDetailBusinessService#changeOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -180,7 +187,7 @@ public class ProductDetailApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productDetailService.changeOne(productDetailGetDto, userService.getUserId());
+                productDetailBusinessService.changeOne(productDetailGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -203,7 +210,7 @@ public class ProductDetailApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductDetailService#patchOne
+     * @see ProductDetailBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -214,7 +221,7 @@ public class ProductDetailApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productDetailService.patchOne(productDetailGetDto, userService.getUserId());
+                productDetailBusinessService.patchOne(productDetailGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

@@ -14,12 +14,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductReleaseService {
-
-    @Autowired
     private ProductReleaseRepository productReleaseRepository;
+    private ProductOptionService productOptionService;
 
     @Autowired
-    private ProductOptionService productOptionService;
+    public ProductReleaseService(
+        ProductReleaseRepository productReleaseRepository,
+        ProductOptionService productOptionService
+    ) {
+        this.productReleaseRepository = productReleaseRepository;
+        this.productOptionService = productOptionService;
+    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -32,15 +37,12 @@ public class ProductReleaseService {
      */
     public ProductReleaseEntity searchOne(Integer productReleaseCid) {
         Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findById(productReleaseCid);
-        ProductReleaseEntity entity = new ProductReleaseEntity();
 
         if (releaseEntityOpt.isPresent()) {
-            entity = releaseEntityOpt.get();
+            return releaseEntityOpt.get();
         } else {
             throw new NullPointerException();
         }
-
-        return entity;
     }
 
 
@@ -76,9 +78,7 @@ public class ProductReleaseService {
      * @see ProductReleaseRepository#findByProductOptionCid
      */
     public List<ProductReleaseEntity> searchListByOptionCid(Integer productOptionCid) {
-        List<ProductReleaseEntity> productEntities = productReleaseRepository.findByProductOptionCid(productOptionCid);
-
-        return productEntities;
+        return productReleaseRepository.findByProductOptionCid(productOptionCid);
     }
 
     /**
@@ -91,9 +91,7 @@ public class ProductReleaseService {
      * @see ProductReleaseRepository#selectAllByCid
      */
     public List<ProductReleaseEntity> searchListByCid(List<Integer> cids) {
-        List<ProductReleaseEntity> entities = productReleaseRepository.selectAllByCid(cids);
-
-        return entities;
+        return productReleaseRepository.selectAllByCid(cids);
     }
 
     /**
@@ -142,13 +140,12 @@ public class ProductReleaseService {
      * @param productReleaseCid : Integer
      * @param userId : UUID
      * @see ProductReleaseRepository#findById
-     * @see ProductOptionService#releaseProductUnit
+     * @see ProductOptionService#updateReceiveProductUnit
      * @see ProductReleaseRepository#delete
      */
     public void destroyOne(Integer productReleaseCid, UUID userId) {
         productReleaseRepository.findById(productReleaseCid).ifPresent(product -> {
             productOptionService.updateReceiveProductUnit(product.getProductOptionCid(), userId, product.getReleaseUnit());
-
             productReleaseRepository.delete(product);
         });
     }
