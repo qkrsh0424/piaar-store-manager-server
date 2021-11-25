@@ -232,12 +232,12 @@ public class ProductReceiveBusinessService {
             int storedReceiveUnit = receiveEntity.getReceiveUnit();
             // 변경된 입고 데이터
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-            productReceiveService.createPR(receiveEntity);
             productOptionService.updateReceiveProductUnit(receiveEntity.getProductOptionCid(), userId, receiveEntity.getReceiveUnit() - storedReceiveUnit);
         }
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());
-            productReceiveService.createPR(receiveEntity);
         }
+        productReceiveService.createPR(receiveEntity);
+
     }
 }

@@ -15,6 +15,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer> {
 
+    /**
+     * 단일 ProductOption cid에 대응하는 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 조회한다.
+     * 
+     * @param cid : Integer
+     * @return ProductOptionProj
+     */
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
@@ -25,26 +31,54 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     Optional<ProductOptionProj> selectByCid(Integer cid);
 
     // FIX : Added "ORDER BY" query for product_option.created_at ASC
+    /**
+     * 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 모두 조회한다.
+     * 
+     * @return List::ProductOptionProj::
+     */
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
         "JOIN UserEntity u ON po.createdBy = u.id\n"+
         "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
         "ORDER BY po.createdAt ASC"
-
     )
     List<ProductOptionProj> selectAll();
 
+    /**
+     * ProductOption 데이터의 code에 대응하는 옵션데이터를 조회한다.
+     * 
+     * @param code : String
+     * @return Optional::ProductOptionEntity::
+     */
     Optional<ProductOptionEntity> findByCode(String code);
 
+    /**
+     * ProductOption 데이터의 code에 대응하는 옵션데이터의 cid를 조회한다.
+     * 
+     * @param cod : String
+     * @return Integer
+     */
     @Query(
         "SELECT po.cid FROM ProductOptionEntity po\n" +
         "WHERE po.code=:code"
     )
     Integer findCidByCode(String code);
 
+    /**
+     * Product cid에 대응하는 상품옵션 데이터를 조회한다.
+     * 
+     * @param productCid : Integer
+     * @return List::ProductOptionEntity::
+     */
     List<ProductOptionEntity> findByProductCid(Integer productCid);
 
+    /**
+     * 다중 Product cid에 대응하는 상품옵션 데이터를 모두 조회한다.
+     * 
+     * @param productCids : List::Integer::
+     * @return List::ProductOptionEntity::
+     */
     @Query(
         "SELECT po FROM ProductOptionEntity po\n" +
         "WHERE po.productCid IN :productCids"
@@ -52,8 +86,9 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     List<ProductOptionEntity> selectAllByProductCids(List<Integer> productCids);
 
     /**
-     * The sum of the number of receive unit and the number of release unit of product options.
-     * Change the value of the ProductOptionGetDto to the returned value.
+     * 다중 ProductOption cid에 대응하는 옵션데이터의 재고수량을 계산한다.
+     * option cid값에 대응하는 입고데이터의 모든 수량합을 조회한다.
+     * option cid값에 대응하는 출고데이터의 모든 수량합을 조회한다.
      * 
      * @param optionCids : List::Integer::
      * @return po.cid, sum(receive_unit), sum(release_unit)

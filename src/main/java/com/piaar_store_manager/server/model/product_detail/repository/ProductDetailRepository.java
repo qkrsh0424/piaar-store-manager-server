@@ -9,5 +9,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductDetailRepository extends JpaRepository<ProductDetailEntity, Integer> {
+    
+    /**
+     * ProductOption cid에 대응하는 상품 상세 데이터를 조회한다.
+     * 
+     * @param productOptionCid : Integer
+     * @return List::ProductDetailEntity::
+     */
     List<ProductDetailEntity> findByProductOptionCid(Integer productOptionCid);
 }

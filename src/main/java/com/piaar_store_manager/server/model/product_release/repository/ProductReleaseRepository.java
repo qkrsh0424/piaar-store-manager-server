@@ -14,7 +14,7 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
     /**
      * ProductRelease cid에 대응하는 출고데이터의 M2OJ 관계인(상품, 상품옵션, 카테고리, 출고, 유저) 데이터를 조회한다.
      * 
-     * @param cid
+     * @param cid : Integer
      * @return ProductReleaseProj
      */
     @Query(
@@ -44,7 +44,7 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
     /**
      * ProductRelease cid값에 대응하는 출고데이터를 조회한다.
      * 
-     * @param cids
+     * @param cids : List::Integer::
      * @return List::ProductReleaseEntity
      */
     @Query(
@@ -61,16 +61,4 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
      * @return List::ProductReleaseEntity::
      */
     List<ProductReleaseEntity> findByProductOptionCid(Integer productOptionCid);
-
-    /**
-     * productOpiton cid값에 대응하는 ProductRelease 출고데이터의 출고수량을 합하여 반환한다.
-     * 
-     * @param productOptionCid : Integer
-     * @return Integer
-     */
-    // TODO :: ProductOption 리팩토링하면서 삭제
-    @Query(
-        "SELECT sum(pl.releaseUnit) FROM ProductReleaseEntity pl WHERE pl.productOptionCid=:productOptionCid"
-    )
-    Integer sumByProductOptionCid(Integer productOptionCid);
 }

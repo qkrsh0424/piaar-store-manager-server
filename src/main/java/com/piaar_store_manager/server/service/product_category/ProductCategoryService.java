@@ -9,9 +9,14 @@ import java.util.List;
 
 @Service
 public class ProductCategoryService {
+    private ProductCategoryRepository productCategoryRepository;
 
     @Autowired
-    private ProductCategoryRepository productCategoryRepository;
+    public ProductCategoryService(
+        ProductCategoryRepository productCategoryRepository
+    ) {
+        this.productCategoryRepository = productCategoryRepository;
+    }
 
     /**
      * <b>DB Select Related Method</b>

@@ -228,12 +228,11 @@ public class ProductReleaseBusinessService {
 
             // 변경된 출고 데이터
             releaseEntity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
-            productReleaseService.createPL(releaseEntity);
             productOptionService.updateReleaseProductUnit(releaseEntity.getProductOptionCid(), userId, releaseEntity.getReleaseUnit() - storedReleaseUnit);
         }
         if (releaseDto.getMemo() != null) {
             releaseEntity.setMemo(releaseDto.getMemo());
-            productReleaseService.createPL(releaseEntity);
         }
+        productReleaseService.createPL(releaseEntity);
     }
 }

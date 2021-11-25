@@ -11,9 +11,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProductCategoryBusinessService {
-    
-    @Autowired
     private ProductCategoryService productCategoryService;
+
+    @Autowired
+    public ProductCategoryBusinessService(
+        ProductCategoryService productCategoryService
+    ) {
+        this.productCategoryService = productCategoryService;
+    }
 
     /**
      * <b>DB Select Related Method</b>

@@ -2,11 +2,23 @@ package com.piaar_store_manager.server.model.product_option.dto;
 
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import lombok.Data;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@Data
+@Getter
+@Setter
+@ToString
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class ProductOptionJoinResDto {
     ProductGetDto product;
@@ -14,5 +26,15 @@ public class ProductOptionJoinResDto {
     UserGetDto user;
     ProductOptionGetDto option;
 
-    public ProductOptionJoinResDto(){}
+    public static ProductOptionJoinResDto toDto(ProductOptionProj proj){
+        ProductOptionJoinResDto dto = ProductOptionJoinResDto.builder()
+            .product(ProductGetDto.toDto(proj.getProduct()))
+            .category(ProductCategoryGetDto.toDto(proj.getCategory()))
+            .user(UserGetDto.toDto(proj.getUser()))
+            .option(ProductOptionGetDto.toDto(proj.getProductOption()))
+            .build()
+        ;
+
+        return dto;
+    }
 }

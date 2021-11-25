@@ -4,7 +4,6 @@ import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.service.product.ProductBusinessService;
-import com.piaar_store_manager.server.service.product.ProductService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,15 +15,17 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/product")
 public class ProductApiController {
-
-    @Autowired
-    private ProductService productService;
-
-    @Autowired
     private ProductBusinessService productBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductApiController(
+        ProductBusinessService productBusinessService,
+        UserService userService
+    ) {
+        this.productBusinessService = productBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Search one api for product.
@@ -35,7 +36,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOne
+     * @see UserService#isUserLogin
+     * @see ProductBusinessService#searchOne
      */
     @GetMapping("/one/{productCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productCid") Integer productCid) {
@@ -47,7 +49,7 @@ public class ProductApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productService.searchOne(productCid));
+                message.setData(productBusinessService.searchOne(productCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -71,7 +73,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOneM2OJ
+     * @see UserService#isUserLogin
+     * @see ProductBusinessService#searchOneM2OJ
      */
     @GetMapping("/one-m2oj/{productCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
@@ -83,7 +86,7 @@ public class ProductApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productService.searchOneM2OJ(productCid));
+                message.setData(productBusinessService.searchOneM2OJ(productCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -107,7 +110,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchOneFJ
+     * @see UserService#isUserLogin
+     * @see ProductBusinessService#searchOneFJ
      */
     @GetMapping("/one-fj/{productCid}")
     public ResponseEntity<?> searchOneFJ(@PathVariable(value = "productCid") Integer productCid) {
@@ -119,7 +123,7 @@ public class ProductApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productService.searchOneFJ(productCid));
+                message.setData(productBusinessService.searchOneFJ(productCid));
                 message.setStatus(HttpStatus.OK);
                  message.setMessage("success");
             } catch (NullPointerException e) {
@@ -139,7 +143,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchList
+     * @see UserServie#isUserLogin
+     * @see ProductBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
@@ -150,7 +155,7 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productService.searchList());
+            message.setData(productBusinessService.searchList());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -166,7 +171,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchList
+     * @see UserServie#isUserLogin
+     * @see productBusinessService#searchListByCategory
      */
     @GetMapping("/list/{categoryCid}")
     public ResponseEntity<?> searchListByCategory(@PathVariable(value = "categoryCid") Integer categoryCid) {
@@ -177,7 +183,7 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productService.searchListByCategory(categoryCid));
+            message.setData(productBusinessService.searchListByCategory(categoryCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -193,7 +199,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchListM2OJ
+     * @see UserService#isUserLogin
+     * @see ProductBusinessService#searchListM2OJ
      */
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
@@ -204,7 +211,7 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productService.searchListM2OJ());
+            message.setData(productBusinessService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -220,7 +227,35 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#searchListFJ
+     * @see UserService#isUserLogin
+     * @see ProductBusinessService#searchListFJ
+     */
+    @GetMapping("/list-fj")
+    public ResponseEntity<?> searchListFJ() {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productBusinessService.searchListFJ());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api for product.
+     * <p>
+     * <b>GET : API URL => /api/v1/product/list-fj</b>
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see ProductBusinessService#searchListFJ
      */
     @GetMapping("/list-fj/stock")
     public ResponseEntity<?> searchStockListFJ() {
@@ -231,24 +266,7 @@ public class ProductApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productService.searchStockListFJ());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        }
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/list-fj")
-    public ResponseEntity<?> searchListFJ() {
-        Message message = new Message();
-
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            message.setData(productService.searchListFJ());
+            message.setData(productBusinessService.searchStockListFJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -265,7 +283,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#createPAO
+     * @see ProductBusinessService#createPAO
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -333,7 +351,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#destroyOne
+     * @see UserService#isSuperAdmin
+     * @see ProductBusinessService#destroyOne
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productId}")
@@ -343,7 +362,7 @@ public class ProductApiController {
         // 유저의 권한을 체크한다.
         if (userService.isSuperAdmin()) {
             try{
-                productService.destroyOne(productId);
+                productBusinessService.destroyOne(productId);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -366,7 +385,8 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#changeOne
+     * @see UserService#isManager
+     * @see ProductBusinessService#changeOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -377,7 +397,7 @@ public class ProductApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productService.changeOne(productGetDto, userService.getUserId());
+                productBusinessService.changeOne(productGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -400,7 +420,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#changePAOList
+     * @see ProductBusinessService#changePAOList
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -411,7 +431,7 @@ public class ProductApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productService.changePAOList(productCreateReqDto, userService.getUserId());
+                productBusinessService.changePAOList(productCreateReqDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -434,7 +454,7 @@ public class ProductApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductService#patchOne
+     * @see ProductBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -445,7 +465,7 @@ public class ProductApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productService.patchOne(productGetDto, userService.getUserId());
+                productBusinessService.patchOne(productGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

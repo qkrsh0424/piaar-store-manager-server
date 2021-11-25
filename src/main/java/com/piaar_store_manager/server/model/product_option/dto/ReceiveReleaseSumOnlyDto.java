@@ -14,7 +14,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReceiveReleaseSumOnlyDto {
-    private Integer optionCid;
-    private Integer receivedSum;
-    private Integer releasedSum;
+    private Integer optionCid;      // ProductOption cid
+    private Integer receivedSum;        // option cid에 대응하는 입고데이터의 수량합
+    private Integer releasedSum;        // option cid에 대응하는 출고데이터의 수량합
 }

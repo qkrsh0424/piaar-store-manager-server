@@ -3,7 +3,6 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionBusinessService;
-import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,25 +12,28 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/product-option")
 public class ProductOptionApiController {
-
-    @Autowired
-    private ProductOptionService productOptionService;
-
-    @Autowired
     private ProductOptionBusinessService productOptionBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductOptionApiController(
+        ProductOptionBusinessService productOptionBusinessService,
+        UserService userService
+    ) {
+        this.productOptionBusinessService = productOptionBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Search one api for productOption.
      * <p>
      * <b>GET : API URL => /api/v1/product-option/one/{productOptionCid}</b>
      *
+     * @param productOptionCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchOne
+     * @see productOptionBusinessService#searchOne
      */
     @GetMapping("/one/{productOptionCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid){
@@ -43,7 +45,7 @@ public class ProductOptionApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productOptionService.searchOne(productOptionCid));
+                message.setData(productOptionBusinessService.searchOne(productOptionCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -63,11 +65,11 @@ public class ProductOptionApiController {
      * ProductOption cid 값과 상응되는 데이터를 조회한다.
      * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
-     * @param productOptionCid
+     * @param productOptionCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchOneM2OJ
+     * @see productOptionBusinessService#searchOneM2OJ
      */
     @GetMapping("/one-m2oj/{productOptionCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
@@ -79,7 +81,7 @@ public class ProductOptionApiController {
             message.setMemo("need login");
         } else{
             try {
-                message.setData(productOptionService.searchOneM2OJ(productOptionCid));
+                message.setData(productOptionBusinessService.searchOneM2OJ(productOptionCid));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -99,7 +101,7 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchList
+     * @see productOptionBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
@@ -110,7 +112,7 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productOptionService.searchList());
+            message.setData(productOptionBusinessService.searchList());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -126,7 +128,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchList
+     * @see UserService#isUserLogin
+     * @see productOptionBusinessService#searchListByProduct
      */
     @GetMapping("/list/{productCid}")
     public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid){
@@ -137,7 +140,7 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productOptionService.searchListByProduct(productCid));
+            message.setData(productOptionBusinessService.searchListByProduct(productCid));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -156,7 +159,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchListM2OJ
+     * @see UserService#isUserLogin
+     * @see productOptionBusinessService#searchListM2OJ
      */
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
@@ -167,7 +171,7 @@ public class ProductOptionApiController {
             message.setMessage("need_login");
             message.setMemo("need login");
         } else{
-            message.setData(productOptionService.searchListM2OJ());
+            message.setData(productOptionBusinessService.searchListM2OJ());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         }
@@ -186,24 +190,25 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#searchListM2OJ
+     * @see UserService#isUserLogin
+     * @see productOptionBusinessService#searchStockStatus
      */
-    // @GetMapping("/stock/status/{optionCid}")
-    // public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
-    //     Message message = new Message();
+    @GetMapping("/stock/status/{optionCid}")
+    public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
+        Message message = new Message();
 
-    //     if (!userService.isUserLogin()) {
-    //         message.setStatus(HttpStatus.FORBIDDEN);
-    //         message.setMessage("need_login");
-    //         message.setMemo("need login");
-    //     } else{
-    //         message.setData(productOptionBusinessService.searchStockStatus(optionCid));
-    //         message.setStatus(HttpStatus.OK);
-    //         message.setMessage("success");
-    //     }
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productOptionBusinessService.searchStockStatus(optionCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 
     /**
      * Create one api for productOption.
@@ -214,7 +219,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#createOne
+     * @see UserService#isManager
+     * @see productOptionBusinessService#createOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -225,7 +231,7 @@ public class ProductOptionApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productOptionService.createOne(productOptionGetDto, userService.getUserId());
+                productOptionBusinessService.createOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -250,7 +256,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#destroyOne
+     * @see UserService#isSuperAdmin
+     * @see productOptionBusinessService#destroyOne
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productOptionCid}")
@@ -260,7 +267,7 @@ public class ProductOptionApiController {
         // 유저의 권한을 체크한다.
         if (userService.isSuperAdmin()) {
             try{
-                productOptionService.destroyOne(productOptionCid);
+                productOptionBusinessService.destroyOne(productOptionCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -283,7 +290,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#patchOne
+     * @see UserService#isManager
+     * @see productOptionBusinessService#changeOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -294,7 +302,7 @@ public class ProductOptionApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productOptionService.changeOne(productOptionGetDto, userService.getUserId());
+                productOptionBusinessService.changeOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -309,7 +317,7 @@ public class ProductOptionApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) one api for productOption
+     * Patch one api for productOption
      * <p>
      * <b>PATCH : API URL => /api/v1/product-option/one</b>
      *
@@ -317,7 +325,8 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see ProductOptionService#patchOne
+     * @see UserService#isManager
+     * @see productOptionBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -328,7 +337,7 @@ public class ProductOptionApiController {
         //유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productOptionService.patchOne(productOptionGetDto, userService.getUserId());
+                productOptionBusinessService.patchOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

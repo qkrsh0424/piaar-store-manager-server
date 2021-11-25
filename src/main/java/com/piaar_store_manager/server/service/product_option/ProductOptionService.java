@@ -1,23 +1,15 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
 import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
-import com.piaar_store_manager.server.model.product_receive.repository.ProductReceiveRepository;
-import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
-import com.piaar_store_manager.server.model.user.dto.UserGetDto;
-import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,21 +19,14 @@ import javax.persistence.Tuple;
 
 @Service
 public class ProductOptionService {
-
-    @Autowired
     private ProductOptionRepository productOptionRepository;
 
     @Autowired
-    private ProductReceiveRepository productReceiveRepository;
-
-    @Autowired
-    private ProductReleaseRepository productReleaseRepository;
-
-    @Autowired
-    private DateHandler dateHandler;
-
-    @Autowired
-    private UserService userService;
+    public ProductOptionService(
+        ProductOptionRepository productOptionRepository
+    ) {
+        this.productOptionRepository = productOptionRepository;
+    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -49,21 +34,17 @@ public class ProductOptionService {
      * ProductOption cid 값과 상응되는 데이터를 조회한다.
      * 
      * @param productOptionCid : Integer
-     * @return ProductOptionGetDto
+     * @return ProductOptionEntity
      * @see ProductOptionRepository#findById
-     * @see ProductOptionGetDto#toDto
      */
-    public ProductOptionGetDto searchOne(Integer productOptionCid) {
+    public ProductOptionEntity searchOne(Integer productOptionCid) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
-        ProductOptionGetDto productOptionDto = new ProductOptionGetDto();
 
         if (productOptionEntityOpt.isPresent()) {
-            productOptionDto = ProductOptionGetDto.toDto(productOptionEntityOpt.get());
+            return productOptionEntityOpt.get();
         } else {
             throw new NullPointerException();
         }
-
-        return productOptionDto;
     }
 
     /**
@@ -73,30 +54,17 @@ public class ProductOptionService {
      * 해당 ProductOption와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
      * @param productOptionCid : Integer
-     * @return ProductOptionJoinResDto
+     * @return ProductOptionProj
      * @see ProductOptionRepository#selectByCid
-     * @see ProductGetDto#toDto
-     * @see UserService#getDtoByEntity
-     * @see ProductCategoryGetDto#toDto
-     * @see ProductOptionGetDto#toDto
      */
-    public ProductOptionJoinResDto searchOneM2OJ(Integer productOptionCid) {
-        ProductOptionJoinResDto productOptionResDto = new ProductOptionJoinResDto();
-
+    public ProductOptionProj searchOneM2OJ(Integer productOptionCid) {
         Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.selectByCid(productOptionCid);
 
-        if (productOptionProjOpt.isPresent()) {
-            ProductGetDto productGetDto = ProductGetDto.toDto(productOptionProjOpt.get().getProduct());
-            UserGetDto userGetDto = userService.getDtoByEntity(productOptionProjOpt.get().getUser());
-            ProductCategoryGetDto categoryGetDto = ProductCategoryGetDto.toDto(productOptionProjOpt.get().getCategory());
-            ProductOptionGetDto productOptionGetDto = ProductOptionGetDto.toDto(productOptionProjOpt.get().getProductOption());
-
-            productOptionResDto.setProduct(productGetDto).setUser(userGetDto).setCategory(categoryGetDto)
-                    .setOption(productOptionGetDto);
+        if(productOptionProjOpt.isPresent()) {
+            return productOptionProjOpt.get();
         } else {
             throw new NullPointerException();
         }
-        return productOptionResDto;
     }
 
     /**
@@ -104,50 +72,12 @@ public class ProductOptionService {
      * <p>
      * ProductOption 데이터를 모두 조회한다.
      *
-     * @return List::ProductOptionGetDto::
+     * @return List::ProductOptionEntity::
      * @see ProductOptionRepository#findAll
-     * @see ProductOptionGetDto#toDto
      */
-    public List<ProductOptionGetDto> searchList() {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAll();
-        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
-
-        for (ProductOptionEntity optionEntity : productOptionEntities) {
-            productOptionDto.add(ProductOptionGetDto.toDto(optionEntity));
-        }
-        return productOptionDto;
+    public List<ProductOptionEntity> searchList() {
+        return productOptionRepository.findAll();
     }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductOption 데이터를 모두 조회한다.
-     *
-     * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#findAll
-     * @see ProductOptionGetDto#toDto
-     */
-    public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
-        List<ProductOptionGetDto> productOptionDto = new ArrayList<>();
-        
-        // TODO : ReceiveReleaseSumOnlyDto 사용
-        for (ProductOptionEntity optionEntity : productOptionEntities) {
-            ProductOptionGetDto dto = ProductOptionGetDto.toDto(optionEntity);
-            
-            Integer receiveStockUnit = productReceiveRepository.sumByProductOptionCid(optionEntity.getCid());
-            Integer releaseStockUnit = productReleaseRepository.sumByProductOptionCid(optionEntity.getCid());
-
-            if(receiveStockUnit == null) receiveStockUnit = 0;
-            if(releaseStockUnit == null) releaseStockUnit = 0;
-
-            dto.setStockUnit(receiveStockUnit- releaseStockUnit);
-            productOptionDto.add(dto);
-        }
-
-        return productOptionDto;
-    }
-
 
     /**
      * <b>DB Select Related Method</b>
@@ -155,17 +85,75 @@ public class ProductOptionService {
      * ProductOption 데이터를 모두 조회한다.
      * 해당 ProductOption와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
      *
-     * @return List::ProductOptionJoinResDto::
+     * @return List::ProductOptionProj::
      * @see ProductOptionRepository#selectAll
      */
-    public List<ProductOptionJoinResDto> searchListM2OJ() {
-        List<ProductOptionJoinResDto> productOptionJoinResDtos = new ArrayList<>();
-        List<ProductOptionProj> productOptionProjs = productOptionRepository.selectAll();
-        
-        for (ProductOptionProj projOptionOpt : productOptionProjs) {
-            productOptionJoinResDtos.add(this.searchOneM2OJ(projOptionOpt.getProductOption().getCid()));
+    public List<ProductOptionProj> searchListM2OJ() {
+        return productOptionRepository.selectAll();
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * Product Cid에 대응되는 ProductOption 데이터를 모두 조회한다.
+     * ProductOption의 입고수량과 출고수량을 통해 재고수량을 계산한다.
+     *
+     * @return List::ProductOptionGetDto::
+     * @param productCid : Integer
+     * @see ProductOptionRepository#findByProductCid
+     * @see ProductOptionService#searchStockUnit
+     */
+    public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
+        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
+        return productOptionGetDtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * Product Cid들에 대응되는 ProductOption 데이터를 모두 조회한다.
+     * ProductOption의 입고수량과 출고수량을 통해 재고수량을 계산한다.
+     *
+     * @return List::ProductOptionGetDto::
+     * @param productCid : List::Integer::
+     * @see ProductOptionRepository#selectAllByProductCids
+     * @see ProductOptionService#searchStockUnit
+     */
+    public List<ProductOptionGetDto> searchListByProductList(List<Integer> productCids) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.selectAllByProductCids(productCids);
+        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
+        return productOptionGetDtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption의 재고수량을 계산한다.
+     * 입고수량과 출고수량을 이용해 ProductOption의 stockUnit을 세팅한다.
+     * (receivedSumUnit, releasedSumUnit, stockSunUnit을 반환하기 위해 dto사용)
+     *
+     * @return List::ProductOptionGetDto::
+     * @param productCid : Integer
+     * @see ProductOptionRepository#findByProductCid
+     * @see ProductOptionService#searchStockUnit
+     */
+    public List<ProductOptionGetDto> searchStockUnit(List<ProductOptionEntity> entities) {
+        List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
+        List<ProductOptionGetDto> productOptionGetDtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+
+        List<ReceiveReleaseSumOnlyDto> stockUnitByOption = this.sumStockUnit(productOptionCids);
+
+        for(ProductOptionGetDto dto : productOptionGetDtos) {
+            stockUnitByOption.stream().forEach(r -> {
+                if(dto.getCid().equals(r.getOptionCid())){
+                    dto.setReceivedSumUnit(r.getReceivedSum()).setReleasedSumUnit(r.getReleasedSum())
+                        .setStockSumUnit(r.getReceivedSum() - r.getReleasedSum());
+                }
+            });
         }
-        return productOptionJoinResDtos;
+
+        return productOptionGetDtos;
     }
 
     /**
@@ -173,37 +161,23 @@ public class ProductOptionService {
      * <p>
      * ProductOption 내용을 한개 등록한다.
      * 
-     * @param productOptionGetDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @see ProductOptionEntity#toEntity
+     * @param entity : ProductOptionEntity
      * @see ProductOptionRepository#save
      */
-    public void createOne(ProductOptionGetDto dto, UUID userId) {
-        dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
-
-        ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
-        productOptionRepository.save(entity);
+    public ProductOptionEntity createOne(ProductOptionEntity entity) {
+        return productOptionRepository.save(entity);
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * Product에 종속되는 옵션(ProductOption)을 한개 등록한다.
+     * ProductOption 내용을 여러개 등록한다.
      * 
-     * @param productOptionGetDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @param productCid : Integer
-     * @see ProductOptionEntity#toEntity
-     * @see ProductOptionRepository#save
+     * @param entities : List::ProductOptionEntity::
+     * @see ProductOptionRepository#saveAll
      */
-    public ProductOptionEntity createOne(ProductOptionGetDto dto, UUID userId, Integer productCid) {
-        dto.setCreatedAt(dateHandler.getCurrentDate()).setCreatedBy(userId)
-            .setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
-            .setProductCid(productCid);
-
-        ProductOptionEntity entity = ProductOptionEntity.toEntity(dto);
-        return productOptionRepository.save(entity);
+    public List<ProductOptionEntity> createList(List<ProductOptionEntity> entities) {
+        return productOptionRepository.saveAll(entities);
     }
 
     /**
@@ -242,69 +216,8 @@ public class ProductOptionService {
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
                     .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
                     .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
-                    .setUnitKrw(productOptionDto.getUnitKrw()).setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId)
+                    .setUnitKrw(productOptionDto.getUnitKrw()).setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
                     .setProductCid(productOptionDto.getProductCid());
-
-            productOptionRepository.save(productOptionEntity);
-        }, null);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * ProductOption cid 값과 상응되는 데이터의 일부분을 업데이트한다.
-     * 
-     * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @see ProductOptionRepository#findById
-     * @see ProductOptionRepository#save
-     */
-    public void patchOne(ProductOptionGetDto productOptionDto, UUID userId) {
-        productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
-            if (productOptionDto.getCode() != null) {
-                productOptionEntity.setCode(productOptionDto.getCode());
-            }
-            if (productOptionDto.getNosUniqueCode() != null) {
-                productOptionEntity.setNosUniqueCode(productOptionDto.getNosUniqueCode());
-            }
-            if (productOptionDto.getDefaultName() != null) {
-                productOptionEntity.setDefaultName(productOptionDto.getDefaultName());
-            }
-            if (productOptionDto.getManagementName() != null) {
-                productOptionEntity.setManagementName(productOptionDto.getManagementName());
-            }
-            if (productOptionDto.getSalesPrice() != null) {
-                productOptionEntity.setSalesPrice(productOptionDto.getSalesPrice());
-            }
-            if (productOptionDto.getStockUnit() != null) {
-                productOptionEntity.setStockUnit(productOptionDto.getStockUnit());
-            }
-            if (productOptionDto.getStatus() != null) {
-                productOptionEntity.setStatus(productOptionDto.getStatus());
-            }
-            if (productOptionDto.getMemo() != null) {
-                productOptionEntity.setMemo(productOptionDto.getMemo());
-            }
-            if (productOptionDto.getImageUrl() != null) {
-                productOptionEntity.setImageUrl(productOptionDto.getImageUrl());
-            }
-            if (productOptionDto.getImageFileName() != null) {
-                productOptionEntity.setImageFileName(productOptionDto.getImageFileName());
-            }
-            if (productOptionDto.getColor() != null) {
-                productOptionEntity.setColor(productOptionDto.getColor());
-            }
-            if (productOptionDto.getUnitCny() != null) {
-                productOptionEntity.setUnitCny(productOptionDto.getUnitCny());
-            }
-            if (productOptionDto.getUnitKrw() != null) {
-                productOptionEntity.setUnitKrw(productOptionDto.getUnitKrw());
-            }
-            if (productOptionDto.getProductCid() != null) {
-                productOptionEntity.setProductCid(productOptionDto.getProductCid());
-            }
-
-            productOptionEntity.setUpdatedAt(dateHandler.getCurrentDate()).setUpdatedBy(userId);
 
             productOptionRepository.save(productOptionEntity);
         }, null);
@@ -324,7 +237,7 @@ public class ProductOptionService {
     public void updateReceiveProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() + receiveUnit)
-                               .setUpdatedAt(dateHandler.getCurrentDate())
+                               .setUpdatedAt(DateHandler.getCurrentDate2())
                                .setUpdatedBy(userId);
 
             productOptionRepository.save(productOptionEntity);
@@ -345,27 +258,25 @@ public class ProductOptionService {
     public void updateReleaseProductUnit(Integer optionCid, UUID userId, Integer releaseUnit){
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() - releaseUnit)
-                               .setUpdatedAt(dateHandler.getCurrentDate())
+                               .setUpdatedAt(DateHandler.getCurrentDate2())
                                .setUpdatedBy(userId);
 
             productOptionRepository.save(productOptionEntity);
         }, null);
     }
 
-    public List<ProductOptionGetDto> searchListByProductCids(List<Integer> cids){
-        List<ProductOptionEntity> entities = productOptionRepository.selectAllByProductCids(cids);
-
-        return entities.stream().map(r->{
-            ProductOptionGetDto dto = ProductOptionGetDto.toDto(r);
-            return dto;
-        }).collect(Collectors.toList());
-    }
-
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption cid 값과 상응되는 입고데이터와 출고데이터의 합을 모두 조회한다.
+     * 입고데이터와 출고데이터를 이용해 재고수량을 계산한다.
+     * 
+     * @param cids : List::Integer::
+     * @see ProductOptionRepository#sumStockUnitByOption
+     */
     public List<ReceiveReleaseSumOnlyDto> sumStockUnit(List<Integer> cids) {
         List<Tuple> stockUnitTuple = productOptionRepository.sumStockUnitByOption(cids);
-        List<ReceiveReleaseSumOnlyDto> stockUnitByOption = new ArrayList<>();
-
-        stockUnitByOption = stockUnitTuple.stream().map(r -> {
+        List<ReceiveReleaseSumOnlyDto> stockUnitByOption = stockUnitTuple.stream().map(r -> {
             ReceiveReleaseSumOnlyDto dto = ReceiveReleaseSumOnlyDto.builder()
                     .optionCid(r.get("cid", Integer.class))
                     .receivedSum(r.get("receivedSum", BigDecimal.class) != null ? r.get("receivedSum", BigDecimal.class).intValue() : 0)
