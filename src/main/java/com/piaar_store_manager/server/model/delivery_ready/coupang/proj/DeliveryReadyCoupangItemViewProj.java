@@ -13,6 +13,7 @@ public interface DeliveryReadyCoupangItemViewProj {
     String getOptionDefaultName();
     String getOptionManagementName();
     Integer getOptionStockUnit();
+    String getOptionMemo();
     String getProdManagementName();
     String getOptionNosUniqueCode();
 
@@ -25,6 +26,7 @@ public interface DeliveryReadyCoupangItemViewProj {
             .setOptionDefaultName(itemViewProj.getOptionDefaultName())
             .setOptionManagementName(itemViewProj.getOptionManagementName())
             .setOptionStockUnit(itemViewProj.getOptionStockUnit())
+            .setOptionMemo(itemViewProj.getOptionMemo())
             .setOptionNosUniqueCode(itemViewProj.getOptionNosUniqueCode());
 
         return dto;

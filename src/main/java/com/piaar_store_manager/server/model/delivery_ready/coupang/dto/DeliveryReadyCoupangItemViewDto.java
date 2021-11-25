@@ -10,6 +10,7 @@ public class DeliveryReadyCoupangItemViewDto {
     private String optionDefaultName;
     private String optionManagementName;
     private Integer optionStockUnit;
+    private String optionMemo;
     private String sender;
     private String senderContact1;
     private String optionNosUniqueCode;

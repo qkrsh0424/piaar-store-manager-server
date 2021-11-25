@@ -12,6 +12,7 @@ public class DeliveryReadyCoupangItemViewResDto {
     String optionDefaultName;
     String optionManagementName;
     Integer optionStockUnit;
+    String optionMemo;
     String sender;
     String senderContact1;
     String optionNosUniqueCode;
