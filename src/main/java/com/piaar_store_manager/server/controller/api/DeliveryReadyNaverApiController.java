@@ -19,7 +19,6 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverBusinessService;
-import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -47,15 +46,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/delivery-ready/naver")
 public class DeliveryReadyNaverApiController {
-    
-    @Autowired
-    private DeliveryReadyNaverService deliveryReadyNaverService;
-
-    @Autowired
     private DeliveryReadyNaverBusinessService deliveryReadyNaverBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public DeliveryReadyNaverApiController(
+        DeliveryReadyNaverBusinessService deliveryReadyNaverBusinessService,
+        UserService userService
+    ) {
+        this.deliveryReadyNaverBusinessService = deliveryReadyNaverBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Upload excel data for delivery ready.
@@ -69,8 +70,8 @@ public class DeliveryReadyNaverApiController {
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#isExcelFile
-     * @see DeliveryReadyNaverService#uploadDeliveryReadyExcelFile
+     * @see DeliveryReadyNaverBusinessService#isExcelFile
+     * @see DeliveryReadyNaverBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
     @PostMapping("/upload")
@@ -83,10 +84,10 @@ public class DeliveryReadyNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyNaverService.isExcelFile(file);
+            deliveryReadyNaverBusinessService.isExcelFile(file);
 
             try{
-                message.setData(deliveryReadyNaverService.uploadDeliveryReadyExcelFile(file));
+                message.setData(deliveryReadyNaverBusinessService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -110,8 +111,8 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#isExcelFile
-     * @see DeliveryReadyNaverService#storeDeliveryReadyExcelFile
+     * @see DeliveryReadyNaverBusinessService#isExcelFile
+     * @see DeliveryReadyNaverBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -122,9 +123,9 @@ public class DeliveryReadyNaverApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyNaverService.isExcelFile(file);
+            deliveryReadyNaverBusinessService.isExcelFile(file);
 
-            message.setData(deliveryReadyNaverService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setData(deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -142,7 +143,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#getDeliveryReadyViewUnreleasedData
+     * @see DeliveryReadyNaverBusinessService#getDeliveryReadyViewUnreleasedData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -152,7 +153,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyNaverService.getDeliveryReadyViewUnreleasedData());
+            message.setData(deliveryReadyNaverBusinessService.getDeliveryReadyViewUnreleasedData());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -172,7 +173,7 @@ public class DeliveryReadyNaverApiController {
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#getDeliveryReadyViewReleased
+     * @see DeliveryReadyNaverBusinessService#getDeliveryReadyViewReleased
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -182,7 +183,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyNaverService.getDeliveryReadyViewReleased(query));
+            message.setData(deliveryReadyNaverBusinessService.getDeliveryReadyViewReleased(query));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -201,7 +202,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#deleteOneDeliveryReadyViewData
+     * @see deliveryReadyNaverBusinessService#deleteOneDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -211,7 +212,7 @@ public class DeliveryReadyNaverApiController {
 
         if (userService.isManager()) {
             try{
-                deliveryReadyNaverService.deleteOneDeliveryReadyViewData(itemCid);
+                deliveryReadyNaverBusinessService.deleteOneDeliveryReadyViewData(itemCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -235,7 +236,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#deleteListDeliveryReadyViewData
+     * @see deliveryReadyNaverBusinessService#deleteListDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -245,7 +246,7 @@ public class DeliveryReadyNaverApiController {
 
         if (userService.isManager()) {
             try{
-                deliveryReadyNaverService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
+                deliveryReadyNaverBusinessService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -269,7 +270,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#updateReleasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -280,7 +281,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
+                deliveryReadyNaverBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -304,7 +305,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#updateListReleasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateListToUnreleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -315,7 +316,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyNaverItemDtos);
+                deliveryReadyNaverBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyNaverItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -339,7 +340,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateListToReleaseDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -350,7 +351,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
+                deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -373,7 +374,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverService#searchDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyNaverBusinessService#searchDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -383,7 +384,7 @@ public class DeliveryReadyNaverApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyNaverService.searchDeliveryReadyItemOptionInfo());
+            message.setData(deliveryReadyNaverBusinessService.searchDeliveryReadyItemOptionInfo());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -402,7 +403,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#updateDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -413,7 +414,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
+                deliveryReadyNaverBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -438,7 +439,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#updateDeliveryReadyItemsOptionInfo
+     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemsOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -449,7 +450,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
+                deliveryReadyNaverBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -548,14 +549,14 @@ public class DeliveryReadyNaverApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#changeDeliveryReadyItem
-     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#changeDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeDeliveryReadyItem(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -670,7 +671,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
@@ -682,7 +683,7 @@ public class DeliveryReadyNaverApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyNaverService#releasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -820,7 +821,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
@@ -945,7 +946,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     @PostMapping("/view/download/excel")

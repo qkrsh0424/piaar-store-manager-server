@@ -56,7 +56,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     /**
      * ProductOption 데이터의 code에 대응하는 옵션데이터의 cid를 조회한다.
      * 
-     * @param cod : String
+     * @param code : String
      * @return Integer
      */
     @Query(
@@ -64,6 +64,18 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "WHERE po.code=:code"
     )
     Integer findCidByCode(String code);
+
+    /**
+     * ProductOption 데이터의 code들에 대응하는 옵션데이터를 조회한다.
+     * 
+     * @param codes : List::String::
+     * @return List::ProductOptionEntity::
+     */
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" +
+        "WHERE po.code IN :codes"
+    )
+    List<ProductOptionEntity> findAllByCode(List<String> codes);
 
     /**
      * Product cid에 대응하는 상품옵션 데이터를 조회한다.

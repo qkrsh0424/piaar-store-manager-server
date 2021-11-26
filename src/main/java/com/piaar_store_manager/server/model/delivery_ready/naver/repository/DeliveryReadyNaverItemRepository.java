@@ -41,4 +41,10 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE delivery_ready_naver_item AS dri SET dri.released=true, dri.released_at=:currentDate WHERE cid IN :cidList", nativeQuery = true)
     int updateReleasedAtByCid(List<Integer> cidList, Date currentDate);
+
+    @Query(
+        "SELECT dri FROM DeliveryReadyNaverItemEntity dri\n" +
+        "WHERE dri.cid IN :cids"
+    )
+    List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> cids);
 }

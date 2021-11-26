@@ -288,4 +288,12 @@ public class ProductOptionService {
 
         return stockUnitByOption;
     }
+
+    public Integer findOptionCidByCode(String optionCode) {
+        return productOptionRepository.findCidByCode(optionCode);
+    }
+
+    public List<ProductOptionEntity> findAllByCode(List<String> optionCodes) {
+        return productOptionRepository.findAllByCode(optionCodes);
+    }
 }
