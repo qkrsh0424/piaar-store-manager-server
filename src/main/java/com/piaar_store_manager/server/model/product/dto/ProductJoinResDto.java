@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.model.product.dto;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
@@ -29,6 +30,14 @@ public class ProductJoinResDto {
     UserGetDto user;
     List<ProductOptionGetDto> options;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductProj => ProductJoinResDto
+     * 
+     * @param proj : ProductProj
+     * @return ProductJoinResDto
+     */
     public static ProductJoinResDto toDto(ProductProj proj){
         ProductJoinResDto dto = ProductJoinResDto.builder()
             .product(ProductGetDto.toDto(proj.getProduct()))
@@ -39,5 +48,27 @@ public class ProductJoinResDto {
         ;
 
         return dto;
+    }
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::ProductProj:: => List::ProductJoinResDto::
+     * 
+     * @param projs : List::ProductProj::
+     * @return List::ProductJoinResDto::
+     */
+    public static List<ProductJoinResDto> toDtos(List<ProductProj> projs){
+        List<ProductJoinResDto> resDtos = projs.stream().map(proj ->{
+            ProductJoinResDto dto = ProductJoinResDto.builder()
+                .product(ProductGetDto.toDto(proj.getProduct()))
+                .category(ProductCategoryGetDto.toDto(proj.getCategory()))
+                .user(UserGetDto.toDto(proj.getUser()))
+                // .options(proj.getOptions().stream().map(r->ProductOptionGetDto.toDto(r)).collect(Collectors.toList()))
+                .build();
+            return dto;
+        }).collect(Collectors.toList());
+
+        return resDtos;
     }
 }

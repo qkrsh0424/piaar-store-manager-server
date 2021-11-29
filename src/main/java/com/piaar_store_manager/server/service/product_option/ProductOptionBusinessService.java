@@ -2,7 +2,6 @@ package com.piaar_store_manager.server.service.product_option;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -83,11 +82,11 @@ public class ProductOptionBusinessService {
      *
      * @return List::ProductOptionGetDto::
      * @see ProductOptionService#searchList
-     * @see ProductOptionGetDto#toDto
+     * @see ProductOptionGetDto#toDtos
      */
     public List<ProductOptionGetDto> searchList() {
         List<ProductOptionEntity> entities = productOptionService.searchList();
-        List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductOptionGetDto> dtos = ProductOptionGetDto.toDtos(entities);
         return dtos;
     }
 
@@ -99,11 +98,11 @@ public class ProductOptionBusinessService {
      *
      * @return List::ProductOptionJoinResDto::
      * @see ProductOptionService#searchListM2OJ
-     * @see ProductOptionJoinResDto#toDto
+     * @see ProductOptionJoinResDto#toDtos
      */
     public List<ProductOptionJoinResDto> searchListM2OJ() {
         List<ProductOptionProj> productOptionProjs = productOptionService.searchListM2OJ();
-        List<ProductOptionJoinResDto> resDtos = productOptionProjs.stream().map(r -> ProductOptionJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductOptionJoinResDto> resDtos = ProductOptionJoinResDto.toDtos(productOptionProjs);
         return resDtos;
     }
 
@@ -131,19 +130,19 @@ public class ProductOptionBusinessService {
      * @return ProductOptionStatusDto
      * @param optionCid : Integer
      * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReleaseGetDto#toDto
+     * @see ProductReleaseGetDto#toDtos
      * @see ProductReceiveService#searchListByOptionCid
-     * @see ProductReceiveService#toDto
+     * @see ProductReceiveGetDto#toDtos
      */
     public ProductOptionStatusDto searchStockStatus(Integer optionCid) {
         // 1. 출고데이터 조회
         List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
-        List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseGetDto> releaseDtos = ProductReleaseGetDto.toDtos(releaseEntities);
         
         // 2. 입고데이터 조회
         List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
-        List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
-        
+        List<ProductReceiveGetDto> receiveDtos = ProductReceiveGetDto.toDtos(receiveEntities);
+
         // 3. 합쳐서 ProductOptionStatusDto 생성
         ProductOptionStatusDto statusDto = ProductOptionStatusDto.builder()
             .productRelease(releaseDtos)
@@ -172,27 +171,6 @@ public class ProductOptionBusinessService {
         ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
         return dto;
     }
-
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product에 종속되는 옵션(ProductOption)을 한개 등록한다.
-     * 
-     * @param optionGetDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @param productCid : Integer
-     * @see ProductOptionEntity#toEntity
-     * @see ProductOptionService#createOne
-     * @see ProductOptionGetDto#toDto
-     */
-    // public ProductOptionGetDto createOne(ProductOptionGetDto optionGetDto, UUID userId, Integer productCid) {
-    //     optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
-    //         .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId).setProductCid(productCid);
-
-    //     ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
-    //     ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
-    //     return dto;
-    // }
 
     /**
      * <b>DB Select Related Method</b>

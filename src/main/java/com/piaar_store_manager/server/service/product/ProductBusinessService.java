@@ -96,7 +96,7 @@ public class ProductBusinessService {
      */
     public List<ProductGetDto> searchList() {
         List<ProductEntity> entities = productService.searchList();
-        List<ProductGetDto> dtos = entities.stream().map(r -> ProductGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductGetDto> dtos = ProductGetDto.toDtos(entities);
         return dtos;
     }
 
@@ -111,7 +111,7 @@ public class ProductBusinessService {
      */
     public List<ProductGetDto> searchListByCategory(Integer categoryCid) {
         List<ProductEntity> productEntities = productService.searchListByCategory(categoryCid);
-        List<ProductGetDto> productDtos = productEntities.stream().map(r -> ProductGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductGetDto> productDtos = ProductGetDto.toDtos(productEntities);
         return productDtos;
     }
     
@@ -127,7 +127,7 @@ public class ProductBusinessService {
      */
     public List<ProductJoinResDto> searchListM2OJ() {
         List<ProductProj> productProjs = productService.searchProjList();
-        List<ProductJoinResDto> resDtos = productProjs.stream().map(r -> ProductJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductJoinResDto> resDtos = ProductJoinResDto.toDtos(productProjs);
         return resDtos;
     }
 
@@ -205,7 +205,6 @@ public class ProductBusinessService {
 
             ProductJoinResDto resDto = ProductJoinResDto.toDto(r);
             resDto.setOptions(optionDtosByProduct);
-
             return resDto;
         }).collect(Collectors.toList());
 
@@ -251,7 +250,7 @@ public class ProductBusinessService {
         }).collect(Collectors.toList());
 
         List<ProductEntity> entities = productService.createList(productEntities);
-        List<ProductGetDto> dtos = entities.stream().map(r -> ProductGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductGetDto> dtos = ProductGetDto.toDtos(entities);
         return dtos;
     }
 

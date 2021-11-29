@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 
@@ -47,33 +49,72 @@ public class ProductOptionGetDto {
      * <p>
      * ProductOptionEntity => ProductOptionGetDto
      * 
-     * @param productOptionEntity : ProductOptionEntity
+     * @param entity : ProductOptionEntity
      * @return ProductOptionGetDto
      */
-    public static ProductOptionGetDto toDto(ProductOptionEntity productOptionEntity) {
-        ProductOptionGetDto productOptionDto = ProductOptionGetDto.builder()
-                .cid(productOptionEntity.getCid())
-                .id(productOptionEntity.getId())
-                .code(productOptionEntity.getCode())
-                .nosUniqueCode(productOptionEntity.getNosUniqueCode())
-                .defaultName(productOptionEntity.getDefaultName())
-                .managementName(productOptionEntity.getManagementName())
-                .salesPrice(productOptionEntity.getSalesPrice())
-                .stockUnit(productOptionEntity.getStockUnit())
-                .status(productOptionEntity.getStatus())
-                .memo(productOptionEntity.getMemo())
-                .imageUrl(productOptionEntity.getImageUrl())
-                .imageFileName(productOptionEntity.getImageFileName())
-                .color(productOptionEntity.getColor())
-                .unitCny(productOptionEntity.getUnitCny())
-                .unitKrw(productOptionEntity.getUnitKrw())
-                .createdAt(productOptionEntity.getCreatedAt())
-                .createdBy(productOptionEntity.getCreatedBy())
-                .updatedAt(productOptionEntity.getUpdatedAt())
-                .updatedBy(productOptionEntity.getUpdatedBy())
-                .productCid(productOptionEntity.getProductCid())
+    public static ProductOptionGetDto toDto(ProductOptionEntity entity) {
+        ProductOptionGetDto dto = ProductOptionGetDto.builder()
+                .cid(entity.getCid())
+                .id(entity.getId())
+                .code(entity.getCode())
+                .nosUniqueCode(entity.getNosUniqueCode())
+                .defaultName(entity.getDefaultName())
+                .managementName(entity.getManagementName())
+                .salesPrice(entity.getSalesPrice())
+                .stockUnit(entity.getStockUnit())
+                .status(entity.getStatus())
+                .memo(entity.getMemo())
+                .imageUrl(entity.getImageUrl())
+                .imageFileName(entity.getImageFileName())
+                .color(entity.getColor())
+                .unitCny(entity.getUnitCny())
+                .unitKrw(entity.getUnitKrw())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
+                .productCid(entity.getProductCid())
                 .build();
 
-        return productOptionDto;
+        return dto;
+    }
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::ProductOptionEntity:: => List::ProductOptionGetDto::
+     * 
+     * @param entities : List::ProductOptionEntity::
+     * @return List::ProductOptionGetDto::
+     */
+    public static List<ProductOptionGetDto> toDtos(List<ProductOptionEntity> entities) {
+        List<ProductOptionGetDto> dtos = entities.stream().map(entity -> {
+            ProductOptionGetDto dto = ProductOptionGetDto.builder()
+                .cid(entity.getCid())
+                .id(entity.getId())
+                .code(entity.getCode())
+                .nosUniqueCode(entity.getNosUniqueCode())
+                .defaultName(entity.getDefaultName())
+                .managementName(entity.getManagementName())
+                .salesPrice(entity.getSalesPrice())
+                .stockUnit(entity.getStockUnit())
+                .status(entity.getStatus())
+                .memo(entity.getMemo())
+                .imageUrl(entity.getImageUrl())
+                .imageFileName(entity.getImageFileName())
+                .color(entity.getColor())
+                .unitCny(entity.getUnitCny())
+                .unitKrw(entity.getUnitKrw())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
+                .productCid(entity.getProductCid())
+                .build();
+
+            return dto;
+        }).collect(Collectors.toList());
+        
+        return dtos;
     }
 }

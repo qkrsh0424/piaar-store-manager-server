@@ -45,7 +45,16 @@ public class ProductReleaseService {
         }
     }
 
-
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductRelease cid 값과 상응되는 데이터를 조회하고,
+     * 해당 ProductRelease와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @param productReleaseCid : Integer
+     * @return ProductReleaseProj
+     * @see ProductReleaseRepository#selectByCid
+     */
     public ProductReleaseProj searchOneM2OJ(Integer productReleaseCid){
         Optional<ProductReleaseProj> productReleaseProjOpt = productReleaseRepository.selectByCid(productReleaseCid);
 

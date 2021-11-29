@@ -1,5 +1,8 @@
 package com.piaar_store_manager.server.model.product_release.dto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
@@ -24,6 +27,14 @@ public class ProductReleaseJoinResDto {
     UserGetDto user;
     ProductOptionGetDto option;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * ProductReleaseProj => ProductReleaseJoinResDto
+     * 
+     * @param projs : ProductReleaseProj
+     * @return ProductReleaseJoinResDto
+     */
     public static ProductReleaseJoinResDto toDto(ProductReleaseProj proj) {
         ProductReleaseJoinResDto dto = ProductReleaseJoinResDto.builder()
             .release(ProductReleaseGetDto.toDto(proj.getProductRelease()))
@@ -34,5 +45,29 @@ public class ProductReleaseJoinResDto {
             .build();
 
         return dto;
+    }
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::ProductReleaseProj:: => List::ProductReleaseJoinResDto::
+     * 
+     * @param projs : List::ProductReleaseProj::
+     * @return List::ProductReleaseJoinResDto::
+     */
+    public static List<ProductReleaseJoinResDto> toDtos(List<ProductReleaseProj> projs) {
+        List<ProductReleaseJoinResDto> dtos = projs.stream().map(proj -> {
+            ProductReleaseJoinResDto dto = ProductReleaseJoinResDto.builder()
+                .release(ProductReleaseGetDto.toDto(proj.getProductRelease()))
+                .option(ProductOptionGetDto.toDto(proj.getProductOption()))
+                .product(ProductGetDto.toDto(proj.getProduct()))
+                .category(ProductCategoryGetDto.toDto(proj.getCategory()))
+                .user(UserGetDto.toDto(proj.getUser()))
+                .build();
+
+            return dto;
+        }).collect(Collectors.toList());
+        
+        return dtos;
     }
 }

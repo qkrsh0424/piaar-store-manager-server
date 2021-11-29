@@ -68,11 +68,11 @@ public class ProductReceiveBusinessService {
      * 
      * @return List::ProductReceiveGetDto::
      * @see ProductReceiveService#searchList
-     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveGetDto#toDtos
      */
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveService.searchList();
-        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
         return dtos;
     }
 
@@ -84,11 +84,11 @@ public class ProductReceiveBusinessService {
      * @param productOptionCid : Integer
      * @return List::ProductReceiveGetDto
      * @see  ProductReceiveService#searchListByOptionCid
-     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveGetDto#toDtos
      */
     public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
-        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
         return dtos;
     }
     
@@ -100,11 +100,11 @@ public class ProductReceiveBusinessService {
      *
      * @return List::ProductReceiveJoinResDto::
      * @see ProductReceiveService#searchListM2OJ
-     * @see ProductReceiveJoinResDto#toDto
+     * @see ProductReceiveJoinResDto#toDtos
      */
     public List<ProductReceiveJoinResDto> searchListM2OJ() {
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-        List<ProductReceiveJoinResDto> resDtos = receiveProjs.stream().map(r -> ProductReceiveJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveJoinResDto> resDtos = ProductReceiveJoinResDto.toDtos(receiveProjs);
         return resDtos;
     }
 
@@ -143,7 +143,7 @@ public class ProductReceiveBusinessService {
      * @param userId : UUID
      * @see ProductReceiveService#createPRList
      * @see ProductOptionService#updateReceiveProductUnit
-     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveGetDto#toDtos
      */
     public List<ProductReceiveGetDto> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
         List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
@@ -156,7 +156,7 @@ public class ProductReceiveBusinessService {
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), userId, r.getReceiveUnit()); });
 
-        List<ProductReceiveGetDto> dtos = entities.stream().map(r -> ProductReceiveGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
         return dtos;
     }
 

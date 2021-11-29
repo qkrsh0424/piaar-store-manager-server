@@ -67,11 +67,11 @@ public class ProductReleaseBusinessService {
      * 
      * @return List::ProductReleaseGetDto::
      * @see ProductReleaseService#searchList
-     * @see ProductReleaseGetDto#toDto
+     * @see ProductReleaseGetDto#toDtos
      */
     public List<ProductReleaseGetDto> searchList() {
         List<ProductReleaseEntity> entities = productReleaseService.searchList();
-        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
         return dtos;
     }
 
@@ -83,11 +83,11 @@ public class ProductReleaseBusinessService {
      * @param productOptionCid : Integer
      * @return List::ProductReleaseGetDto
      * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReleaseGetDto#toDto
+     * @see ProductReleaseGetDto#toDtos
      */
     public List<ProductReleaseGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReleaseEntity> entities = productReleaseService.searchListByOptionCid(productOptionCid);
-        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
         return dtos;
     }
 
@@ -99,11 +99,11 @@ public class ProductReleaseBusinessService {
      *
      * @return List::ProductReleaseJoinResDto::
      * @see ProductReleaseService#searchListM2OJ
-     * @see ProductReleaseJoinResDto#toDto
+     * @see ProductReleaseJoinResDto#toDtos
      */
     public List<ProductReleaseJoinResDto> searchListM2OJ() {
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-        List<ProductReleaseJoinResDto> resDtos = releaseProjs.stream().map(r -> ProductReleaseJoinResDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseJoinResDto> resDtos = ProductReleaseJoinResDto.toDtos(releaseProjs);
         return resDtos;
     }
 
@@ -140,7 +140,7 @@ public class ProductReleaseBusinessService {
      * @param userId               : UUID
      * @see ProductReleaseService#createPLList
      * @see ProductOptionService#updateReleaseProductUnit
-     * @see ProductReleaseGetDto#toDto
+     * @see ProductReleaseGetDto#toDtos
      */
     public List<ProductReleaseGetDto> createPLList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
         List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
@@ -153,7 +153,7 @@ public class ProductReleaseBusinessService {
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReleaseProductUnit(r.getProductOptionCid(), userId, r.getReleaseUnit()); });
 
-        List<ProductReleaseGetDto> dtos = entities.stream().map(r -> ProductReleaseGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
         return dtos;
     }
 

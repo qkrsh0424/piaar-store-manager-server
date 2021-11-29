@@ -49,7 +49,7 @@ public class ProductDetailBusinessService {
      */
     public List<ProductDetailGetDto> searchList(Integer optionCid) {
         List<ProductDetailEntity> entities = productDetailService.searchList(optionCid);
-        List<ProductDetailGetDto> dtos = entities.stream().map(r -> ProductDetailGetDto.toDto(r)).collect(Collectors.toList());
+        List<ProductDetailGetDto> dtos = ProductDetailGetDto.toDtos(entities);
         return dtos;
     }
 
