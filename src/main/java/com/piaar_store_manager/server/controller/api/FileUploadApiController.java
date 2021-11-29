@@ -3,7 +3,7 @@ package com.piaar_store_manager.server.controller.api;
 import java.util.List;
 
 import com.piaar_store_manager.server.model.message.Message;
-import com.piaar_store_manager.server.service.file_upload.FileUploadService;
+import com.piaar_store_manager.server.service.file_upload.FileUploadBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,33 +18,40 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/file-upload")
 public class FileUploadApiController {
-    
-    @Autowired
-    private FileUploadService fileUploadservice;
+    private FileUploadBusinessService fileUploadBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public FileUploadApiController(
+        FileUploadBusinessService fileUploadBusinessService,
+        UserService userService
+    ) {
+        this.fileUploadBusinessService = fileUploadBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Upload files api for image files to local.
      * <p>
-     * <b>GET : API URL => /api/v1/file-upload/uploadFilesToLocal</b>
+     * <b>GET : API URL => /api/v1/file-upload/local</b>
      * 
      * @param files : List::MultipartFile::
      * @return ResponseEntity(message, HttpStatus)
-     * @see FileUploadService#uploadFiles
+     * @see FileUploadBusinessService#isImageFile
+     * @see UserService#isManager
+     * @see FileUploadBusinessService#uploadFilesToLocal
      * @see UserService#userDenyCheck
      */
-    @PostMapping("/uploadFilesToLocal")
+    @PostMapping("/local")
     public ResponseEntity<?> uploadFilesToLocal(@RequestParam("files") List<MultipartFile> files) {
         Message message = new Message();
         
         // file extension check.
-        fileUploadservice.isImageFile(files);
+        fileUploadBusinessService.isImageFile(files);
         
         if (userService.isManager()) {
             try{
-                message.setData(fileUploadservice.uploadFilesToLocal(files));
+                message.setData(fileUploadBusinessService.uploadFilesToLocal(files));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -61,22 +68,24 @@ public class FileUploadApiController {
     /**
      * Upload files api for image files to cloud.
      * <p>
-     * <b>GET : API URL => /api/v1/file-upload/uploadFilesToCloud</b>
+     * <b>GET : API URL => /api/v1/file-upload/cloud</b>
      * 
      * @param files : List::MultipartFile::
      * @return ResponseEntity(message, HttpStatus)
-     * @see FileUploadService#uploadFiles
+     * @see FileUploadBusinessService#isImageFile
+     * @see UserSerivice#isManager
+     * @see FileUploadBusinessService#uploadFilesToCloud
      * @see UserService#userDenyCheck
      */
-    @PostMapping("/uploadFilesToCloud")
+    @PostMapping("/cloud")
     public ResponseEntity<?> uploadFilesToCloud(@RequestParam("files") List<MultipartFile> files) {
         Message message = new Message();
 
         // file extension check.
-        fileUploadservice.isImageFile(files);
+        fileUploadBusinessService.isImageFile(files);
 
         if (userService.isManager()) {
-            message.setData(fileUploadservice.uploadFilesToCloud(files));
+            message.setData(fileUploadBusinessService.uploadFilesToCloud(files));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {

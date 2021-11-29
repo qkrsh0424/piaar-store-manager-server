@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -33,7 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Service
-public class FileUploadService{
+public class FileUploadBusinessService{
+    
+    // AWS S3
     private AmazonS3 s3Client;
 
     @Value("${cloud.aws.credentials.access-key}")
@@ -63,7 +64,6 @@ public class FileUploadService{
      * @return String
      */
     public String storeFile(MultipartFile file) {
-
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String newFileName = "PiaarMS_" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
 
@@ -76,7 +76,6 @@ public class FileUploadService{
         }catch(Exception e) {
             throw new FileUploadException("["+fileName+"] File upload failed.",e);
         }
-
         return newFileName;
     }
 
@@ -88,14 +87,12 @@ public class FileUploadService{
      * @return FileUploadResponse
      */
     public FileUploadResponse uploadFileToLocal(MultipartFile file) {
-
-        String fileName = this.storeFile(file);
-            
+        String fileName = this.storeFile(file);     
         String fileUploadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                                     .path("/uploads/")
                                     .path(fileName)
                                     .toUriString();
-            
+
         return new FileUploadResponse(fileName, fileUploadUri, file.getContentType(), file.getSize());
     }
 
@@ -107,9 +104,7 @@ public class FileUploadService{
      * @return List::FileUploadResponse::
      */
     public List<FileUploadResponse> uploadFilesToLocal(List<MultipartFile> files) {
-        return files.stream()
-                    .map(file -> uploadFileToLocal(file))
-                    .collect(Collectors.toList());
+        return files.stream().map(file -> uploadFileToLocal(file)).collect(Collectors.toList());
     }
 
     /**
@@ -146,7 +141,7 @@ public class FileUploadService{
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {
             e.printStackTrace();
-        }   
+        }
 
         // return new FileUploadResponse(fileName, fileUrl, file.getContentType(), file.getSize());
         return new FileUploadResponse(fileName, s3Client.getUrl(uploadPath, fileName).toString(), file.getContentType(), file.getSize());
@@ -158,29 +153,27 @@ public class FileUploadService{
      * 
      * @param file : List::MultipartFile::
      * @return List::FileUploadResponse::
+     * @see FileUploadBusinessService#uploadFileToCloud
      */
     public List<FileUploadResponse> uploadFilesToCloud(List<MultipartFile> files){
-        List<FileUploadResponse> uploadFiles = new ArrayList<>();
-
-        for(MultipartFile file : files){
-            uploadFiles.add(uploadFileToCloud(file));
-        }
-
+        List<FileUploadResponse> uploadFiles = files.stream().map(file -> this.uploadFileToCloud(file)).collect(Collectors.toList());
         return uploadFiles;
     }
 
     /**
      * File extension check.
+     * 
+     * @param files : List::MultipartFile::
      */
     public void isImageFile(List<MultipartFile> files) {
-        for(MultipartFile file : files){
+        files.stream().forEach(file -> {
             String fileName = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
 
             if(EXTENSIONS_IMAGE.contains(fileName)){
                 return;
             }
             throw new FileUploadException("This is not an image file.");
-        }
+        });
     }
 
 }
