@@ -4,20 +4,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
-
-import org.apache.commons.io.FilenameUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,23 +30,6 @@ public class DeliveryReadyNaverService {
     ) {
         this.deliveryReadyFileRepository = deliveryReadyFileRepository;
         this.deliveryReadyNaverItemRepository = deliveryReadyNaverItemRepository;   
-    }
-
-    // TODO : 삭제해야 함. 쿠팡과 네이버에서 둘다 사용하는 코드
-    public DeliveryReadyFileEntity createDeliveryReadyFileDto(String filePath, String fileName, Integer fileSize, UUID userId) {
-
-        DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
-            .id(UUID.randomUUID())
-            .filePath(filePath)
-            .fileName(fileName)
-            .fileSize(fileSize)
-            .fileExtension(FilenameUtils.getExtension(fileName))
-            .createdAt(DateHandler.getCurrentDate2())
-            .createdBy(userId)
-            .deleted(false)
-            .build();
-
-        return deliveryReadyFileRepository.save(DeliveryReadyFileEntity.toEntity(fileDto));
     }
  
     /**

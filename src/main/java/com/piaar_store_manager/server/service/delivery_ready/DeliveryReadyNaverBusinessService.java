@@ -234,6 +234,19 @@ public class DeliveryReadyNaverBusinessService {
         return new FileUploadResponse(newFileName, s3Client.getUrl(uploadPath, newFileName).toString(), file.getContentType(), file.getSize());
     }
 
+    /**
+     * <b>Create FileDto Method</b>
+     * <p>
+     * 파일 
+     *
+     * @param filePath : String
+     * @param fileName : String
+     * @param fileSize : Integer
+     * @param userId : UUID
+     * @see DeliveryReadyNaverService#createFile
+     * @see DeliveryReadyFileDto#toDto
+     * @return DeliveryReadyFileDto
+     */
     public DeliveryReadyFileDto createDeliveryReadyExcelFile(String filePath, String fileName, Integer fileSize, UUID userId) {
         // File data 생성 및 저장
         DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
@@ -374,13 +387,9 @@ public class DeliveryReadyNaverBusinessService {
         Date startDate = null;
         Date endDate = null;
 
-        try{
-            if(query.get("startDate") != null && query.get("endDate") != null) {
-                startDate = dateFormat.parse(query.get("startDate").toString());
-                endDate = dateFormat.parse(query.get("endDate").toString());
-            }
-        } catch (ParseException e) {
-            throw new ParseException("date format parse error", -1);
+        if(query.get("startDate") != null && query.get("endDate") != null) {
+            startDate = dateFormat.parse(query.get("startDate").toString());
+            endDate = dateFormat.parse(query.get("endDate").toString());
         }
 
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
@@ -407,7 +416,7 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dtos : List::DeliveryReadyNaverItemDto::
      * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see ProductReadyNaverService#deleteOneDeliveryReadyViewData
+     * @see DeliveryReadyNaverService#deleteOneDeliveryReadyViewData
      */
     public void deleteListDeliveryReadyViewData(List<DeliveryReadyNaverItemDto> dtos) {
         dtos.stream().forEach(dto -> {
@@ -422,9 +431,8 @@ public class DeliveryReadyNaverBusinessService {
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverItemRepository#findById
-     * @see DeliveryReadyNaverItemRepository#save
+     * @see DeliveryReadyNaverService#searchDeliveryReadyItem
+     * @see DeliveryReadyNaverService#createItem
      */
     public void updateReleasedDeliveryReadyItem(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
@@ -439,6 +447,7 @@ public class DeliveryReadyNaverBusinessService {
      * DeliveryReadyItem의 출고 데이터 중 선택된 데이터들을 미출고 데이터로 변경한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemDto::
+     * @see DeliveryReadyNaverItemEntity#toEntity
      */
     public void updateListToUnreleasedDeliveryReadyItem(List<DeliveryReadyNaverItemDto> dtos) {
         List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> {
@@ -455,7 +464,7 @@ public class DeliveryReadyNaverBusinessService {
      * 등록된 모든 상품의 옵션정보들을 조회한다.
      *
      * @return List::DeliveryReadyItemOptionInfoResDto::
-     * @see DeliveryReadyNaverItemRepository#findAllOptionInfo
+     * @see DeliveryReadyNaverService#findAllOptionInfo
      * @see DeliveryReadyItemOptionInfoProj#toResDtos
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
@@ -486,9 +495,9 @@ public class DeliveryReadyNaverBusinessService {
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverItemRepository#findById
-     * @see DeliveryReadyNaverItemRepository#save
+     * @see DeliveryReadyNaverService#searchDeliveryReadyItem
+     * @see DeliveryReadyNaverService#createItem
+     * @see DeliveryReadyNaverBusinessService#updateChangedOption
      */
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
@@ -497,7 +506,7 @@ public class DeliveryReadyNaverBusinessService {
         deliveryReadyNaverService.createItem(entity);
         
         // 같은 상품의 옵션을 모두 변경
-        this.updateDeliveryReadyItemChangedOption(entity);
+        this.updateChangedOption(entity);
     }
 
     /**
@@ -505,13 +514,13 @@ public class DeliveryReadyNaverBusinessService {
      * <p>
      * DeliveryReadyItem의 출고 데이터 중 itemId에 대응하는 데이터를 미출고 데이터로 변경한다.
      *
-     * @param item : DeliveryReadyNaverItemEntity
-     * @see DeliveryReadyNaverItemRepository#findByItems
-     * @see DeliveryReadyNaverItemRepository#save
+     * @param entity : DeliveryReadyNaverItemEntity
+     * @see DeliveryReadyNaverService#findByItems
+     * @see DeliveryReadyNaverService#createItemList
      */
-    public void updateDeliveryReadyItemChangedOption(DeliveryReadyNaverItemEntity entity) {
+    public void updateChangedOption(DeliveryReadyNaverItemEntity entity) {
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.findByItems(entity);
-        entities.stream().forEach(r -> { entity.setOptionManagementCode(r.getOptionManagementCode()); });
+        entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()); });
         deliveryReadyNaverService.createItemList(entities);
     }
 
@@ -565,7 +574,6 @@ public class DeliveryReadyNaverBusinessService {
             String receiverStr = receiverSb.toString();
             int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
 
-            
             // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
             if(!optionSet.add(resultStr)){
                 DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
@@ -579,7 +587,6 @@ public class DeliveryReadyNaverBusinessService {
                     newOrderList.get(prevOrderIdx).setDuplication(true);
                     dtos.get(i).setDuplication(true);
                 }
-
                 newOrderList.add(dtos.get(i));
             }
         }
@@ -639,9 +646,8 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dtos : List::DeliveryReadyNaverItemViewDto::
      * @param reflected : boolean
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverItemRepository#findById
-     * @see DeliveryReadyNaverItemRepository#save
+     * @see DeliveryReadyNaverService#searchDeliveryReadyItemList
+     * @see DeliveryReadyNaverService#createItemList
      */
     public void updateListReleaseCompleted(List<DeliveryReadyNaverItemViewDto> dtos, boolean reflected) {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
@@ -655,10 +661,9 @@ public class DeliveryReadyNaverBusinessService {
      * <p>
      * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
      *
-     * @param dto : DeliveryReadyNaverItemViewDto
+     * @param dto : DeliveryReadyCoupangItemViewDto
      * @return Integer
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see ProductOptionRepository#findCidByCode
+     * @see ProductOptionService#findOptionCidByCode
      */
     public Integer getOptionCid(DeliveryReadyNaverItemViewDto dto) {
         return productOptionService.findOptionCidByCode(dto.getOptionManagementName());

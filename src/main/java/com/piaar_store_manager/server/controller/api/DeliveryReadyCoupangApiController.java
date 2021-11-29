@@ -19,7 +19,6 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
-import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -47,15 +46,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/delivery-ready/coupang")
 public class DeliveryReadyCoupangApiController {
-    
-    @Autowired
-    private DeliveryReadyCoupangService deliveryReadyCoupangService;
-
-    @Autowired
     private DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public DeliveryReadyCoupangApiController(
+        DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService,
+        UserService userService
+    ) {
+        this.deliveryReadyCoupangBusinessService = deliveryReadyCoupangBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Upload excel data for delivery ready.
@@ -69,8 +70,8 @@ public class DeliveryReadyCoupangApiController {
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangService#isExcelFile
-     * @see DeliveryReadyCoupangService#uploadDeliveryReadyExcelFile
+     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see DeliveryReadyCoupangBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
     @PostMapping("/upload")
@@ -83,10 +84,10 @@ public class DeliveryReadyCoupangApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyCoupangService.isExcelFile(file);
+            deliveryReadyCoupangBusinessService.isExcelFile(file);
 
             try{
-                message.setData(deliveryReadyCoupangService.uploadDeliveryReadyExcelFile(file));
+                message.setData(deliveryReadyCoupangBusinessService.uploadDeliveryReadyExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -112,8 +113,8 @@ public class DeliveryReadyCoupangApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangService#isExcelFile
-     * @see DeliveryReadyCoupangService#storeDeliveryReadyExcelFile
+     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see DeliveryReadyCoupangBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -124,9 +125,9 @@ public class DeliveryReadyCoupangApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyCoupangService.isExcelFile(file);
+            deliveryReadyCoupangBusinessService.isExcelFile(file);
 
-            message.setData(deliveryReadyCoupangService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setData(deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -144,7 +145,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangService#getDeliveryReadyViewUnreleasedData
+     * @see DeliveryReadyCoupangBusinessService#getDeliveryReadyViewUnreleasedData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -154,7 +155,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangService.getDeliveryReadyViewUnreleasedData());
+            message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewUnreleasedData());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -174,7 +175,7 @@ public class DeliveryReadyCoupangApiController {
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangService#getDeliveryReadyViewReleased
+     * @see DeliveryReadyCoupangBusinessService#getDeliveryReadyViewReleased
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -184,7 +185,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangService.getDeliveryReadyViewReleased(query));
+            message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewReleased(query));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -203,7 +204,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#deleteOneDeliveryReadyViewData
+     * @see deliveryReadyCoupangBusinessService#deleteOneDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -213,7 +214,7 @@ public class DeliveryReadyCoupangApiController {
 
         if (userService.isManager()) {
             try{
-                deliveryReadyCoupangService.deleteOneDeliveryReadyViewData(itemCid);
+                deliveryReadyCoupangBusinessService.deleteOneDeliveryReadyViewData(itemCid);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -233,21 +234,21 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/delete/batch</b>
      *
-     * @param deliveryReadyNaverItemDtos : List::DeliveryReadyCoupangItemDto::
+     * @param deliveryReadyCoupangItemDtos : List::DeliveryReadyCoupangItemDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#deleteListDeliveryReadyViewData
+     * @see deliveryReadyCoupangBusinessService#deleteListDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
     @PostMapping("/view/delete/batch")
-    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyNaverItemDtos) {
+    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
         if (userService.isManager()) {
             try{
-                deliveryReadyCoupangService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
+                deliveryReadyCoupangBusinessService.deleteListDeliveryReadyViewData(deliveryReadyCoupangItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -271,7 +272,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#updateReleasedDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#updateReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -282,7 +283,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyCoupangService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -306,7 +307,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#updateListReleasedDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#updateListReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -317,7 +318,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyCoupangService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyCoupangItemDtos);
+                deliveryReadyCoupangBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyCoupangItemDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -341,7 +342,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#releasedDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -352,7 +353,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
+                deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -375,7 +376,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangService#searchDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyCoupangBusinessService#searchDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -385,7 +386,7 @@ public class DeliveryReadyCoupangApiController {
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangService.searchDeliveryReadyItemOptionInfo());
+            message.setData(deliveryReadyCoupangBusinessService.searchDeliveryReadyItemOptionInfo());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -404,7 +405,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#updateDeliveryReadyItemOptionInfo
+     * @see deliveryReadyCoupangBusinessService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -415,7 +416,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyCoupangService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -440,7 +441,7 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#updateDeliveryReadyItemsOptionInfo
+     * @see deliveryReadyCoupangBusinessService#updateDeliveryReadyItemsOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
@@ -451,7 +452,7 @@ public class DeliveryReadyCoupangApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyCoupangService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
+                deliveryReadyCoupangBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -548,14 +549,14 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#changeDeliveryReadyItem
-     * @see deliveryReadyCoupangService#releasedDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#changeDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItem(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -671,7 +672,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
@@ -682,7 +683,7 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangService#releasedDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
@@ -820,15 +821,15 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     /**
      * Download data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/lotte</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/lotte</b>
      *
-     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @throws IOException
      * @see Message
      * @see HttpStatus
@@ -945,7 +946,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
     @PostMapping("/view/download/excel")
