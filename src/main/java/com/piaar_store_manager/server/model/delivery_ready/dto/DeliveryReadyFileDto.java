@@ -27,6 +27,14 @@ public class DeliveryReadyFileDto {
     private UUID createdBy;
     private Boolean deleted;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyFileEntity => DeliveryReadyFileDto
+     * 
+     * @param entity : DeliveryReadyFileEntity
+     * @return DeliveryReadyFileDto
+     */
     public static DeliveryReadyFileDto toDto(DeliveryReadyFileEntity entity) {
         DeliveryReadyFileDto dto = DeliveryReadyFileDto.builder()
             .cid(entity.getCid())

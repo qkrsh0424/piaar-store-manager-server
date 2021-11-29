@@ -29,6 +29,14 @@ public class DeliveryReadyItemLotteExcelFormDto {
     private String transportNumber;     // 운송장번호
     private String purchaseDate;        // 날짜
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemLotteExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @return DeliveryReadyItemLotteExcelFormDto
+     */
     public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
 
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
@@ -48,6 +56,14 @@ public class DeliveryReadyItemLotteExcelFormDto {
         return formDto;
     }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemViewDto => DeliveryReadyItemLotteExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyCoupangItemViewDto
+     * @return DeliveryReadyItemLotteExcelFormDto
+     */
     public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
 
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()

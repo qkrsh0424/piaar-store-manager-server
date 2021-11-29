@@ -54,12 +54,25 @@ public class DeliveryReadyFileEntity {
     @Column(name = "deleted")
     private Boolean deleted;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyFileDto => DeliveryReadyFileEntity
+     * 
+     * @param entity : DeliveryReadyFileDto
+     * @return DeliveryReadyFileEntity
+     */
     public static DeliveryReadyFileEntity toEntity(DeliveryReadyFileDto dto) {
         DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
 
-        entity.setId(dto.getId()).setFilePath(dto.getFilePath()).setFileName(dto.getFileName())
-            .setFileSize(dto.getFileSize()).setFileExtension(dto.getFileExtension()).setCreatedAt(dto.getCreatedAt())
-            .setCreatedBy(dto.getCreatedBy()).setDeleted(dto.getDeleted());
+        entity.setId(dto.getId())
+            .setFilePath(dto.getFilePath())
+            .setFileName(dto.getFileName())
+            .setFileSize(dto.getFileSize())
+            .setFileExtension(dto.getFileExtension())
+            .setCreatedAt(dto.getCreatedAt())
+            .setCreatedBy(dto.getCreatedBy())
+            .setDeleted(dto.getDeleted());
 
         return entity;
     }

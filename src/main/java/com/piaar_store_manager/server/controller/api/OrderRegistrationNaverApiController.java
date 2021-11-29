@@ -31,12 +31,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/order-registration/naver")
 public class OrderRegistrationNaverApiController {
-    
-    @Autowired
     private OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService;
-    
-    @Autowired
     private UserService userService;
+
+    @Autowired
+    public OrderRegistrationNaverApiController(
+        OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService,
+        UserService userService
+    ) {
+        this.orderRegistrationNaverBusinessService = orderRegistrationNaverBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Upload excel data for hansan order form.

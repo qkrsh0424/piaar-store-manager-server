@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.model.delivery_ready.naver.proj;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
@@ -17,6 +18,14 @@ public interface DeliveryReadyNaverItemViewProj {
     String getProdManagementName();
     String getOptionNosUniqueCode();
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewProj => DeliveryReadyNaverItemViewResDto
+     * 
+     * @param itemViewProj : DeliveryReadyNaverItemViewProj
+     * @return DeliveryReadyNaverItemViewResDto
+     */
     public static DeliveryReadyNaverItemViewResDto toResDto(DeliveryReadyNaverItemViewProj itemViewProj) {
         DeliveryReadyNaverItemViewResDto dto = new DeliveryReadyNaverItemViewResDto();
 
@@ -32,13 +41,30 @@ public interface DeliveryReadyNaverItemViewProj {
         return dto;
     }
 
-    public static List<DeliveryReadyNaverItemViewResDto> toResDtos(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
-        List<DeliveryReadyNaverItemViewResDto> dtos = new ArrayList<>();
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::DeliveryReadyNaverItemViewProj:: => List::DeliveryReadyNaverItemViewResDto::
+     * 
+     * @param itemViewProjs : List::DeliveryReadyNaverItemViewProj::
+     * @return List::DeliveryReadyNaverItemViewResDto::
+     */
+    public static List<DeliveryReadyNaverItemViewResDto> toResDtos(List<DeliveryReadyNaverItemViewProj> itemViewProjs) {
+        List<DeliveryReadyNaverItemViewResDto> dtos = itemViewProjs.stream().map(proj -> {
+            DeliveryReadyNaverItemViewResDto dto = new DeliveryReadyNaverItemViewResDto();
 
-        for(DeliveryReadyNaverItemViewProj proj : itemViewProj) {
-            dtos.add(toResDto(proj));
-        }
-        
+            dto.setDeliveryReadyItem(DeliveryReadyNaverItemDto.toDto(proj.getDeliveryReadyItem()))
+                    .setProdManufacturingCode(proj.getProdManufacturingCode())
+                    .setProdManagementName(proj.getProdManagementName())
+                    .setOptionDefaultName(proj.getOptionDefaultName())
+                    .setOptionManagementName(proj.getOptionManagementName())
+                    .setOptionStockUnit(proj.getOptionStockUnit())
+                    .setOptionMemo(proj.getOptionMemo())
+                    .setOptionNosUniqueCode(proj.getOptionNosUniqueCode());
+
+            return dto;
+        }).collect(Collectors.toList());
+
         return dtos;
     }
 }

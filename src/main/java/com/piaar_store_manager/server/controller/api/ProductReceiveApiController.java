@@ -23,12 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-receive")
 public class ProductReceiveApiController {
-
-    @Autowired
     private ProductReceiveBusinessService productReceiveBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductReceiveApiController(
+        ProductReceiveBusinessService productReceiveBusinessService,
+        UserService userService
+    ) {
+        this.productReceiveBusinessService = productReceiveBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Search one api for productReceive.

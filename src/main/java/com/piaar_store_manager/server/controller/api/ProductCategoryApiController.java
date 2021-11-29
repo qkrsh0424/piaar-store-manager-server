@@ -15,12 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-category")
 public class ProductCategoryApiController {
-
-    @Autowired
     private ProductCategoryBusinessService productCategoryBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductCategoryApiController(
+        ProductCategoryBusinessService productCategoryBusinessService,
+        UserService userService
+    ) {
+        this.productCategoryBusinessService = productCategoryBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Search list api for productCategory.

@@ -33,8 +33,6 @@ public class ProductDetailApiController {
         this.userService = userService;
     }
 
-
-
     /**
      * Search one api for product.
      * <p>

@@ -33,9 +33,16 @@ public class DeliveryReadyItemHansanExcelFormDto {
     private String platformName;    // 플랫폼명
     private String transportType;   // 배송방식
     private String deliveryService; // 택배사
-
     private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemHansanExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @return DeliveryReadyItemHansanExcelFormDto
+     */
     public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
 
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
@@ -63,6 +70,14 @@ public class DeliveryReadyItemHansanExcelFormDto {
 
     }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemViewDto => DeliveryReadyItemHansanExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyCoupangItemViewDto
+     * @return DeliveryReadyItemHansanExcelFormDto
+     */
     public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
 
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()

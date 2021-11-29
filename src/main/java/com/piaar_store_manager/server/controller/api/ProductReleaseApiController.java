@@ -23,12 +23,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-release")
 public class ProductReleaseApiController {
-
-    @Autowired
     private ProductReleaseBusinessService productReleaseBusinessService;
+    private UserService userService;
 
     @Autowired
-    private UserService userService;
+    public ProductReleaseApiController(
+        ProductReleaseBusinessService productReleaseBusinessService,
+        UserService userService
+    ) {
+        this.productReleaseBusinessService = productReleaseBusinessService;
+        this.userService = userService;
+    }
 
     /**
      * Search one api for productRelease.
