@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class OrderRegistrationNaverService {
+public class OrderRegistrationNaverBusinessService {
     
     // excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
@@ -49,7 +49,6 @@ public class OrderRegistrationNaverService {
      * @return List::OrderRegistrationHansanExcelFormDto::
      */
     public List<OrderRegistrationHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
-        
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -101,14 +100,12 @@ public class OrderRegistrationNaverService {
         List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
 
         for (OrderRegistrationHansanExcelFormDto hansanDto : hansanDtos) {
-
             // '송장번호 존재, 총 상품주문번호 존재, 네이버' 데이터 추출
             String transportNumber = hansanDto.getTransportNumber();
             String allProdOrderNumber = hansanDto.getAllProdOrderNumber();
             String platformName = hansanDto.getPlatformName();
 
             if (platformName != null && platformName.equals("네이버") && transportNumber != null && allProdOrderNumber != null) {
-
                 // 총 상품주문번호 '/' 분리
                 String[] prodOrderNumber = allProdOrderNumber.split("/");
 
@@ -132,7 +129,6 @@ public class OrderRegistrationNaverService {
                 }
             }
         }
-
         return dtos;
     }
 
@@ -158,7 +154,6 @@ public class OrderRegistrationNaverService {
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
             Row row = sheet.getRow(i);
-
             if(row == null) break;
 
             OrderRegistrationTailoExcelFormDto dto = OrderRegistrationTailoExcelFormDto.builder()
@@ -179,7 +174,6 @@ public class OrderRegistrationNaverService {
 
             dtos.add(dto);
         }
-
         return dtos;
     }
 
@@ -192,17 +186,14 @@ public class OrderRegistrationNaverService {
      * @return List::OrderRegistrationNaverFormDto::
      */
     public List<OrderRegistrationNaverFormDto> changeNaverFormDtoByTailoFormDto(List<OrderRegistrationTailoExcelFormDto> tailoDtos) {
-
         List<OrderRegistrationNaverFormDto> dtos = new ArrayList<>();
 
         for (OrderRegistrationTailoExcelFormDto tailoDto : tailoDtos) {
-
             // '송장번호 존재, 네이버' 데이터 추출
             String transportNumber = tailoDto.getTransportNumber();
             String platformName = tailoDto.getManagementMemo3();
 
             if (platformName != null && platformName.equals("네이버") && transportNumber != null) {
-
                 OrderRegistrationNaverFormDto dto = OrderRegistrationNaverFormDto.builder()
                         .prodOrderNumber(tailoDto.getProdMemo1())
                         .transportType(tailoDto.getTransportType())
@@ -212,7 +203,6 @@ public class OrderRegistrationNaverService {
                 dtos.add(dto);
             }
         }
-
         return dtos;
     }
 }

@@ -10,7 +10,7 @@ import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
-import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverService;
+import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class OrderRegistrationNaverApiController {
     
     @Autowired
-    private OrderRegistrationNaverService orderRegistrationNaverService;
+    private OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService;
     
     @Autowired
     private UserService userService;
@@ -50,8 +50,8 @@ public class OrderRegistrationNaverApiController {
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverService#isExcelFile
-     * @see OrderRegistrationNaverService#uploadHansanExcelFile
+     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see OrderRegistrationNaverBusinessService#uploadHansanExcelFile
      * @see UserService#isUserLogin
      */
     @PostMapping("/upload/hansan")
@@ -64,10 +64,10 @@ public class OrderRegistrationNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            orderRegistrationNaverService.isExcelFile(file);
+            orderRegistrationNaverBusinessService.isExcelFile(file);
 
             try{
-                message.setData(orderRegistrationNaverService.uploadHansanExcelFile(file));
+                message.setData(orderRegistrationNaverBusinessService.uploadHansanExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -92,13 +92,13 @@ public class OrderRegistrationNaverApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverService#changeNaverFormDtoByHansanFormDto
+     * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByHansanFormDto
      */
     @PostMapping("/download/hansan")
     public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationHansanExcelFormDto> hansanDto) {
        
         // 한산 엑셀 dto를 네이버 대량등록 양식으로 변환
-         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByHansanFormDto(hansanDto);
+         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByHansanFormDto(hansanDto);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -156,8 +156,8 @@ public class OrderRegistrationNaverApiController {
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverService#isExcelFile
-     * @see OrderRegistrationNaverService#uploadTailoExcelFile
+     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see OrderRegistrationNaverBusinessService#uploadTailoExcelFile
      * @see UserService#isUserLogin
      */
     @PostMapping("/upload/tailo")
@@ -170,10 +170,10 @@ public class OrderRegistrationNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            orderRegistrationNaverService.isExcelFile(file);
+            orderRegistrationNaverBusinessService.isExcelFile(file);
 
             try{
-                message.setData(orderRegistrationNaverService.uploadTailoExcelFile(file));
+                message.setData(orderRegistrationNaverBusinessService.uploadTailoExcelFile(file));
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
@@ -198,13 +198,13 @@ public class OrderRegistrationNaverApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverService#changeNaverFormDtoByTailoFormDto
+     * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByTailoFormDto
      */
     @PostMapping("/download/tailo")
     public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDto) {
 
         // 테일로 엑셀 dto를 네이버 대량등록 양식으로 변환
-        List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverService.changeNaverFormDtoByTailoFormDto(tailoDto);
+        List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByTailoFormDto(tailoDto);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
