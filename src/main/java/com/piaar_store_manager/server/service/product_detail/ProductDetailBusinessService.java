@@ -2,7 +2,6 @@ package com.piaar_store_manager.server.service.product_detail;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
@@ -101,7 +100,6 @@ public class ProductDetailBusinessService {
     public void changeOne(ProductDetailGetDto dto, UUID userId) {
         // 상세 데이터 조회
         ProductDetailEntity entity = productDetailService.searchOne(dto.getCid());
-
         // 상세 데이터 변경
         Float detailCbmValue = ((float)(dto.getDetailWidth() * dto.getDetailLength() * dto.getDetailHeight())) / 1000000;
 

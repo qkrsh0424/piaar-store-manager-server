@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJoinResDto;
@@ -120,6 +122,7 @@ public class ProductReceiveBusinessService {
      * @see ProductOptionService#updateReceiveProductUnit
      * @see ProductReceiveGetDto#toDto
      */
+    @Transactional
     public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
         productReceiveGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
 
@@ -145,6 +148,7 @@ public class ProductReceiveBusinessService {
      * @see ProductOptionService#updateReceiveProductUnit
      * @see ProductReceiveGetDto#toDtos
      */
+    @Transactional
     public List<ProductReceiveGetDto> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
         List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
             r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
@@ -210,6 +214,7 @@ public class ProductReceiveBusinessService {
      * @param userId : UUID
      * @see ProductReceiveBusinessService#changeOne
      */
+    @Transactional
     public void changeList(List<ProductReceiveGetDto> receiveDtos, UUID userId) {
         receiveDtos.stream().forEach(r -> this.changeOne(r, userId));
     }

@@ -252,9 +252,7 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
-
         productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
-
         productOptionService.createOne(productOptionEntity);
     }
 }

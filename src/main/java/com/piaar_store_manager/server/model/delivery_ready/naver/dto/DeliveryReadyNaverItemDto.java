@@ -51,6 +51,14 @@ public class DeliveryReadyNaverItemDto {
     private Boolean releaseCompleted;       // 재고반영 여부
     private Integer deliveryReadyFileCid;       // 파일 cid
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemEntity => DeliveryReadyNaverItemDto
+     * 
+     * @param entity : DeliveryReadyNaverItemEntity
+     * @return DeliveryReadyNaverItemDto
+     */
     public static DeliveryReadyNaverItemDto toDto(DeliveryReadyNaverItemEntity entity) {
         DeliveryReadyNaverItemDto itemDto = DeliveryReadyNaverItemDto.builder()
             .cid(entity.getCid())

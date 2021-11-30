@@ -39,8 +39,15 @@ public class DeliveryReadyNaverItemExcelFormDto {
     private Boolean released;   // 출고여부
     private Date releasedAt;    // 출고일시
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewDto => DeliveryReadyNaverItemExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @return DeliveryReadyNaverItemExcelFormDto
+     */
     public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemViewDto viewDto) {
-
         DeliveryReadyNaverItemExcelFormDto formDto = DeliveryReadyNaverItemExcelFormDto.builder()
                 .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())

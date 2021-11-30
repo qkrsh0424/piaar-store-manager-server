@@ -62,7 +62,6 @@ public class ProductDetailServiceTest {
         Assertions.assertEquals(testDto.getDetailWidth(), resultDto.getDetailWidth());
         Assertions.assertNotEquals(testDto.getDetailWidth(), exDto.getDetailWidth());
 
-
         System.out.println("##### ProductDetailServiceTest.상품상세_단일수정() 성공 #####");
     }
     

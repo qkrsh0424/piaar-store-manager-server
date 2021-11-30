@@ -211,6 +211,7 @@ public class DeliveryReadyNaverBusinessService {
      * @return FileUploadResponse
      * @throws IllegalStateException
      */
+    @Transactional
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
         String fileName = file.getOriginalFilename();
         String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
@@ -292,7 +293,7 @@ public class DeliveryReadyNaverBusinessService {
                 .thenComparing(DeliveryReadyNaverItemDto::getOptionInfo)
                 .thenComparing(DeliveryReadyNaverItemDto::getReceiver));
 
-        List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyNaverItemEntity.toEntity(dto)).collect(Collectors.toList());
+        List<DeliveryReadyNaverItemEntity> entities = DeliveryReadyNaverItemEntity.toEntities(dtos);
         deliveryReadyNaverService.createItemList(entities);
     }
 
@@ -484,7 +485,6 @@ public class DeliveryReadyNaverBusinessService {
      */
     public void updateDeliveryReadyItemOptionInfo(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
-
         entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");  
         deliveryReadyNaverService.createItem(entity);
     }
@@ -534,7 +534,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyItemHansanExcelFormDto#toFormDto
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyNaverItemViewDto> viewDtos) {
-        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemHansanExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = DeliveryReadyItemHansanExcelFormDto.toFormDtosByNaver(viewDtos);
         List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = this.changeDuplicationDtos(formDtos);     // 중복 데이터 처리
         return excelFormDtos;
     }

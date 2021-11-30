@@ -212,7 +212,10 @@ public class DeliveryReadyCoupangBusinessService {
      * @param userId : UUID
      * @return FileUploadResponse
      * @throws ParseException
+     * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelFile
+     * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelItem
      */
+    @Transactional
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws ParseException {
         String fileName = file.getOriginalFilename();
         String newFileName = "[COUPANG_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
@@ -245,9 +248,9 @@ public class DeliveryReadyCoupangBusinessService {
      * @param fileName : String
      * @param fileSize : Integer
      * @param userId : UUID
-     * @see DeliveryReadyNaverService#createFile
-     * @see DeliveryReadyFileDto#toDto
      * @return DeliveryReadyFileDto
+     * @see DeliveryReadyCoupangService#createFile
+     * @see DeliveryReadyFileDto#toDto
      */
     public DeliveryReadyFileDto createDeliveryReadyExcelFile(String filePath, String fileName, Integer fileSize, UUID userId) {
         // File data 생성 및 저장
@@ -294,7 +297,7 @@ public class DeliveryReadyCoupangBusinessService {
                 .thenComparing(DeliveryReadyCoupangItemDto::getOptionInfo)
                 .thenComparing(DeliveryReadyCoupangItemDto::getReceiver));
 
-        List<DeliveryReadyCoupangItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyCoupangItemEntity.toEntity(dto)).collect(Collectors.toList());
+        List<DeliveryReadyCoupangItemEntity> entities = DeliveryReadyCoupangItemEntity.toEntities(dtos);
         deliveryReadyCoupangService.createItemList(entities);
     }
 
@@ -421,6 +424,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangItemEntity#toEntity
      * @see DeliveryReadyCoupangService#deleteOneDeliveryReadyViewData
      */
+    @Transactional
     public void deleteListDeliveryReadyViewData(List<DeliveryReadyCoupangItemDto> dtos) {
         dtos.stream().forEach(dto -> {
             DeliveryReadyCoupangItemEntity.toEntity(dto);
@@ -473,7 +477,6 @@ public class DeliveryReadyCoupangBusinessService {
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
         List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyCoupangService.findAllOptionInfo();
         List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDtos(optionInfoProjs);
-
         return optionInfoDto;
     }
 
@@ -538,7 +541,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyItemHansanExcelFormDto#toFormDto
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
-        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemHansanExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = DeliveryReadyItemHansanExcelFormDto.toFormDtosByCoupang(viewDtos);
         List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = this.changeDuplicationDtos(formDtos);     // 중복 데이터 처리
         return excelFormDtos;
     }
@@ -605,7 +608,6 @@ public class DeliveryReadyCoupangBusinessService {
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @see DeliveryReadyCoupangService#updateReleasedAtByCid
      */
-    @Transactional
     public void updateListToReleaseDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> dtos) {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         deliveryReadyCoupangService.updateReleasedAtByCid(itemCids);
@@ -649,7 +651,7 @@ public class DeliveryReadyCoupangBusinessService {
      * <p>
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param reflected : boolean
      * @see DeliveryReadyCoupangService#searchDeliveryReadyItemList
      * @see DeliveryReadyCoupangService#createItemList
@@ -695,7 +697,7 @@ public class DeliveryReadyCoupangBusinessService {
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      * 출고(재고 반영) 데이터를 생성하여 재고에 반영한다.
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param userId : UUID
      * @see DeliveryReadyNaveBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyNaveBusinessService#getOptionByCode
@@ -731,7 +733,7 @@ public class DeliveryReadyCoupangBusinessService {
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      * 입고(재고 반영 취소) 데이터를 생성하여 재고에 반영한다.
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @param userId : UUID
      * @see DeliveryReadyCoupangBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangBusinessService#getOptionByCode

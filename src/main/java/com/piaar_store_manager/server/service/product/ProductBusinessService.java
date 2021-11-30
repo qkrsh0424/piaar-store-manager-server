@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -264,6 +266,7 @@ public class ProductBusinessService {
      * @see ProductService#createOne
      * @see productOptionService#createList
      */
+    @Transactional
     public void createPAO(ProductCreateReqDto reqDto, UUID userId) {
         ProductGetDto savedProductDto = this.createOne(reqDto.getProductDto(), userId);
 
@@ -287,6 +290,7 @@ public class ProductBusinessService {
      * @see ProductService#createOne
      * @see productOptionService#createList
      */
+    @Transactional
     public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
         productCreateReqDtos.stream().forEach(r -> this.createPAO(r, userId));
     }
@@ -340,6 +344,7 @@ public class ProductBusinessService {
      * @see ProductBusinessService#changeOne
      * @see ProductOptionService#changeOne
      */
+    @Transactional
     public void changePAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
         productCreateReqDtos.stream().forEach(req -> {
             this.changeOne(req.getProductDto(), userId);

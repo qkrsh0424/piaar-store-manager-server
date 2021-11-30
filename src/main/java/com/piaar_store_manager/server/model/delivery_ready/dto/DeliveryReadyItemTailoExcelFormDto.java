@@ -37,8 +37,15 @@ public class DeliveryReadyItemTailoExcelFormDto {
     private String deliveryService; // 택배사
     private String transportNumber; // 송장번호
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemTailoExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @return DeliveryReadyItemTailoExcelFormDto
+     */
     public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
-
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode((viewDto.getOptionNosUniqueCode() != null && !viewDto.getOptionNosUniqueCode().trim().isEmpty()) ? viewDto.getOptionNosUniqueCode() : "*지정바람")
                 .salesProdName((viewDto.getProdManagementName() != null && !viewDto.getProdManagementName().trim().isEmpty()) ? viewDto.getProdManagementName() + "|" + viewDto.getOptionManagementName() : "*지정바람")
@@ -61,8 +68,15 @@ public class DeliveryReadyItemTailoExcelFormDto {
         return formDto;
     }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemViewDto => DeliveryReadyItemTailoExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyCoupangItemViewDto
+     * @return DeliveryReadyItemTailoExcelFormDto
+     */
     public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
-
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode((viewDto.getOptionNosUniqueCode() != null && !viewDto.getOptionNosUniqueCode().trim().isEmpty()) ? viewDto.getOptionNosUniqueCode() : "*지정바람")
                 .salesProdName((viewDto.getProdManagementName() != null && !viewDto.getProdManagementName().trim().isEmpty()) ? viewDto.getProdManagementName() + "|" + viewDto.getOptionManagementName() : "*지정 바람")

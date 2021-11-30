@@ -11,6 +11,7 @@ import com.piaar_store_manager.server.service.product_option.ProductOptionServic
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductReleaseService {
@@ -137,6 +138,7 @@ public class ProductReleaseService {
      * @param entities : List::ProductReleaseEntity::
      * @see ProductReleaseRepository#saveAll
      */
+    @Transactional
     public List<ProductReleaseEntity> createPLList(List<ProductReleaseEntity> entities) {
         return productReleaseRepository.saveAll(entities);
     }

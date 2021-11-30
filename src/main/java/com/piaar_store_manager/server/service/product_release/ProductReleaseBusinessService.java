@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJoinResDto;
@@ -118,6 +120,7 @@ public class ProductReleaseBusinessService {
      * @see ProductReleaseGetDto#toDto
      * @see ProductOptionService#updateReleaseProductUnit
      */
+    @Transactional
     public ProductReleaseGetDto createPL(ProductReleaseGetDto productReleaseGetDto, UUID userId) {
         productReleaseGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
 
@@ -142,6 +145,7 @@ public class ProductReleaseBusinessService {
      * @see ProductOptionService#updateReleaseProductUnit
      * @see ProductReleaseGetDto#toDtos
      */
+    @Transactional
     public List<ProductReleaseGetDto> createPLList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
         List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
             r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
@@ -152,7 +156,7 @@ public class ProductReleaseBusinessService {
         List<ProductReleaseEntity> entities = productReleaseService.createPLList(convertedEntities);
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReleaseProductUnit(r.getProductOptionCid(), userId, r.getReleaseUnit()); });
-
+        
         List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
         return dtos;
     }
@@ -181,6 +185,7 @@ public class ProductReleaseBusinessService {
      * @see ProductReleaseService#createPL
      * @see ProductOptionService#updateReleaseProductUnit
      */
+    @Transactional
     public void changeOne(ProductReleaseGetDto releaseDto, UUID userId) {
         // 출고 데이터 조회
         ProductReleaseEntity entity = productReleaseService.searchOne(releaseDto.getCid());
@@ -204,6 +209,7 @@ public class ProductReleaseBusinessService {
      * @param userId      : UUID
      * @see ProductReleaseBusinessService#changeOne
      */
+    @Transactional
     public void changeList(List<ProductReleaseGetDto> releaseDtos, UUID userId) {
         releaseDtos.stream().forEach(r -> this.changeOne(r, userId));
     }

@@ -35,6 +35,14 @@ public class DeliveryReadyCoupangItemExcelFormDto {
     private Boolean released;   // 출고여부
     private Date releasedAt;    // 출고일시
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemViewDto => DeliveryReadyCoupangItemExcelFormDto
+     * 
+     * @param viewDto : DeliveryReadyCoupangItemViewDto
+     * @return DeliveryReadyCoupangItemExcelFormDto
+     */
     public static DeliveryReadyCoupangItemExcelFormDto toCoupangFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
 
         DeliveryReadyCoupangItemExcelFormDto formDto = DeliveryReadyCoupangItemExcelFormDto.builder()

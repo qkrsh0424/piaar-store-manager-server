@@ -1,5 +1,8 @@
 package com.piaar_store_manager.server.model.delivery_ready.dto;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
@@ -44,7 +47,6 @@ public class DeliveryReadyItemHansanExcelFormDto {
      * @return DeliveryReadyItemHansanExcelFormDto
      */
     public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
-
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
@@ -67,7 +69,43 @@ public class DeliveryReadyItemHansanExcelFormDto {
                 .build();
 
         return formDto;
+    }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::DeliveryReadyNaverItemViewDto:: => List::DeliveryReadyItemHansanExcelFormDto::
+     * 
+     * @param viewDto : List::DeliveryReadyNaverItemViewDto::
+     * @return List::DeliveryReadyItemHansanExcelFormDto::
+     */
+    public static List<DeliveryReadyItemHansanExcelFormDto> toFormDtosByNaver(List<DeliveryReadyNaverItemViewDto> viewDtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(viewDto -> {
+            DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
+                .receiver(viewDto.getDeliveryReadyItem().getReceiver())
+                .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
+                .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
+                .destination(viewDto.getDeliveryReadyItem().getDestination())
+                .prodName(viewDto.getDeliveryReadyItem().getProdName())
+                .sender(viewDto.getSender())
+                .senderContact1(viewDto.getSenderContact1())
+                .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
+                .unit(viewDto.getDeliveryReadyItem().getUnit())
+                .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
+                .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+                .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
+                .storeProdName(viewDto.getProdManagementName())
+                .storeOptionName(viewDto.getOptionManagementName())
+                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .duplication(false)
+                .build();
+
+            return formDto;
+        }).collect(Collectors.toList());
+        
+        return formDtos;
     }
 
     /**
@@ -79,7 +117,6 @@ public class DeliveryReadyItemHansanExcelFormDto {
      * @return DeliveryReadyItemHansanExcelFormDto
      */
     public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
-
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
@@ -102,6 +139,42 @@ public class DeliveryReadyItemHansanExcelFormDto {
                 .build();
 
         return formDto;
+    }
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * List::DeliveryReadyCoupangItemViewDto:: => List::DeliveryReadyItemHansanExcelFormDto::
+     * 
+     * @param viewDto : List::DeliveryReadyCoupangItemViewDto::
+     * @return List::DeliveryReadyItemHansanExcelFormDto::
+     */
+    public static List<DeliveryReadyItemHansanExcelFormDto> toFormDtosByCoupang(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(viewDto -> {
+            DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
+                .receiver(viewDto.getDeliveryReadyItem().getReceiver())
+                .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
+                .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
+                .destination(viewDto.getDeliveryReadyItem().getDestination())
+                .prodName(viewDto.getDeliveryReadyItem().getProdName())
+                .sender(viewDto.getSender())
+                .senderContact1(viewDto.getSenderContact1())
+                .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
+                .unit(viewDto.getDeliveryReadyItem().getUnit())
+                .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
+                .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+                .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
+                .storeProdName(viewDto.getProdManagementName())
+                .storeOptionName(viewDto.getOptionManagementName())
+                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+                .duplication(false)
+                .build();
+
+            return formDto;
+        }).collect(Collectors.toList());
+        
+        return formDtos;
     }
 }

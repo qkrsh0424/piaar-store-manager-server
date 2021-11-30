@@ -14,13 +14,19 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFile
 
 import org.hibernate.annotations.Type;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 @Entity
 @Data
 @Table(name = "delivery_ready_file")
 @Accessors(chain = true)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class DeliveryReadyFileEntity {
 
     @Id
@@ -59,20 +65,20 @@ public class DeliveryReadyFileEntity {
      * <p>
      * DeliveryReadyFileDto => DeliveryReadyFileEntity
      * 
-     * @param entity : DeliveryReadyFileDto
+     * @param dto : DeliveryReadyFileDto
      * @return DeliveryReadyFileEntity
      */
     public static DeliveryReadyFileEntity toEntity(DeliveryReadyFileDto dto) {
-        DeliveryReadyFileEntity entity = new DeliveryReadyFileEntity();
-
-        entity.setId(dto.getId())
-            .setFilePath(dto.getFilePath())
-            .setFileName(dto.getFileName())
-            .setFileSize(dto.getFileSize())
-            .setFileExtension(dto.getFileExtension())
-            .setCreatedAt(dto.getCreatedAt())
-            .setCreatedBy(dto.getCreatedBy())
-            .setDeleted(dto.getDeleted());
+        DeliveryReadyFileEntity entity = DeliveryReadyFileEntity.builder()
+            .id(dto.getId())
+            .filePath(dto.getFilePath())
+            .fileName(dto.getFileName())
+            .fileSize(dto.getFileSize())
+            .fileExtension(dto.getFileExtension())
+            .createdAt(dto.getCreatedAt())
+            .createdBy(dto.getCreatedBy())
+            .deleted(dto.getDeleted())
+            .build();
 
         return entity;
     }

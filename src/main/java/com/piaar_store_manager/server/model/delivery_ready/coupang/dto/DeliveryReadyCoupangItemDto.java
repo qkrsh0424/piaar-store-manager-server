@@ -44,6 +44,14 @@ public class DeliveryReadyCoupangItemDto {
     private Boolean releaseCompleted;       // 재고반영 여부
     private Integer deliveryReadyFileCid;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * DeliveryReadyCoupangItemEntity => DeliveryReadyCoupangItemDto
+     * 
+     * @param entity : DeliveryReadyCoupangItemEntity
+     * @return  DeliveryReadyCoupangItemDto
+     */
     public static DeliveryReadyCoupangItemDto toDto(DeliveryReadyCoupangItemEntity entity) {
         DeliveryReadyCoupangItemDto itemDto = DeliveryReadyCoupangItemDto.builder()
             .cid(entity.getCid())

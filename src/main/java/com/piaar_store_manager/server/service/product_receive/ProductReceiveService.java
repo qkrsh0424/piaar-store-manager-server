@@ -11,6 +11,7 @@ import com.piaar_store_manager.server.service.product_option.ProductOptionServic
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductReceiveService {
@@ -139,6 +140,7 @@ public class ProductReceiveService {
      * @param entities : List::ProductReceiveEntity::
      * @see ProductReceiveRepository#saveAll
      */
+    @Transactional
     public List<ProductReceiveEntity> createPRList(List<ProductReceiveEntity> entities) {
         return productReceiveRepository.saveAll(entities);
     }
