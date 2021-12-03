@@ -51,11 +51,11 @@ public class ProductReleaseServiceTest {
     // @Autowired
     // private ProductReleaseRepository releaseRepository;
 
-    @InjectMocks
-    private ProductReleaseBusinessService releaseBusinessService;
+    // @InjectMocks
+    // private ProductReleaseBusinessService releaseBusinessService;
 
-    @Mock
-    private ProductReleaseService releaseService;
+    // @Mock
+    // private ProductReleaseService releaseService;
 
     // @Mock
     // private ProductReleaseRepository releaseRepository;
@@ -66,10 +66,10 @@ public class ProductReleaseServiceTest {
     // @Autowired
     // private UserService userService;
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
+    // @BeforeEach
+    // public void init() {
+    //     MockitoAnnotations.openMocks(this);
+    // }
 
     // @Test
     // @Transactional
@@ -91,30 +91,30 @@ public class ProductReleaseServiceTest {
     //     System.out.println("##### ProductReleaseServiceTest.상품출고_단일삭제() 성공 #####");
     // }
 
-    @Test
-    public void 상품출고_단일조회() {
-        // given
-        UUID userId = UUID.fromString("#USER_ID#");
-        ProductReleaseEntity answer = ProductReleaseEntity.builder()
-            .cid(1)
-            .id(UUID.randomUUID())
-            .releaseUnit(11)
-            .memo("test")
-            .createdAt(DateHandler.getCurrentDate2())
-            .createdBy(userId)
-            .productOptionCid(77)
-            .build();
+    // @Test
+    // public void 상품출고_단일조회() {
+    //     // given
+    //     UUID userId = UUID.fromString("#USER_ID#");
+    //     ProductReleaseEntity answer = ProductReleaseEntity.builder()
+    //         .cid(1)
+    //         .id(UUID.randomUUID())
+    //         .releaseUnit(11)
+    //         .memo("test")
+    //         .createdAt(DateHandler.getCurrentDate2())
+    //         .createdBy(userId)
+    //         .productOptionCid(77)
+    //         .build();
 
-        ProductReleaseGetDto answerDto = ProductReleaseGetDto.toDto(answer);
+    //     ProductReleaseGetDto answerDto = ProductReleaseGetDto.toDto(answer);
 
-        // when
-        Mockito.when(releaseService.searchOne(1)).thenReturn(java.util.Optional.of(answer).get());
+    //     // when
+    //     Mockito.when(releaseService.searchOne(1)).thenReturn(java.util.Optional.of(answer).get());
         
-        ProductReleaseGetDto resultDto = releaseBusinessService.searchOne(1);
+    //     ProductReleaseGetDto resultDto = releaseBusinessService.searchOne(1);
 
-        // then
-        Assertions.assertEquals(answerDto.getCid(), resultDto.getCid());
+    //     // then
+    //     Assertions.assertEquals(answerDto.getCid(), resultDto.getCid());
 
-        System.out.println("##### ProductReleaseServiceTest.상품출고_단일조회() 성공 #####");
-    }
+    //     System.out.println("##### ProductReleaseServiceTest.상품출고_단일조회() 성공 #####");
+    // }
 }

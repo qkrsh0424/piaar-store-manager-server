@@ -26,20 +26,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ProductReceiveServiceTest {
     
-    @Autowired
-    private ProductReceiveService receiveService;
+    // @Autowired
+    // private ProductReceiveService receiveService;
 
-    @Autowired
-    private ProductReceiveBusinessService receiveBusinessService;
+    // @Autowired
+    // private ProductReceiveBusinessService receiveBusinessService;
 
-    @Autowired
-    private UserService userService;
+    // @Autowired
+    // private UserService userService;
 
-    @Autowired
-    private ProductReceiveRepository receiveRepository;
+    // @Autowired
+    // private ProductReceiveRepository receiveRepository;
 
-    @Autowired
-    private ProductOptionRepository optionRepository;
+    // @Autowired
+    // private ProductOptionRepository optionRepository;
 
     // @Test
     // public void 상품입고_단일조회() {

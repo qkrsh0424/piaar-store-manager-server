@@ -30,16 +30,16 @@ import org.springframework.transaction.annotation.Transactional;
 // @Transactional
 public class ProductServiceTest {
 
-    @InjectMocks
-    private ProductBusinessService productBusinessService;
+    // @InjectMocks
+    // private ProductBusinessService productBusinessService;
 
-    @Mock
-    private ProductService productService;
+    // @Mock
+    // private ProductService productService;
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
+    // @BeforeEach
+    // public void init() {
+    //     MockitoAnnotations.openMocks(this);
+    // }
 
     // @Autowired
     // private ProductBusinessService productBusinessService;
@@ -100,49 +100,49 @@ public class ProductServiceTest {
     //     System.out.println("##### ProductServiceTest.상품_FJ_전체조회() 성공 #####");
     // }
 
-    @Test
-    public void 상품_다중조회() {
-        // given
-        UUID userId = UUID.fromString("#USER_ID#");
+    // @Test
+    // public void 상품_다중조회() {
+    //     // given
+    //     UUID userId = UUID.fromString("#USER_ID#");
 
-        List<ProductEntity> entities = new ArrayList<>();
+    //     List<ProductEntity> entities = new ArrayList<>();
 
-        ProductEntity prod1 = ProductEntity.builder()
-            .cid(1)
-            .id(UUID.randomUUID())
-            .defaultName("상품명1")
-            .managementName("관리명1")
-            .stockManagement(true)
-            .createdBy(userId)
-            .updatedBy(userId)
-            .productCategoryCid(1)
-            .build();
+    //     ProductEntity prod1 = ProductEntity.builder()
+    //         .cid(1)
+    //         .id(UUID.randomUUID())
+    //         .defaultName("상품명1")
+    //         .managementName("관리명1")
+    //         .stockManagement(true)
+    //         .createdBy(userId)
+    //         .updatedBy(userId)
+    //         .productCategoryCid(1)
+    //         .build();
 
-        ProductEntity prod2 = ProductEntity.builder()
-            .cid(2)
-            .id(UUID.randomUUID())
-            .defaultName("상품명2")
-            .managementName("관리명2")
-            .stockManagement(false)
-            .createdBy(userId)
-            .updatedBy(userId)
-            .productCategoryCid(2)
-            .build();
+    //     ProductEntity prod2 = ProductEntity.builder()
+    //         .cid(2)
+    //         .id(UUID.randomUUID())
+    //         .defaultName("상품명2")
+    //         .managementName("관리명2")
+    //         .stockManagement(false)
+    //         .createdBy(userId)
+    //         .updatedBy(userId)
+    //         .productCategoryCid(2)
+    //         .build();
 
-        entities.add(prod1);
-        entities.add(prod2);
+    //     entities.add(prod1);
+    //     entities.add(prod2);
 
-        // when
-        Mockito.when(productService.searchList()).thenReturn(entities);
+    //     // when
+    //     Mockito.when(productService.searchList()).thenReturn(entities);
 
-        List<ProductGetDto> testDto = productBusinessService.searchList();
+    //     List<ProductGetDto> testDto = productBusinessService.searchList();
         
-        // then
-        Assertions.assertEquals(prod1.getCid(), testDto.get(0).getCid());
-        Assertions.assertEquals(prod1.getDefaultName(), testDto.get(0).getDefaultName());
-        Assertions.assertEquals(prod2.getCid(), testDto.get(1).getCid());
-        Assertions.assertEquals(prod2.getDefaultName(), testDto.get(1).getDefaultName());
+    //     // then
+    //     Assertions.assertEquals(prod1.getCid(), testDto.get(0).getCid());
+    //     Assertions.assertEquals(prod1.getDefaultName(), testDto.get(0).getDefaultName());
+    //     Assertions.assertEquals(prod2.getCid(), testDto.get(1).getCid());
+    //     Assertions.assertEquals(prod2.getDefaultName(), testDto.get(1).getDefaultName());
 
-        System.out.println("##### ProductServiceTest.상품_다중조회() 성공 #####");
-    }
+    //     System.out.println("##### ProductServiceTest.상품_다중조회() 성공 #####");
+    // }
 }

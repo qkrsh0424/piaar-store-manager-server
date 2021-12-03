@@ -21,16 +21,17 @@ import org.springframework.transaction.annotation.Transactional;
 @ExtendWith(SpringExtension.class)
 @Transactional
 public class ProductCategoryServiceTest {
-    @Autowired
-    private ProductCategoryService categoryService;
+    
+    // @Autowired
+    // private ProductCategoryService categoryService;
 
-    @Autowired
-    private ProductCategoryBusinessService categoryBusinessService;
+    // @Autowired
+    // private ProductCategoryBusinessService categoryBusinessService;
 
-    @BeforeEach
-    public void init(){
+    // @BeforeEach
+    // public void init(){
 
-    }
+    // }
 
     // @Test
     // public void 카테고리_전체조회() {
