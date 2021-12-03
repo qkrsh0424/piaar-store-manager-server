@@ -29,7 +29,7 @@ public class DeliveryReadyItemLotteExcelFormDto {
     private String prodOrderNumber;     // 상품코드2
     private String platformName;        // 상품상세2
     private String allProdOrderNumber;      // 총 상품주문번호
-    private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
+    private String allProdInfo;     // 상품명+옵션+수량
 
     /**
      * <b>Convert Method</b>
@@ -59,7 +59,7 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
             .platformName("네이버")
             .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .duplication(false)
+            .allProdInfo(viewDto.getDeliveryReadyItem().getProdName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
             .build();
 
         return formDto;
@@ -91,7 +91,7 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
             .platformName("네이버")
             .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .duplication(false)
+            .allProdInfo("")
             .build();
 
         return formDto;

@@ -662,8 +662,8 @@ public class DeliveryReadyCoupangBusinessService {
             }else{
                 // 받는사람 + 번호 + 주소 : 중복인 경우
                 if(!optionSet.add(receiverStr)){
-                    newOrderList.get(prevOrderIdx).setDuplication(true);
-                    dtos.get(i).setDuplication(true);
+                    // newOrderList.get(prevOrderIdx).setDuplication(true);
+                    // dtos.get(i).setDuplication(true);
                 }
                 newOrderList.add(dtos.get(i));
             }
