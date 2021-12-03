@@ -21,13 +21,15 @@ public class DeliveryReadyItemLotteExcelFormDto {
     private String sender;      // 보내는사람(지정)
     private String senderContact1;      // 전화번호1(지정)
     private String senderAddress;   // 주소(지정)
-    private Integer unitA;   // 수량(A타입)
+    private String unitA;   // 수량(A타입)
     private String prodName1;       // 상품명1
     private String optionInfo1;     // 상품상세1
-    private String prodName2;       // 상품명2
-    private String unit;        // 내품수량1
-    private String transportNumber;     // 운송장번호
-    private String purchaseDate;        // 날짜
+    private Integer unit;        // 내품수량1
+    private String orderNumber;     // 상품코드1
+    private String prodOrderNumber;     // 상품코드2
+    private String platformName;        // 상품상세2
+    private String allProdOrderNumber;      // 총 상품주문번호
+    private boolean duplication; // 받는사람 + 번호 + 주소 : 중복 여부
 
     /**
      * <b>Convert Method</b>
@@ -48,9 +50,16 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
             .sender(viewDto.getSender())
             .senderContact1(viewDto.getSenderContact1())
-            .senderAddress("*지정바람")
-            .unitA(viewDto.getDeliveryReadyItem().getUnit())
+            .senderAddress("서울특별시 마포구 와우산로 11길 25 3층")
+            .unitA("")
             .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            .optionInfo1(viewDto.getDeliveryReadyItem().getOptionInfo())
+            .unit(viewDto.getDeliveryReadyItem().getUnit())
+            .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+            .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+            .platformName("네이버")
+            .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+            .duplication(false)
             .build();
 
         return formDto;
@@ -65,7 +74,6 @@ public class DeliveryReadyItemLotteExcelFormDto {
      * @return DeliveryReadyItemLotteExcelFormDto
      */
     public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
-
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
             .receiver(viewDto.getDeliveryReadyItem().getReceiver())
             .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
@@ -74,9 +82,16 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .deliveryMessage(viewDto.getDeliveryReadyItem().getDeliveryMessage())
             .sender(viewDto.getSender())
             .senderContact1(viewDto.getSenderContact1())
-            .senderAddress("*지정바람")
-            .unitA(viewDto.getDeliveryReadyItem().getUnit())
+            .senderAddress("서울특별시 마포구 와우산로 11길 25 3층")
+            .unitA("")
             .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            .optionInfo1(viewDto.getDeliveryReadyItem().getOptionInfo())
+            .unit(viewDto.getDeliveryReadyItem().getUnit())
+            .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
+            .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+            .platformName("네이버")
+            .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
+            .duplication(false)
             .build();
 
         return formDto;

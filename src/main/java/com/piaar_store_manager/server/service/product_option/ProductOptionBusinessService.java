@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.service.product_option;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -86,7 +87,7 @@ public class ProductOptionBusinessService {
      */
     public List<ProductOptionGetDto> searchList() {
         List<ProductOptionEntity> entities = productOptionService.searchList();
-        List<ProductOptionGetDto> dtos = ProductOptionGetDto.toDtos(entities);
+        List<ProductOptionGetDto> dtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -102,7 +103,7 @@ public class ProductOptionBusinessService {
      */
     public List<ProductOptionJoinResDto> searchListM2OJ() {
         List<ProductOptionProj> productOptionProjs = productOptionService.searchListM2OJ();
-        List<ProductOptionJoinResDto> resDtos = ProductOptionJoinResDto.toDtos(productOptionProjs);
+        List<ProductOptionJoinResDto> resDtos = productOptionProjs.stream().map(proj -> ProductOptionJoinResDto.toDto(proj)).collect(Collectors.toList());
         return resDtos;
     }
 
@@ -137,11 +138,11 @@ public class ProductOptionBusinessService {
     public ProductOptionStatusDto searchStockStatus(Integer optionCid) {
         // 1. 출고데이터 조회
         List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
-        List<ProductReleaseGetDto> releaseDtos = ProductReleaseGetDto.toDtos(releaseEntities);
+        List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
         
         // 2. 입고데이터 조회
         List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
-        List<ProductReceiveGetDto> receiveDtos = ProductReceiveGetDto.toDtos(receiveEntities);
+        List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
 
         // 3. 합쳐서 ProductOptionStatusDto 생성
         ProductOptionStatusDto statusDto = ProductOptionStatusDto.builder()

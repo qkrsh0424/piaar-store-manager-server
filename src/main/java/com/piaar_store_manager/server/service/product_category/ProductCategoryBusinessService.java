@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.service.product_category;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryEntity;
@@ -31,7 +32,7 @@ public class ProductCategoryBusinessService {
      */
     public List<ProductCategoryGetDto> searchList(){
         List<ProductCategoryEntity> productCategoryEntities = productCategoryService.searchList();
-        List<ProductCategoryGetDto> productCategoryGetDtos = ProductCategoryGetDto.toDtos(productCategoryEntities);
+        List<ProductCategoryGetDto> productCategoryGetDtos = productCategoryEntities.stream().map(entity -> ProductCategoryGetDto.toDto(entity)).collect(Collectors.toList());
         return productCategoryGetDtos;
     }
 }

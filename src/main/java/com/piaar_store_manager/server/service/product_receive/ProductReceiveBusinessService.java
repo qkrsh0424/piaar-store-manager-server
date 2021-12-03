@@ -74,7 +74,7 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveService.searchList();
-        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
+        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -90,7 +90,7 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
-        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
+        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
     
@@ -106,7 +106,7 @@ public class ProductReceiveBusinessService {
      */
     public List<ProductReceiveJoinResDto> searchListM2OJ() {
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-        List<ProductReceiveJoinResDto> resDtos = ProductReceiveJoinResDto.toDtos(receiveProjs);
+        List<ProductReceiveJoinResDto> resDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinResDto.toDto(proj)).collect(Collectors.toList());
         return resDtos;
     }
 
@@ -160,7 +160,7 @@ public class ProductReceiveBusinessService {
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), userId, r.getReceiveUnit()); });
 
-        List<ProductReceiveGetDto> dtos = ProductReceiveGetDto.toDtos(entities);
+        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -190,6 +190,7 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#createPR
      * @see ProductOptionService#updateReceiveProductUnit
      */
+    @Transactional
     public void changeOne(ProductReceiveGetDto receiveDto, UUID userId) {
         // 입고 데이터 조회
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());

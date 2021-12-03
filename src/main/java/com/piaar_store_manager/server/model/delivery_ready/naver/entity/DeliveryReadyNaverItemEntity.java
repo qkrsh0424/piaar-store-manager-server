@@ -1,9 +1,7 @@
 package com.piaar_store_manager.server.model.delivery_ready.naver.entity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -179,57 +177,5 @@ public class DeliveryReadyNaverItemEntity {
             .build();
 
         return entity;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::DeliveryReadyNaverItemDto:: => List::DeliveryReadyNaverItemEntity::
-     * 
-     * @param dto : List::DeliveryReadyNaverItemDto::
-     * @return  List::DeliveryReadyNaverItemEntity::
-     */
-    public static List<DeliveryReadyNaverItemEntity> toEntities(List<DeliveryReadyNaverItemDto> dtos) {
-        List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> {
-            DeliveryReadyNaverItemEntity entity = DeliveryReadyNaverItemEntity.builder()
-                .cid(dto.getCid())
-                .id(dto.getId())
-                .prodOrderNumber(dto.getProdOrderNumber())
-                .orderNumber(dto.getOrderNumber())
-                .salesChannel(dto.getSalesChannel())
-                .buyer(dto.getBuyer())
-                .buyerId(dto.getBuyerId())
-                .receiver(dto.getReceiver())
-                .paymentDate(dto.getPaymentDate())
-                .prodNumber(dto.getProdNumber())
-                .prodName(dto.getProdName())
-                .optionInfo(dto.getOptionInfo())
-                .optionManagementCode(dto.getOptionManagementCode())
-                .unit(dto.getUnit())
-                .orderConfirmationDate(dto.getOrderConfirmationDate())
-                .shipmentDueDate(dto.getShipmentDueDate())
-                .shipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-                .sellerProdCode(dto.getSellerProdCode())
-                .sellerInnerCode1(dto.getSellerInnerCode1())
-                .sellerInnerCode2(dto.getSellerInnerCode2())
-                .receiverContact1(dto.getReceiverContact1())
-                .receiverContact2(dto.getReceiverContact2())
-                .destination(dto.getDestination())
-                .buyerContact(dto.getBuyerContact())
-                .zipCode(dto.getZipCode())
-                .deliveryMessage(dto.getDeliveryMessage())
-                .releaseArea(dto.getReleaseArea())
-                .orderDateTime(dto.getOrderDateTime())
-                .released(dto.getReleased())
-                .releasedAt(dto.getReleasedAt())
-                .createdAt(dto.getCreatedAt())
-                .releaseCompleted(dto.getReleaseCompleted())
-                .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
-                .build();
-
-            return entity;
-        }).collect(Collectors.toList());
-        
-        return entities;
     }
 }

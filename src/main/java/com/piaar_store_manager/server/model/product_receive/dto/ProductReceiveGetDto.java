@@ -1,9 +1,7 @@
 package com.piaar_store_manager.server.model.product_receive.dto;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
@@ -49,32 +47,6 @@ public class ProductReceiveGetDto {
             .build();
 
         return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::ProductReceiveEntity:: => List::ProductReceiveGetDto::
-     * 
-     * @param entities : List::ProductReceiveEntity::
-     * @return List::ProductReceiveGetDto::
-     */
-    public static List<ProductReceiveGetDto> toDtos(List<ProductReceiveEntity> entities) {
-        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> {
-            ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
-                .cid(entity.getCid())
-                .id(entity.getId())
-                .receiveUnit(entity.getReceiveUnit())
-                .memo(entity.getMemo())
-                .createdAt(entity.getCreatedAt())
-                .createdBy(entity.getCreatedBy())
-                .productOptionCid(entity.getProductOptionCid())
-                .build();
-
-            return dto;
-        }).collect(Collectors.toList());
-        
-        return dtos;
     }
 
     /**

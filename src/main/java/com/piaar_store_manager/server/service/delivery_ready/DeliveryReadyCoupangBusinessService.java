@@ -35,6 +35,7 @@ import com.piaar_store_manager.server.model.delivery_ready.coupang.entity.Delive
 import com.piaar_store_manager.server.model.delivery_ready.coupang.proj.DeliveryReadyCoupangItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
+import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemLotteExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
@@ -297,7 +298,7 @@ public class DeliveryReadyCoupangBusinessService {
                 .thenComparing(DeliveryReadyCoupangItemDto::getOptionInfo)
                 .thenComparing(DeliveryReadyCoupangItemDto::getReceiver));
 
-        List<DeliveryReadyCoupangItemEntity> entities = DeliveryReadyCoupangItemEntity.toEntities(dtos);
+        List<DeliveryReadyCoupangItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyCoupangItemEntity.toEntity(dto)).collect(Collectors.toList());
         deliveryReadyCoupangService.createItemList(entities);
     }
 
@@ -373,7 +374,8 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangService.findSelectedUnreleased();
-        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = DeliveryReadyCoupangItemViewProj.toResDtos(itemViewProj);
+        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyCoupangItemViewProj.toResDto(proj)).collect(Collectors.toList());
+
         return itemViewResDto;
     }
 
@@ -399,7 +401,7 @@ public class DeliveryReadyCoupangBusinessService {
         }
 
         List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangService.findSelectedReleased(startDate, endDate);
-        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = DeliveryReadyCoupangItemViewProj.toResDtos(itemViewProj);
+        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyCoupangItemViewProj.toResDto(proj)).collect(Collectors.toList());
         return itemViewResDto;
     }
 
@@ -476,7 +478,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
         List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyCoupangService.findAllOptionInfo();
-        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = DeliveryReadyItemOptionInfoProj.toResDtos(optionInfoProjs);
+        List<DeliveryReadyItemOptionInfoResDto> optionInfoDto = optionInfoProjs.stream().map(proj -> DeliveryReadyItemOptionInfoProj.toResDto(proj)).collect(Collectors.toList());
         return optionInfoDto;
     }
 
@@ -541,8 +543,23 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyItemHansanExcelFormDto#toFormDto
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItem(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
-        List<DeliveryReadyItemHansanExcelFormDto> formDtos = DeliveryReadyItemHansanExcelFormDto.toFormDtosByCoupang(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemHansanExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
         List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = this.changeDuplicationDtos(formDtos);     // 중복 데이터 처리
+        return excelFormDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * DeliveryReadyItem 다운로드 시 중복데이터 처리 및 셀 색상을 지정한다.
+     *
+     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @return List::DeliveryReadyItemLotteExcelFormDto::
+     * @see DeliveryReadyItemLotteExcelFormDto#toFormDto
+     */
+    public List<DeliveryReadyItemLotteExcelFormDto> changeDeliveryReadyItemToLotte(List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+        List<DeliveryReadyItemLotteExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemLotteExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
+        List<DeliveryReadyItemLotteExcelFormDto> excelFormDtos = this.changeDuplicationLotteDtos(formDtos);     // 중복 데이터 처리
         return excelFormDtos;
     }
 
@@ -585,6 +602,60 @@ public class DeliveryReadyCoupangBusinessService {
             if(!optionSet.add(resultStr)){
                 DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
                 DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
+                
+                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정
+            }else{
+                // 받는사람 + 번호 + 주소 : 중복인 경우
+                if(!optionSet.add(receiverStr)){
+                    newOrderList.get(prevOrderIdx).setDuplication(true);
+                    dtos.get(i).setDuplication(true);
+                }
+                newOrderList.add(dtos.get(i));
+            }
+        }
+        return newOrderList;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * (주문번호 + 받는사람 + 상품명 + 상품상세) 중복데이터 가공
+     *
+     * @param dtos : List::DeliveryReadyItemLotteExcelFormDto::
+     * @return List::DeliveryReadyItemLotteExcelFormDto::
+     */
+    public List<DeliveryReadyItemLotteExcelFormDto> changeDuplicationLotteDtos(List<DeliveryReadyItemLotteExcelFormDto> dtos) {
+        List<DeliveryReadyItemLotteExcelFormDto> newOrderList = new ArrayList<>();
+
+        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
+        dtos.sort(Comparator.comparing(DeliveryReadyItemLotteExcelFormDto::getReceiver)
+                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOrderNumber)
+                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getProdName1)
+                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOptionInfo1));
+
+        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
+
+        for(int i = 0; i < dtos.size(); i++){
+            StringBuilder sb = new StringBuilder();
+            sb.append(dtos.get(i).getReceiver());
+            sb.append(dtos.get(i).getDestination());
+            sb.append(dtos.get(i).getProdName1());
+            sb.append(dtos.get(i).getOptionInfo1());
+
+            StringBuilder receiverSb = new StringBuilder();
+            receiverSb.append(dtos.get(i).getReceiver());
+            receiverSb.append(dtos.get(i).getReceiverContact1());
+            receiverSb.append(dtos.get(i).getDestination());
+
+            String resultStr = sb.toString();
+            String receiverStr = receiverSb.toString();
+            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
+
+            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
+            if(!optionSet.add(resultStr)){
+                DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
                 
                 newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
                 newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정

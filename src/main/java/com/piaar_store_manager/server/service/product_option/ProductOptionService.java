@@ -140,7 +140,7 @@ public class ProductOptionService {
      */
     public List<ProductOptionGetDto> searchStockUnit(List<ProductOptionEntity> entities) {
         List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
-        List<ProductOptionGetDto> productOptionGetDtos = ProductOptionGetDto.toDtos(entities);
+        List<ProductOptionGetDto> productOptionGetDtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
 
         List<ReceiveReleaseSumOnlyDto> stockUnitByOption = this.sumStockUnit(productOptionCids);
 

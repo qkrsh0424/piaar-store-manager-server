@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.service.product_detail;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
@@ -48,7 +49,7 @@ public class ProductDetailBusinessService {
      */
     public List<ProductDetailGetDto> searchList(Integer optionCid) {
         List<ProductDetailEntity> entities = productDetailService.searchList(optionCid);
-        List<ProductDetailGetDto> dtos = ProductDetailGetDto.toDtos(entities);
+        List<ProductDetailGetDto> dtos = entities.stream().map(entity -> ProductDetailGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 

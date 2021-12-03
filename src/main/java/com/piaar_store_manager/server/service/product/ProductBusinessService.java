@@ -129,7 +129,7 @@ public class ProductBusinessService {
      */
     public List<ProductJoinResDto> searchListM2OJ() {
         List<ProductProj> productProjs = productService.searchProjList();
-        List<ProductJoinResDto> resDtos = ProductJoinResDto.toDtos(productProjs);
+        List<ProductJoinResDto> resDtos = productProjs.stream().map(proj -> ProductJoinResDto.toDto(proj)).collect(Collectors.toList());
         return resDtos;
     }
 

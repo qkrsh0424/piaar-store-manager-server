@@ -73,7 +73,7 @@ public class ProductReleaseBusinessService {
      */
     public List<ProductReleaseGetDto> searchList() {
         List<ProductReleaseEntity> entities = productReleaseService.searchList();
-        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
+        List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -89,7 +89,7 @@ public class ProductReleaseBusinessService {
      */
     public List<ProductReleaseGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReleaseEntity> entities = productReleaseService.searchListByOptionCid(productOptionCid);
-        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
+        List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -105,7 +105,7 @@ public class ProductReleaseBusinessService {
      */
     public List<ProductReleaseJoinResDto> searchListM2OJ() {
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-        List<ProductReleaseJoinResDto> resDtos = ProductReleaseJoinResDto.toDtos(releaseProjs);
+        List<ProductReleaseJoinResDto> resDtos = releaseProjs.stream().map(proj -> ProductReleaseJoinResDto.toDto(proj)).collect(Collectors.toList());
         return resDtos;
     }
 
@@ -157,7 +157,7 @@ public class ProductReleaseBusinessService {
         // ProductOption 재고 반영
         entities.forEach(r -> { productOptionService.updateReleaseProductUnit(r.getProductOptionCid(), userId, r.getReleaseUnit()); });
         
-        List<ProductReleaseGetDto> dtos = ProductReleaseGetDto.toDtos(entities);
+        List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 

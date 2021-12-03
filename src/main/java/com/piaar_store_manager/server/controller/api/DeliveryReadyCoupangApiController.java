@@ -836,11 +836,8 @@ public class DeliveryReadyCoupangApiController {
      */
     @PostMapping("/view/download/lotte")
     public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
-        List<DeliveryReadyItemLotteExcelFormDto> dtos = new ArrayList<>();
-        
-        for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
-            dtos.add(DeliveryReadyItemLotteExcelFormDto.toFormDto(viewDto));
-        }
+        // 중복데이터 처리
+        List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItemToLotte(viewDtos);
 
         // 수취인명 > 주소 > 상품명
         Comparator<DeliveryReadyItemLotteExcelFormDto> comparing = Comparator
@@ -885,13 +882,15 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(12);
         cell.setCellValue("상품상세1");
         cell = row.createCell(13);
-        cell.setCellValue("상품명2");
-        cell = row.createCell(14);
         cell.setCellValue("내품수량1");
+        cell = row.createCell(14);
+        cell.setCellValue("상품코드1");
         cell = row.createCell(15);
-        cell.setCellValue("운송장번호");
+        cell.setCellValue("상품코드2");
         cell = row.createCell(16);
-        cell.setCellValue("날짜");
+        cell.setCellValue("상품상세2");
+        cell = row.createCell(17);
+        cell.setCellValue("총 상품주문번호");
 
         for (int i=0; i<dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
@@ -922,16 +921,18 @@ public class DeliveryReadyCoupangApiController {
             cell = row.createCell(12);
             cell.setCellValue(dtos.get(i).getOptionInfo1());
             cell = row.createCell(13);
-            cell.setCellValue(dtos.get(i).getProdName2());
-            cell = row.createCell(14);
             cell.setCellValue(dtos.get(i).getUnit());
+            cell = row.createCell(14);
+            cell.setCellValue(dtos.get(i).getOrderNumber());
             cell = row.createCell(15);
-            cell.setCellValue(dtos.get(i).getTransportNumber());
+            cell.setCellValue(dtos.get(i).getProdOrderNumber());
             cell = row.createCell(16);
-            cell.setCellValue(dtos.get(i).getPurchaseDate());
+            cell.setCellValue(dtos.get(i).getPlatformName());
+            cell = row.createCell(17);
+            cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
         }
 
-        for(int i = 0; i < 17; i++){
+        for(int i = 0; i < 18; i++){
             sheet.autoSizeColumn(i);
         }
 

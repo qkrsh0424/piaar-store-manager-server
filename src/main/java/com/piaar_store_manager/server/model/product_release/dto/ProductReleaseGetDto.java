@@ -1,9 +1,7 @@
 package com.piaar_store_manager.server.model.product_release.dto;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
@@ -49,32 +47,6 @@ public class ProductReleaseGetDto {
            .build();
 
         return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::ProductReleaseEntity:: => List::ProductReleaseGetDto::
-     * 
-     * @param entities : List::ProductReleaseEntity::
-     * @return List::ProductReleaseGetDto::
-     */
-    public static List<ProductReleaseGetDto> toDtos(List<ProductReleaseEntity> entities) {
-        List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> {
-            ProductReleaseGetDto dto = ProductReleaseGetDto.builder()
-                .cid(entity.getCid())
-                .id(entity.getId())
-                .releaseUnit(entity.getReleaseUnit())
-                .memo(entity.getMemo())
-                .createdAt(entity.getCreatedAt())
-                .createdBy(entity.getCreatedBy())
-                .productOptionCid(entity.getProductOptionCid())
-                .build();
-
-            return dto;
-        }).collect(Collectors.toList());
-        
-        return dtos;
     }
 
     /**

@@ -1,9 +1,7 @@
 package com.piaar_store_manager.server.model.product_detail.dto;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
 
@@ -59,37 +57,5 @@ public class ProductDetailGetDto {
             .build();
 
         return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::ProductDetailEntity:: => List::ProductDetailGetDto::
-     * 
-     * @param entities : List::ProductDetailEntity::
-     * @return List::ProductDetailGetDto::
-     */
-    public static List<ProductDetailGetDto> toDtos(List<ProductDetailEntity> entities) {
-        List<ProductDetailGetDto> dtos = entities.stream().map(entity -> {
-            ProductDetailGetDto dto = ProductDetailGetDto.builder()
-                .cid(entity.getCid())
-                .id(entity.getId())
-                .detailWidth(entity.getDetailWidth())
-                .detailLength(entity.getDetailLength())
-                .detailHeight(entity.getDetailHeight())
-                .detailQuantity(entity.getDetailQuantity())
-                .detailWeight(entity.getDetailWeight())
-                .detailCbm(entity.getDetailCbm())
-                .createdAt(entity.getCreatedAt())
-                .createdBy(entity.getCreatedBy())
-                .updatedAt(entity.getUpdatedAt())
-                .updatedBy(entity.getUpdatedBy())
-                .productOptionCid(entity.getProductOptionCid())
-                .build();
-
-            return dto;
-        }).collect(Collectors.toList());
-        
-        return dtos;
     }
 }

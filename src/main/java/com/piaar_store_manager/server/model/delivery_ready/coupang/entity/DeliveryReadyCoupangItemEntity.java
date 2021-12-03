@@ -1,9 +1,7 @@
 package com.piaar_store_manager.server.model.delivery_ready.coupang.entity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -151,50 +149,5 @@ public class DeliveryReadyCoupangItemEntity {
             .build();
 
         return entity;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::DeliveryReadyCoupangItemDto:: => List::DeliveryReadyCoupangItemEntity::
-     * 
-     * @param dtos : List::DeliveryReadyCoupangItemDto::
-     * @return List::DeliveryReadyCoupangItemEntity::
-     */
-    public static List<DeliveryReadyCoupangItemEntity> toEntities(List<DeliveryReadyCoupangItemDto> dtos) {
-        List<DeliveryReadyCoupangItemEntity> entities = dtos.stream().map(dto -> {
-            DeliveryReadyCoupangItemEntity entity = DeliveryReadyCoupangItemEntity.builder()
-                    .cid(dto.getCid())
-                    .id(dto.getId())
-                    .prodOrderNumber(dto.getProdOrderNumber())
-                    .orderNumber(dto.getOrderNumber())
-                    .buyer(dto.getBuyer())
-                    .receiver(dto.getReceiver())
-                    .prodNumber(dto.getProdNumber())
-                    .prodName(dto.getProdName())
-                    .prodExposureName(dto.getProdExposureName())
-                    .optionInfo(dto.getOptionInfo())
-                    .optionManagementCode(dto.getOptionManagementCode())
-                    .coupangOptionId(dto.getCoupangOptionId())
-                    .unit(dto.getUnit())
-                    .shipmentDueDate(dto.getShipmentDueDate())
-                    .shipmentCostBundleNumber(dto.getShipmentCostBundleNumber())
-                    .receiverContact1(dto.getReceiverContact1())
-                    .destination(dto.getDestination())
-                    .buyerContact(dto.getBuyerContact())
-                    .zipCode(dto.getZipCode())
-                    .deliveryMessage(dto.getDeliveryMessage())
-                    .orderDateTime(dto.getOrderDateTime())
-                    .released(dto.getReleased())
-                    .releasedAt(dto.getReleasedAt())
-                    .createdAt(dto.getCreatedAt())
-                    .releaseCompleted(dto.getReleaseCompleted())
-                    .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
-                    .build();
-
-            return entity;
-        }).collect(Collectors.toList());
-
-        return entities;
     }
 }
