@@ -891,6 +891,8 @@ public class DeliveryReadyCoupangApiController {
         cell.setCellValue("상품상세2");
         cell = row.createCell(17);
         cell.setCellValue("총 상품주문번호");
+        cell = row.createCell(18);
+        cell.setCellValue("총 상품정보");
 
         for (int i=0; i<dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
@@ -917,11 +919,11 @@ public class DeliveryReadyCoupangApiController {
             cell = row.createCell(10);
             cell.setCellValue(dtos.get(i).getUnitA());
             cell = row.createCell(11);
-            cell.setCellValue(dtos.get(i).getProdName1());
+            cell.setCellValue(dtos.get(i).getAllProdInfo());
             cell = row.createCell(12);
-            cell.setCellValue(dtos.get(i).getOptionInfo1());
+            cell.setCellValue("");
             cell = row.createCell(13);
-            cell.setCellValue(dtos.get(i).getUnit());
+            cell.setCellValue("");
             cell = row.createCell(14);
             cell.setCellValue(dtos.get(i).getOrderNumber());
             cell = row.createCell(15);

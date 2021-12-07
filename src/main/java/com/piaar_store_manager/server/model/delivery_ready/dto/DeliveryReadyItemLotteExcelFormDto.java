@@ -89,9 +89,9 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .unit(viewDto.getDeliveryReadyItem().getUnit())
             .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
             .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .platformName("네이버")
+            .platformName("쿠팡")
             .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .allProdInfo("")
+            .allProdInfo(viewDto.getDeliveryReadyItem().getProdName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
             .build();
 
         return formDto;

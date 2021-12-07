@@ -627,49 +627,62 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<DeliveryReadyItemLotteExcelFormDto> changeDuplicationLotteDtos(List<DeliveryReadyItemLotteExcelFormDto> dtos) {
         List<DeliveryReadyItemLotteExcelFormDto> newOrderList = new ArrayList<>();
+        List<DeliveryReadyItemLotteExcelFormDto> resultList = new ArrayList<>();
 
-        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
+        // 받는사람 > 주소 > 주문번호 > 상품명 > 상품상세 정렬
         dtos.sort(Comparator.comparing(DeliveryReadyItemLotteExcelFormDto::getReceiver)
-                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOrderNumber)
-                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getProdName1)
-                                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOptionInfo1));
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getDestination)
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOrderNumber)
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getProdName1)
+                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOptionInfo1));
 
-        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
+                Set<String> optionSet = new HashSet<>(); // 받는사람 + 주소 + 상품명 + 상품상세
 
-        for(int i = 0; i < dtos.size(); i++){
-            StringBuilder sb = new StringBuilder();
-            sb.append(dtos.get(i).getReceiver());
-            sb.append(dtos.get(i).getDestination());
-            sb.append(dtos.get(i).getProdName1());
-            sb.append(dtos.get(i).getOptionInfo1());
-
-            StringBuilder receiverSb = new StringBuilder();
-            receiverSb.append(dtos.get(i).getReceiver());
-            receiverSb.append(dtos.get(i).getReceiverContact1());
-            receiverSb.append(dtos.get(i).getDestination());
-
-            String resultStr = sb.toString();
-            String receiverStr = receiverSb.toString();
-            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
-
-            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
-            if(!optionSet.add(resultStr)){
-                DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
-                DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
-                
-                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
-                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정
-            }else{
-                // 받는사람 + 번호 + 주소 : 중복인 경우
-                if(!optionSet.add(receiverStr)){
-                    // newOrderList.get(prevOrderIdx).setDuplication(true);
-                    // dtos.get(i).setDuplication(true);
+                for (int i = 0; i < dtos.size(); i++) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(dtos.get(i).getReceiver());
+                    sb.append(dtos.get(i).getDestination());
+                    sb.append(dtos.get(i).getProdName1());
+                    sb.append(dtos.get(i).getOptionInfo1());
+        
+                    String resultStr = sb.toString();
+                    int prevOrderIdx = newOrderList.size() - 1;     // 추가되는 데이터 리스트의 마지막 index
+        
+                    // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
+                    if (!optionSet.add(resultStr)) {
+                        DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                        DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
+                        
+                        newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                        newOrderList.get(prevOrderIdx).setAllProdInfo(prevProd.getProdName1() + " [" + prevProd.getOptionInfo1() + "-" + prevProd.getUnit() + "]");
+                        newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getProdOrderNumber());   // 총 상품번호 수정
+                    } else {
+                        newOrderList.add(dtos.get(i));
+                    }
                 }
-                newOrderList.add(dtos.get(i));
+        
+                for (int i = 0; i < newOrderList.size(); i++) {
+                    StringBuilder receiverSb = new StringBuilder();
+                    receiverSb.append(dtos.get(i).getReceiver());
+                    receiverSb.append(dtos.get(i).getReceiverContact1());
+                    receiverSb.append(dtos.get(i).getDestination());
+                    
+                    String receiverStr = receiverSb.toString();
+                    int prevOrderIdx = resultList.size() - 1;     // 추가되는 데이터 리스트의 마지막 index
+        
+                    // 받는사람 + 연락처 + 주소 : 중복인 경우
+                    if (!optionSet.add(receiverStr)) {
+                        DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                        DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
+        
+                        newOrderList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
+                        newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
+                    } else {
+                        resultList.add(dtos.get(i));
+                    }
+                }
+                return resultList;
             }
-        }
-        return newOrderList;
-    }
 
     /**
      * <b>DB Update Related Method</b>
