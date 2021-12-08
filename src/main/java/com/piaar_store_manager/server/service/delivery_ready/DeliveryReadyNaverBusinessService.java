@@ -663,15 +663,23 @@ public class DeliveryReadyNaverBusinessService {
     //     }
     //     return newOrderList;
     // }
-        
+    
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * (받는사람 + 주소 + 상품명 + 상품상세) 중복데이터 가공
+     * (받는사람 + 연락처 + 주소) 중복데이터 가공
+     *
+     * @param dtos : List::DeliveryReadyItemLotteExcelFormDto::
+     * @return List::DeliveryReadyItemLotteExcelFormDto::
+     */
     public List<DeliveryReadyItemLotteExcelFormDto> changeDuplicationLotteDtos(List<DeliveryReadyItemLotteExcelFormDto> dtos) {
         List<DeliveryReadyItemLotteExcelFormDto> newOrderList = new ArrayList<>();
         List<DeliveryReadyItemLotteExcelFormDto> resultList = new ArrayList<>();
 
-        // 받는사람 > 주소 > 주문번호 > 상품명 > 상품상세 정렬
+        // 받는사람 > 주소 > 상품명 > 상품상세 정렬
         dtos.sort(Comparator.comparing(DeliveryReadyItemLotteExcelFormDto::getReceiver)
                 .thenComparing(DeliveryReadyItemLotteExcelFormDto::getDestination)
-                .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOrderNumber)
                 .thenComparing(DeliveryReadyItemLotteExcelFormDto::getProdName1)
                 .thenComparing(DeliveryReadyItemLotteExcelFormDto::getOptionInfo1));
 
@@ -692,9 +700,10 @@ public class DeliveryReadyNaverBusinessService {
                 DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
                 DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
                 
-                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                prevProd.setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
                 newOrderList.get(prevOrderIdx).setAllProdInfo(prevProd.getProdName1() + " [" + prevProd.getOptionInfo1() + "-" + prevProd.getUnit() + "]");
-                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getProdOrderNumber());   // 총 상품번호 수정
+                prevProd.setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getProdOrderNumber());
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber());   // 총 상품번호 수정
             } else {
                 newOrderList.add(dtos.get(i));
             }
@@ -702,22 +711,23 @@ public class DeliveryReadyNaverBusinessService {
 
         for (int i = 0; i < newOrderList.size(); i++) {
             StringBuilder receiverSb = new StringBuilder();
-            receiverSb.append(dtos.get(i).getReceiver());
-            receiverSb.append(dtos.get(i).getReceiverContact1());
-            receiverSb.append(dtos.get(i).getDestination());
+            receiverSb.append(newOrderList.get(i).getReceiver());
+            receiverSb.append(newOrderList.get(i).getReceiverContact1());
+            receiverSb.append(newOrderList.get(i).getDestination());
             
             String receiverStr = receiverSb.toString();
             int prevOrderIdx = resultList.size() - 1;     // 추가되는 데이터 리스트의 마지막 index
 
+            // 받는사람 + 연락처 + 주소 + 상품상세 : 중복이 아니면서
             // 받는사람 + 연락처 + 주소 : 중복인 경우
             if (!optionSet.add(receiverStr)) {
-                DeliveryReadyItemLotteExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
-                DeliveryReadyItemLotteExcelFormDto currentProd = dtos.get(i);
+                DeliveryReadyItemLotteExcelFormDto prevProd = resultList.get(prevOrderIdx);
+                DeliveryReadyItemLotteExcelFormDto currentProd = newOrderList.get(i);
 
-                newOrderList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
-                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
+                resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
+                resultList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
             } else {
-                resultList.add(dtos.get(i));
+                resultList.add(newOrderList.get(i));
             }
         }
         return resultList;
