@@ -98,6 +98,18 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     List<ProductOptionEntity> selectAllByProductCids(List<Integer> productCids);
 
     /**
+     * 다중 Product option에 대응하는 상품옵션 데이터를 모두 조회한다.
+     * 
+     * @param optionCodes : List::String::
+     * @return List::ProductOptionEntity::
+     */
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" + 
+        "WHERE po.code IN :optionCodes"
+    )
+    List<ProductOptionEntity> selectAllByOptionCodes(List<String> optionCodes);
+
+    /**
      * 다중 ProductOption cid에 대응하는 옵션데이터의 재고수량을 계산한다.
      * option cid값에 대응하는 입고데이터의 모든 수량합을 조회한다.
      * option cid값에 대응하는 출고데이터의 모든 수량합을 조회한다.

@@ -129,6 +129,23 @@ public class ProductOptionService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
+     * Option Code들에 대응되는 ProductOption 데이터를 모두 조회한다.
+     * ProductOption의 입고수량과 출고수량을 통해 재고수량을 계산한다.
+     *
+     * @return List::ProductOptionGetDto::
+     * @param optionCodes : List::String::
+     * @see ProductOptionRepository#selectAllByOptionCodes
+     * @see ProductOptionService#searchStockUnit
+     */
+    public List<ProductOptionGetDto> searchListByProductListOptionCode(List<String> optionCodes) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.selectAllByOptionCodes(optionCodes);
+        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
+        return productOptionGetDtos;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
      * ProductOption의 재고수량을 계산한다.
      * 입고수량과 출고수량을 이용해 ProductOption의 stockUnit을 세팅한다.
      * (receivedSumUnit, releasedSumUnit, stockSunUnit을 반환하기 위해 dto사용)

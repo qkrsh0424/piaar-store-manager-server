@@ -39,6 +39,7 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.entity.Delivery
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
@@ -365,12 +366,28 @@ public class DeliveryReadyNaverBusinessService {
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
      * @return List::DeliveryReadyNaverItemViewResDto::
-     * @see DeliveryReadyNaverItemRepository#findSelectedUnreleased
+     * @see DeliveryReadyNaverService#findSelectedUnreleased
+     * @see ProductOptionService#searchListByProductListOptionCode
      * @see DeliveryReadyNaverItemViewProj#toResDto
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedUnreleased();
-        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemViewProj.toResDto(proj)).collect(Collectors.toList());
+        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+
+        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
+        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
+            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewProj.toResDto(proj);
+
+            optionGetDtos.stream().forEach(option -> {
+                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
+                    resDto.setOptionStockUnit(option.getStockSumUnit());
+                }
+            });
+            return resDto;
+
+        }).collect(Collectors.toList());
+        
         return itemViewResDto;
     }
 
@@ -383,6 +400,7 @@ public class DeliveryReadyNaverBusinessService {
      * @return List::DeliveryReadyNaverItemViewResDto::
      * @throws ParseException
      * @see DeliveryReadyNaverService#findSelectedReleased
+     * @see ProductOptionService#searchListByProductListOptionCode
      * @see DeliveryReadyNaverItemViewProj#toResDtos
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
@@ -396,7 +414,23 @@ public class DeliveryReadyNaverBusinessService {
         }
 
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
-        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemViewProj.toResDto(proj)).collect(Collectors.toList());
+        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+
+        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
+        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
+            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewProj.toResDto(proj);
+
+            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
+            optionGetDtos.stream().forEach(option -> {
+                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
+                    resDto.setOptionStockUnit(option.getStockSumUnit());
+                }
+            });
+            return resDto;
+
+        }).collect(Collectors.toList());
+        
         return itemViewResDto;
     }
 

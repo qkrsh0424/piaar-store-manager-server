@@ -740,7 +740,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(14);
         cell.setCellValue("관리메모2");
         cell = row.createCell(15);
-        cell.setCellValue("관리번호3");
+        cell.setCellValue("관리메모3");
         cell = row.createCell(16);
         cell.setCellValue("관리메모4");
         cell = row.createCell(17);
