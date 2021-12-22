@@ -371,27 +371,11 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @return List::DeliveryReadyCoupangItemViewResDto::
      * @see DeliveryReadyCoupangService#findSelectedUnreleased
-     * @see ProductOptionService#searchListByProductListOptionCode
-     * @see DeliveryReadyCoupangItemViewResDto#toResDtos
+     * @see DeliveryReadyCoupangBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangService.findSelectedUnreleased();
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
-
-        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
-        List<DeliveryReadyCoupangItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
-            DeliveryReadyCoupangItemViewResDto resDto = DeliveryReadyCoupangItemViewResDto.toResDto(proj);
-
-            optionGetDtos.stream().forEach(option -> {
-                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
-                    resDto.setOptionStockUnit(option.getStockSumUnit());
-                }
-            });
-            return resDto;
-
-        }).collect(Collectors.toList());
-        
+        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
 
@@ -404,8 +388,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @return List::DeliveryReadyCoupangItemViewResDto::
      * @throws ParseException
      * @see DeliveryReadyCoupangService#findSelectedReleased
-     * @see ProductOptionService#searchListByProductListOptionCode
-     * @see DeliveryReadyCoupangItemViewResDto#toResDtos
+     * @see DeliveryReadyCoupangBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -418,6 +401,21 @@ public class DeliveryReadyCoupangBusinessService {
         }
 
         List<DeliveryReadyCoupangItemViewProj> itemViewProj = deliveryReadyCoupangService.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
+        return itemViewResDto;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * ItemViewProj의 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
+     *
+     * @param itemViewProj : List::DeliveryReadyCoupangItemViewProj::
+     * @return List::DeliveryReadyCoupangItemViewResDto::
+     * @see ProductOptionService#searchListByProductListOptionCode
+     * @see DeliveryReadyCoupangItemViewResDto#toResDtos
+     */
+    public List<DeliveryReadyCoupangItemViewResDto> changeOptionStockUnit(List<DeliveryReadyCoupangItemViewProj> itemViewProj) {
         List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
 
@@ -425,14 +423,15 @@ public class DeliveryReadyCoupangBusinessService {
         List<DeliveryReadyCoupangItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
             DeliveryReadyCoupangItemViewResDto resDto = DeliveryReadyCoupangItemViewResDto.toResDto(proj);
 
+            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
                 if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
                     resDto.setOptionStockUnit(option.getStockSumUnit());
                 }
             });
             return resDto;
-
         }).collect(Collectors.toList());
+
         return itemViewResDto;
     }
 

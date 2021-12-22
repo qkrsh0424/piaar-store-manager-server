@@ -134,11 +134,11 @@ public class ProductOptionService {
      *
      * @return List::ProductOptionGetDto::
      * @param optionCodes : List::String::
-     * @see ProductOptionRepository#selectAllByOptionCodes
+     * @see ProductOptionRepository#findAllByCode
      * @see ProductOptionService#searchStockUnit
      */
     public List<ProductOptionGetDto> searchListByProductListOptionCode(List<String> optionCodes) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.selectAllByOptionCodes(optionCodes);
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAllByCode(optionCodes);
         List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
         return productOptionGetDtos;
     }

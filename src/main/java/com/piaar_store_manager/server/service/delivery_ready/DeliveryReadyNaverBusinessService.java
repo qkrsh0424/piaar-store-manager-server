@@ -367,27 +367,11 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @return List::DeliveryReadyNaverItemViewResDto::
      * @see DeliveryReadyNaverService#findSelectedUnreleased
-     * @see ProductOptionService#searchListByProductListOptionCode
-     * @see DeliveryReadyNaverItemViewProj#toResDto
+     * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedUnreleased();
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
-
-        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
-        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
-            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewProj.toResDto(proj);
-
-            optionGetDtos.stream().forEach(option -> {
-                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
-                    resDto.setOptionStockUnit(option.getStockSumUnit());
-                }
-            });
-            return resDto;
-
-        }).collect(Collectors.toList());
-        
+        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
 
@@ -400,8 +384,7 @@ public class DeliveryReadyNaverBusinessService {
      * @return List::DeliveryReadyNaverItemViewResDto::
      * @throws ParseException
      * @see DeliveryReadyNaverService#findSelectedReleased
-     * @see ProductOptionService#searchListByProductListOptionCode
-     * @see DeliveryReadyNaverItemViewProj#toResDtos
+     * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -414,12 +397,27 @@ public class DeliveryReadyNaverBusinessService {
         }
 
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
+        return itemViewResDto;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * ItemViewProj의 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
+     *
+     * @param itemViewProj : List::DeliveryReadyNaverItemViewProj::
+     * @return List::DeliveryReadyNaverItemViewResDto::
+     * @see ProductOptionService#searchListByProductListOptionCode
+     * @see DeliveryReadyNaverItemViewResDto#toResDtos
+     */
+    public List<DeliveryReadyNaverItemViewResDto> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
         List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
         List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
-            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewProj.toResDto(proj);
+            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewResDto.toResDto(proj);
 
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
@@ -428,7 +426,6 @@ public class DeliveryReadyNaverBusinessService {
                 }
             });
             return resDto;
-
         }).collect(Collectors.toList());
         
         return itemViewResDto;
