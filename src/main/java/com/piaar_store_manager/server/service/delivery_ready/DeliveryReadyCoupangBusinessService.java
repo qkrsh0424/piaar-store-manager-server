@@ -692,6 +692,8 @@ public class DeliveryReadyCoupangBusinessService {
             }
         }
 
+        String prevProdName = "";
+         
         for (int i = 0; i < newOrderList.size(); i++) {
             StringBuilder receiverSb = new StringBuilder();
             receiverSb.append(newOrderList.get(i).getReceiver());
@@ -707,9 +709,17 @@ public class DeliveryReadyCoupangBusinessService {
                 DeliveryReadyItemLotteExcelFormDto prevProd = resultList.get(prevOrderIdx);
                 DeliveryReadyItemLotteExcelFormDto currentProd = newOrderList.get(i);
 
-                resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
+                // 상품명이 동일한 경우, 중복처리 되었을 때 바로 이전의 상품명과 동일한 경우.
+                if(prevProd.getProdName1().equals(currentProd.getProdName1()) || prevProdName.equals(currentProd.getProdName1())){
+                    prevProdName = "";
+                    resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + "[" + currentProd.getOptionInfo1() + "-" + currentProd.getUnit() + "]");
+                }else{      // 상품명이 동일하지 않은 경우
+                    prevProdName = currentProd.getProdName1();
+                    resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
+                }
                 resultList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
             } else {
+                prevProdName = "";
                 resultList.add(newOrderList.get(i));
             }
         }
