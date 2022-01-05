@@ -2,8 +2,7 @@ package com.piaar_store_manager.server.controller;
 
 import java.text.ParseException;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
-import com.piaar_store_manager.server.exception.FileUploadException;
+import com.piaar_store_manager.server.exception.*;
 import com.piaar_store_manager.server.model.message.Message;
 
 import org.springframework.dao.DataAccessException;
@@ -97,6 +96,54 @@ public class ExceptionHandlerController {
         message.setStatus(HttpStatus.BAD_REQUEST);
         message.setMessage("parse_error");
         message.setMemo("데이터를 변환할 수 없습니다. 관리자에게 문의해주세요.");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * 유저 접근 권한이 없을때
+     * http status 403
+     */
+    @ExceptionHandler({ AccessDeniedException.class })
+    public ResponseEntity<?> AccessDeniedExceptionHandler(AccessDeniedException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.FORBIDDEN);
+        message.setMessage("access_denied");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * 유저 로그인 상태가 없을때
+     * http status 401
+     */
+    @ExceptionHandler({ InvalidUserException.class })
+    public ResponseEntity<?> InvalidUserExceptionHandler(InvalidUserException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.FORBIDDEN);
+        message.setMessage("invalid_user");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * 유저 로그인 상태가 없을때
+     * http status 400
+     */
+    @ExceptionHandler({ NotMatchedParamsException.class })
+    public ResponseEntity<?> NotMatchedParamsExceptionHandler(NotMatchedParamsException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.BAD_REQUEST);
+        message.setMessage("not_match_params");
+        message.setMemo(e.getMessage());
 
         return new ResponseEntity<>(message, message.getStatus());
     }
