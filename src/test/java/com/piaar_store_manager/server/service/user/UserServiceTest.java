@@ -18,11 +18,11 @@ public class UserServiceTest {
 
     @Test
     public void createOneTest(){
-        SignupReqDto signupReqDto = new SignupReqDto();
-        signupReqDto.setUsername("*");
-        signupReqDto.setPassword("*123!@");
-        signupReqDto.setName("*");
+        // SignupReqDto signupReqDto = new SignupReqDto();
+        // signupReqDto.setUsername("*");
+        // signupReqDto.setPassword("*123!@");
+        // signupReqDto.setName("*");
 
-        userService.createOne(signupReqDto);
+        // userService.createOne(signupReqDto);
     }
 }
