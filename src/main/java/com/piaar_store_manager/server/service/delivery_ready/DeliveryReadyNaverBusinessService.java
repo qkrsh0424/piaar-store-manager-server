@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -387,15 +388,20 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date startDate = null;
-        Date endDate = null;
+        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // Date startDate = null;
+        // Date endDate = null;
 
-        if(query.get("startDate") != null && query.get("endDate") != null) {
-            startDate = dateFormat.parse(query.get("startDate").toString());
-            endDate = dateFormat.parse(query.get("endDate").toString());
-        }
-
+        Calendar startDateCalendar = Calendar.getInstance();
+        startDateCalendar.set(Calendar.YEAR, 1970);
+        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
+                : startDateCalendar.getTime();
+        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+        // if(query.get("startDate") != null && query.get("endDate") != null) {
+        //     startDate = dateFormat.parse(query.get("startDate").toString());
+        //     endDate = dateFormat.parse(query.get("endDate").toString());
+        // }
+        
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
         List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
