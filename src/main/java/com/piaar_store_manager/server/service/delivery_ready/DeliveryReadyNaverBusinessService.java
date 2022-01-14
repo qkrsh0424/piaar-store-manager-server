@@ -331,7 +331,7 @@ public class DeliveryReadyNaverBusinessService {
                 .prodNumber(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
                 .prodName(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                 .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
-                .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
+                .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
                 .unit((int) row.getCell(20).getNumericCellValue())
                 .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? row.getCell(27).getDateCellValue() : new Date())
                 .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getDateCellValue() : new Date())

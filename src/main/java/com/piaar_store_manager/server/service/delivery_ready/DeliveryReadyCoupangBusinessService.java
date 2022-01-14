@@ -340,7 +340,7 @@ public class DeliveryReadyCoupangBusinessService {
                 .prodName(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
                 .prodExposureName(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : "")
                 .optionInfo(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : "")
-                .optionManagementCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
+                .optionManagementCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue().strip() : "")
                 .coupangOptionId(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
                 .unit(Integer.parseInt(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : ""))
                 .shipmentDueDate(row.getCell(7) != null ? dateFormat.parse(row.getCell(7).getStringCellValue()) : new Date())
