@@ -25,8 +25,8 @@ public class DeliveryReadyItemLotteExcelFormDto {
     private String prodName1;       // 상품명1
     private String optionInfo1;     // 상품상세1
     private Integer unit;        // 내품수량1
-    private String orderNumber;     // 상품코드1 -> 상품코드2
-    private String prodOrderNumber;     // 상품코드2 -> 상품코드1
+    private String orderNumber;     // 상품코드1
+    private String prodOrderNumber;     // 상품코드2
     private String platformName;        // 상품상세2
     private String allProdOrderNumber;      // 총 상품주문번호
     private String allProdInfo;     // 상품명+옵션+수량

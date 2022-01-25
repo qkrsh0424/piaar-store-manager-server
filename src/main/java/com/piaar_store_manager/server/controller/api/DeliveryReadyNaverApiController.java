@@ -924,9 +924,9 @@ public class DeliveryReadyNaverApiController {
             cell = row.createCell(13);
             cell.setCellValue("");
             cell = row.createCell(14);
-            cell.setCellValue(dtos.get(i).getProdOrderNumber());
-            cell = row.createCell(15);
             cell.setCellValue(dtos.get(i).getOrderNumber());
+            cell = row.createCell(15);
+            cell.setCellValue(dtos.get(i).getProdOrderNumber());
             cell = row.createCell(16);
             cell.setCellValue(dtos.get(i).getPlatformName());
             cell = row.createCell(17);
