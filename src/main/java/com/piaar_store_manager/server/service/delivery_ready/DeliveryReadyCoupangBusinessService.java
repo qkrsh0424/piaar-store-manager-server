@@ -149,6 +149,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyExcelForm(Sheet worksheet) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
         SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
 
@@ -173,14 +174,14 @@ public class DeliveryReadyCoupangBusinessService {
                     .optionManagementCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                     .coupangOptionId(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
                     .unit(Integer.parseInt(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : ""))
-                    .shipmentDueDate(row.getCell(7) != null ? dateFormat.parse(row.getCell(7).getStringCellValue()) : new Date())
+                    .shipmentDueDate(row.getCell(7) != null ? DateHandler.getUtcDate(dateFormat.parse(row.getCell(7).getStringCellValue())) : new Date())
                     .shipmentCostBundleNumber(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
                     .receiverContact1(row.getCell(27) != null ? row.getCell(27).getStringCellValue() : "")
                     .destination(row.getCell(29) != null ? row.getCell(29).getStringCellValue() : "")
                     .buyerContact(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
                     .zipCode(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(9) != null ? dateFormat2.parse(row.getCell(9).getStringCellValue()) : new Date()).build();
+                    .orderDateTime(row.getCell(9) != null ? DateHandler.getUtcDate(dateFormat2.parse(row.getCell(9).getStringCellValue())) : new Date()).build();
 
             dtos.add(dto);
         }
@@ -316,8 +317,8 @@ public class DeliveryReadyCoupangBusinessService {
      */
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyCoupangExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.UK);
 
         // 상품주문번호를 모두 가져온다.
         Set<String> storedProdOrderNumber = deliveryReadyCoupangService.findAllProdOrderNumber();
@@ -343,14 +344,14 @@ public class DeliveryReadyCoupangBusinessService {
                 .optionManagementCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue().strip() : "")
                 .coupangOptionId(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
                 .unit(Integer.parseInt(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : ""))
-                .shipmentDueDate(row.getCell(7) != null ? dateFormat.parse(row.getCell(7).getStringCellValue()) : new Date())
+                .shipmentDueDate(row.getCell(7) != null ? DateHandler.getUtcDate(dateFormat.parse(row.getCell(7).getStringCellValue())) : new Date())
                 .shipmentCostBundleNumber(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
                 .receiverContact1(row.getCell(27) != null ? row.getCell(27).getStringCellValue() : "")
                 .destination(row.getCell(29) != null ? row.getCell(29).getStringCellValue() : "")
                 .buyerContact(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
                 .zipCode(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
                 .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                .orderDateTime(row.getCell(9) != null ? dateFormat2.parse(row.getCell(9).getStringCellValue()) : new Date())
+                .orderDateTime(row.getCell(9) != null ? DateHandler.getUtcDate(dateFormat2.parse(row.getCell(9).getStringCellValue())) : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)

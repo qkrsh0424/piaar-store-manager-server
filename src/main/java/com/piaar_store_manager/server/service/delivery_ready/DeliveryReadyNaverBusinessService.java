@@ -2,10 +2,6 @@ package com.piaar_store_manager.server.service.delivery_ready;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -13,10 +9,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -165,14 +159,14 @@ public class DeliveryReadyNaverBusinessService {
                     .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
                     .buyerId(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
                     .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
-                    .paymentDate(row.getCell(14) != null ? row.getCell(14).getDateCellValue() : new Date())
+                    .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
                     .prodNumber(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
                     .prodName(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                     .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
                     .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
                     .unit((int) row.getCell(20).getNumericCellValue())
-                    .orderConfirmationDate(row.getCell(27) != null ? row.getCell(27).getDateCellValue() : new Date())
-                    .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getDateCellValue() : new Date())
+                    .orderConfirmationDate(row.getCell(27) != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
+                    .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
                     .shipmentCostBundleNumber(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
                     .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
                     .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
@@ -184,20 +178,12 @@ public class DeliveryReadyNaverBusinessService {
                     .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                     .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(56) != null ? this.getUtcDate(row.getCell(56).getDateCellValue()) : new Date()).build();
+                    .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date()).build();
 
             dtos.add(dto);
         }
 
         return dtos;
-    }
-
-    public Date getUtcDate(Date date) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(date);
-        c.setTimeZone(TimeZone.getTimeZone("GMT+9"));
-        c.add(Calendar.MILLISECOND, -(c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET)));
-        return c.getTime();
     }
 
     /**
@@ -341,14 +327,14 @@ public class DeliveryReadyNaverBusinessService {
                 .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
                 .buyerId(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
                 .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
-                .paymentDate(row.getCell(14) != null ? row.getCell(14).getDateCellValue() : new Date())
+                .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
                 .prodNumber(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
                 .prodName(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                 .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
                 .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
                 .unit((int) row.getCell(20).getNumericCellValue())
-                .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? row.getCell(27).getDateCellValue() : new Date())
-                .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getDateCellValue() : new Date())
+                .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
+                .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
                 .shipmentCostBundleNumber(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
                 .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
                 .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
@@ -360,7 +346,7 @@ public class DeliveryReadyNaverBusinessService {
                 .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                 .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                 .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                .orderDateTime(row.getCell(56) != null ? this.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
+                .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)
