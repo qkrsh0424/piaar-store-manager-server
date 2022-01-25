@@ -3,7 +3,9 @@ package com.piaar_store_manager.server.service.delivery_ready;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -182,12 +184,20 @@ public class DeliveryReadyNaverBusinessService {
                     .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                     .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(56) != null ? row.getCell(56).getDateCellValue() : new Date()).build();
+                    .orderDateTime(row.getCell(56) != null ? this.getUtcDate(row.getCell(56).getDateCellValue()) : new Date()).build();
 
             dtos.add(dto);
         }
 
         return dtos;
+    }
+
+    public Date getUtcDate(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.setTimeZone(TimeZone.getTimeZone("GMT+9"));
+        c.add(Calendar.MILLISECOND, -(c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET)));
+        return c.getTime();
     }
 
     /**
@@ -350,7 +360,7 @@ public class DeliveryReadyNaverBusinessService {
                 .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                 .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                 .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                .orderDateTime(row.getCell(56) != null ? row.getCell(56).getDateCellValue() : new Date())
+                .orderDateTime(row.getCell(56) != null ? this.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)
