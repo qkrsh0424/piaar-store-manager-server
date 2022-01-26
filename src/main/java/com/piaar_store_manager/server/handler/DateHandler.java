@@ -33,4 +33,19 @@ public class DateHandler {
         c.add(Calendar.MILLISECOND, -(c.get(Calendar.ZONE_OFFSET) + c.get(Calendar.DST_OFFSET)));
         return c.getTime();
     }
+
+    /**
+     * <b>Convert UTC Date To KST Date.</b>
+     * <p>
+     * UTC Date 데이터를 KST 시간으로 변환하기 위한 메소드.
+     * 
+     * @param date : Date
+     * @return Date
+     */
+    public static Date getKstDate(Date date) {
+        Calendar c = Calendar.getInstance();
+        c.setTime(date);
+        c.add(Calendar.HOUR_OF_DAY, 9);
+        return c.getTime();
+    }
 }

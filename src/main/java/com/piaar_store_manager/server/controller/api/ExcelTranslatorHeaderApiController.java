@@ -215,7 +215,7 @@ public class ExcelTranslatorHeaderApiController {
                         cell.setCellValue(detailDto.getColData().toString());
                     }else if(detailDto.getCellType().equals("Date")) {
                         Date data = format.parse(detailDto.getColData().toString());
-                        cell.setCellValue(outputFormat.format(DateHandler.getUtcDate(data)));
+                        cell.setCellValue(outputFormat.format(DateHandler.getKstDate(data)));
                     }else if(detailDto.getCellType().equals("Double")) {
                         cell.setCellValue((int)detailDto.getColData());
                     }
