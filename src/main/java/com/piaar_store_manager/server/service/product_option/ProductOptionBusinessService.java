@@ -8,14 +8,19 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinReceiveAndReleaseDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionStatusDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJoinOptionDto;
 import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJoinOptionDto;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
@@ -146,6 +151,38 @@ public class ProductOptionBusinessService {
 
         // 3. 합쳐서 ProductOptionStatusDto 생성
         ProductOptionStatusDto statusDto = ProductOptionStatusDto.builder()
+            .productRelease(releaseDtos)
+            .productReceive(receiveDtos)
+            .build();
+
+        return statusDto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 출고데이터와 그에 대응하는 옵션 데이터를 모두 조회한다.
+     * 입고데이터와 그에 대응하는 옵션 데이터를 모두 조회한다.
+     * 입, 출고 데이터를 이용해 ProductOptionStatusDto 생성한다.
+     *
+     * @return ProductOptionJoinReceiveAndReleaseDto
+     * @see ProductReleaseService#searchListM2OJ
+     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReceiveService#searchListM2OJ
+     * @see ProductReceiveGetDto#toDtos
+     */
+    public ProductOptionJoinReceiveAndReleaseDto searchAllStockStatus() {
+        // 1. 출고데이터 조회
+        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
+        List<ProductReleaseJoinOptionDto> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+        
+        // // 2. 입고데이터 조회
+        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
+        List<ProductReceiveJoinOptionDto> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+
+
+        // 3. 합쳐서 ProductOptionStatusDto 생성
+        ProductOptionJoinReceiveAndReleaseDto statusDto = ProductOptionJoinReceiveAndReleaseDto.builder()
             .productRelease(releaseDtos)
             .productReceive(receiveDtos)
             .build();

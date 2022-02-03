@@ -211,6 +211,37 @@ public class ProductOptionApiController {
     }
 
     /**
+     * Search list api of status(release & receive) for productOption.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/stock/statusList</b>
+     * <p>
+     * ProductOption 데이터의 입출고 현황을 조회한다.
+     * 입출고 현황(출고 + 입고 데이터)를 날짜순서로 조회한다.
+     *
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see UserService#isUserLogin
+     * @see productOptionBusinessService#searchAllStockStatus
+     */
+    @GetMapping("/stock/statusList")
+    public ResponseEntity<?> searchAllStockStatus() {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productOptionBusinessService.searchAllStockStatus());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
      * Create one api for productOption.
      * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
