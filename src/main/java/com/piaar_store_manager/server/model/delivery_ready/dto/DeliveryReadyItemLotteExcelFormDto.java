@@ -40,7 +40,6 @@ public class DeliveryReadyItemLotteExcelFormDto {
      * @return DeliveryReadyItemLotteExcelFormDto
      */
     public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
-
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
             .receiver(viewDto.getDeliveryReadyItem().getReceiver())
             .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
@@ -52,14 +51,15 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .senderContact1(viewDto.getSenderContact1())
             .senderAddress("서울특별시 마포구 와우산로 11길 25 3층")
             .unitA("")
-            .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            // .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            .prodName1(viewDto.getProdManagementName())
             .optionInfo1(viewDto.getDeliveryReadyItem().getOptionInfo())
             .unit(viewDto.getDeliveryReadyItem().getUnit())
             .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
             .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
             .platformName("네이버")
             .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .allProdInfo(viewDto.getDeliveryReadyItem().getProdName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
+            .allProdInfo(viewDto.getProdManagementName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
             .build();
 
         return formDto;
@@ -84,14 +84,15 @@ public class DeliveryReadyItemLotteExcelFormDto {
             .senderContact1(viewDto.getSenderContact1())
             .senderAddress("서울특별시 마포구 와우산로 11길 25 3층")
             .unitA("")
-            .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            // .prodName1(viewDto.getDeliveryReadyItem().getProdName())
+            .prodName1(viewDto.getProdManagementName())
             .optionInfo1(viewDto.getDeliveryReadyItem().getOptionInfo())
             .unit(viewDto.getDeliveryReadyItem().getUnit())
             .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
             .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
             .platformName("쿠팡")
             .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
-            .allProdInfo(viewDto.getDeliveryReadyItem().getProdName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
+            .allProdInfo(viewDto.getProdManagementName() + " [" + viewDto.getDeliveryReadyItem().getOptionInfo() + "-" + viewDto.getDeliveryReadyItem().getUnit() + "]")
             .build();
 
         return formDto;
