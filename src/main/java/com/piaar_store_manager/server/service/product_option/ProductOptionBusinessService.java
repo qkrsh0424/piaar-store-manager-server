@@ -161,8 +161,8 @@ public class ProductOptionBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 출고데이터와 그에 대응하는 옵션 데이터를 모두 조회한다.
-     * 입고데이터와 그에 대응하는 옵션 데이터를 모두 조회한다.
+     * 출고데이터와 그에 대응하는 옵션 및 상품 데이터를 모두 조회한다.
+     * 입고데이터와 그에 대응하는 옵션 및 상품 데이터를 모두 조회한다.
      * 입, 출고 데이터를 이용해 ProductOptionStatusDto 생성한다.
      *
      * @return ProductOptionJoinReceiveAndReleaseDto

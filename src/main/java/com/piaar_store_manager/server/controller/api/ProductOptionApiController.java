@@ -5,6 +5,7 @@ import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetD
 import com.piaar_store_manager.server.service.product_option.ProductOptionBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -265,6 +266,10 @@ public class ProductOptionApiController {
                 productOptionBusinessService.createOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
+            } catch(DataIntegrityViolationException e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+                message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
             } catch(Exception e) {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
@@ -336,7 +341,11 @@ public class ProductOptionApiController {
                 productOptionBusinessService.changeOne(productOptionGetDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
-            } catch(Exception e) {
+            } catch(DataIntegrityViolationException e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+                message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
+            }catch(Exception e) {
                 message.setStatus(HttpStatus.BAD_REQUEST);
                 message.setMessage("error");
             }

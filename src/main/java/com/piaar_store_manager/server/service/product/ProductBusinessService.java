@@ -291,7 +291,7 @@ public class ProductBusinessService {
      * @see productOptionService#createList
      */
     @Transactional
-    public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId) {
+    public void createPAOList(List<ProductCreateReqDto> productCreateReqDtos, UUID userId){
         productCreateReqDtos.stream().forEach(r -> this.createPAO(r, userId));
     }
 
