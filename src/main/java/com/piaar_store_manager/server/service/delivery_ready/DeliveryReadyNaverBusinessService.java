@@ -292,11 +292,11 @@ public class DeliveryReadyNaverBusinessService {
         Sheet sheet = workbook.getSheetAt(0);
         List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyNaverExcelItem(sheet, fileDto);
         
+        // 상품명 > 옵션정보 > 수취인명 순으로 정렬 
         dtos.sort(Comparator.comparing(DeliveryReadyNaverItemDto::getProdName)
                 .thenComparing(DeliveryReadyNaverItemDto::getOptionInfo)
                 .thenComparing(DeliveryReadyNaverItemDto::getReceiver));
 
-        // List<DeliveryReadyNaverItemEntity> entities = DeliveryReadyNaverItemEntity.toEntities(dtos);
         List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyNaverItemEntity.toEntity(dto)).collect(Collectors.toList());
         deliveryReadyNaverService.createItemList(entities);
     }

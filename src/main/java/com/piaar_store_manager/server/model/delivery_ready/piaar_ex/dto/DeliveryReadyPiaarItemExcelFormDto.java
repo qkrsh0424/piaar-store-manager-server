@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.delivery_ready.piaar.dto;
+package com.piaar_store_manager.server.model.delivery_ready.piaar_ex.dto;
 
 import java.time.LocalDateTime;
 

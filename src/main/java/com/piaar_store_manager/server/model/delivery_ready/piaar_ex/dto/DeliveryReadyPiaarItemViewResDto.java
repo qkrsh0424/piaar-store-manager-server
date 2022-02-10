@@ -1,6 +1,6 @@
-package com.piaar_store_manager.server.model.delivery_ready.piaar.dto;
+package com.piaar_store_manager.server.model.delivery_ready.piaar_ex.dto;
 
-import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
+import com.piaar_store_manager.server.model.delivery_ready.piaar_ex.proj.DeliveryReadyPiaarItemViewProj;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

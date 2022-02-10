@@ -8,6 +8,7 @@ import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,22 @@ public class DeliveryReadyPiaarApiController {
         this.userService = userService;
     }
 
+    /**
+     * Upload excel data for delivery ready.
+     * <p>
+     * <b>POST : API URL => /api/v1/delivery-ready/piaar/upload</b>
+     * 
+     * @param file
+     * @return ResponseEntity(message, HttpStatus)
+     * @throws NullPointerException
+     * @throws IllegalStateException
+     * @throws IllegalArgumentException
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyPiaarBusinessService#isExcelFile
+     * @see DeliveryReadyPiaarBusinessService#uploadDeliveryReadyExcelFile
+     * @see UserService#isUserLogin
+     */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -52,6 +69,67 @@ public class DeliveryReadyPiaarApiController {
             } catch (IllegalArgumentException e) {
                 throw new ExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Store excel data for delivery ready.
+     * <p>
+     * <b>POST : API URL => /api/v1/delivery-ready/naver/store</b>
+     * 
+     * @param file
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyPiaarBusinessService#isExcelFile
+     * @see DeliveryReadyPiaarBusinessService#storeDeliveryReadyExcelFile
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @PostMapping("/store")
+    public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
+        Message message = new Message();
+
+        // 유저 권한을 체크한다.
+        if (userService.isManager()) {
+            // file extension check.
+            deliveryReadyPiaarBusinessService.isExcelFile(file);
+
+            message.setData(deliveryReadyPiaarBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search Order data for delivery ready.
+     * <p>
+     * <b>GET : API URL => /api/v1/delivery-ready/piaar/view/order</b>
+     * 
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyPiaarBusinessService#getDeliveryReadyViewOrderData
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @GetMapping("/view/orderList")
+    public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
+        Message message = new Message();
+
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            message.setData(deliveryReadyPiaarBusinessService.getDeliveryReadyViewOrderData(userService.getUserId()));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } else {
+            userService.userDenyCheck(message);
         }
 
         return new ResponseEntity<>(message, message.getStatus());

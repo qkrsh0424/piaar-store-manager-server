@@ -1,9 +1,9 @@
-package com.piaar_store_manager.server.model.delivery_ready.piaar.repository;
+package com.piaar_store_manager.server.model.delivery_ready.piaar_ex.repository;
 
 import java.util.List;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar_ex.entity.DeliveryReadyPiaarItemEntity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

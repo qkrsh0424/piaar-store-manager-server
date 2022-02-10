@@ -102,7 +102,7 @@ public class DeliveryReadyNaverApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-     /**
+    /**
      * Store excel data for delivery ready.
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/naver/store</b>

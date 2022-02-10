@@ -1,6 +1,6 @@
-package com.piaar_store_manager.server.model.delivery_ready.piaar.proj;
+package com.piaar_store_manager.server.model.delivery_ready.piaar_ex.proj;
 
-import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar_ex.entity.DeliveryReadyPiaarItemEntity;
 
 public interface DeliveryReadyPiaarItemViewProj {
     DeliveryReadyPiaarItemEntity getDeliveryReadyItem();
