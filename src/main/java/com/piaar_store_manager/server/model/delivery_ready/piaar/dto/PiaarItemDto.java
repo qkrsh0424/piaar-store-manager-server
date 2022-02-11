@@ -16,5 +16,5 @@ import lombok.experimental.Accessors;
 public class PiaarItemDto {
     private UUID id;
     private Integer cellNumber;
-    private String cellName;
+    private Object cellValue;
 }

@@ -13,6 +13,7 @@ import javax.persistence.Table;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarUploadDetailDto;
 
+import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Type;
 
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
 public class DeliveryReadyPiaarItemEntity {
 
     @Id
@@ -43,20 +45,17 @@ public class DeliveryReadyPiaarItemEntity {
     @Column(name = "upload_detail", columnDefinition = "json")
     private PiaarUploadDetailDto uploadDetail = new PiaarUploadDetailDto();
 
-    @Column(name = "sold")
-    private Boolean sold;
+    @Column(name = "sold_yn", columnDefinition = "n")
+    private String soldYn;
 
     @Column(name = "sold_at")
     private LocalDateTime soldAt;
 
-    @Column(name = "released")
-    private Boolean released;
+    @Column(name = "released_yn", columnDefinition = "n")
+    private String releasedYn;
 
     @Column(name = "released_at")
     private LocalDateTime releasedAt;
-
-    @Column(name = "release_completed")
-    private Boolean releaseCompleted;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -65,8 +64,8 @@ public class DeliveryReadyPiaarItemEntity {
     @Column(name = "created_by")
     private UUID createdBy;
 
-    @Column(name = "stock_reflected")
-    private Boolean stockReflected;
+    @Column(name = "stock_reflected_yn", columnDefinition = "n")
+    private String stockReflectedYn;
 
     @Column(name = "delivery_ready_file_cid")
     private Integer deliveryReadyFileCid;
@@ -76,13 +75,13 @@ public class DeliveryReadyPiaarItemEntity {
                 .cid(dto.getCid())
                 .id(dto.getId())
                 .uploadDetail(dto.getUploadDetail())
-                .sold(dto.getSold())
+                .soldYn(dto.getSoldYn())
                 .soldAt(dto.getSoldAt())
-                .released(dto.getReleased())
+                .releasedYn(dto.getReleasedYn())
                 .releasedAt(dto.getReleasedAt())
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
-                .stockReflected(dto.getStockReflected())
+                .stockReflectedYn(dto.getStockReflectedYn())
                 .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
                 .build();
 

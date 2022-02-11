@@ -20,11 +20,11 @@ public class DeliveryReadyPiaarItemDto {
     private Integer cid;
     private UUID id;
     private PiaarUploadDetailDto uploadDetail = new PiaarUploadDetailDto();
-    private Boolean sold;
+    private String soldYn;
     private LocalDateTime soldAt;
-    private Boolean released;
+    private String releasedYn;
     private LocalDateTime releasedAt;
-    private Boolean stockReflected;
+    private String stockReflectedYn;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private Integer deliveryReadyFileCid;
@@ -34,11 +34,11 @@ public class DeliveryReadyPiaarItemDto {
                 .cid(entity.getCid())
                 .id(entity.getId())
                 .uploadDetail(entity.getUploadDetail())
-                .sold(entity.getSold())
+                .soldYn(entity.getSoldYn())
                 .soldAt(entity.getSoldAt())
-                .released(entity.getReleased())
+                .releasedYn(entity.getReleasedYn())
                 .releasedAt(entity.getReleasedAt())
-                .stockReflected(entity.getStockReflected())
+                .stockReflectedYn(entity.getStockReflectedYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .deliveryReadyFileCid(entity.getDeliveryReadyFileCid())

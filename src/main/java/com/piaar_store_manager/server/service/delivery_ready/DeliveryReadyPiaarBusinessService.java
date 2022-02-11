@@ -1,13 +1,19 @@
 package com.piaar_store_manager.server.service.delivery_ready;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+
+import com.amazonaws.services.s3.AmazonS3;
+import com.piaar_store_manager.server.exception.FileUploadException;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarUploadDetailDto;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -16,20 +22,19 @@ import javax.transaction.Transactional;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
-import com.piaar_store_manager.server.model.delivery_ready.piaar_ex.dto.DeliveryReadyPiaarItemDto;
-import com.piaar_store_manager.server.model.delivery_ready.piaar_ex.entity.DeliveryReadyPiaarItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -42,6 +47,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class DeliveryReadyPiaarBusinessService {
     private DeliveryReadyPiaarService deliveryReadyPiaarService;
+
 
     @Autowired
     public DeliveryReadyPiaarBusinessService(
@@ -71,6 +77,50 @@ public class DeliveryReadyPiaarBusinessService {
     // Excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
 
+    private final Integer PIAAR_EXCEL_HEADER_SIZE = 40;
+
+    private final List<String> PIAAR_EXCEL_HEADER_LIST = Arrays.asList(
+            "피아르 고유번호",
+            "주문번호1",
+            "주문번호2",
+            "주문번호3",
+            "상품명",
+            "옵션명",
+            "수량",
+            "수취인명",
+            "전화번호1",
+            "전화번호2",
+            "주소",
+            "우편번호",
+            "배송방식",
+            "배송메세지",
+            "상품고유번호1",
+            "상품고유번호2",
+            "옵션고유번호1",
+            "옵션고유번호2",
+            "피아르 상품코드",
+            "피아르 옵션코드",
+            "관리메모1",
+            "관리메모2",
+            "관리메모3",
+            "관리메모4",
+            "관리메모5",
+            "관리메모6",
+            "관리메모7",
+            "관리메모8",
+            "관리메모9",
+            "관리메모10",
+            "관리메모11",
+            "관리메모12",
+            "관리메모13",
+            "관리메모14",
+            "관리메모15",
+            "관리메모16",
+            "관리메모17",
+            "관리메모18",
+            "관리메모19",
+            "관리메모20");
+
     /**
      * <b>Extension Check</b>
      * <p>
@@ -93,11 +143,11 @@ public class DeliveryReadyPiaarBusinessService {
      * 엑셀 파일을 업로드하여 화면에 출력한다.
      * 
      * @param file : MultipartFile
-     * @return List::DeliveryReadyPiaarItemDto::
+     * @return DeliveryReadyPiaarItemDto
      * @throws IOException
      * @see DeliveryReadyPiaarBusinessService#getDeliveryReadyExcelForm
      */
-    public List<DeliveryReadyPiaarItemDto> uploadDeliveryReadyExcelFile(MultipartFile file){
+    public DeliveryReadyPiaarItemDto uploadDeliveryReadyExcelFile(MultipartFile file){
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -108,7 +158,7 @@ public class DeliveryReadyPiaarBusinessService {
         // TODO : 타입체크 메서드 구현해야됨.
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<DeliveryReadyPiaarItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
+        DeliveryReadyPiaarItemDto dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
     }
 
@@ -118,62 +168,41 @@ public class DeliveryReadyPiaarBusinessService {
      * 선택된 엑셀파일(네이버 배송준비 엑셀)의 데이터들을 Dto로 변환한다.
      * 
      * @param worksheet : Sheet
-     * @return List::DeliveryReadyPiaarItemDto::
+     * @return DeliveryReadyPiaarItemDto
      */
-    private List<DeliveryReadyPiaarItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
-        List<DeliveryReadyPiaarItemDto> dtos = new ArrayList<>();
+    private DeliveryReadyPiaarItemDto getDeliveryReadyExcelForm(Sheet worksheet) {
+        DeliveryReadyPiaarItemDto itemDto = new DeliveryReadyPiaarItemDto();
 
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for (int i = 0; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
+            if(row == null) break;
+            
+            List<PiaarItemDto> itemDtos = new ArrayList<>();
+            for(int j = 0; j < PIAAR_EXCEL_HEADER_SIZE; j++) {
+                Cell cell = row.getCell(j);
 
-            DeliveryReadyPiaarItemDto dto = DeliveryReadyPiaarItemDto.builder()
-                    .id(UUID.randomUUID())
-                    .uniqueCode(row.getCell(0) != null ? row.getCell(0).getStringCellValue() : "")
-                    .orderNumber1(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
-                    .orderNumber2(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
-                    .orderNumber3(row.getCell(3) != null ? row.getCell(3).getStringCellValue() : "")
-                    .prodName(row.getCell(4).getStringCellValue())      // required
-                    .optionName(row.getCell(5).getStringCellValue())        // required
-                    .unit((int) row.getCell(6).getNumericCellValue())       // required
-                    .receiver(row.getCell(7).getStringCellValue())      // required
-                    .receiverContact1(row.getCell(8).getStringCellValue())      // required
-                    .receiverContact2(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
-                    .destination(row.getCell(10).getStringCellValue())      // required
-                    .zipCode(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : "")
-                    .transportType(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : "")
-                    .deliveryMessage(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
-                    .prodUniqueNumber1(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
-                    .prodUniqueNumber2(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
-                    .optionUniqueNumber1(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
-                    .optionUniqueNumber2(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : "")
-                    .prodCode(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
-                    .optionCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
-                    .managementMemo1(row.getCell(20) != null ? row.getCell(20).getStringCellValue() : "")
-                    .managementMemo2(row.getCell(21) != null ? row.getCell(21).getStringCellValue() : "")
-                    .managementMemo3(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : "")
-                    .managementMemo4(row.getCell(23) != null ? row.getCell(23).getStringCellValue() : "")
-                    .managementMemo5(row.getCell(24) != null ? row.getCell(24).getStringCellValue() : "")
-                    .managementMemo6(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
-                    .managementMemo7(row.getCell(26) != null ? row.getCell(26).getStringCellValue() : "")
-                    .managementMemo8(row.getCell(27) != null ? row.getCell(27).getStringCellValue() : "")
-                    .managementMemo9(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
-                    .managementMemo10(row.getCell(29) != null ? row.getCell(29).getStringCellValue() : "")
-                    .managementMemo11(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                    .managementMemo12(row.getCell(31) != null ? row.getCell(31).getStringCellValue() : "")
-                    .managementMemo13(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
-                    .managementMemo14(row.getCell(33) != null ? row.getCell(33).getStringCellValue() : "")
-                    .managementMemo15(row.getCell(34) != null ? row.getCell(34).getStringCellValue() : "")
-                    .managementMemo16(row.getCell(35) != null ? row.getCell(35).getStringCellValue() : "")
-                    .managementMemo17(row.getCell(36) != null ? row.getCell(36).getStringCellValue() : "")
-                    .managementMemo18(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
-                    .managementMemo19(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
-                    .managementMemo20(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
-                    .build();
+                Object cellValue = new Object();
+                if(cell == null || cell.getCellType().equals(CellType.BLANK)){
+                    cellValue = "";
+                }else if(cell.getCellType().equals(CellType.NUMERIC)){
+                    cellValue = cell.getNumericCellValue();
+                }else{
+                    cellValue = cell.getStringCellValue();
+                }
 
-            dtos.add(dto);
+                // 피아르 양식과 다른 헤더를 가진다면
+                if (i == 0 && !PIAAR_EXCEL_HEADER_LIST.get(j).equals(cellValue.toString())) {
+                    throw new IllegalArgumentException();
+                }
+
+                PiaarItemDto piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
+                itemDtos.add(piaarItemDto);
+            }
+
+            PiaarUploadDetailDto detailDto = PiaarUploadDetailDto.builder().details(itemDtos).build();
+            itemDto = DeliveryReadyPiaarItemDto.builder().id(UUID.randomUUID()).uploadDetail(detailDto).build();
         }
-
-        return dtos;
+        return itemDto;
     }
 
     /**
@@ -203,6 +232,8 @@ public class DeliveryReadyPiaarBusinessService {
      * @param userId : UUID
      * @return FileUploadResponse
      * @throws IllegalStateException
+     * @see DeliveryReadyPiaarBusinessService#createDeliveryReadyExcelFile
+     * @see DeliveryReadyPiaarBusinessService#createDeliveryReadyExcelItem
      */
     @Transactional
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
@@ -269,7 +300,7 @@ public class DeliveryReadyPiaarBusinessService {
      * @throws IllegalArgumentException
      * @see DeliveryReadyPiaarBusinessService#getDeliveryReadyPiaarExcelItem
      * @see DeliveryReadyPiaarItemEntity#toEntity
-     * @see DeliveryReadyPiaarService#createItemList
+     * @see DeliveryReadyPiaarService#saveItem
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto, UUID userId) {
         Workbook workbook = null;
@@ -280,15 +311,10 @@ public class DeliveryReadyPiaarBusinessService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        List<DeliveryReadyPiaarItemDto> dtos = this.getDeliveryReadyPiaarExcelItem(sheet, fileDto, userId);
-        
-        // 상품명 > 옵션정보 > 수취인명 순으로 정렬
-        dtos.sort(Comparator.comparing(DeliveryReadyPiaarItemDto::getProdName)
-                .thenComparing(DeliveryReadyPiaarItemDto::getOptionName)
-                .thenComparing(DeliveryReadyPiaarItemDto::getReceiver));
+        DeliveryReadyPiaarItemDto dto = this.getDeliveryReadyPiaarExcelItem(sheet, fileDto, userId);
 
-        List<DeliveryReadyPiaarItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyPiaarItemEntity.toEntity(dto)).collect(Collectors.toList());
-        deliveryReadyPiaarService.saveItemList(entities);
+        DeliveryReadyPiaarItemEntity entities = DeliveryReadyPiaarItemEntity.toEntity(dto);
+        deliveryReadyPiaarService.saveItem(entities);
     }
 
     /**
@@ -298,78 +324,61 @@ public class DeliveryReadyPiaarBusinessService {
      *
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
-     * @see DeliveryReadyPiarService#findAllProdOrderNubmer
      */
-    private List<DeliveryReadyPiaarItemDto> getDeliveryReadyPiaarExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto, UUID userId) {
-        List<DeliveryReadyPiaarItemDto> dtos = new ArrayList<>();
-        LocalDateTime createdAtOfFile = fileDto.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    private DeliveryReadyPiaarItemDto getDeliveryReadyPiaarExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto, UUID userId) {
+        DeliveryReadyPiaarItemDto itemDto = new DeliveryReadyPiaarItemDto();
+        LocalDateTime createdAt = fileDto.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        for(int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for (int i = 0; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
+            if(row == null) break;
+            
+            List<PiaarItemDto> itemDtos = new ArrayList<>();
+            for(int j = 0; j < PIAAR_EXCEL_HEADER_SIZE; j++) {
+                Cell cell = row.getCell(j);
 
-            DeliveryReadyPiaarItemDto dto = DeliveryReadyPiaarItemDto.builder()
-                    .id(UUID.randomUUID())
-                    .uniqueCode(row.getCell(0) != null ? row.getCell(0).getStringCellValue() : "")
-                    .orderNumber1(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
-                    .orderNumber2(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
-                    .orderNumber3(row.getCell(3) != null ? row.getCell(3).getStringCellValue() : "")
-                    .prodName(row.getCell(4).getStringCellValue())      // required
-                    .optionName(row.getCell(5).getStringCellValue())        // required
-                    .unit((int) row.getCell(6).getNumericCellValue())       // required
-                    .receiver(row.getCell(7).getStringCellValue())      // required
-                    .receiverContact1(row.getCell(8).getStringCellValue())      // required
-                    .receiverContact2(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
-                    .destination(row.getCell(10).getStringCellValue())      // required
-                    .zipCode(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : "")
-                    .transportType(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : "")
-                    .deliveryMessage(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
-                    .prodUniqueNumber1(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
-                    .prodUniqueNumber2(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
-                    .optionUniqueNumber1(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
-                    .optionUniqueNumber2(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : "")
-                    .prodCode(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
-                    .optionCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
-                    .managementMemo1(row.getCell(20) != null ? row.getCell(20).getStringCellValue() : "")
-                    .managementMemo2(row.getCell(21) != null ? row.getCell(21).getStringCellValue() : "")
-                    .managementMemo3(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : "")
-                    .managementMemo4(row.getCell(23) != null ? row.getCell(23).getStringCellValue() : "")
-                    .managementMemo5(row.getCell(24) != null ? row.getCell(24).getStringCellValue() : "")
-                    .managementMemo6(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
-                    .managementMemo7(row.getCell(26) != null ? row.getCell(26).getStringCellValue() : "")
-                    .managementMemo8(row.getCell(27) != null ? row.getCell(27).getStringCellValue() : "")
-                    .managementMemo9(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
-                    .managementMemo10(row.getCell(29) != null ? row.getCell(29).getStringCellValue() : "")
-                    .managementMemo11(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                    .managementMemo12(row.getCell(31) != null ? row.getCell(31).getStringCellValue() : "")
-                    .managementMemo13(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
-                    .managementMemo14(row.getCell(33) != null ? row.getCell(33).getStringCellValue() : "")
-                    .managementMemo15(row.getCell(34) != null ? row.getCell(34).getStringCellValue() : "")
-                    .managementMemo16(row.getCell(35) != null ? row.getCell(35).getStringCellValue() : "")
-                    .managementMemo17(row.getCell(36) != null ? row.getCell(36).getStringCellValue() : "")
-                    .managementMemo18(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
-                    .managementMemo19(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
-                    .managementMemo20(row.getCell(39) != null ? row.getCell(39).getStringCellValue() : "")
-                    .released(false)
-                    .createdAt(createdAtOfFile)
-                    .createdBy(userId)
-                    .releaseCompleted(false)
-                    .deliveryReadyFileCid(fileDto.getCid())
-                    .build();
+                Object cellValue = new Object();
+                if(cell == null || cell.getCellType().equals(CellType.BLANK)){
+                    cellValue = "";
+                }else if(cell.getCellType().equals(CellType.NUMERIC)){
+                    cellValue = cell.getNumericCellValue();
+                }else{
+                    cellValue = cell.getStringCellValue();
+                }
 
-            // TODO :: 중복 데이터 처리
-            dtos.add(dto);
+                // 피아르 양식과 다른 헤더를 가진다면
+                if (i == 0 && !PIAAR_EXCEL_HEADER_LIST.get(j).equals(cellValue.toString())) {
+                    throw new IllegalArgumentException();
+                }
+
+                PiaarItemDto piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
+                itemDtos.add(piaarItemDto);
+            }
+
+            PiaarUploadDetailDto detailDto = PiaarUploadDetailDto.builder().details(itemDtos).build();
+            itemDto = DeliveryReadyPiaarItemDto.builder()
+                .id(UUID.randomUUID())
+                .uploadDetail(detailDto)
+                .soldYn("n")
+                .releasedYn("n")
+                .stockReflectedYn("n")
+                .createdAt(createdAt)
+                .createdBy(userId)
+                .deliveryReadyFileCid(fileDto.getCid())
+                .build();
         }
-        return dtos;
+
+        return itemDto;
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * DeliveryReadyItem 중 미출고 데이터를 조회한다.
+     * 유저가 업로드한 엑셀을 전체 가져온다.
      *
-     * @return List::DeliveryReadyNaverItemViewResDto::
-     * @see DeliveryReadyNaverService#findSelectedUnreleased
-     * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
+     * @return List::DeliveryReadyPiaarItemDto::
+     * @see DeliveryReadyPiaarService#searchOrderListByUser
+     * @see DeliveryReadyPiaarItemDto#toDto
      */
     public List<DeliveryReadyPiaarItemDto> getDeliveryReadyViewOrderData(UUID userId) {
         List<DeliveryReadyPiaarItemEntity> itemEntities = deliveryReadyPiaarService.searchOrderListByUser(userId);
