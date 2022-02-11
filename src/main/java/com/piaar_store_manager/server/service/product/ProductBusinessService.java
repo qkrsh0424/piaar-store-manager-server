@@ -322,7 +322,7 @@ public class ProductBusinessService {
         productEntity.setCode(productDto.getCode()).setManufacturingCode(productDto.getManufacturingCode())
                 .setNaverProductCode(productDto.getNaverProductCode()).setDefaultName(productDto.getDefaultName())
                 .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
-                .setImageFileName(productDto.getImageFileName()).setMemo(productDto.getMemo())
+                .setImageFileName(productDto.getImageFileName()).setPurchaseUrl(productDto.getPurchaseUrl()).setMemo(productDto.getMemo())
                 .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
                 .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
                 .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
@@ -385,6 +385,9 @@ public class ProductBusinessService {
         }
         if (productDto.getImageFileName() != null) {
             productEntity.setImageFileName(productDto.getImageFileName());
+        }
+        if (productDto.getPurchaseUrl() != null) {
+            productEntity.setPurchaseUrl(productDto.getPurchaseUrl());
         }
         if (productDto.getMemo() != null) {
             productEntity.setMemo(productDto.getMemo());

@@ -28,6 +28,7 @@ public class ProductGetDto {
     private String managementName;
     private String imageUrl;
     private String imageFileName;
+    private String purchaseUrl;
     private String memo;
     private String hsCode;
     private String style;
@@ -62,6 +63,7 @@ public class ProductGetDto {
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
+            .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
             .hsCode(entity.getHsCode())
@@ -104,6 +106,7 @@ public class ProductGetDto {
                 .managementName(entity.getManagementName())
                 .imageUrl(entity.getImageUrl())
                 .imageFileName(entity.getImageFileName())
+                .purchaseUrl(entity.getPurchaseUrl())
                 .memo(entity.getMemo())
                 .hsCode(entity.getHsCode())
                 .tariffRate(entity.getTariffRate())

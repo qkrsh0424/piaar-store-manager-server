@@ -53,6 +53,9 @@ public class ProductEntity {
     @Column(name = "image_file_name")
     private String imageFileName;
 
+    @Column(name = "purchase_url")
+    private String purchaseUrl;
+
     @Column(name = "memo")
     private String memo;
 
@@ -119,6 +122,7 @@ public class ProductEntity {
             .managementName(productDto.getManagementName())
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
+            .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
             .hsCode(productDto.getHsCode())
             .tariffRate(productDto.getTariffRate())
