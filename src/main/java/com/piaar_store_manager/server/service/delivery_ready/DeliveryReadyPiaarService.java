@@ -41,14 +41,14 @@ public class DeliveryReadyPiaarService {
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * 배송준비 엑셀 파일의 모든 데이터를 저장한다.
+     * 배송준비 엑셀 파일의 하나의 데이터를 저장한다.
      *
      * @param itemEntity : DeliveryReadyPiaarItemEntity
      * @return DeliveryReadyPiaarItemEntity
      * @see DeliveryReadyPiaarItemRepository#save
      */
-    public DeliveryReadyPiaarItemEntity saveItem(DeliveryReadyPiaarItemEntity itemEntity) {
-        return deliveryReadyPiaarItemRepository.save(itemEntity);
+    public List<DeliveryReadyPiaarItemEntity> saveItemList(List<DeliveryReadyPiaarItemEntity> itemEntities) {
+        return deliveryReadyPiaarItemRepository.saveAll(itemEntities);
     }
 
     /**

@@ -1,9 +1,14 @@
 package com.piaar_store_manager.server.service.delivery_ready;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -12,8 +17,10 @@ import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryRea
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarUploadDetailDto;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -35,12 +42,12 @@ import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -55,24 +62,6 @@ public class DeliveryReadyPiaarBusinessService {
     ) {
         this.deliveryReadyPiaarService = deliveryReadyPiaarService;
     }
-
-    // AWS S3
-    private AmazonS3 s3Client;
-
-    @Value("${cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
-    @Value("${cloud.aws.region.static}")
-    private String region;
-    
-    @Value("${file.upload-dir}")
-    String fileLocation;
-    
-    @Value("${cloud.aws.s3.bucket}")
-    public String bucket;
 
     // Excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
@@ -147,7 +136,7 @@ public class DeliveryReadyPiaarBusinessService {
      * @throws IOException
      * @see DeliveryReadyPiaarBusinessService#getDeliveryReadyExcelForm
      */
-    public DeliveryReadyPiaarItemDto uploadDeliveryReadyExcelFile(MultipartFile file){
+    public List<DeliveryReadyPiaarItemDto> uploadDeliveryReadyExcelFile(MultipartFile file){
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -158,7 +147,7 @@ public class DeliveryReadyPiaarBusinessService {
         // TODO : 타입체크 메서드 구현해야됨.
         Sheet sheet = workbook.getSheetAt(0);
 
-        DeliveryReadyPiaarItemDto dtos = this.getDeliveryReadyExcelForm(sheet);
+        List<DeliveryReadyPiaarItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
     }
 
@@ -170,57 +159,56 @@ public class DeliveryReadyPiaarBusinessService {
      * @param worksheet : Sheet
      * @return DeliveryReadyPiaarItemDto
      */
-    private DeliveryReadyPiaarItemDto getDeliveryReadyExcelForm(Sheet worksheet) {
-        DeliveryReadyPiaarItemDto itemDto = new DeliveryReadyPiaarItemDto();
+    private List<DeliveryReadyPiaarItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
+        List<DeliveryReadyPiaarItemDto> piaarItemDtos = new ArrayList<>();
 
-        for (int i = 0; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        Row firstRow = worksheet.getRow(0);
+        // 피아르 엑셀 양식 검사
+        for(int i = 0; i < PIAAR_EXCEL_HEADER_SIZE; i++) {
+            Cell cell = firstRow.getCell(i);
+            String headerName = cell != null ? cell.getStringCellValue() : null;
+            // 지정된 양식이 아니라면
+            if(!PIAAR_EXCEL_HEADER_LIST.get(i).equals(headerName)) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
             if(row == null) break;
             
+            DeliveryReadyPiaarItemDto piaarItemDto = new DeliveryReadyPiaarItemDto();
             List<PiaarItemDto> itemDtos = new ArrayList<>();
             for(int j = 0; j < PIAAR_EXCEL_HEADER_SIZE; j++) {
                 Cell cell = row.getCell(j);
 
                 Object cellValue = new Object();
+                
                 if(cell == null || cell.getCellType().equals(CellType.BLANK)){
                     cellValue = "";
                 }else if(cell.getCellType().equals(CellType.NUMERIC)){
-                    cellValue = cell.getNumericCellValue();
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                            Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
+                            LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                            // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
+                            String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                            cellValue = newDate;
+                    } else {
+                        cellValue = cell.getNumericCellValue();
+                    }
                 }else{
                     cellValue = cell.getStringCellValue();
                 }
 
-                // 피아르 양식과 다른 헤더를 가진다면
-                if (i == 0 && !PIAAR_EXCEL_HEADER_LIST.get(j).equals(cellValue.toString())) {
-                    throw new IllegalArgumentException();
-                }
-
-                PiaarItemDto piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
-                itemDtos.add(piaarItemDto);
+                PiaarItemDto itemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
+                itemDtos.add(itemDto);
             }
-
             PiaarUploadDetailDto detailDto = PiaarUploadDetailDto.builder().details(itemDtos).build();
-            itemDto = DeliveryReadyPiaarItemDto.builder().id(UUID.randomUUID()).uploadDetail(detailDto).build();
+            piaarItemDto = DeliveryReadyPiaarItemDto.builder().id(UUID.randomUUID()).uploadDetail(detailDto).build();
+
+            piaarItemDtos.add(piaarItemDto);
         }
-        return itemDto;
-    }
-
-    /**
-     * <b>S3 Upload Setting Related Method</b>
-     * <p>
-     * AWS S3 설정 메소드.
-     *
-     * @param accessKey : String
-     * @param secretKey : String
-     */
-    @PostConstruct
-    public void setS3Client() {
-        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
-
-        s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(this.region)
-                .build();
+        return piaarItemDtos;
     }
 
     /**
@@ -239,24 +227,14 @@ public class DeliveryReadyPiaarBusinessService {
     public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
         String fileName = file.getOriginalFilename();
         String newFileName = "[PIAAR_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
-        String uploadPath = bucket + "/piaar-order";
-
-        ObjectMetadata objMeta = new ObjectMetadata();
-        objMeta.setContentLength(file.getSize());
-
-        try{
-            // AWS S3 업로드
-            s3Client.putObject(new PutObjectRequest(uploadPath, newFileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch (IOException e) {
-            throw new IllegalStateException();
-        }
+        String urlPath = "";
 
         // 파일 저장
-        DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize(), userId);
+        DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(urlPath, newFileName, (int)file.getSize(), userId);
         // 데이터 저장
         this.createDeliveryReadyExcelItem(file, fileDto, userId);
                                                       
-        return new FileUploadResponse(newFileName, s3Client.getUrl(uploadPath, newFileName).toString(), file.getContentType(), file.getSize());
+        return new FileUploadResponse(newFileName, urlPath, file.getContentType(), file.getSize());
     }
 
     /**
@@ -300,7 +278,7 @@ public class DeliveryReadyPiaarBusinessService {
      * @throws IllegalArgumentException
      * @see DeliveryReadyPiaarBusinessService#getDeliveryReadyPiaarExcelItem
      * @see DeliveryReadyPiaarItemEntity#toEntity
-     * @see DeliveryReadyPiaarService#saveItem
+     * @see DeliveryReadyPiaarService#saveItemList
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto, UUID userId) {
         Workbook workbook = null;
@@ -311,10 +289,10 @@ public class DeliveryReadyPiaarBusinessService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        DeliveryReadyPiaarItemDto dto = this.getDeliveryReadyPiaarExcelItem(sheet, fileDto, userId);
+        List<DeliveryReadyPiaarItemDto> dtos = this.getDeliveryReadyPiaarExcelItem(sheet, fileDto, userId);
 
-        DeliveryReadyPiaarItemEntity entities = DeliveryReadyPiaarItemEntity.toEntity(dto);
-        deliveryReadyPiaarService.saveItem(entities);
+        List<DeliveryReadyPiaarItemEntity> entities = dtos.stream().map(r -> DeliveryReadyPiaarItemEntity.toEntity(r)).collect(Collectors.toList());
+        deliveryReadyPiaarService.saveItemList(entities);
     }
 
     /**
@@ -325,24 +303,49 @@ public class DeliveryReadyPiaarBusinessService {
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
      */
-    private DeliveryReadyPiaarItemDto getDeliveryReadyPiaarExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto, UUID userId) {
-        DeliveryReadyPiaarItemDto itemDto = new DeliveryReadyPiaarItemDto();
+    private List<DeliveryReadyPiaarItemDto> getDeliveryReadyPiaarExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto, UUID userId) {
+        List<DeliveryReadyPiaarItemDto> piaarItemDtos = new ArrayList<>();
         LocalDateTime createdAt = fileDto.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        for (int i = 0; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        Row firstRow = worksheet.getRow(0);
+        // 피아르 엑셀 양식 검사
+        for(int i = 0; i < PIAAR_EXCEL_HEADER_SIZE; i++) {
+            Cell cell = firstRow.getCell(i);
+            String headerName = cell != null ? cell.getStringCellValue() : null;
+            // 지정된 양식이 아니라면
+            if(!PIAAR_EXCEL_HEADER_LIST.get(i).equals(headerName)) {
+                throw new IllegalArgumentException();
+            }
+        }
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
             if(row == null) break;
             
+            DeliveryReadyPiaarItemDto piaarItemDto = new DeliveryReadyPiaarItemDto();
             List<PiaarItemDto> itemDtos = new ArrayList<>();
             for(int j = 0; j < PIAAR_EXCEL_HEADER_SIZE; j++) {
                 Cell cell = row.getCell(j);
-
                 Object cellValue = new Object();
+                
                 if(cell == null || cell.getCellType().equals(CellType.BLANK)){
-                    cellValue = "";
-                }else if(cell.getCellType().equals(CellType.NUMERIC)){
-                    cellValue = cell.getNumericCellValue();
-                }else{
+                    // j가 0일 때, 피아르 고유번호 지정
+                    if(j == 0) {
+                        cellValue = UUID.randomUUID();
+                    } else {
+                        cellValue = "";
+                    }
+                }else if(cell.getCellType().equals(CellType.NUMERIC)) {
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
+                        LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
+                        String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        cellValue = newDate;
+                    } else {
+                        cellValue = cell.getNumericCellValue();
+                    }
+                } else {
                     cellValue = cell.getStringCellValue();
                 }
 
@@ -351,12 +354,12 @@ public class DeliveryReadyPiaarBusinessService {
                     throw new IllegalArgumentException();
                 }
 
-                PiaarItemDto piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
-                itemDtos.add(piaarItemDto);
+                PiaarItemDto itemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
+                itemDtos.add(itemDto);
             }
 
             PiaarUploadDetailDto detailDto = PiaarUploadDetailDto.builder().details(itemDtos).build();
-            itemDto = DeliveryReadyPiaarItemDto.builder()
+            piaarItemDto = DeliveryReadyPiaarItemDto.builder()
                 .id(UUID.randomUUID())
                 .uploadDetail(detailDto)
                 .soldYn("n")
@@ -366,9 +369,10 @@ public class DeliveryReadyPiaarBusinessService {
                 .createdBy(userId)
                 .deliveryReadyFileCid(fileDto.getCid())
                 .build();
-        }
 
-        return itemDto;
+            piaarItemDtos.add(piaarItemDto);
+        }
+        return piaarItemDtos;
     }
 
     /**

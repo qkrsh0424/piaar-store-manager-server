@@ -16,6 +16,6 @@ import lombok.experimental.Accessors;
 public class ViewDetailDto {
     private UUID id;
     private Integer cellNumber;
-    private String cellName;
+    private String cellValue;
     private String cellSize;
 }
