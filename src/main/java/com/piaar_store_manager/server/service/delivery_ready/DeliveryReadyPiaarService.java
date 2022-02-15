@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.repository.DeliveryReadyPiaarItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 
@@ -51,16 +52,20 @@ public class DeliveryReadyPiaarService {
         return deliveryReadyPiaarItemRepository.saveAll(itemEntities);
     }
 
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * 주문현황 데이터를 조회한다.
-     *
-     * @param userId : UUID
-     * @return List::DeliveryReadyPiaarItemEntity::
-     * @see DeliveryReadyPiaarItemRepository#findByCreatedBy
-     */
-    public List<DeliveryReadyPiaarItemEntity> searchOrderListByUser(UUID userId) {
-        return deliveryReadyPiaarItemRepository.findByCreatedBy(userId);
+    // /**
+    //  * <b>DB Insert Related Method</b>
+    //  * <p>
+    //  * 주문현황 데이터를 조회한다.
+    //  *
+    //  * @param userId : UUID
+    //  * @return List::DeliveryReadyPiaarItemEntity::
+    //  * @see DeliveryReadyPiaarItemRepository#findByCreatedBy
+    //  */
+    // public List<DeliveryReadyPiaarItemEntity> searchOrderListByUser(UUID userId) {
+    //     return deliveryReadyPiaarItemRepository.findByCreatedBy(userId);
+    // }
+
+    public List<DeliveryReadyPiaarItemViewProj> findMappingDataByPiaarOptionCodeAndUser(UUID userId) {
+        return deliveryReadyPiaarItemRepository.findMaapingDataByPiaarOptionCodeAndUser(userId);
     }
 }

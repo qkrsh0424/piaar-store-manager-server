@@ -14,6 +14,7 @@ import java.util.UUID;
 import com.amazonaws.services.s3.AmazonS3;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemViewResDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.PiaarUploadDetailDto;
 
@@ -37,6 +38,7 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 
 import org.apache.commons.io.FilenameUtils;
@@ -67,6 +69,7 @@ public class DeliveryReadyPiaarBusinessService {
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
 
     private final Integer PIAAR_EXCEL_HEADER_SIZE = 40;
+    private final Integer PIAAR_MAPPING_HEADER_SIZE = 6;
 
     private final List<String> PIAAR_EXCEL_HEADER_LIST = Arrays.asList(
             "피아르 고유번호",
@@ -109,6 +112,11 @@ public class DeliveryReadyPiaarBusinessService {
             "관리메모18",
             "관리메모19",
             "관리메모20");
+
+
+    private final List<String> PIAAR_MAPPING_HEADER_DATA = Arrays.asList(
+        "상품명", "옵션명", "상품관리명", "옵션관리명", "카테고리명", "재고수량"
+    );
 
     /**
      * <b>Extension Check</b>
@@ -379,14 +387,49 @@ public class DeliveryReadyPiaarBusinessService {
      * <b>DB Select Related Method</b>
      * <p>
      * 유저가 업로드한 엑셀을 전체 가져온다.
+     * 피아르 관리코드에 대응하는 옵션명, 상품명, 옵션관리명, 상품관리명, 카테고리명을 가져와 업로드 엑셀 dto에 넣는다.
      *
      * @return List::DeliveryReadyPiaarItemDto::
      * @see DeliveryReadyPiaarService#searchOrderListByUser
      * @see DeliveryReadyPiaarItemDto#toDto
      */
     public List<DeliveryReadyPiaarItemDto> getDeliveryReadyViewOrderData(UUID userId) {
-        List<DeliveryReadyPiaarItemEntity> itemEntities = deliveryReadyPiaarService.searchOrderListByUser(userId);
-        List<DeliveryReadyPiaarItemDto> itemDtos = itemEntities.stream().map(r -> DeliveryReadyPiaarItemDto.toDto(r)).collect(Collectors.toList());
-        return itemDtos;
+
+        // 매핑데이터 조회
+        List<DeliveryReadyPiaarItemViewProj> itemViewProjs = deliveryReadyPiaarService.findMappingDataByPiaarOptionCodeAndUser(userId);
+        List<DeliveryReadyPiaarItemViewResDto> resDtos = itemViewProjs.stream().map(r -> DeliveryReadyPiaarItemViewResDto.toResDto(r)).collect(Collectors.toList());
+
+        List<DeliveryReadyPiaarItemDto> resultDtos = resDtos.stream().map(r -> {
+            List<PiaarItemDto> result = r.getDeliveryReadyItem().getUploadDetail().getDetails();
+            PiaarItemDto piaarItemDto = new PiaarItemDto();
+
+            // 카테고리명
+            piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 0).cellValue(r.getCategoryName()).build();
+            result.add(piaarItemDto);
+
+            // 상품명
+            piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 1).cellValue(r.getProdDefaultName()).build();
+            result.add(piaarItemDto);
+
+            // 상품관리명
+            piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 2).cellValue(r.getProdManagementName()).build();
+            result.add(piaarItemDto);
+
+            // 옵션명
+            piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 3).cellValue(r.getOptionDefaultName()).build();
+            result.add(piaarItemDto);
+
+            // 옵션관리명
+            piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 4).cellValue(r.getOptionManagementName()).build();
+            result.add(piaarItemDto);
+                
+            r.getDeliveryReadyItem().getUploadDetail().setDetails(result);
+            return r.getDeliveryReadyItem();
+        }).collect(Collectors.toList());
+        
+
+        // 옵션 재고수량 설정
+
+        return resultDtos;
     }
 }
