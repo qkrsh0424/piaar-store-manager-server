@@ -1,17 +1,11 @@
 package com.piaar_store_manager.server.service.delivery_ready;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.UUID;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemViewResDto;
@@ -24,22 +18,16 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -56,20 +44,21 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class DeliveryReadyPiaarBusinessService {
     private DeliveryReadyPiaarService deliveryReadyPiaarService;
-
+    private ProductOptionService productOptionService;
 
     @Autowired
     public DeliveryReadyPiaarBusinessService(
-        DeliveryReadyPiaarService deliveryReadyPiaarService
+        DeliveryReadyPiaarService deliveryReadyPiaarService,
+        ProductOptionService productOptionService
     ) {
         this.deliveryReadyPiaarService = deliveryReadyPiaarService;
+        this.productOptionService = productOptionService;
     }
 
     // Excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
 
     private final Integer PIAAR_EXCEL_HEADER_SIZE = 40;
-    private final Integer PIAAR_MAPPING_HEADER_SIZE = 6;
 
     private final List<String> PIAAR_EXCEL_HEADER_LIST = Arrays.asList(
             "피아르 고유번호",
@@ -112,11 +101,6 @@ public class DeliveryReadyPiaarBusinessService {
             "관리메모18",
             "관리메모19",
             "관리메모20");
-
-
-    private final List<String> PIAAR_MAPPING_HEADER_DATA = Arrays.asList(
-        "상품명", "옵션명", "상품관리명", "옵션관리명", "카테고리명", "재고수량"
-    );
 
     /**
      * <b>Extension Check</b>
@@ -222,7 +206,7 @@ public class DeliveryReadyPiaarBusinessService {
     /**
      * <b>S3 Upload & DB Insert Related Method</b>
      * <p>
-     * 업로드된 엑셀파일을 S3 및 DB에 저장한다.
+     * 업로드된 엑셀파일을 DB에 저장한다.
      *
      * @param file : MultipartFile
      * @param userId : UUID
@@ -387,18 +371,34 @@ public class DeliveryReadyPiaarBusinessService {
      * <b>DB Select Related Method</b>
      * <p>
      * 유저가 업로드한 엑셀을 전체 가져온다.
-     * 피아르 관리코드에 대응하는 옵션명, 상품명, 옵션관리명, 상품관리명, 카테고리명을 가져와 업로드 엑셀 dto에 넣는다.
+     * 피아르 관리코드에 대응하는 데이터들을 반환 Dto에 추가한다.
      *
      * @return List::DeliveryReadyPiaarItemDto::
      * @see DeliveryReadyPiaarService#searchOrderListByUser
      * @see DeliveryReadyPiaarItemDto#toDto
      */
     public List<DeliveryReadyPiaarItemDto> getDeliveryReadyViewOrderData(UUID userId) {
-
         // 매핑데이터 조회
         List<DeliveryReadyPiaarItemViewProj> itemViewProjs = deliveryReadyPiaarService.findMappingDataByPiaarOptionCodeAndUser(userId);
         List<DeliveryReadyPiaarItemViewResDto> resDtos = itemViewProjs.stream().map(r -> DeliveryReadyPiaarItemViewResDto.toResDto(r)).collect(Collectors.toList());
 
+        // 카테고리명, 상품명, 상품관리명, 옵션명, 옵션관리명 추가
+        List<DeliveryReadyPiaarItemDto> addedPiaarItemDtos = this.addDeliveryReadyViewMappingData(resDtos);
+        // 옵션재고수량 추가
+        List<DeliveryReadyPiaarItemDto> allPiaarViewItemDtos= this.getOptionStockUnit(addedPiaarItemDtos);
+        return allPiaarViewItemDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * resDtos의 피아르 옵션코드에 대응하는 카테고리명, 상품명, 상품관리명, 옵션명, 옵션관리명을 resDtos 데이터에 추가한다.
+     *
+     * @param resDtos : List::DeliveryReadyPiaarItemDto::
+     * @return List::DeliveryReadyPiaarItemDto::
+     * @see ProductOptionService#searchListByProductListOptionCode
+     */
+    public List<DeliveryReadyPiaarItemDto> addDeliveryReadyViewMappingData(List<DeliveryReadyPiaarItemViewResDto> resDtos) {
         List<DeliveryReadyPiaarItemDto> resultDtos = resDtos.stream().map(r -> {
             List<PiaarItemDto> result = r.getDeliveryReadyItem().getUploadDetail().getDetails();
             PiaarItemDto piaarItemDto = new PiaarItemDto();
@@ -422,14 +422,41 @@ public class DeliveryReadyPiaarBusinessService {
             // 옵션관리명
             piaarItemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 4).cellValue(r.getOptionManagementName()).build();
             result.add(piaarItemDto);
-                
+
             r.getDeliveryReadyItem().getUploadDetail().setDetails(result);
             return r.getDeliveryReadyItem();
         }).collect(Collectors.toList());
-        
-
-        // 옵션 재고수량 설정
 
         return resultDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * resDtos의 피아르 옵션코드에 대응하는 옵션의 StockSumUnit(총 입고 수량 - 총 출고 수량)을 가져와 resDtos 데이터에 추가한다.
+     *
+     * @param resDtos : List::DeliveryReadyPiaarItemDto::
+     * @return List::DeliveryReadyPiaarItemDto::
+     * @see ProductOptionService#searchListByProductListOptionCode
+     */
+    public List<DeliveryReadyPiaarItemDto> getOptionStockUnit(List<DeliveryReadyPiaarItemDto> resDtos) {
+        List<String> optionCodes = resDtos.stream().map(r -> r.getUploadDetail().getDetails().get(19).getCellValue().toString()).collect(Collectors.toList());
+        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(optionCodes);
+    
+        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
+        List<DeliveryReadyPiaarItemDto>  itemDtos = resDtos.stream().map(resDto -> {
+            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
+            optionGetDtos.stream().forEach(option -> {
+                List<PiaarItemDto> result = resDto.getUploadDetail().getDetails();
+    
+                if(resDto.getUploadDetail().getDetails().get(19).getCellValue().equals(option.getCode())) {
+                    PiaarItemDto piaarItemDto  = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(PIAAR_EXCEL_HEADER_SIZE + 5).cellValue(option.getStockSumUnit()).build();
+                    result.add(piaarItemDto);
+                }
+            });
+            return resDto;
+        }).collect(Collectors.toList());
+
+        return itemDtos;
     }
 }

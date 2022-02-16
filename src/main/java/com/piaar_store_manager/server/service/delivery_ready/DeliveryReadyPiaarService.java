@@ -52,20 +52,17 @@ public class DeliveryReadyPiaarService {
         return deliveryReadyPiaarItemRepository.saveAll(itemEntities);
     }
 
-    // /**
-    //  * <b>DB Insert Related Method</b>
-    //  * <p>
-    //  * 주문현황 데이터를 조회한다.
-    //  *
-    //  * @param userId : UUID
-    //  * @return List::DeliveryReadyPiaarItemEntity::
-    //  * @see DeliveryReadyPiaarItemRepository#findByCreatedBy
-    //  */
-    // public List<DeliveryReadyPiaarItemEntity> searchOrderListByUser(UUID userId) {
-    //     return deliveryReadyPiaarItemRepository.findByCreatedBy(userId);
-    // }
-
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * userId에 대응하는 유저의 주문현황 데이터를 조회한다.
+     * 옵션코드와 관련된 데이터들을 함께 조회한다.
+     *
+     * @param userId : UUID
+     * @return List::DeliveryReadyPiaarItemViewProj::
+     * @see DeliveryReadyPiaarItemRepository#findMappingDataByPiaarOptionCodeAndUser
+     */
     public List<DeliveryReadyPiaarItemViewProj> findMappingDataByPiaarOptionCodeAndUser(UUID userId) {
-        return deliveryReadyPiaarItemRepository.findMaapingDataByPiaarOptionCodeAndUser(userId);
+        return deliveryReadyPiaarItemRepository.findMappingDataByPiaarOptionCodeAndUser(userId);
     }
 }
