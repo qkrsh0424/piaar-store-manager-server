@@ -16,7 +16,7 @@ public class DeliveryReadyPiaarItemViewResDto {
     String optionDefaultName;
     String optionManagementName;
     String categoryName;
-    String optionStockUnit;
+    Integer optionStockUnit;
 
     public static DeliveryReadyPiaarItemViewResDto toResDto(DeliveryReadyPiaarItemViewProj proj) {
         DeliveryReadyPiaarItemViewResDto dto = DeliveryReadyPiaarItemViewResDto.builder()

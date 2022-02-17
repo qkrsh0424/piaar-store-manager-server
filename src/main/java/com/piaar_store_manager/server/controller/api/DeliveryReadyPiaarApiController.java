@@ -1,6 +1,9 @@
 package com.piaar_store_manager.server.controller.api;
 
+import java.util.List;
+
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyPiaarBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -9,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -120,12 +125,12 @@ public class DeliveryReadyPiaarApiController {
      * @see UserService#userDenyCheck
      */
     @GetMapping("/view/orderList")
-    public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
+    public ResponseEntity<?> getDeliveryReadyViewOrderDataByUserId() {
         Message message = new Message();
 
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
-            message.setData(deliveryReadyPiaarBusinessService.getDeliveryReadyViewOrderData(userService.getUserId()));
+            message.setData(deliveryReadyPiaarBusinessService.getDeliveryReadyViewOrderDataByUserId(userService.getUserId()));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -134,4 +139,26 @@ public class DeliveryReadyPiaarApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    // @PutMapping("/view/orderList/sold")
+    // public ResponseEntity<?> updateToSold(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
+    //     Message message = new Message();
+
+    //     // 유저의 권한을 체크한다.
+    //     if (userService.isManager()) {
+    //         try {
+    //             deliveryReadyPiaarBusinessService.updateToSold(piaarItemDtos);
+    //             message.setStatus(HttpStatus.OK);
+    //             message.setMessage("success");
+    //         } catch (NullPointerException e) {
+    //             message.setStatus(HttpStatus.NOT_FOUND);
+    //             message.setMessage("not_found");
+    //             message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+    //         }
+    //     } else {
+    //         userService.userDenyCheck(message);
+    //     }
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 }

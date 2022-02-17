@@ -17,5 +17,6 @@ public class ViewDetailDto {
     private UUID id;
     private Integer cellNumber;
     private String cellValue;
+    private String matchedColumnName;
     private String cellSize;
 }

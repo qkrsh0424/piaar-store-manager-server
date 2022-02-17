@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.repository.DeliveryReadyPiaarItemRepository;
@@ -64,5 +65,9 @@ public class DeliveryReadyPiaarService {
      */
     public List<DeliveryReadyPiaarItemViewProj> findMappingDataByPiaarOptionCodeAndUser(UUID userId) {
         return deliveryReadyPiaarItemRepository.findMappingDataByPiaarOptionCodeAndUser(userId);
+    }
+
+    public List<DeliveryReadyPiaarItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
+        return deliveryReadyPiaarItemRepository.selectAllByCids(itemCids);
     }
 }
