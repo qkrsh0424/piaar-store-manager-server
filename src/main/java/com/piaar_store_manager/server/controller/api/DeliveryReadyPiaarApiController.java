@@ -140,25 +140,70 @@ public class DeliveryReadyPiaarApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // @PutMapping("/view/orderList/sold")
-    // public ResponseEntity<?> updateToSold(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
-    //     Message message = new Message();
+    @PutMapping("/view/orderList/sold")
+    public ResponseEntity<?> updateListToSold(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
+        Message message = new Message();
 
-    //     // 유저의 권한을 체크한다.
-    //     if (userService.isManager()) {
-    //         try {
-    //             deliveryReadyPiaarBusinessService.updateToSold(piaarItemDtos);
-    //             message.setStatus(HttpStatus.OK);
-    //             message.setMessage("success");
-    //         } catch (NullPointerException e) {
-    //             message.setStatus(HttpStatus.NOT_FOUND);
-    //             message.setMessage("not_found");
-    //             message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-    //         }
-    //     } else {
-    //         userService.userDenyCheck(message);
-    //     }
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyPiaarBusinessService.updateListToSold(piaarItemDtos);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PutMapping("/view/orderList/released")
+    public ResponseEntity<?> updateListToReleased(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
+        Message message = new Message();
+
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyPiaarBusinessService.updateListToReleased(piaarItemDtos);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+
+    @PostMapping("/view/orderList/combined")
+    public ResponseEntity<?> getCombinedDelivery(@RequestBody List<DeliveryReadyPiaarItemDto> itemDtos) {
+        Message message = new Message();
+
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                message.setData(deliveryReadyPiaarBusinessService.getCombinedDelivery(itemDtos));
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

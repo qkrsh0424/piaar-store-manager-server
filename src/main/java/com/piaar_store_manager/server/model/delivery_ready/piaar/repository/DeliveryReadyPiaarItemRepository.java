@@ -33,7 +33,13 @@ public interface DeliveryReadyPiaarItemRepository extends JpaRepository<Delivery
 
     @Query(
         "SELECT dri FROM DeliveryReadyPiaarItemEntity dri\n" +
-        "WHERE dri.cid IN :itemCids"
+        "WHERE dri.id IN :itemIdList"
     )
-    List<DeliveryReadyPiaarItemEntity> selectAllByCids(List<Integer> itemCids);
+    List<DeliveryReadyPiaarItemEntity> selectAllByIdList(List<UUID> itemIdList);
+
+    @Query(
+        "SELECT dri FROM DeliveryReadyPiaarItemEntity dri\n" +
+        "WHERE dri.releasedYn ='y'"
+    )
+    List<DeliveryReadyPiaarItemEntity> findAllByReleased();
 }

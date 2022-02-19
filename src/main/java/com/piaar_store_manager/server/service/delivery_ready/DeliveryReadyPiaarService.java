@@ -67,7 +67,12 @@ public class DeliveryReadyPiaarService {
         return deliveryReadyPiaarItemRepository.findMappingDataByPiaarOptionCodeAndUser(userId);
     }
 
-    public List<DeliveryReadyPiaarItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
-        return deliveryReadyPiaarItemRepository.selectAllByCids(itemCids);
+    public List<DeliveryReadyPiaarItemEntity> searchDeliveryReadyItemList(List<UUID> itemIdList) {
+        return deliveryReadyPiaarItemRepository.selectAllByIdList(itemIdList);
+    }
+
+
+    public List<DeliveryReadyPiaarItemEntity> getReleasedItemList() {
+        return deliveryReadyPiaarItemRepository.findAllByReleased();
     }
 }

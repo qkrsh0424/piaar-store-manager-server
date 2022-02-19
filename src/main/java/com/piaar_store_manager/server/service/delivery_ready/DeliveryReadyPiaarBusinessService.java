@@ -3,7 +3,11 @@ package com.piaar_store_manager.server.service.delivery_ready;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.exception.FileUploadException;
@@ -23,8 +27,11 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFile
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.repository.DeliveryReadyPiaarItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.DeliveryReadyPiaarUploadedExcelItemVo;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.DeliveryReadyPiaarViewExcelItemVo;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarCombinedDeliveryDetailVo;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarCombinedDeliveryExcelItemVo;
 import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
@@ -143,67 +150,6 @@ public class DeliveryReadyPiaarBusinessService {
         List<DeliveryReadyPiaarUploadedExcelItemVo> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * 선택된 엑셀파일(네이버 배송준비 엑셀)의 데이터들을 Dto로 변환한다.
-     * 
-     * @param worksheet : Sheet
-     * @return DeliveryReadyPiaarItemDto
-     */
-    // private List<DeliveryReadyPiaarItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
-        // List<DeliveryReadyPiaarItemDto> piaarItemDtos = new ArrayList<>();
-
-        // Row firstRow = worksheet.getRow(0);
-        // // 피아르 엑셀 양식 검사
-        // for(int i = 0; i < PIAAR_EXCEL_HEADER_SIZE; i++) {
-        //     Cell cell = firstRow.getCell(i);
-        //     String headerName = cell != null ? cell.getStringCellValue() : null;
-        //     // 지정된 양식이 아니라면
-        //     if(!PIAAR_EXCEL_HEADER_LIST.get(i).equals(headerName)) {
-        //         throw new IllegalArgumentException();
-        //     }
-        // }
-
-        // for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-        //     Row row = worksheet.getRow(i);
-        //     if(row == null) break;
-            
-        //     DeliveryReadyPiaarItemDto piaarItemDto = new DeliveryReadyPiaarItemDto();
-        //     List<PiaarItemDto> itemDtos = new ArrayList<>();
-        //     for(int j = 0; j < PIAAR_EXCEL_HEADER_SIZE; j++) {
-        //         Cell cell = row.getCell(j);
-
-        //         Object cellValue = new Object();
-                
-        //         if(cell == null || cell.getCellType().equals(CellType.BLANK)){
-        //             cellValue = "";
-        //         }else if(cell.getCellType().equals(CellType.NUMERIC)){
-        //             if (DateUtil.isCellDateFormatted(cell)) {
-        //                     Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
-        //                     LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-        //                     // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
-        //                     String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        //                     cellValue = newDate;
-        //             } else {
-        //                 cellValue = cell.getNumericCellValue();
-        //             }
-        //         }else{
-        //             cellValue = cell.getStringCellValue();
-        //         }
-
-        //         PiaarItemDto itemDto = PiaarItemDto.builder().id(UUID.randomUUID()).cellNumber(j).cellValue(cellValue).build();
-        //         itemDtos.add(itemDto);
-        //     }
-        //     PiaarUploadDetailDto detailDto = PiaarUploadDetailDto.builder().details(itemDtos).build();
-        //     piaarItemDto = DeliveryReadyPiaarItemDto.builder().id(UUID.randomUUID()).uploadDetail(detailDto).build();
-
-        //     piaarItemDtos.add(piaarItemDto);
-        // }
-        // return piaarItemDtos;
-    //     return null;
-    // }
 
     private List<DeliveryReadyPiaarUploadedExcelItemVo> getDeliveryReadyExcelForm(Sheet worksheet) {
         List<DeliveryReadyPiaarUploadedExcelItemVo> itemVos = new ArrayList<>();
@@ -390,7 +336,7 @@ public class DeliveryReadyPiaarBusinessService {
      */
     private List<DeliveryReadyPiaarItemDto> getDeliveryReadyPiaarExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto, UUID userId) {
         List<DeliveryReadyPiaarItemDto> itemDtos = new ArrayList<>();
-        LocalDateTime createdAt = fileDto.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        LocalDateTime createdAt = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         Row firstRow = worksheet.getRow(0);
         // 피아르 엑셀 양식 검사
@@ -538,10 +484,89 @@ public class DeliveryReadyPiaarBusinessService {
         return itemDtos;
     }
 
-    // public void updateToSold(List<DeliveryReadyPiaarItemDto> itemDtos) {
-    //     List<Integer> itemCids = itemDtos.stream().map(dto -> dto.getCid()).collect(Collectors.toList());
-    //     List<DeliveryReadyPiaarItemEntity> entities = deliveryReadyPiaarService.searchDeliveryReadyItemList(itemCids);
-    //     entities.stream().forEach(entity -> entity.setSoldYn("y"));
-    //     deliveryReadyPiaarService.saveItemList(entities);
-    // }
+    public void updateListToSold(List<DeliveryReadyPiaarItemDto> itemDtos) {
+        List<UUID> itemIdList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());     
+        List<DeliveryReadyPiaarItemEntity> entities = deliveryReadyPiaarService.searchDeliveryReadyItemList(itemIdList);
+        LocalDateTime currentTime = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        
+        entities.forEach(entity -> {
+            entity.setSoldYn("y").setSoldAt(currentTime);
+        });
+
+        deliveryReadyPiaarService.saveItemList(entities);
+    }
+
+    public void updateListToReleased(List<DeliveryReadyPiaarItemDto> itemDtos) {
+        List<UUID> itemIdList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());     
+        List<DeliveryReadyPiaarItemEntity> entities = deliveryReadyPiaarService.searchDeliveryReadyItemList(itemIdList);
+        LocalDateTime currentTime = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        
+        entities.forEach(entity -> {
+            entity.setReleasedYn("y").setReleasedAt(currentTime);
+        });
+
+        deliveryReadyPiaarService.saveItemList(entities);
+    }
+
+    public List<PiaarCombinedDeliveryExcelItemVo> getCombinedDelivery(List<DeliveryReadyPiaarItemDto> itemDtos) {
+        List<PiaarCombinedDeliveryExcelItemVo> combinedDelivery = new ArrayList<>();
+        // List<DeliveryReadyPiaarItemEntity> entities = deliveryReadyPiaarService.getReleasedItemList();
+        List<DeliveryReadyPiaarItemEntity> entities = itemDtos.stream().map(r -> DeliveryReadyPiaarItemEntity.toEntity(r)).collect(Collectors.toList());
+        List<DeliveryReadyPiaarItemDto> dtos = entities.stream().map(r -> DeliveryReadyPiaarItemDto.toDto(r)).collect(Collectors.toList());
+
+        Set<String> deliverySet = new HashSet<>();        // 수취인 전화번호 주소
+
+        // 수취인 > 전화번호 > 주소 로 정렬하자
+        dtos.sort(Comparator.comparing(DeliveryReadyPiaarItemDto::getReceiver)
+                .thenComparing(DeliveryReadyPiaarItemDto::getReceiverContact1)
+                .thenComparing(DeliveryReadyPiaarItemDto::getDestination));
+
+        // 1. 수취인, 전화번호, 주소 동일한 값들을 itemVos에 추가
+        List<DeliveryReadyPiaarItemDto> newReleasedList = new ArrayList<>();
+        // 
+        boolean flag = false;
+        boolean flag2 = false;
+
+        for (int i = 0; i < dtos.size(); i++) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(dtos.get(i).getReceiver());
+            sb.append(dtos.get(i).getReceiverContact1());
+            sb.append(dtos.get(i).getDestination());
+
+            String resultStr = sb.toString();
+            
+            if (!deliverySet.add(resultStr)) {
+                newReleasedList.add(dtos.get(i));
+                
+                PiaarCombinedDeliveryDetailVo detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
+                PiaarCombinedDeliveryExcelItemVo dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
+                combinedDelivery.add(dataDto);
+                
+                if(flag2) {
+                    if(!flag) {
+                        combinedDelivery.remove(combinedDelivery.size()-2);
+                    }
+                    combinedDelivery.get(combinedDelivery.size()-1).setCombinedDelivery(detailVo);
+                }else{
+                    newReleasedList = new ArrayList<>();
+                }
+                
+                flag = false;
+                flag2 = true;
+            } else {
+                if(flag) {
+                    PiaarCombinedDeliveryDetailVo detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
+                    PiaarCombinedDeliveryExcelItemVo dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
+                    combinedDelivery.add(dataDto);
+                    newReleasedList = new ArrayList<>();
+                    flag2 = false;
+                }
+                newReleasedList.add(dtos.get(i));
+                flag = true;
+            }
+        }
+
+        // TODO :: vo형태로 return 하도록 변경. 상품명, 옵션명 등 매핑하기
+        return combinedDelivery;
+    }
 }

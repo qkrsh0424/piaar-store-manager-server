@@ -73,6 +73,7 @@ public class DeliveryReadyPiaarViewExcelItemVo {
     private String stockReflectedYn;
     private LocalDateTime createdAt;
     private UUID createdBy;
+    private Integer deliveryReadyFileCid;
     
 
     public static DeliveryReadyPiaarViewExcelItemVo toViewVo(DeliveryReadyPiaarItemViewResDto dto) {
@@ -131,6 +132,7 @@ public class DeliveryReadyPiaarViewExcelItemVo {
             .stockReflectedYn(dto.getDeliveryReadyItem().getStockReflectedYn())
             .createdAt(dto.getDeliveryReadyItem().getCreatedAt())
             .createdBy(dto.getDeliveryReadyItem().getCreatedBy())
+            .deliveryReadyFileCid(dto.getDeliveryReadyItem().getDeliveryReadyFileCid())
             .build();
 
         return viewVo;

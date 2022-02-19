@@ -12,7 +12,6 @@ import javax.persistence.Table;
 
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 
-import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.Type;
 
 import lombok.AllArgsConstructor;
@@ -21,15 +20,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.Accessors;
 
 @Entity
 @Builder
-@Table(name = "delivery_ready_piaar_item")
 @Getter
+@Table(name = "delivery_ready_piaar_item")
 @ToString
+@Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamicInsert
 public class DeliveryReadyPiaarItemEntity {
 
     @Id
@@ -170,11 +170,17 @@ public class DeliveryReadyPiaarItemEntity {
     @Column(name = "sold_at")
     private LocalDateTime soldAt;
 
+    @Setter
     @Column(name = "released_yn", columnDefinition = "n")
     private String releasedYn;
 
+    @Setter
     @Column(name = "released_at")
     private LocalDateTime releasedAt;
+    
+    @Setter
+    @Column(name = "stock_reflected_yn", columnDefinition = "n")
+    private String stockReflectedYn;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -182,9 +188,6 @@ public class DeliveryReadyPiaarItemEntity {
     @Type(type = "uuid-char")
     @Column(name = "created_by")
     private UUID createdBy;
-
-    @Column(name = "stock_reflected_yn", columnDefinition = "n")
-    private String stockReflectedYn;
 
     @Column(name = "delivery_ready_file_cid")
     private Integer deliveryReadyFileCid;
