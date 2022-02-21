@@ -27,7 +27,6 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFile
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.DeliveryReadyPiaarItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
-import com.piaar_store_manager.server.model.delivery_ready.piaar.repository.DeliveryReadyPiaarItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.DeliveryReadyPiaarUploadedExcelItemVo;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.DeliveryReadyPiaarViewExcelItemVo;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarCombinedDeliveryDetailVo;
@@ -516,16 +515,10 @@ public class DeliveryReadyPiaarBusinessService {
 
         Set<String> deliverySet = new HashSet<>();        // 수취인 전화번호 주소
 
-        // 수취인 > 전화번호 > 주소 로 정렬하자
+        // 수취인 > 전화번호 > 주소 로 정렬
         dtos.sort(Comparator.comparing(DeliveryReadyPiaarItemDto::getReceiver)
                 .thenComparing(DeliveryReadyPiaarItemDto::getReceiverContact1)
                 .thenComparing(DeliveryReadyPiaarItemDto::getDestination));
-
-        // 1. 수취인, 전화번호, 주소 동일한 값들을 itemVos에 추가
-        List<DeliveryReadyPiaarItemDto> newReleasedList = new ArrayList<>();
-        // 
-        boolean flag = false;
-        boolean flag2 = false;
 
         for (int i = 0; i < dtos.size(); i++) {
             StringBuilder sb = new StringBuilder();
@@ -534,35 +527,27 @@ public class DeliveryReadyPiaarBusinessService {
             sb.append(dtos.get(i).getDestination());
 
             String resultStr = sb.toString();
-            
-            if (!deliverySet.add(resultStr)) {
+            List<DeliveryReadyPiaarItemDto> newReleasedList = new ArrayList<>();
+            PiaarCombinedDeliveryDetailVo detailVo = new PiaarCombinedDeliveryDetailVo();
+            PiaarCombinedDeliveryExcelItemVo dataDto = new PiaarCombinedDeliveryExcelItemVo();
+
+            // 새로운 데이터라면
+            if (deliverySet.add(resultStr)) {
                 newReleasedList.add(dtos.get(i));
-                
-                PiaarCombinedDeliveryDetailVo detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
-                PiaarCombinedDeliveryExcelItemVo dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
+
+                detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
+                dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
                 combinedDelivery.add(dataDto);
-                
-                if(flag2) {
-                    if(!flag) {
-                        combinedDelivery.remove(combinedDelivery.size()-2);
-                    }
-                    combinedDelivery.get(combinedDelivery.size()-1).setCombinedDelivery(detailVo);
-                }else{
-                    newReleasedList = new ArrayList<>();
-                }
-                
-                flag = false;
-                flag2 = true;
-            } else {
-                if(flag) {
-                    PiaarCombinedDeliveryDetailVo detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
-                    PiaarCombinedDeliveryExcelItemVo dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
-                    combinedDelivery.add(dataDto);
-                    newReleasedList = new ArrayList<>();
-                    flag2 = false;
-                }
+            } else {    // 중복된다면
+                // 이전 데이터에 현재 데이터를 추가한다
+                newReleasedList = combinedDelivery.get(combinedDelivery.size()-1).getCombinedDelivery().getDetails();
                 newReleasedList.add(dtos.get(i));
-                flag = true;
+                
+                detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
+                dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo).build();
+                
+                // 이전 결합배송 리스트를 수정한다
+                combinedDelivery.get(combinedDelivery.size()-1).setCombinedDelivery(detailVo);
             }
         }
 
