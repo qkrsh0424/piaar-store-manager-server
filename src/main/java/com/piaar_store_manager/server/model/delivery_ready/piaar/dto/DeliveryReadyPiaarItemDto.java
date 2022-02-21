@@ -9,10 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Builder
 @Getter
+@Setter
+@ToString
 @Accessors(chain=true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -66,7 +70,13 @@ public class DeliveryReadyPiaarItemDto {
     private String stockReflectedYn;
     private LocalDateTime createdAt;
     private UUID createdBy;
-    private Integer deliveryReadyFileCid;
+
+    private String prodDefaultName;
+    private String prodManagementName;
+    private String optionDefaultName;
+    private String optionManagementName;
+    private String categoryName;
+    private Integer optionStockUnit;
 
     public static DeliveryReadyPiaarItemDto toDto(DeliveryReadyPiaarItemEntity entity) {
         DeliveryReadyPiaarItemDto dto = DeliveryReadyPiaarItemDto.builder()
@@ -119,7 +129,6 @@ public class DeliveryReadyPiaarItemDto {
                 .stockReflectedYn(entity.getStockReflectedYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
-                .deliveryReadyFileCid(entity.getDeliveryReadyFileCid())
                 .build();
 
         return dto;

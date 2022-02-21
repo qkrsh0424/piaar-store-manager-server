@@ -189,9 +189,6 @@ public class DeliveryReadyPiaarItemEntity {
     @Column(name = "created_by")
     private UUID createdBy;
 
-    @Column(name = "delivery_ready_file_cid")
-    private Integer deliveryReadyFileCid;
-
     public static DeliveryReadyPiaarItemEntity toEntity(DeliveryReadyPiaarItemDto dto) {
         DeliveryReadyPiaarItemEntity entity = DeliveryReadyPiaarItemEntity.builder()
                 .cid(dto.getCid())
@@ -243,7 +240,6 @@ public class DeliveryReadyPiaarItemEntity {
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
                 .stockReflectedYn(dto.getStockReflectedYn())
-                .deliveryReadyFileCid(dto.getDeliveryReadyFileCid())
                 .build();
 
         return entity;

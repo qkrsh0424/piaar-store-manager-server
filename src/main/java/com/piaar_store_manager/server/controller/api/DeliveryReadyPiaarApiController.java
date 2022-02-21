@@ -24,15 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/v1/delivery-ready/piaar")
 public class DeliveryReadyPiaarApiController {
     private DeliveryReadyPiaarBusinessService deliveryReadyPiaarBusinessService;
-    private UserService userService;
 
     @Autowired
-    public DeliveryReadyPiaarApiController(
-        DeliveryReadyPiaarBusinessService deliveryReadyPiaarBusinessService,
-        UserService userService
-    ) {
+    public DeliveryReadyPiaarApiController(DeliveryReadyPiaarBusinessService deliveryReadyPiaarBusinessService) {
         this.deliveryReadyPiaarBusinessService = deliveryReadyPiaarBusinessService;
-        this.userService = userService;
     }
 
     /**
@@ -55,25 +50,18 @@ public class DeliveryReadyPiaarApiController {
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
-            // file extension check.
-            deliveryReadyPiaarBusinessService.isExcelFile(file);
-
-            try{
-                message.setData(deliveryReadyPiaarBusinessService.uploadDeliveryReadyExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("피아르 엑셀 양식과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
-            } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
-            }
+        // file extension check.
+        deliveryReadyPiaarBusinessService.isExcelFile(file);
+        try {
+            message.setData(deliveryReadyPiaarBusinessService.uploadDeliveryReadyExcelFile(file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+        } catch (IllegalStateException e) {
+            throw new ExcelFileUploadException("피아르 엑셀 양식과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+        } catch (IllegalArgumentException e) {
+            throw new ExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -82,7 +70,7 @@ public class DeliveryReadyPiaarApiController {
     /**
      * Store excel data for delivery ready.
      * <p>
-     * <b>POST : API URL => /api/v1/delivery-ready/naver/store</b>
+     * <b>POST : API URL => /api/v1/delivery-ready/piaar/store</b>
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
@@ -94,20 +82,12 @@ public class DeliveryReadyPiaarApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/store")
-    public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestBody List<DeliveryReadyPiaarItemDto> deliveryReadyPiaarItemDtos) {
         Message message = new Message();
 
-        // 유저 권한을 체크한다.
-        if (userService.isManager()) {
-            // file extension check.
-            deliveryReadyPiaarBusinessService.isExcelFile(file);
-
-            message.setData(deliveryReadyPiaarBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
-        }
+        deliveryReadyPiaarBusinessService.createItemList(deliveryReadyPiaarItemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -128,14 +108,9 @@ public class DeliveryReadyPiaarApiController {
     public ResponseEntity<?> getDeliveryReadyViewOrderDataByUserId() {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            message.setData(deliveryReadyPiaarBusinessService.getDeliveryReadyViewOrderDataByUserId(userService.getUserId()));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
-        }
+        message.setData(deliveryReadyPiaarBusinessService.getDeliveryReadyViewOrderDataByUserId());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -144,19 +119,14 @@ public class DeliveryReadyPiaarApiController {
     public ResponseEntity<?> updateListToSold(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyPiaarBusinessService.updateListToSold(piaarItemDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyPiaarBusinessService.updateListToSold(piaarItemDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -166,42 +136,31 @@ public class DeliveryReadyPiaarApiController {
     public ResponseEntity<?> updateListToReleased(@RequestBody List<DeliveryReadyPiaarItemDto> piaarItemDtos) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyPiaarBusinessService.updateListToReleased(piaarItemDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyPiaarBusinessService.updateListToReleased(piaarItemDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-
     @PostMapping("/view/orderList/combined")
     public ResponseEntity<?> getCombinedDelivery(@RequestBody List<DeliveryReadyPiaarItemDto> itemDtos) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                message.setData(deliveryReadyPiaarBusinessService.getCombinedDelivery(itemDtos));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            message.setData(deliveryReadyPiaarBusinessService.getCombinedDelivery(itemDtos));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());

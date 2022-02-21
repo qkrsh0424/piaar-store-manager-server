@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.handler;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -16,6 +17,10 @@ public class DateHandler {
     public static Date getCurrentDate2(){
         Date date = Calendar.getInstance().getTime();
         return date;
+    }
+
+    public static LocalDateTime getCurrentLocalDateTime(){
+        return LocalDateTime.now();
     }
 
     /**
