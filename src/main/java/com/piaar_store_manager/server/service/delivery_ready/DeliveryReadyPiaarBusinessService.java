@@ -357,59 +357,7 @@ public class DeliveryReadyPiaarBusinessService {
         deliveryReadyPiaarService.saveItemList(entities);
     }
 
-    // public List<PiaarCombinedDeliveryExcelItemVo> getCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
-    //     if (!userService.isUserLogin()) {
-    //         throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
-    //     }
-
-    //     if (!userService.isManager()) {
-    //         throw new AccessDeniedException("접근 권한이 없습니다.");
-    //     }
-        
-    //     List<PiaarCombinedDeliveryExcelItemVo> combinedDelivery = new ArrayList<>();
-    //     Set<String> deliverySet = new HashSet<>(); // 수취인 전화번호 주소
-
-    //     // 수취인 > 전화번호 > 주소 로 정렬
-    //     dtos.sort(Comparator.comparing(DeliveryReadyPiaarItemDto::getReceiver)
-    //             .thenComparing(DeliveryReadyPiaarItemDto::getReceiverContact1)
-    //             .thenComparing(DeliveryReadyPiaarItemDto::getDestination));
-
-    //     for (int i = 0; i < dtos.size(); i++) {
-    //         StringBuilder sb = new StringBuilder();
-    //         sb.append(dtos.get(i).getReceiver());
-    //         sb.append(dtos.get(i).getReceiverContact1());
-    //         sb.append(dtos.get(i).getDestination());
-
-    //         String resultStr = sb.toString();
-    //         List<DeliveryReadyPiaarItemDto> newReleasedList = new ArrayList<>();
-    //         PiaarCombinedDeliveryDetailVo detailVo = new PiaarCombinedDeliveryDetailVo();
-    //         PiaarCombinedDeliveryExcelItemVo dataDto = new PiaarCombinedDeliveryExcelItemVo();
-
-    //         // 새로운 데이터라면
-    //         if (deliverySet.add(resultStr)) {
-    //             newReleasedList.add(dtos.get(i));
-
-    //             detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
-    //             dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo)
-    //                     .build();
-    //             combinedDelivery.add(dataDto);
-    //         } else { // 중복된다면
-    //             // 이전 데이터에 현재 데이터를 추가한다
-    //             newReleasedList = combinedDelivery.get(combinedDelivery.size() - 1).getCombinedDelivery().getDetails();
-    //             newReleasedList.add(dtos.get(i));
-
-    //             detailVo = PiaarCombinedDeliveryDetailVo.builder().details(newReleasedList).build();
-    //             dataDto = PiaarCombinedDeliveryExcelItemVo.builder().id(UUID.randomUUID()).combinedDelivery(detailVo)
-    //                     .build();
-
-    //             // 이전 결합배송 리스트를 수정한다
-    //             combinedDelivery.get(combinedDelivery.size() - 1).setCombinedDelivery(detailVo);
-    //         }
-    //     }
-
-    //     return combinedDelivery;
-    // }
-
+    // 수취인 + 전화번호 + 주소
     public List<PiaarCombinedDeliveryItemVo> getCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
         if (!userService.isUserLogin()) {
             throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
@@ -422,10 +370,12 @@ public class DeliveryReadyPiaarBusinessService {
         List<PiaarCombinedDeliveryItemVo> combinedDelivery = new ArrayList<>();
         Set<String> deliverySet = new HashSet<>(); // 수취인 전화번호 주소
 
-        // 수취인 > 전화번호 > 주소 로 정렬
+        // 수취인 > 전화번호 > 주소 > 상품명 > 옵션명 으로 정렬
         dtos.sort(Comparator.comparing(DeliveryReadyPiaarItemDto::getReceiver)
                 .thenComparing(DeliveryReadyPiaarItemDto::getReceiverContact1)
-                .thenComparing(DeliveryReadyPiaarItemDto::getDestination));
+                .thenComparing(DeliveryReadyPiaarItemDto::getDestination)
+                .thenComparing(DeliveryReadyPiaarItemDto::getProdName)
+                .thenComparing(DeliveryReadyPiaarItemDto::getOptionName));
 
         for (int i = 0; i < dtos.size(); i++) {
             StringBuilder sb = new StringBuilder();
@@ -434,23 +384,57 @@ public class DeliveryReadyPiaarBusinessService {
             sb.append(dtos.get(i).getDestination());
 
             String resultStr = sb.toString();
-            List<DeliveryReadyPiaarItemDto> newReleasedList = new ArrayList<>();
+            List<DeliveryReadyPiaarItemDto> newCombinedList = new ArrayList<>();
             PiaarCombinedDeliveryItemVo itemVo = new PiaarCombinedDeliveryItemVo();
 
             // 새로운 데이터라면
             if (deliverySet.add(resultStr)) {
-                newReleasedList.add(dtos.get(i));
-                itemVo = PiaarCombinedDeliveryItemVo.builder().combinedDeliveryItems(newReleasedList).build(); 
+                newCombinedList.add(dtos.get(i));
+                itemVo = PiaarCombinedDeliveryItemVo.builder().combinedDeliveryItems(newCombinedList).build(); 
                 combinedDelivery.add(itemVo);
             } else { // 중복된다면
                 // 이전 데이터에 현재 데이터를 추가한다
-                newReleasedList = combinedDelivery.get(combinedDelivery.size() - 1).getCombinedDeliveryItems();
-                newReleasedList.add(dtos.get(i));
+                newCombinedList = combinedDelivery.get(combinedDelivery.size() - 1).getCombinedDeliveryItems();
+                newCombinedList.add(dtos.get(i));
                 
-                itemVo = PiaarCombinedDeliveryItemVo.builder().combinedDeliveryItems(newReleasedList).build();
+                itemVo = PiaarCombinedDeliveryItemVo.builder().combinedDeliveryItems(newCombinedList).build();
 
                 // 이전 결합배송 리스트를 수정한다
                 combinedDelivery.set(combinedDelivery.size()-1, itemVo);
+            }
+        }
+
+        return combinedDelivery;
+    }
+
+    // 수취인 + 전화번호 + 주소 + 상품명 + 옵션명 => 수량+
+    public List<PiaarCombinedDeliveryItemVo> getUnitCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
+        // 기본 합배송 설정된 데이터들 가져오기
+        List<PiaarCombinedDeliveryItemVo> combinedDelivery= this.getCombinedDelivery(dtos);
+        Set<String> deliverySet = new HashSet<>(); // 수취인 전화번호 주소
+
+        for (int i = 0; i < combinedDelivery.size(); i++) {
+            for (int j = 0; j < combinedDelivery.get(i).getCombinedDeliveryItems().size(); j++) {
+                DeliveryReadyPiaarItemDto currentDto = combinedDelivery.get(i).getCombinedDeliveryItems().get(j);
+                
+                StringBuilder sb = new StringBuilder();
+                sb.append(currentDto.getReceiverContact1());
+                sb.append(currentDto.getReceiver());
+                sb.append(currentDto.getDestination());
+                sb.append(currentDto.getProdName());
+                sb.append(currentDto.getOptionName());
+
+                String resultStr = sb.toString();
+
+                if((!deliverySet.add(resultStr)) && (j > 0)) {
+                    // 수량 더하기
+                    combinedDelivery.get(i).getCombinedDeliveryItems().get(j-1).setUnit(
+                        combinedDelivery.get(i).getCombinedDeliveryItems().get(j-1).getUnit() + currentDto.getUnit()
+                    );
+
+                    // 중복 데이터 제거
+                    combinedDelivery.get(i).getCombinedDeliveryItems().remove(j);
+                }
             }
         }
 

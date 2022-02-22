@@ -165,4 +165,21 @@ public class DeliveryReadyPiaarApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PostMapping("/view/orderList/combined-unit")
+    public ResponseEntity<?> getUnitCombinedDelivery(@RequestBody List<DeliveryReadyPiaarItemDto> itemDtos) {
+        Message message = new Message();
+
+        try {
+            message.setData(deliveryReadyPiaarBusinessService.getUnitCombinedDelivery(itemDtos));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }
