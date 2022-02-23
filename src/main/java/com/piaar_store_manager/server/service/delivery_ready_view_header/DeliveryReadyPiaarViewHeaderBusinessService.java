@@ -1,10 +1,8 @@
 package com.piaar_store_manager.server.service.delivery_ready_view_header;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.dto.DeliveryReadyPiaarViewHeaderDto;
 import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.entity.DeliveryReadyPiaarViewHeaderEntity;
 
@@ -34,9 +32,7 @@ public class DeliveryReadyPiaarViewHeaderBusinessService {
      * @see DeliveryReadyPiaarViewHeaderDto#toDto
      */
     public DeliveryReadyPiaarViewHeaderDto createOne(DeliveryReadyPiaarViewHeaderDto viewHeaderDto, UUID userId) {
-        LocalDateTime createdAt = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-        viewHeaderDto.setCreatedAt(createdAt).setCreatedBy(userId).setUpdatedAt(createdAt);
+        viewHeaderDto.setCreatedAt(DateHandler.getCurrentLocalDateTime()).setCreatedBy(userId).setUpdatedAt(DateHandler.getCurrentLocalDateTime());
 
         DeliveryReadyPiaarViewHeaderEntity entity = deliveryReadyPiaarViewHeaderService.saveOne(DeliveryReadyPiaarViewHeaderEntity.toEntity(viewHeaderDto));
         DeliveryReadyPiaarViewHeaderDto dto = DeliveryReadyPiaarViewHeaderDto.toDto(entity);
@@ -73,9 +69,8 @@ public class DeliveryReadyPiaarViewHeaderBusinessService {
         DeliveryReadyPiaarViewHeaderEntity entity = deliveryReadyPiaarViewHeaderService.searchOneByUser(userId);
         DeliveryReadyPiaarViewHeaderDto dto = DeliveryReadyPiaarViewHeaderDto.toDto(entity);
         
-        LocalDateTime updatedAt = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         dto.getViewHeaderDetail().setDetails(viewHeaderDto.getViewHeaderDetail().getDetails());
-        dto.setUpdatedAt(updatedAt);
+        dto.setUpdatedAt(DateHandler.getCurrentLocalDateTime());
 
         DeliveryReadyPiaarViewHeaderEntity changedEntity = deliveryReadyPiaarViewHeaderService.saveOne(DeliveryReadyPiaarViewHeaderEntity.toEntity(dto));
         DeliveryReadyPiaarViewHeaderDto changedDto = DeliveryReadyPiaarViewHeaderDto.toDto(changedEntity);

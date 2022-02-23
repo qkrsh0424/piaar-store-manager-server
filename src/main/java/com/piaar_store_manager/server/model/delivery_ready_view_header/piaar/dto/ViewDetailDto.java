@@ -19,4 +19,5 @@ public class ViewDetailDto {
     private String cellValue;
     private String matchedColumnName;
     private String cellSize;
+    private String mergeYn;
 }

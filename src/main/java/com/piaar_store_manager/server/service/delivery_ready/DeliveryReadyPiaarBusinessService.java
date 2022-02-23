@@ -13,6 +13,7 @@ import com.piaar_store_manager.server.exception.AccessDeniedException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.exception.InvalidUserException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemUnitCombinedDto;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,9 +26,14 @@ import com.piaar_store_manager.server.model.delivery_ready.piaar.entity.Delivery
 import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryReadyPiaarItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.DeliveryReadyPiaarItemVo;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarCombinedDeliveryItemVo;
+import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarUnitCombinedDeliveryItemVo;
+import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.dto.DeliveryReadyPiaarViewHeaderDto;
+import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.entity.DeliveryReadyPiaarViewHeaderEntity;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.service.delivery_ready_view_header.DeliveryReadyPiaarViewHeaderService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomFieldUtils;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
@@ -46,15 +52,18 @@ public class DeliveryReadyPiaarBusinessService {
     private DeliveryReadyPiaarService deliveryReadyPiaarService;
     private ProductOptionService productOptionService;
     private UserService userService;
+    private DeliveryReadyPiaarViewHeaderService deliveryReadyPiaarViewHeaderService;
 
     @Autowired
     public DeliveryReadyPiaarBusinessService(
             DeliveryReadyPiaarService deliveryReadyPiaarService,
             ProductOptionService productOptionService,
-            UserService userService) {
+            UserService userService,
+            DeliveryReadyPiaarViewHeaderService deliveryReadyPiaarViewHeaderService) {
         this.deliveryReadyPiaarService = deliveryReadyPiaarService;
         this.productOptionService = productOptionService;
         this.userService = userService;
+        this.deliveryReadyPiaarViewHeaderService = deliveryReadyPiaarViewHeaderService;
     }
 
     // Excel file extension.
@@ -408,14 +417,28 @@ public class DeliveryReadyPiaarBusinessService {
     }
 
     // 수취인 + 전화번호 + 주소 + 상품명 + 옵션명 => 수량+
-    public List<PiaarCombinedDeliveryItemVo> getUnitCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
+    public List<PiaarUnitCombinedDeliveryItemVo> getUnitCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
         // 기본 합배송 설정된 데이터들 가져오기
         List<PiaarCombinedDeliveryItemVo> combinedDelivery= this.getCombinedDelivery(dtos);
+        
+        // 기본 합배송 vo에서 수량 및 병합데이터 vo로 변경
+        List<PiaarUnitCombinedDeliveryItemVo> unitCombinedDelivery = combinedDelivery.stream().map(r -> {
+            List<DeliveryReadyPiaarItemUnitCombinedDto> combinedDtos = r.getCombinedDeliveryItems().stream().map(itemDto -> DeliveryReadyPiaarItemUnitCombinedDto.toUnitCombinedDto(itemDto)).collect(Collectors.toList());
+            PiaarUnitCombinedDeliveryItemVo vo = PiaarUnitCombinedDeliveryItemVo.builder().combinedDeliveryItems(combinedDtos).build();
+            return vo;
+        }).collect(Collectors.toList());
+
+        DeliveryReadyPiaarViewHeaderEntity viewHeaderEntity = deliveryReadyPiaarViewHeaderService.searchOneByUser(userService.getUserId());
+        DeliveryReadyPiaarViewHeaderDto viewHeaderDto = DeliveryReadyPiaarViewHeaderDto.toDto(viewHeaderEntity);
+        List<String> combinedColumnName = viewHeaderDto.getViewHeaderDetail().getDetails().stream().filter(r -> r.getMergeYn().equals("y")).collect(Collectors.toList()).stream()
+            .map(r -> r.getMatchedColumnName()).collect(Collectors.toList());
+
         Set<String> deliverySet = new HashSet<>(); // 수취인 전화번호 주소
 
-        for (int i = 0; i < combinedDelivery.size(); i++) {
-            for (int j = 0; j < combinedDelivery.get(i).getCombinedDeliveryItems().size(); j++) {
-                DeliveryReadyPiaarItemDto currentDto = combinedDelivery.get(i).getCombinedDeliveryItems().get(j);
+        for (int i = 0; i < unitCombinedDelivery.size(); i++) {
+            // 주문자 정보로 묶여진 데이터들끼리 비교
+            for (int j = 0; j < unitCombinedDelivery.get(i).getCombinedDeliveryItems().size(); j++) {
+                DeliveryReadyPiaarItemUnitCombinedDto currentDto = unitCombinedDelivery.get(i).getCombinedDeliveryItems().get(j);
                 
                 StringBuilder sb = new StringBuilder();
                 sb.append(currentDto.getReceiverContact1());
@@ -427,17 +450,25 @@ public class DeliveryReadyPiaarBusinessService {
                 String resultStr = sb.toString();
 
                 if((!deliverySet.add(resultStr)) && (j > 0)) {
-                    // 수량 더하기
-                    combinedDelivery.get(i).getCombinedDeliveryItems().get(j-1).setUnit(
-                        combinedDelivery.get(i).getCombinedDeliveryItems().get(j-1).getUnit() + currentDto.getUnit()
-                    );
+                    DeliveryReadyPiaarItemUnitCombinedDto prevDto = unitCombinedDelivery.get(i).getCombinedDeliveryItems().get(j-1);
+                    // 중복 (상품+옵션) 수량 더하기
+                    CustomFieldUtils.setFieldValue(prevDto, "unit", prevDto.getUnit() + currentDto.getUnit());
 
+                    // mergeYn이 y인 데이터들을 한 컬럼에 나열
+                    combinedColumnName.forEach(columnName -> {
+                        if(!columnName.equals("unit")) {
+                            CustomFieldUtils.setFieldValue(prevDto, columnName, (
+                                CustomFieldUtils.getFieldValue(prevDto, columnName) + "|&&|" + CustomFieldUtils.getFieldValue(currentDto, columnName))
+                            );
+                        }
+                    });
+                    
                     // 중복 데이터 제거
-                    combinedDelivery.get(i).getCombinedDeliveryItems().remove(j);
+                    unitCombinedDelivery.get(i).getCombinedDeliveryItems().remove(j);
                 }
             }
         }
 
-        return combinedDelivery;
+        return unitCombinedDelivery;
     }
 }
