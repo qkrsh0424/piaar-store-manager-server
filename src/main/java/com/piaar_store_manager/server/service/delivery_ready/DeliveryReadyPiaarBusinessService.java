@@ -456,10 +456,11 @@ public class DeliveryReadyPiaarBusinessService {
 
                     // mergeYn이 y인 데이터들을 한 컬럼에 나열
                     combinedColumnName.forEach(columnName -> {
-                        if(!columnName.equals("unit")) {
-                            CustomFieldUtils.setFieldValue(prevDto, columnName, (
-                                CustomFieldUtils.getFieldValue(prevDto, columnName) + "|&&|" + CustomFieldUtils.getFieldValue(currentDto, columnName))
-                            );
+                        String prevFieldValue = CustomFieldUtils.getFieldValue(prevDto, columnName) == null ? "" : CustomFieldUtils.getFieldValue(prevDto, columnName);
+                        String currentFieldValue = CustomFieldUtils.getFieldValue(prevDto, columnName) == null ? "" : CustomFieldUtils.getFieldValue(prevDto, columnName);
+                        
+                        if (!columnName.equals("unit")) {
+                            CustomFieldUtils.setFieldValue(prevDto, columnName, prevFieldValue + "|&&|" + currentFieldValue);
                         }
                     });
                     

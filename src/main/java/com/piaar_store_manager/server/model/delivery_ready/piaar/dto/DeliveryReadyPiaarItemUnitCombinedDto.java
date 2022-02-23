@@ -73,7 +73,7 @@ public class DeliveryReadyPiaarItemUnitCombinedDto {
     private String optionDefaultName;
     private String optionManagementName;
     private String categoryName;
-    private Integer optionStockUnit;
+    private String optionStockUnit;
 
     public static DeliveryReadyPiaarItemUnitCombinedDto toUnitCombinedDto(DeliveryReadyPiaarItemDto dto) {
         DeliveryReadyPiaarItemUnitCombinedDto combinedDto = DeliveryReadyPiaarItemUnitCombinedDto.builder()

@@ -14,10 +14,9 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class ViewDetailDto {
-    private UUID id;
+    // private UUID id;
     private Integer cellNumber;
     private String cellValue;
     private String matchedColumnName;
-    private String cellSize;
     private String mergeYn;
 }
