@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
 @Entity
 @Builder
 @Getter
-@Table(name = "erp-order-item")
+@Table(name = "erp_order_item")
 @ToString
 @Accessors(chain = true)
 @NoArgsConstructor
