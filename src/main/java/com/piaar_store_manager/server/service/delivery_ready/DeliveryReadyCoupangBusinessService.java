@@ -181,7 +181,18 @@ public class DeliveryReadyCoupangBusinessService {
                     .buyerContact(row.getCell(25) != null ? row.getCell(25).getStringCellValue() : "")
                     .zipCode(row.getCell(28) != null ? row.getCell(28).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(9) != null ? DateHandler.getUtcDate(dateFormat2.parse(row.getCell(9).getStringCellValue())) : new Date()).build();
+                    .orderDateTime(row.getCell(9) != null ? DateHandler.getUtcDate(dateFormat2.parse(row.getCell(9).getStringCellValue())) : new Date())
+                    .piaarMemo1(row.getCell(40) != null ? row.getCell(40).getStringCellValue() : "")
+                    .piaarMemo2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
+                    .piaarMemo3(row.getCell(42) != null ? row.getCell(42).getStringCellValue() : "")
+                    .piaarMemo4(row.getCell(43) != null ? row.getCell(43).getStringCellValue() : "")
+                    .piaarMemo5(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
+                    .piaarMemo6(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
+                    .piaarMemo7(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
+                    .piaarMemo8(row.getCell(47) != null ? row.getCell(47).getStringCellValue() : "")
+                    .piaarMemo9(row.getCell(48) != null ? row.getCell(48).getStringCellValue() : "")
+                    .piaarMemo10(row.getCell(49) != null ? row.getCell(49).getStringCellValue() : "")
+                    .build();
 
             dtos.add(dto);
         }
@@ -353,6 +364,16 @@ public class DeliveryReadyCoupangBusinessService {
                 .deliveryMessage(row.getCell(30) != null ? row.getCell(30).getStringCellValue() : "")
                 .orderDateTime(row.getCell(9) != null ? DateHandler.getUtcDate(dateFormat2.parse(row.getCell(9).getStringCellValue())) : new Date())
                 .releaseOptionCode(row.getCell(16) != null ? row.getCell(16).getStringCellValue().strip() : "")
+                .piaarMemo1(row.getCell(40) != null ? row.getCell(40).getStringCellValue() : "")
+                .piaarMemo2(row.getCell(41) != null ? row.getCell(41).getStringCellValue() : "")
+                .piaarMemo3(row.getCell(42) != null ? row.getCell(42).getStringCellValue() : "")
+                .piaarMemo4(row.getCell(43) != null ? row.getCell(43).getStringCellValue() : "")
+                .piaarMemo5(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
+                .piaarMemo6(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
+                .piaarMemo7(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
+                .piaarMemo8(row.getCell(47) != null ? row.getCell(47).getStringCellValue() : "")
+                .piaarMemo9(row.getCell(48) != null ? row.getCell(48).getStringCellValue() : "")
+                .piaarMemo10(row.getCell(49) != null ? row.getCell(49).getStringCellValue() : "")
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)

@@ -178,7 +178,18 @@ public class DeliveryReadyNaverBusinessService {
                     .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                     .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date()).build();
+                    .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
+                    .piaarMemo1(row.getCell(67) != null ? row.getCell(67).getStringCellValue() : "")
+                    .piaarMemo2(row.getCell(68) != null ? row.getCell(68).getStringCellValue() : "")
+                    .piaarMemo3(row.getCell(69) != null ? row.getCell(69).getStringCellValue() : "")
+                    .piaarMemo4(row.getCell(70) != null ? row.getCell(70).getStringCellValue() : "")
+                    .piaarMemo5(row.getCell(71) != null ? row.getCell(71).getStringCellValue() : "")
+                    .piaarMemo6(row.getCell(72) != null ? row.getCell(72).getStringCellValue() : "")
+                    .piaarMemo7(row.getCell(73) != null ? row.getCell(73).getStringCellValue() : "")
+                    .piaarMemo8(row.getCell(74) != null ? row.getCell(74).getStringCellValue() : "")
+                    .piaarMemo9(row.getCell(75) != null ? row.getCell(75).getStringCellValue() : "")
+                    .piaarMemo10(row.getCell(76) != null ? row.getCell(76).getStringCellValue() : "")
+                    .build();
 
             dtos.add(dto);
         }
@@ -348,6 +359,16 @@ public class DeliveryReadyNaverBusinessService {
                 .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
                 .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
                 .releaseOptionCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
+                .piaarMemo1(row.getCell(67) != null ? row.getCell(67).getStringCellValue() : "")
+                .piaarMemo2(row.getCell(68) != null ? row.getCell(68).getStringCellValue() : "")
+                .piaarMemo3(row.getCell(69) != null ? row.getCell(69).getStringCellValue() : "")
+                .piaarMemo4(row.getCell(70) != null ? row.getCell(70).getStringCellValue() : "")
+                .piaarMemo5(row.getCell(71) != null ? row.getCell(71).getStringCellValue() : "")
+                .piaarMemo6(row.getCell(72) != null ? row.getCell(72).getStringCellValue() : "")
+                .piaarMemo7(row.getCell(73) != null ? row.getCell(73).getStringCellValue() : "")
+                .piaarMemo8(row.getCell(74) != null ? row.getCell(74).getStringCellValue() : "")
+                .piaarMemo9(row.getCell(75) != null ? row.getCell(75).getStringCellValue() : "")
+                .piaarMemo10(row.getCell(76) != null ? row.getCell(76).getStringCellValue() : "")
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)

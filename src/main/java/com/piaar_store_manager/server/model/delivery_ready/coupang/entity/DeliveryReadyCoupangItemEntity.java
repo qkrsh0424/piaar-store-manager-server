@@ -98,6 +98,36 @@ public class DeliveryReadyCoupangItemEntity {
     @Column(name = "release_option_code")
     private String releaseOptionCode;
 
+    @Column(name = "piaar_memo1")
+    private String piaarMemo1;
+
+    @Column(name = "piaar_memo2")
+    private String piaarMemo2;
+
+    @Column(name = "piaar_memo3")
+    private String piaarMemo3;
+
+    @Column(name = "piaar_memo4")
+    private String piaarMemo4;
+
+    @Column(name = "piaar_memo5")
+    private String piaarMemo5;
+
+    @Column(name = "piaar_memo6")
+    private String piaarMemo6;
+
+    @Column(name = "piaar_memo7")
+    private String piaarMemo7;
+
+    @Column(name = "piaar_memo8")
+    private String piaarMemo8;
+
+    @Column(name = "piaar_memo9")
+    private String piaarMemo9;
+
+    @Column(name = "piaar_memo10")
+    private String piaarMemo10;
+
     @Column(name = "released")
     private Boolean released;   // 출고여부
 
@@ -145,6 +175,16 @@ public class DeliveryReadyCoupangItemEntity {
             .deliveryMessage(dto.getDeliveryMessage())
             .orderDateTime(dto.getOrderDateTime())
             .releaseOptionCode(dto.getReleaseOptionCode())
+            .piaarMemo1(dto.getPiaarMemo1())
+            .piaarMemo2(dto.getPiaarMemo2())
+            .piaarMemo3(dto.getPiaarMemo3())
+            .piaarMemo4(dto.getPiaarMemo4())
+            .piaarMemo5(dto.getPiaarMemo5())
+            .piaarMemo6(dto.getPiaarMemo6())
+            .piaarMemo7(dto.getPiaarMemo7())
+            .piaarMemo8(dto.getPiaarMemo8())
+            .piaarMemo9(dto.getPiaarMemo9())
+            .piaarMemo10(dto.getPiaarMemo10())
             .released(dto.getReleased())
             .releasedAt(dto.getReleasedAt())
             .createdAt(dto.getCreatedAt())

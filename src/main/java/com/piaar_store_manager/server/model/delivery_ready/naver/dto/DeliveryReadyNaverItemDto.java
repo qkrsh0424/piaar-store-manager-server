@@ -45,7 +45,20 @@ public class DeliveryReadyNaverItemDto {
     private String deliveryMessage;        // 배송메세지(45)
     private String releaseArea;        // 출고지(46)
     private Date orderDateTime;        // 주문일시(56)
-    private String releaseOptionCode;
+    private String releaseOptionCode;       // 출고 옵션코드
+
+    // 커스텀 메모
+    private String piaarMemo1;
+    private String piaarMemo2;
+    private String piaarMemo3;
+    private String piaarMemo4;
+    private String piaarMemo5;
+    private String piaarMemo6;
+    private String piaarMemo7;
+    private String piaarMemo8;
+    private String piaarMemo9;
+    private String piaarMemo10;
+
     private Boolean released;   // 출고여부
     private Date releasedAt;    // 출고일시
     private Date createdAt;     // 업로드 일시
@@ -91,6 +104,16 @@ public class DeliveryReadyNaverItemDto {
             .releaseArea(entity.getReleaseArea())
             .orderDateTime(entity.getOrderDateTime())
             .releaseOptionCode(entity.getReleaseOptionCode())
+            .piaarMemo1(entity.getPiaarMemo1())
+            .piaarMemo2(entity.getPiaarMemo2())
+            .piaarMemo3(entity.getPiaarMemo3())
+            .piaarMemo4(entity.getPiaarMemo4())
+            .piaarMemo5(entity.getPiaarMemo5())
+            .piaarMemo6(entity.getPiaarMemo6())
+            .piaarMemo7(entity.getPiaarMemo7())
+            .piaarMemo8(entity.getPiaarMemo8())
+            .piaarMemo9(entity.getPiaarMemo9())
+            .piaarMemo10(entity.getPiaarMemo10())
             .released(entity.getReleased())
             .releasedAt(entity.getReleasedAt())
             .createdAt(entity.getCreatedAt())
