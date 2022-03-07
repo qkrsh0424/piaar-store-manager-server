@@ -116,6 +116,9 @@ public class DeliveryReadyNaverItemEntity {
     @Column(name = "order_date_time")
     private Date orderDateTime; // 주문일시(56)
 
+    @Column(name = "release_option_code")
+    private String releaseOptionCode;
+
     @Column(name = "released")
     private Boolean released; // 출고여부
 
@@ -169,6 +172,7 @@ public class DeliveryReadyNaverItemEntity {
             .deliveryMessage(dto.getDeliveryMessage())
             .releaseArea(dto.getReleaseArea())
             .orderDateTime(dto.getOrderDateTime())
+            .releaseOptionCode(dto.getReleaseOptionCode())
             .released(dto.getReleased())
             .releasedAt(dto.getReleasedAt())
             .createdAt(dto.getCreatedAt())

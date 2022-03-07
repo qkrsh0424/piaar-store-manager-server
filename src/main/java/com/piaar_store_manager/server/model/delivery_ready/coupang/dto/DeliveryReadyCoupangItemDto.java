@@ -38,6 +38,7 @@ public class DeliveryReadyCoupangItemDto {
     private String zipCode;        // 우편번호(28)
     private String deliveryMessage;        // 배송메세지(30)
     private Date orderDateTime;        // 주문일(9)
+    private String releaseOptionCode;
     private Boolean released;   // 출고여부
     private Date releasedAt;
     private Date createdAt;
@@ -75,6 +76,7 @@ public class DeliveryReadyCoupangItemDto {
             .zipCode(entity.getZipCode())
             .deliveryMessage(entity.getDeliveryMessage())
             .orderDateTime(entity.getOrderDateTime())
+            .releaseOptionCode(entity.getReleaseOptionCode())
             .released(entity.getReleased())
             .releasedAt(entity.getReleasedAt())
             .createdAt(entity.getCreatedAt())

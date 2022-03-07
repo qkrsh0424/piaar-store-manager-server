@@ -466,6 +466,41 @@ public class DeliveryReadyCoupangApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    /**
+     * Change released data to unreleased data for delivery ready.
+     * <p>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/update/release-option</b>
+     *
+     * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see deliveryReadyCoupangBusinessService#updateDeliveryReadyItemReleaseOptionInfo
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @PutMapping("/view/update/release-option")
+    public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyCoupangBusinessService.updateDeliveryReadyItemReleaseOptionInfo(deliveryReadyCoupangItemDto);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
     
     /**
      * Update data for delivery ready data.
@@ -549,14 +584,14 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#changeDeliveryReadyItem
+     * @see deliveryReadyCoupangBusinessService#changeDeliveryReadyItemToHansan
      * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
      */
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItem(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItemToHansan(viewDtos);
         
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx

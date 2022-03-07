@@ -397,7 +397,7 @@ public class DeliveryReadyNaverApiController {
     /**
      * Change released data to unreleased data for delivery ready.
      * <p>
-     * <b>GET : API URL => /api/v1/delivery-ready/naver/view/update/option</b>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/option</b>
      *
      * @param DeliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
      * @return ResponseEntity(message, HttpStatus)
@@ -451,6 +451,41 @@ public class DeliveryReadyNaverApiController {
         if (userService.isManager()) {
             try {
                 deliveryReadyNaverBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch (NullPointerException e) {
+                message.setStatus(HttpStatus.NOT_FOUND);
+                message.setMessage("not_found");
+                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+     /**
+     * Change released data to unreleased data for delivery ready.
+     * <p>
+     * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/release-option</b>
+     *
+     * @param DeliveryReadyNaverItemDto : DeliveryReadyNaverItemDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemReleaseOptionInfo
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @PutMapping("/view/update/release-option")
+    public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
+        Message message = new Message();
+        
+        // 유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try {
+                deliveryReadyNaverBusinessService.updateDeliveryReadyItemReleaseOptionInfo(deliveryReadyNaverItemDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {

@@ -60,7 +60,7 @@ public class DeliveryReadyItemHansanExcelFormDto {
                 .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
                 .storeProdName(viewDto.getProdManagementName())
                 .storeOptionName(viewDto.getOptionManagementName())
-                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .optionManagementCode(viewDto.getDeliveryReadyItem().getReleaseOptionCode())
                 .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .duplication(false)
                 .build();
@@ -93,7 +93,7 @@ public class DeliveryReadyItemHansanExcelFormDto {
                 .prodManufacturingCode(viewDto.getProdManufacturingCode() != null ? viewDto.getProdManufacturingCode() : "")
                 .storeProdName(viewDto.getProdManagementName())
                 .storeOptionName(viewDto.getOptionManagementName())
-                .optionManagementCode(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .optionManagementCode(viewDto.getDeliveryReadyItem().getReleaseOptionCode())
                 .allProdOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .duplication(false)
                 .build();

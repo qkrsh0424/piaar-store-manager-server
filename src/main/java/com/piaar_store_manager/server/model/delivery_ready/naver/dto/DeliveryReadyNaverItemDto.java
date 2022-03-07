@@ -45,6 +45,7 @@ public class DeliveryReadyNaverItemDto {
     private String deliveryMessage;        // 배송메세지(45)
     private String releaseArea;        // 출고지(46)
     private Date orderDateTime;        // 주문일시(56)
+    private String releaseOptionCode;
     private Boolean released;   // 출고여부
     private Date releasedAt;    // 출고일시
     private Date createdAt;     // 업로드 일시
@@ -89,6 +90,7 @@ public class DeliveryReadyNaverItemDto {
             .deliveryMessage(entity.getDeliveryMessage())
             .releaseArea(entity.getReleaseArea())
             .orderDateTime(entity.getOrderDateTime())
+            .releaseOptionCode(entity.getReleaseOptionCode())
             .released(entity.getReleased())
             .releasedAt(entity.getReleasedAt())
             .createdAt(entity.getCreatedAt())

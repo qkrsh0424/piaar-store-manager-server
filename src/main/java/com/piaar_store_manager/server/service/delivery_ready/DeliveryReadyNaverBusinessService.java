@@ -347,6 +347,7 @@ public class DeliveryReadyNaverBusinessService {
                 .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                 .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
                 .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
+                .releaseOptionCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
                 .released(false)
                 .createdAt(fileDto.getCreatedAt())
                 .releaseCompleted(false)
@@ -517,6 +518,7 @@ public class DeliveryReadyNaverBusinessService {
      * <b>DB Update Related Method</b>
      * <p>
      * DeliveryReadyItem cid에 대응하는 데이터의 옵션관리코드를 수정한다.
+     * 옵션관리코드를 변경하면서 출고옵션코드도 함께 변경한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchDeliveryReadyItem
@@ -524,7 +526,9 @@ public class DeliveryReadyNaverBusinessService {
      */
     public void updateDeliveryReadyItemOptionInfo(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
-        entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");  
+        entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
+            .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+
         deliveryReadyNaverService.createItem(entity);
     }
 
@@ -532,6 +536,7 @@ public class DeliveryReadyNaverBusinessService {
      * <b>DB Update Related Method</b>
      * <p>
      * DeliveryReadyItem의 데이터 중 itemId에 대응하는 데이터와 동일한 상품들의 옵션관리코드를 일괄 수정한다.
+     * 옵션관리코드를 변경하면서 출고옵션코드도 함께 변경한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchDeliveryReadyItem
@@ -541,11 +546,29 @@ public class DeliveryReadyNaverBusinessService {
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
 
-        entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+        entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
+            .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+
         deliveryReadyNaverService.createItem(entity);
         
         // 같은 상품의 옵션을 모두 변경
         this.updateChangedOption(entity);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * DeliveryReadyItem cid에 대응하는 데이터의 출고옵션코드를 수정한다.
+     *
+     * @param dto : DeliveryReadyNaverItemDto
+     * @see DeliveryReadyNaverService#searchDeliveryReadyItem
+     * @see DeliveryReadyNaverService#createItem
+     */
+    public void updateDeliveryReadyItemReleaseOptionInfo(DeliveryReadyNaverItemDto dto) {
+        DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
+        entity.setReleaseOptionCode(dto.getReleaseOptionCode() != null ? dto.getReleaseOptionCode() : "");
+
+        deliveryReadyNaverService.createItem(entity);
     }
 
     /**
@@ -559,7 +582,7 @@ public class DeliveryReadyNaverBusinessService {
      */
     public void updateChangedOption(DeliveryReadyNaverItemEntity entity) {
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.findByItems(entity);
-        entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()); });
+        entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()).setReleaseOptionCode(entity.getReleaseOptionCode()); });
         deliveryReadyNaverService.createItemList(entities);
     }
 
@@ -570,12 +593,66 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
      * @return List::DeliveryReadyItemHansanExcelFormDto::
-     * @see DeliveryReadyItemHansanExcelFormDto#toFormDto
+     * @see DeliveryReadyNaverBusinessService#changeDuplicationHansanDtos
      */
     public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItemToHansan(List<DeliveryReadyNaverItemViewDto> viewDtos) {
-        List<DeliveryReadyItemHansanExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemHansanExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
-        List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = this.changeDuplicationHansanDtos(formDtos);     // 중복 데이터 처리
+        List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = this.changeDuplicationHansanDtos(viewDtos);     // 중복 데이터 처리
         return excelFormDtos;
+    }
+
+    /**
+     * <b>Data Processing Related Method</b>
+     * <p>
+     * (주문번호 + 받는사람 + 상품명(피아르 출고상품명) + 상품상세(피아르 출고옵션명)) 중복데이터 가공
+     *
+     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @return List::DeliveryReadyItemHansanExcelFormDto::
+     */
+    public List<DeliveryReadyItemHansanExcelFormDto> changeDuplicationHansanDtos(List<DeliveryReadyNaverItemViewDto> dtos) {
+        List<DeliveryReadyItemHansanExcelFormDto> newOrderList = new ArrayList<>();
+
+        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
+        dtos.sort(Comparator.comparing((DeliveryReadyNaverItemViewDto dto) -> dto.getDeliveryReadyItem().getReceiver())
+                                .thenComparing((DeliveryReadyNaverItemViewDto dto) -> dto.getDeliveryReadyItem().getOrderNumber())
+                                .thenComparing((DeliveryReadyNaverItemViewDto dto) -> dto.getProdManagementName())
+                                .thenComparing((DeliveryReadyNaverItemViewDto dto) -> dto.getOptionManagementName()));
+
+        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
+
+        for(int i = 0; i < dtos.size(); i++){
+            StringBuilder sb = new StringBuilder();
+            sb.append(dtos.get(i).getDeliveryReadyItem().getReceiver());
+            sb.append(dtos.get(i).getDeliveryReadyItem().getDestination());
+            sb.append(dtos.get(i).getProdManagementName());
+            sb.append(dtos.get(i).getOptionManagementName());
+
+            StringBuilder receiverSb = new StringBuilder();
+            receiverSb.append(dtos.get(i).getDeliveryReadyItem().getReceiver());
+            receiverSb.append(dtos.get(i).getDeliveryReadyItem().getReceiverContact1());
+            receiverSb.append(dtos.get(i).getDeliveryReadyItem().getDestination());
+
+            String resultStr = sb.toString();
+            String receiverStr = receiverSb.toString();
+            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
+
+            DeliveryReadyItemHansanExcelFormDto currentProd = DeliveryReadyItemHansanExcelFormDto.toFormDto(dtos.get(i));
+
+            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
+            if(!optionSet.add(resultStr)){
+                DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
+                
+                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
+                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정
+            }else{
+                // 받는사람 + 번호 + 주소 : 중복인 경우
+                if(!optionSet.add(receiverStr)){
+                    newOrderList.get(prevOrderIdx).setDuplication(true);
+                    currentProd.setDuplication(true);
+                }
+                newOrderList.add(currentProd);
+            }
+        }
+        return newOrderList;
     }
 
     /**
@@ -591,60 +668,6 @@ public class DeliveryReadyNaverBusinessService {
         List<DeliveryReadyItemLotteExcelFormDto> formDtos = viewDtos.stream().map(dto -> DeliveryReadyItemLotteExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
         List<DeliveryReadyItemLotteExcelFormDto> excelFormDtos = this.changeDuplicationLotteDtos(formDtos);     // 중복 데이터 처리
         return excelFormDtos;
-    }
-
-    /**
-     * <b>Data Processing Related Method</b>
-     * <p>
-     * (주문번호 + 받는사람 + 상품명 + 상품상세) 중복데이터 가공
-     *
-     * @param dtos : List::DeliveryReadyItemHansanExcelFormDto::
-     * @return List::DeliveryReadyItemHansanExcelFormDto::
-     */
-    public List<DeliveryReadyItemHansanExcelFormDto> changeDuplicationHansanDtos(List<DeliveryReadyItemHansanExcelFormDto> dtos) {
-        List<DeliveryReadyItemHansanExcelFormDto> newOrderList = new ArrayList<>();
-
-        // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
-        dtos.sort(Comparator.comparing(DeliveryReadyItemHansanExcelFormDto::getReceiver)
-                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOrderNumber)
-                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getProdName)
-                                .thenComparing(DeliveryReadyItemHansanExcelFormDto::getOptionInfo));
-
-        Set<String> optionSet = new HashSet<>();        // 받는사람 + 주소 + 상품명 + 상품상세
-
-        for(int i = 0; i < dtos.size(); i++){
-            StringBuilder sb = new StringBuilder();
-            sb.append(dtos.get(i).getReceiver());
-            sb.append(dtos.get(i).getDestination());
-            sb.append(dtos.get(i).getProdName());
-            sb.append(dtos.get(i).getOptionInfo());
-
-            StringBuilder receiverSb = new StringBuilder();
-            receiverSb.append(dtos.get(i).getReceiver());
-            receiverSb.append(dtos.get(i).getReceiverContact1());
-            receiverSb.append(dtos.get(i).getDestination());
-
-            String resultStr = sb.toString();
-            String receiverStr = receiverSb.toString();
-            int prevOrderIdx = newOrderList.size()-1;   // 추가되는 데이터 리스트의 마지막 index
-
-            // 받는사람 + 주소 + 상품명 + 상품상세 : 중복인 경우
-            if(!optionSet.add(resultStr)){
-                DeliveryReadyItemHansanExcelFormDto prevProd = newOrderList.get(prevOrderIdx);
-                DeliveryReadyItemHansanExcelFormDto currentProd = dtos.get(i);
-                
-                newOrderList.get(prevOrderIdx).setUnit(prevProd.getUnit() + currentProd.getUnit());     // 중복데이터의 수량을 더한다
-                newOrderList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getProdOrderNumber() + "/" + currentProd.getProdOrderNumber());     // 총 상품번호 수정
-            }else{
-                // 받는사람 + 번호 + 주소 : 중복인 경우
-                if(!optionSet.add(receiverStr)){
-                    newOrderList.get(prevOrderIdx).setDuplication(true);
-                    dtos.get(i).setDuplication(true);
-                }
-                newOrderList.add(dtos.get(i));
-            }
-        }
-        return newOrderList;
     }
     
     /**

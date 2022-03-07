@@ -95,6 +95,9 @@ public class DeliveryReadyCoupangItemEntity {
     @Column(name = "order_date_time")
     private Date orderDateTime;        // 주문일(9)
 
+    @Column(name = "release_option_code")
+    private String releaseOptionCode;
+
     @Column(name = "released")
     private Boolean released;   // 출고여부
 
@@ -141,6 +144,7 @@ public class DeliveryReadyCoupangItemEntity {
             .zipCode(dto.getZipCode())
             .deliveryMessage(dto.getDeliveryMessage())
             .orderDateTime(dto.getOrderDateTime())
+            .releaseOptionCode(dto.getReleaseOptionCode())
             .released(dto.getReleased())
             .releasedAt(dto.getReleasedAt())
             .createdAt(dto.getCreatedAt())
