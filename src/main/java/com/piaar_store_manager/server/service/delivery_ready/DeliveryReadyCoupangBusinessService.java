@@ -445,7 +445,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangItemViewResDto#toResDtos
      */
     public List<DeliveryReadyCoupangItemViewResDto> changeOptionStockUnit(List<DeliveryReadyCoupangItemViewProj> itemViewProj) {
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
@@ -454,7 +454,7 @@ public class DeliveryReadyCoupangBusinessService {
 
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
-                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
+                if(proj.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
                     resDto.setOptionStockUnit(option.getStockSumUnit());
                 }
             });
@@ -861,7 +861,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see ProductOptionService#findAllByCode
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyCoupangItemViewDto> dtos) {
-        List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         return productOptionService.findAllByCode(managementCodes);
     }
     
@@ -892,7 +892,7 @@ public class DeliveryReadyCoupangBusinessService {
         // 출고데이터 설정 및 생성
         unreleasedDtos.stream().forEach(dto -> {
             optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())){
+                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
                     ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.toDto(dto, option.getCid());
                     productReleaseGetDtos.add(releaseGetDto);
                 }
@@ -928,7 +928,7 @@ public class DeliveryReadyCoupangBusinessService {
         // 출고 취소데이터 설정 및 생성
         releasedDtos.stream().forEach(dto -> {
             optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())){
+                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
                     ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.toDto(dto, option.getCid());
                     productReceiveGetDtos.add(receiveGetDto);
                 }

@@ -440,7 +440,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverItemViewResDto#toResDtos
      */
     public List<DeliveryReadyNaverItemViewResDto> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
@@ -449,7 +449,7 @@ public class DeliveryReadyNaverBusinessService {
 
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
-                if(proj.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())) {
+                if(proj.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
                     resDto.setOptionStockUnit(option.getStockSumUnit());
                 }
             });
@@ -856,7 +856,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see ProductOptionService#findAllByCode
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyNaverItemViewDto> dtos) {
-        List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getOptionManagementCode()).collect(Collectors.toList());
+        List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         return productOptionService.findAllByCode(managementCodes);
     }
 
@@ -880,14 +880,14 @@ public class DeliveryReadyNaverBusinessService {
         List<DeliveryReadyNaverItemViewDto> unreleasedDtos = dtos.stream().filter(dto -> !dto.getDeliveryReadyItem().getReleaseCompleted()).collect(Collectors.toList());
         this.updateListReleaseCompleted(unreleasedDtos, true);
 
-        // 옵션데이터 추출
+        // 출고 옵션데이터 추출
         List<ProductOptionEntity> optionEntities = this.getOptionByCode(unreleasedDtos);
         List<ProductReleaseGetDto> productReleaseGetDtos = new ArrayList<>();
 
         // 출고데이터 설정 및 생성
         unreleasedDtos.stream().forEach(dto -> {
             optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())){
+                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
                     ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.toDto(dto, option.getCid());
                     productReleaseGetDtos.add(releaseGetDto);
                 }
@@ -923,7 +923,7 @@ public class DeliveryReadyNaverBusinessService {
         // 출고 취소데이터 설정 및 생성
         releasedDtos.stream().forEach(dto -> {
             optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getOptionManagementCode().equals(option.getCode())){
+                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
                     ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.toDto(dto, option.getCid());
                     productReceiveGetDtos.add(receiveGetDto);
                 }
