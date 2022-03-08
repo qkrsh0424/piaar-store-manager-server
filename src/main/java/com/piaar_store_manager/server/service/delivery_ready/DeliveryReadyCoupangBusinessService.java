@@ -457,7 +457,11 @@ public class DeliveryReadyCoupangBusinessService {
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경.
         itemViewResDto = itemViewProj.stream().map(proj -> {
             DeliveryReadyCoupangItemViewResDto resDto = DeliveryReadyCoupangItemViewResDto.toResDto(proj);
+            
+            // 출고 옵션코드를 생성하기 전의 데이터들은 getReleaseOptionCode가 null이다.
+            if(proj.getDeliveryReadyItem().getReleaseOptionCode() == null) return resDto;
 
+            System.out.println(proj.getDeliveryReadyItem().getReleaseOptionCode());
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
                 if(proj.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {

@@ -453,6 +453,9 @@ public class DeliveryReadyNaverBusinessService {
         itemViewResDto = itemViewProj.stream().map(proj -> {
             DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewResDto.toResDto(proj);
 
+            // 출고 옵션코드를 생성하기 전의 데이터들은 getReleaseOptionCode가 null이다.
+            if(proj.getDeliveryReadyItem().getReleaseOptionCode() == null) return resDto;
+
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
                 if(proj.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
