@@ -442,9 +442,15 @@ public class DeliveryReadyNaverBusinessService {
     public List<DeliveryReadyNaverItemViewResDto> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
         List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = new ArrayList<>();
+
+        if(optionGetDtos.isEmpty()) {
+            itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemViewResDto.toResDto(proj)).collect(Collectors.toList());
+            return itemViewResDto;
+        }
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
-        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = itemViewProj.stream().map(proj -> {
+        itemViewResDto = itemViewProj.stream().map(proj -> {
             DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewResDto.toResDto(proj);
 
             // 옵션 코드와 동일한 상품의 재고수량을 변경한다
