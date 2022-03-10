@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
@@ -94,4 +95,17 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         "WHERE dri.cid IN :itemCids"
     )
     List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> itemCids);
+
+    @Query("SELECT p AS product, po AS productOption,\n"
+        + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
+        + "FROM DeliveryReadyNaverItemEntity drni\n"
+        + "WHERE drni.optionManagementCode = po.code) AS deliveryReadyNaverSalesUnit,\n"
+        + "(SELECT CASE WHEN SUM(drci.unit) IS NULL THEN 0 ELSE SUM(drci.unit) END\n"
+        + "FROM DeliveryReadyCoupangItemEntity drci\n"
+        + "WHERE drci.optionManagementCode = po.code) AS deliveryReadyCoupangSalesUnit\n"
+        + "FROM ProductOptionEntity po\n"
+        + "JOIN ProductEntity p ON po.productCid = p.cid\n"
+        + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
+    )
+    List<SalesAnalysisItemProj> findSalesAnalysisItem();
 }
