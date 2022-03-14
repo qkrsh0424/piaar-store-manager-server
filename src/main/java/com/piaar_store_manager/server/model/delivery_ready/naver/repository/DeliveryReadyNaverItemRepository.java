@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -96,6 +97,20 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
     )
     List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> itemCids);
 
+    // @Query("SELECT p AS product, po AS productOption,\n"
+    //     + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
+    //     + "FROM DeliveryReadyNaverItemEntity drni\n"
+    //     + "WHERE drni.optionManagementCode = po.code AND (drni.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyNaverSalesUnit,\n"
+    //     + "(SELECT CASE WHEN SUM(drci.unit) IS NULL THEN 0 ELSE SUM(drci.unit) END\n"
+    //     + "FROM DeliveryReadyCoupangItemEntity drci\n"
+    //     + "WHERE drci.optionManagementCode = po.code AND (drci.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyCoupangSalesUnit\n"
+    //     + "FROM ProductOptionEntity po, ProductEntity p, DeliveryReadyNaverItemEntity drni, DeliveryReadyCoupangItemEntity drci\n"
+    //     + "WHERE po.productCid = p.cid\n"
+    //     + "GROUP BY po.cid\n"
+    //     + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
+    // )
+    // List<SalesAnalysisItemProj> findSalesAnalysisItem(Date date1, Date date2);
+
     @Query("SELECT p AS product, po AS productOption,\n"
         + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
         + "FROM DeliveryReadyNaverItemEntity drni\n"
@@ -107,5 +122,5 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         + "JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
     )
-    List<SalesAnalysisItemProj> findSalesAnalysisItem();
+    List<SalesAnalysisItemProj> findSalesAnalysisItem(Date date1, Date date2);
 }
