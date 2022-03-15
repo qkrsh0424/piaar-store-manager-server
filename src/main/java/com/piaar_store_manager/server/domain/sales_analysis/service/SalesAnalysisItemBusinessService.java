@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.sales_analysis.service;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,10 @@ public class SalesAnalysisItemBusinessService {
 
         List<SalesAnalysisItemProj> salesItemList = itemRepository.findSalesAnalysisItem(startDate, endDate);
         List<SalesAnalysisItemDto> salesItemDtos = salesItemList.stream().map(proj -> SalesAnalysisItemDto.toDto(proj)).collect(Collectors.toList());
+
+        salesItemDtos.stream().forEach(r -> r.setTotalSalesUnit(r.getNaverSalesUnit() + r.getCoupangSalesUnit()));
+        salesItemDtos.sort(Comparator.comparing(SalesAnalysisItemDto::getTotalSalesUnit).reversed());
+
         return salesItemDtos;
     }
 }

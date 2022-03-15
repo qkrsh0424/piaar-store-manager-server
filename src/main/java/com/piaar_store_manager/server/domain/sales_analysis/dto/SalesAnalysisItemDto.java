@@ -1,10 +1,6 @@
 package com.piaar_store_manager.server.domain.sales_analysis.dto;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
-import com.piaar_store_manager.server.handler.DateHandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +20,8 @@ public class SalesAnalysisItemDto {
     private String salesProdImageUrl;
     private Integer naverSalesUnit;
     private Integer coupangSalesUnit;
+
+    private Integer totalSalesUnit;
 
     public static SalesAnalysisItemDto toDto(SalesAnalysisItemProj proj) {
         SalesAnalysisItemDto dto = SalesAnalysisItemDto.builder()
