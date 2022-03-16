@@ -778,7 +778,7 @@ public class DeliveryReadyNaverApiController {
         cell = row.createCell(16);
         cell.setCellValue("관리메모4");
         cell = row.createCell(17);
-        cell.setCellValue("관리번호5");
+        cell.setCellValue("관리메모5");
         cell = row.createCell(18);
         cell.setCellValue("상품별 메모1");
         cell = row.createCell(19);

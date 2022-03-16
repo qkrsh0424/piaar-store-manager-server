@@ -25,6 +25,7 @@ public class ProductOptionGetDto {
     private String managementName;
     private Integer salesPrice;
     private Integer stockUnit;
+    private Integer totalPurchasePrice;
     private String status;
     private String memo;
     private String imageUrl;
@@ -59,6 +60,7 @@ public class ProductOptionGetDto {
                 .defaultName(entity.getDefaultName())
                 .managementName(entity.getManagementName())
                 .salesPrice(entity.getSalesPrice())
+                .totalPurchasePrice(entity.getTotalPurchasePrice())
                 .stockUnit(entity.getStockUnit())
                 .status(entity.getStatus())
                 .memo(entity.getMemo())

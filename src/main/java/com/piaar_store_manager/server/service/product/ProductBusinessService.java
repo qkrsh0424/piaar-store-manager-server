@@ -81,9 +81,10 @@ public class ProductBusinessService {
      */
     public ProductJoinResDto searchOneFJ(Integer productCid) {
         ProductProj productProj = productService.searchProjOne(productCid);
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProduct(productProj.getProduct().getCid());
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProduct(productProj.getProduct().getCid());
+        List<ProductOptionGetDto> optionDtos = optionEntities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
         ProductJoinResDto resDto = ProductJoinResDto.toDto(productProj);
-        resDto.setOptions(optionGetDtos);
+        resDto.setOptions(optionDtos);
         return resDto;
     }
 
@@ -217,6 +218,7 @@ public class ProductBusinessService {
      * <b>DB Insert Related Method</b>
      * <p>
      * Product 내용을 한개 등록한다.
+     * Product에 등록된 매입총합게를 해당 옵션들에게도 반영한다.
      * 
      * @param productGetDto : ProductGetDto
      * @param userId : UUID
@@ -273,6 +275,10 @@ public class ProductBusinessService {
         List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
             r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
                 .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId).setProductCid(savedProductDto.getCid());
+
+            if(r.getTotalPurchasePrice() == 0) {
+                r.setTotalPurchasePrice(savedProductDto.getDefaultTotalPurchasePrice());
+            }
             
             return ProductOptionEntity.toEntity(r);
         }).collect(Collectors.toList());
@@ -311,6 +317,7 @@ public class ProductBusinessService {
      * <b>DB Update Related Method</b>
      * <p>
      * Product cid 값과 상응되는 데이터를 업데이트한다.
+     * Product에 대응되는 옵션들을 조회해서 그것ㄷ
      * 
      * @param productDto : ProductGetDto
      * @param userId : UUID
@@ -327,11 +334,22 @@ public class ProductBusinessService {
                 .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
                 .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
                 .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
+                .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
                 .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
                 .setStockManagement(productDto.getStockManagement())
                 .setProductCategoryCid(productDto.getProductCategoryCid());
 
+        // 옵션들의 매입총합계를 변경한다.
         productService.createOne(productEntity);
+
+        this.changeOptionTotalPurchasePrice(productEntity.getCid(), productEntity.getDefaultTotalPurchasePrice());
+    }
+
+    public void changeOptionTotalPurchasePrice(Integer productCid, Integer totalPurchasePrice) {
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProduct(productCid);
+        optionEntities.stream().forEach(r -> r.setTotalPurchasePrice(totalPurchasePrice));
+
+        productOptionService.createList(optionEntities);
     }
 
     /**
@@ -415,6 +433,9 @@ public class ProductBusinessService {
         }
         if (productDto.getDefaultWeight() != null) {
             productEntity.setDefaultWeight(productDto.getDefaultWeight());
+        }
+        if (productDto.getDefaultTotalPurchasePrice() != null) {
+            productEntity.setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice());
         }
         if (productDto.getStockManagement() != null) {
             productEntity.setStockManagement(productDto.getStockManagement());

@@ -79,9 +79,12 @@ public class ExcelTranslatorHeaderBusinessService {
      */
     public void changeOne(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
+        // entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
+        //     .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setUploadHeaderDetail(dto.getUploadHeaderDetail())
+        //     .setDownloadHeaderDetail(dto.getDownloadHeaderDetail()).setRowStartNumber(dto.getRowStartNumber());
+
         entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
-            .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setUploadHeaderDetail(dto.getUploadHeaderDetail())
-            .setDownloadHeaderDetail(dto.getDownloadHeaderDetail()).setRowStartNumber(dto.getRowStartNumber());
+                .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
 
         excelTranslatorHeaderService.saveOne(entity);
     }
@@ -159,12 +162,13 @@ public class ExcelTranslatorHeaderBusinessService {
                     }
                 }
 
-                if(uploadDetailDtos.size() > 0 && i == dto.getRowStartNumber()-1) {
-                    // 등록된 양식과 다른 엑셀 헤더값이 있다면
-                    if(!uploadDetailDtos.get(j).getHeaderName().equals(cellObj.toString())){
-                        throw new IllegalArgumentException();
-                    }
-                }
+                // if(uploadDetailDtos.size() > 0 && i == dto.getRowStartNumber()-1) {
+                //     // 등록된 양식과 다른 엑셀 헤더값이 있다면
+                //     if(!uploadDetailDtos.get(j).getHeaderName().equals(cellObj.toString())){
+                //         System.out.println(cellObj.toString());
+                //         throw new IllegalArgumentException();
+                //     }
+                // }
 
                 UploadedDetailDto detailDto = UploadedDetailDto.builder().id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();  
                 uploadedDetailDtos.add(detailDto);

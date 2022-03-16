@@ -38,11 +38,12 @@ public class ProductGetDto {
     private Integer defaultHeight;
     private Integer defaultQuantity;
     private Integer defaultWeight;
+    private Integer defaultTotalPurchasePrice;
+    private Boolean stockManagement;
     private Date createdAt;
     private UUID createdBy;
     private Date updatedAt;
     private UUID updatedBy;
-    private Boolean stockManagement;
     private Integer productCategoryCid;
 
     /**
@@ -75,11 +76,12 @@ public class ProductGetDto {
             .defaultHeight(entity.getDefaultHeight())
             .defaultQuantity(entity.getDefaultQuantity())
             .defaultWeight(entity.getDefaultWeight())
+            .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
+            .stockManagement(entity.getStockManagement())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
-            .stockManagement(entity.getStockManagement())
             .productCategoryCid(entity.getProductCategoryCid())
             .build();
 
@@ -117,11 +119,12 @@ public class ProductGetDto {
                 .defaultHeight(entity.getDefaultHeight())
                 .defaultQuantity(entity.getDefaultQuantity())
                 .defaultWeight(entity.getDefaultWeight())
+                .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
+                .stockManagement(entity.getStockManagement())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())
                 .updatedBy(entity.getUpdatedBy())
-                .stockManagement(entity.getStockManagement())
                 .productCategoryCid(entity.getProductCategoryCid())
                 .build();
 

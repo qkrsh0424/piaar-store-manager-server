@@ -123,7 +123,9 @@ public class ProductOptionBusinessService {
      * @see ProductOptionGetDto#toDto
      */
     public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
-        return productOptionService.searchListByProduct(productCid);
+        List<ProductOptionEntity> entities = productOptionService.searchListByProduct(productCid);
+        List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -262,6 +264,9 @@ public class ProductOptionBusinessService {
         }
         if (productOptionDto.getSalesPrice() != null) {
             productOptionEntity.setSalesPrice(productOptionDto.getSalesPrice());
+        }
+        if (productOptionDto.getTotalPurchasePrice() != null) {
+            productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());
         }
         if (productOptionDto.getStockUnit() != null) {
             productOptionEntity.setStockUnit(productOptionDto.getStockUnit());

@@ -101,12 +101,10 @@ public class ProductOptionService {
      * @return List::ProductOptionGetDto::
      * @param productCid : Integer
      * @see ProductOptionRepository#findByProductCid
-     * @see ProductOptionService#searchStockUnit
      */
-    public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
+    public List<ProductOptionEntity> searchListByProduct(Integer productCid) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
-        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
-        return productOptionGetDtos;
+        return productOptionEntities;
     }
 
     /**
@@ -230,6 +228,7 @@ public class ProductOptionService {
                     .setManagementName(productOptionDto.getManagementName())
                     .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                     .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
+                    .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
                     .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
                     .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())

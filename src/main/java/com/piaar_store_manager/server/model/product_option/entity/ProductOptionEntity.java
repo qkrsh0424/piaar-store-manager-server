@@ -47,6 +47,9 @@ public class ProductOptionEntity {
     @Column(name = "sales_price")
     private Integer salesPrice;
 
+    @Column(name = "total_purchase_price")
+    private Integer totalPurchasePrice;
+
     @Column(name = "stock_unit")
     private Integer stockUnit;
 
@@ -106,6 +109,7 @@ public class ProductOptionEntity {
                 .defaultName(productOptionDto.getDefaultName())
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
+                .totalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                 .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
