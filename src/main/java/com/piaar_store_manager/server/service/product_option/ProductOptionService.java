@@ -98,13 +98,12 @@ public class ProductOptionService {
      * Product Cid에 대응되는 ProductOption 데이터를 모두 조회한다.
      * ProductOption의 입고수량과 출고수량을 통해 재고수량을 계산한다.
      *
-     * @return List::ProductOptionGetDto::
+     * @return List::ProductOptionEntity::
      * @param productCid : Integer
      * @see ProductOptionRepository#findByProductCid
      */
     public List<ProductOptionEntity> searchListByProduct(Integer productCid) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findByProductCid(productCid);
-        return productOptionEntities;
+        return productOptionRepository.findByProductCid(productCid);
     }
 
     /**

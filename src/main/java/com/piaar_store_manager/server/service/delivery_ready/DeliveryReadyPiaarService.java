@@ -9,22 +9,15 @@ import com.piaar_store_manager.server.model.delivery_ready.piaar.proj.DeliveryRe
 import com.piaar_store_manager.server.model.delivery_ready.piaar.repository.DeliveryReadyPiaarItemRepository;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class DeliveryReadyPiaarService {
-    private DeliveryReadyFileRepository deliveryReadyFileRepository;
-    private DeliveryReadyPiaarItemRepository deliveryReadyPiaarItemRepository;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public DeliveryReadyPiaarService(
-        DeliveryReadyFileRepository deliveryReadyFileRepository,
-        DeliveryReadyPiaarItemRepository deliveryReadyPiaarItemRepository
-    ) {
-        this.deliveryReadyFileRepository = deliveryReadyFileRepository;
-        this.deliveryReadyPiaarItemRepository = deliveryReadyPiaarItemRepository;   
-    }
+@Service
+@RequiredArgsConstructor
+public class DeliveryReadyPiaarService {
+    private final DeliveryReadyFileRepository deliveryReadyFileRepository;
+    private final DeliveryReadyPiaarItemRepository deliveryReadyPiaarItemRepository;
 
     /**
      * <b>DB Insert Related Method</b>

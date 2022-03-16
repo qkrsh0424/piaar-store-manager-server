@@ -15,22 +15,15 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.repository.Deli
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class DeliveryReadyNaverService {
-    private DeliveryReadyFileRepository deliveryReadyFileRepository;
-    private DeliveryReadyNaverItemRepository deliveryReadyNaverItemRepository;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public DeliveryReadyNaverService(
-        DeliveryReadyFileRepository deliveryReadyFileRepository,
-        DeliveryReadyNaverItemRepository deliveryReadyNaverItemRepository
-    ) {
-        this.deliveryReadyFileRepository = deliveryReadyFileRepository;
-        this.deliveryReadyNaverItemRepository = deliveryReadyNaverItemRepository;   
-    }
+@Service
+@RequiredArgsConstructor
+public class DeliveryReadyNaverService {
+    private final DeliveryReadyFileRepository deliveryReadyFileRepository;
+    private final DeliveryReadyNaverItemRepository deliveryReadyNaverItemRepository;
  
     /**
      * <b>DB Insert Related Method</b>

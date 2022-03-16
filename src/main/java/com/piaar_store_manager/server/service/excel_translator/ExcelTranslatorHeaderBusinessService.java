@@ -162,14 +162,6 @@ public class ExcelTranslatorHeaderBusinessService {
                     }
                 }
 
-                // if(uploadDetailDtos.size() > 0 && i == dto.getRowStartNumber()-1) {
-                //     // 등록된 양식과 다른 엑셀 헤더값이 있다면
-                //     if(!uploadDetailDtos.get(j).getHeaderName().equals(cellObj.toString())){
-                //         System.out.println(cellObj.toString());
-                //         throw new IllegalArgumentException();
-                //     }
-                // }
-
                 UploadedDetailDto detailDto = UploadedDetailDto.builder().id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();  
                 uploadedDetailDtos.add(detailDto);
             }

@@ -1,10 +1,6 @@
 package com.piaar_store_manager.server.domain.sales_analysis.controller;
 
-import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.util.Map;
-
-import javax.websocket.server.PathParam;
 
 import com.piaar_store_manager.server.domain.sales_analysis.service.SalesAnalysisItemBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
