@@ -42,13 +42,25 @@ public class ProductDetailService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductDetail 데이터를 모두 조회한다.
+     * option cid값에 대응하는 ProductDetail 데이터를 모두 조회한다.
      * 
      * @return List::ProductDetailEntity::
      * @see ProductDetailRepository#findByProductOptionCid
      */
     public List<ProductDetailEntity> searchList(Integer optionCid) {
         return productDetailRepository.findByProductOptionCid(optionCid);
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductDetail 데이터를 모두 조회한다.
+     * 
+     * @return List::ProductDetailEntity::
+     * @see ProductDetailRepository#findAll
+     */
+    public List<ProductDetailEntity> searchAll() {
+        return productDetailRepository.findAll();
     }
 
     /**

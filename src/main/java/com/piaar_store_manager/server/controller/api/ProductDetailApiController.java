@@ -98,6 +98,23 @@ public class ProductDetailApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/list")
+    public ResponseEntity<?> searchAll() {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productDetailBusinessService.searchAll());
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Create one api for product.
      * <p>

@@ -53,6 +53,12 @@ public class ProductDetailBusinessService {
         return dtos;
     }
 
+    public List<ProductDetailGetDto> searchAll() {
+        List<ProductDetailEntity> entities = productDetailService.searchAll();
+        List<ProductDetailGetDto> dtos = entities.stream().map(entity -> ProductDetailGetDto.toDto(entity)).collect(Collectors.toList());
+        return dtos;
+    }
+
     /**
      * <b>DB Insert Related Method</b>
      * <p>
