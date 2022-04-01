@@ -6,12 +6,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -50,12 +52,13 @@ public class OrderRegistrationNaverApiController {
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadHansanExcelFile
      * @see UserService#isUserLogin
      */
@@ -69,7 +72,9 @@ public class OrderRegistrationNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            orderRegistrationNaverBusinessService.isExcelFile(file);
+            if(!CustomExcelUtils.isExcelFile(file)){
+                throw new FileUploadException("This is not an excel file.");
+            };
 
             try{
                 message.setData(orderRegistrationNaverBusinessService.uploadHansanExcelFile(file));
@@ -156,12 +161,13 @@ public class OrderRegistrationNaverApiController {
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadTailoExcelFile
      * @see UserService#isUserLogin
      */
@@ -175,7 +181,9 @@ public class OrderRegistrationNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            orderRegistrationNaverBusinessService.isExcelFile(file);
+            if(!CustomExcelUtils.isExcelFile(file)){
+                throw new FileUploadException("This is not an excel file.");
+            };
 
             try{
                 message.setData(orderRegistrationNaverBusinessService.uploadTailoExcelFile(file));

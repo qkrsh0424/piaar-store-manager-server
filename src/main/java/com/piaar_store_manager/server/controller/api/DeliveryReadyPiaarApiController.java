@@ -3,10 +3,12 @@ package com.piaar_store_manager.server.controller.api;
 import java.util.List;
 
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyPiaarBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,12 +39,13 @@ public class DeliveryReadyPiaarApiController {
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyPiaarBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyPiaarBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
@@ -51,7 +54,10 @@ public class DeliveryReadyPiaarApiController {
         Message message = new Message();
 
         // file extension check.
-        deliveryReadyPiaarBusinessService.isExcelFile(file);
+        if(!CustomExcelUtils.isExcelFile(file)){
+            throw new FileUploadException("This is not an excel file.");
+        };
+        
         try {
             message.setData(deliveryReadyPiaarBusinessService.uploadDeliveryReadyExcelFile(file));
             message.setStatus(HttpStatus.OK);
@@ -76,7 +82,6 @@ public class DeliveryReadyPiaarApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyPiaarBusinessService#isExcelFile
      * @see DeliveryReadyPiaarBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck

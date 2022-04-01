@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.exception.AccessDeniedException;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.exception.InvalidUserException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemUnitCombinedDto;
@@ -33,41 +32,27 @@ import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetD
 import com.piaar_store_manager.server.service.delivery_ready_view_header.DeliveryReadyPiaarViewHeaderService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class DeliveryReadyPiaarBusinessService {
-    private DeliveryReadyPiaarService deliveryReadyPiaarService;
-    private ProductOptionService productOptionService;
-    private UserService userService;
-    private DeliveryReadyPiaarViewHeaderService deliveryReadyPiaarViewHeaderService;
-
-    @Autowired
-    public DeliveryReadyPiaarBusinessService(
-            DeliveryReadyPiaarService deliveryReadyPiaarService,
-            ProductOptionService productOptionService,
-            UserService userService,
-            DeliveryReadyPiaarViewHeaderService deliveryReadyPiaarViewHeaderService) {
-        this.deliveryReadyPiaarService = deliveryReadyPiaarService;
-        this.productOptionService = productOptionService;
-        this.userService = userService;
-        this.deliveryReadyPiaarViewHeaderService = deliveryReadyPiaarViewHeaderService;
-    }
-
-    // Excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
+    private final DeliveryReadyPiaarService deliveryReadyPiaarService;
+    private final ProductOptionService productOptionService;
+    private final UserService userService;
+    private final DeliveryReadyPiaarViewHeaderService deliveryReadyPiaarViewHeaderService;
 
     private final Integer PIAAR_EXCEL_HEADER_SIZE = 40;
     private final Integer PIAAR_MEMO_START_INDEX = 20;
@@ -115,22 +100,6 @@ public class DeliveryReadyPiaarBusinessService {
             "관리메모20");
 
     /**
-     * <b>Extension Check</b>
-     * <p>
-     * 
-     * @param file : MultipartFile
-     * @throws FileUploadException
-     */
-    public void isExcelFile(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
-
-        if (EXTENSIONS_EXCEL.contains(extension)) {
-            return;
-        }
-        throw new FileUploadException("This is not an excel file.");
-    }
-
-    /**
      * <b>Upload Excel File</b>
      * <p>
      * 엑셀 파일을 업로드하여 화면에 출력한다.
@@ -149,15 +118,9 @@ public class DeliveryReadyPiaarBusinessService {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
 
-        Workbook workbook = null;
-        try {
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        // TODO : 타입체크 메서드 구현해야됨.
-        Sheet sheet = workbook.getSheetAt(0);
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
 
         List<DeliveryReadyPiaarItemVo> vos = this.getDeliveryReadyExcelForm(sheet);
         return vos;

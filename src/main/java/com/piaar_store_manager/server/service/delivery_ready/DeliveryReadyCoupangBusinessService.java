@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,7 +26,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -40,7 +38,6 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
@@ -48,36 +45,25 @@ import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGe
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
-public class DeliveryReadyCoupangBusinessService {
-    private DeliveryReadyCoupangService deliveryReadyCoupangService;
-    private ProductReleaseBusinessService productReleaseBusinessService;
-    private ProductReceiveBusinessService productReceiveBusinessService;
-    private ProductOptionService productOptionService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public DeliveryReadyCoupangBusinessService(
-        DeliveryReadyCoupangService deliveryReadyCoupangService,
-        ProductReleaseBusinessService productReleaseBusinessService,
-        ProductReceiveBusinessService productReceiveBusinessService,
-        ProductOptionService productOptionService
-    ) {
-        this.deliveryReadyCoupangService = deliveryReadyCoupangService;
-        this.productReleaseBusinessService = productReleaseBusinessService;
-        this.productReceiveBusinessService = productReceiveBusinessService;
-        this.productOptionService = productOptionService;
-    }
+@Service
+@RequiredArgsConstructor
+public class DeliveryReadyCoupangBusinessService {
+    private final DeliveryReadyCoupangService deliveryReadyCoupangService;
+    private final ProductReleaseBusinessService productReleaseBusinessService;
+    private final ProductReceiveBusinessService productReceiveBusinessService;
+    private final ProductOptionService productOptionService;
 
     // AWS S3
     private AmazonS3 s3Client;
@@ -97,25 +83,6 @@ public class DeliveryReadyCoupangBusinessService {
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;
 
-    // Excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
-    
-    /**
-     * <b>Extension Check</b>
-     * <p>
-     * 
-     * @param file : MultipartFile
-     * @throws FileUploadException
-     */
-    public void isExcelFile(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
-
-        if(EXTENSIONS_EXCEL.contains(extension)){
-            return;
-        }
-        throw new FileUploadException("This is not an excel file.");
-    }
-    
     /**
      * <b>Upload Excel File</b>
      * <p>
@@ -126,15 +93,9 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangBusinessService#getDeliveryReadyExcelForm
      */
     public List<DeliveryReadyCoupangItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        // TODO : 타입체크 메서드 구현해야됨.
-        Sheet sheet = workbook.getSheetAt(0);
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
     }
@@ -225,13 +186,12 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param file : MultipartFile
      * @param userId : UUID
-     * @return FileUploadResponse
      * @throws ParseException
      * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelFile
      * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelItem
      */
     @Transactional
-    public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws ParseException {
+    public void storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws ParseException {
         String fileName = file.getOriginalFilename();
         String newFileName = "[COUPANG_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = bucket + "/coupang-order";
@@ -250,8 +210,6 @@ public class DeliveryReadyCoupangBusinessService {
         DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize(), userId);
         // 데이터 저장
         this.createDeliveryReadyExcelItem(file, fileDto);
-                                                      
-        return new FileUploadResponse(newFileName, s3Client.getUrl(uploadPath, newFileName).toString(), file.getContentType(), file.getSize());
     }
 
     /**
@@ -298,14 +256,9 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangService#createItemList
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) throws ParseException {
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        Sheet sheet = workbook.getSheetAt(0);
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyCoupangExcelItem(sheet, fileDto);
         
         dtos.sort(Comparator.comparing(DeliveryReadyCoupangItemDto::getProdName)
@@ -415,14 +368,6 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // Date startDate = null;
-        // Date endDate = null;
-
-        // if(query.get("startDate") != null && query.get("endDate") != null) {
-        //     startDate = dateFormat.parse(query.get("startDate").toString());
-        //     endDate = dateFormat.parse(query.get("endDate").toString());
-        // }
         Calendar startDateCalendar = Calendar.getInstance();
         startDateCalendar.set(Calendar.YEAR, 1970);
         Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())

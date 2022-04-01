@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -20,6 +21,7 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -65,12 +67,13 @@ public class DeliveryReadyCoupangApiController {
      * 
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadExcpetion
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
@@ -84,7 +87,9 @@ public class DeliveryReadyCoupangApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
+            if(!CustomExcelUtils.isExcelFile(file)) {
+                throw new FileUploadException("This is not an excel file.");
+            }
 
             try{
                 message.setData(deliveryReadyCoupangBusinessService.uploadDeliveryReadyExcelFile(file));
@@ -110,7 +115,7 @@ public class DeliveryReadyCoupangApiController {
      * @param file
      * @return ResponseEntity(message, HttpStatus)
      * @throws ParseException
-     * @throws IOException
+     * @throws FileUploadExcpetion
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyCoupangBusinessService#isExcelFile
@@ -125,9 +130,11 @@ public class DeliveryReadyCoupangApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
+            if(CustomExcelUtils.isExcelFile(file)) {
+                throw new FileUploadException("This is not an excel file.");
+            }
 
-            message.setData(deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
