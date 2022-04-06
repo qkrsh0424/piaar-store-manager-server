@@ -20,6 +20,7 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -70,7 +71,7 @@ public class DeliveryReadyNaverApiController {
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyNaverBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
@@ -84,7 +85,7 @@ public class DeliveryReadyNaverApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyNaverBusinessService.isExcelFile(file);
+            CustomExcelUtils.isExcelFile(file);
 
             try{
                 message.setData(deliveryReadyNaverBusinessService.uploadDeliveryReadyExcelFile(file));
@@ -111,7 +112,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyNaverBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
@@ -123,9 +124,9 @@ public class DeliveryReadyNaverApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyNaverBusinessService.isExcelFile(file);
+            CustomExcelUtils.isExcelFile(file);
 
-            message.setData(deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {

@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.model.delivery_ready.coupang.repository;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.model.delivery_ready.coupang.entity.DeliveryReadyCoupangItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.proj.DeliveryReadyCoupangItemViewProj;
@@ -12,6 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface DeliveryReadyCoupangItemRepository extends JpaRepository<DeliveryReadyCoupangItemEntity, Integer> {
@@ -94,4 +96,13 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
         "WHERE dri.cid IN :itemCids"
     )
     List<DeliveryReadyCoupangItemEntity> selectAllByCids(List<Integer> itemCids);
+
+    /**
+     * 대량 삭제
+     */
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM DeliveryReadyCoupangItemEntity drn WHERE drn.id IN :idList"
+    )
+    void deleteBatchById(List<UUID> idList);
 }

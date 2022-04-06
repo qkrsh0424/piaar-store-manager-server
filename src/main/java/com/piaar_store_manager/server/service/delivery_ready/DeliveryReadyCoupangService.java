@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.transaction.Transactional;
 
@@ -115,6 +116,18 @@ public class DeliveryReadyCoupangService {
         deliveryReadyCoupangItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyCoupangItemRepository.delete(item);
         });
+    }
+
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * DeliveryReadyItem 미출고 데이터 중 itemCid에 대응하는 데이터를 삭제한다.
+     *
+     * @param idList : List::UUID::
+     * @see DeliveryReadyCoupangItemRepository#deleteBatchById
+     */
+    public void deleteListDeliveryReadyViewData(List<UUID> idList) {
+        deliveryReadyCoupangItemRepository.deleteBatchById(idList);
     }
 
     /**

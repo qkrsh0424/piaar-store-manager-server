@@ -20,6 +20,7 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -70,7 +71,7 @@ public class DeliveryReadyCoupangApiController {
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#uploadDeliveryReadyExcelFile
      * @see UserService#isUserLogin
      */
@@ -84,7 +85,7 @@ public class DeliveryReadyCoupangApiController {
             message.setMemo("need login");
         } else {
             // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
+            CustomExcelUtils.isExcelFile(file);
 
             try{
                 message.setData(deliveryReadyCoupangBusinessService.uploadDeliveryReadyExcelFile(file));
@@ -113,7 +114,7 @@ public class DeliveryReadyCoupangApiController {
      * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
@@ -125,9 +126,9 @@ public class DeliveryReadyCoupangApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
+            CustomExcelUtils.isExcelFile(file);
 
-            message.setData(deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
+            deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId());
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {

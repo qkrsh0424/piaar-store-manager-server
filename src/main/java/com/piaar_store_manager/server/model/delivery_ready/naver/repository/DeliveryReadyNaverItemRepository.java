@@ -1,9 +1,9 @@
 package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface DeliveryReadyNaverItemRepository extends JpaRepository<DeliveryReadyNaverItemEntity, Integer>{
@@ -97,6 +98,10 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
     )
     List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> itemCids);
 
+    /**
+     * 상품의 정보들을 모두 추출한다.
+     * 네이버, 쿠팡의 발주된 상품의 수량을 조회한다.
+     */
     @Query("SELECT pc AS productCategory, p AS product, po AS productOption,\n"
         + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
         + "FROM DeliveryReadyNaverItemEntity drni\n"
@@ -110,4 +115,12 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
     )
     List<SalesAnalysisItemProj> findSalesAnalysisItem(Date date1, Date date2);
+
+    /**
+     * 대량 삭제
+     */
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM DeliveryReadyNaverItemEntity drn WHERE drn.id IN :idList")
+    void deleteBatchById(List<UUID> idList);
 }

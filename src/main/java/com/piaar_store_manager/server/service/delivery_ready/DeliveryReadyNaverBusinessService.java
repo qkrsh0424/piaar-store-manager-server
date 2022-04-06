@@ -3,7 +3,6 @@ package com.piaar_store_manager.server.service.delivery_ready;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -25,7 +24,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
@@ -38,7 +36,6 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryRea
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.file_upload.FileUploadResponse;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
@@ -46,36 +43,25 @@ import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGe
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
-public class DeliveryReadyNaverBusinessService {
-    private DeliveryReadyNaverService deliveryReadyNaverService;
-    private ProductReleaseBusinessService productReleaseBusinessService;
-    private ProductReceiveBusinessService productReceiveBusinessService;
-    private ProductOptionService productOptionService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public DeliveryReadyNaverBusinessService(
-        DeliveryReadyNaverService deliveryReadyNaverService,
-        ProductReleaseBusinessService productReleaseBusinessService,
-        ProductReceiveBusinessService productReceiveBusinessService,
-        ProductOptionService productOptionService
-    ) {
-        this.deliveryReadyNaverService = deliveryReadyNaverService;
-        this.productReleaseBusinessService = productReleaseBusinessService;
-        this.productReceiveBusinessService = productReceiveBusinessService;
-        this.productOptionService = productOptionService;
-    }
+@Service
+@RequiredArgsConstructor
+public class DeliveryReadyNaverBusinessService {
+    private final DeliveryReadyNaverService deliveryReadyNaverService;
+    private final ProductReleaseBusinessService productReleaseBusinessService;
+    private final ProductReceiveBusinessService productReceiveBusinessService;
+    private final ProductOptionService productOptionService;
 
     // AWS S3
     private AmazonS3 s3Client;
@@ -95,25 +81,6 @@ public class DeliveryReadyNaverBusinessService {
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;
 
-    // Excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
-
-    /**
-     * <b>Extension Check</b>
-     * <p>
-     * 
-     * @param file : MultipartFile
-     * @throws FileUploadException
-     */
-    public void isExcelFile(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
-
-        if(EXTENSIONS_EXCEL.contains(extension)){
-            return;
-        }
-        throw new FileUploadException("This is not an excel file.");
-    }
-
     /**
      * <b>Upload Excel File</b>
      * <p>
@@ -121,20 +88,13 @@ public class DeliveryReadyNaverBusinessService {
      * 
      * @param file : MultipartFile
      * @return List::DeliveryReadyNaverItemDto::
-     * @throws IOException
+     * @see CustomExcelUtils#createWorkBook
      * @see DeliveryReadyNaverBusinessService#getDeliveryReadyExcelForm
      */
     public List<DeliveryReadyNaverItemDto> uploadDeliveryReadyExcelFile(MultipartFile file){
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        // TODO : 타입체크 메서드 구현해야됨.
-        Sheet sheet = workbook.getSheetAt(0);
-
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
     }
@@ -222,11 +182,12 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param file : MultipartFile
      * @param userId : UUID
-     * @return FileUploadResponse
      * @throws IllegalStateException
+     * @see DeliveryReadyNaverBusinessService#createDeliveryReadyExcelFile
+     * @see DeliveryReadyNaverBusinessService#createDeliveryExcelItem
      */
     @Transactional
-    public FileUploadResponse storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
+    public void storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) {
         String fileName = file.getOriginalFilename();
         String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = bucket + "/naver-order";
@@ -245,10 +206,8 @@ public class DeliveryReadyNaverBusinessService {
         DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize(), userId);
         // 데이터 저장
         this.createDeliveryReadyExcelItem(file, fileDto);
-                                                      
-        return new FileUploadResponse(newFileName, s3Client.getUrl(uploadPath, newFileName).toString(), file.getContentType(), file.getSize());
     }
-
+    
     /**
      * <b>Create FileDto Method</b>
      * <p>
@@ -293,14 +252,9 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverService#createItemList
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) {
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        Sheet sheet = workbook.getSheetAt(0);
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyNaverExcelItem(sheet, fileDto);
         
         // 상품명 > 옵션정보 > 수취인명 순으로 정렬 
@@ -410,19 +364,11 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // Date startDate = null;
-        // Date endDate = null;
-
         Calendar startDateCalendar = Calendar.getInstance();
         startDateCalendar.set(Calendar.YEAR, 1970);
         Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
                 : startDateCalendar.getTime();
         Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
-        // if(query.get("startDate") != null && query.get("endDate") != null) {
-        //     startDate = dateFormat.parse(query.get("startDate").toString());
-        //     endDate = dateFormat.parse(query.get("endDate").toString());
-        // }
         
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
         List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
@@ -486,14 +432,11 @@ public class DeliveryReadyNaverBusinessService {
      * DeliveryReadyItem 미출고 데이터 중 선택된 데이터를 모두 삭제한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemDto::
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverService#deleteOneDeliveryReadyViewData
+     * @see DeliveryReadyNaverService#deleteListDeliveryReadyViewData
      */
     public void deleteListDeliveryReadyViewData(List<DeliveryReadyNaverItemDto> dtos) {
-        dtos.stream().forEach(dto -> {
-            DeliveryReadyNaverItemEntity.toEntity(dto);
-            deliveryReadyNaverService.deleteOneDeliveryReadyViewData(dto.getCid());
-        });
+        List<UUID> idList = dtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        deliveryReadyNaverService.deleteListDeliveryReadyViewData(idList);
     }
 
     /**
