@@ -211,7 +211,9 @@ public class ExcelTranslatorHeaderApiController {
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
                 try{
-                    if(detailDto.getCellType().equals("String")) {
+                    if(detailDto == null || detailDto.getCellType().isBlank()) {
+                        cell.setCellValue("");
+                    }else if(detailDto.getCellType().equals("String")) {
                         cell.setCellValue(detailDto.getColData().toString());
                     }else if(detailDto.getCellType().equals("Date")) {
                         Date data = format.parse(detailDto.getColData().toString());
