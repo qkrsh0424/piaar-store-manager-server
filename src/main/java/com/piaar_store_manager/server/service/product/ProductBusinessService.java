@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.service.product;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product.dto.ProductJoinResDto;
@@ -15,24 +18,20 @@ import com.piaar_store_manager.server.model.product.entity.ProductEntity;
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ProductBusinessService {
-    private ProductService productService;
-    private ProductOptionService productOptionService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public ProductBusinessService(
-        ProductService productService,
-        ProductOptionService productOptionService
-    ) {
-        this.productService = productService;
-        this.productOptionService = productOptionService;
-    }
+@Service
+@RequiredArgsConstructor
+public class ProductBusinessService {
+    private final ProductService productService;
+    private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -270,6 +269,7 @@ public class ProductBusinessService {
      */
     @Transactional
     public void createPAO(ProductCreateReqDto reqDto, UUID userId) {
+        // product save
         ProductGetDto savedProductDto = this.createOne(reqDto.getProductDto(), userId);
 
         List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
@@ -283,7 +283,18 @@ public class ProductBusinessService {
             return ProductOptionEntity.toEntity(r);
         }).collect(Collectors.toList());
 
+        // option save
         productOptionService.createList(entities);
+
+        List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
+            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(userId)
+                .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(userId);
+
+            return OptionPackageEntity.toEntity(r);
+        }).collect(Collectors.toList());
+
+        // option package save
+        optionPackageService.createList(optionPackageEntities);
     }
 
     /**

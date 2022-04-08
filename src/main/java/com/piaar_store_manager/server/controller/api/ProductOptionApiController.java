@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -264,6 +265,31 @@ public class ProductOptionApiController {
         if (userService.isManager()) {
             try{
                 productOptionBusinessService.createOne(productOptionGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(DataIntegrityViolationException e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+                message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
+            } catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/option-packages")
+    public ResponseEntity<?> createOne(@RequestBody ProductOptionCreateReqDto createReqDto){
+        Message message = new Message();
+
+        // 유저 권한을 체크한다.
+        if (userService.isManager()) {
+            try{
+                productOptionBusinessService.createOAP(createReqDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(DataIntegrityViolationException e) {

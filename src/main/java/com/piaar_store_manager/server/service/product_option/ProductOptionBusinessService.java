@@ -1,12 +1,15 @@
 package com.piaar_store_manager.server.service.product_option;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinReceiveAndReleaseDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
@@ -22,28 +25,22 @@ import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJo
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ProductOptionBusinessService {
-    private ProductReleaseService productReleaseService;
-    private ProductReceiveService productReceiveService;
-    private ProductOptionService productOptionService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public ProductOptionBusinessService(
-        ProductReleaseService productReleaseService,
-        ProductReceiveService productReceiveService,
-        ProductOptionService productOptionService
-    ) {
-        this.productReleaseService = productReleaseService;
-        this.productReceiveService = productReceiveService;
-        this.productOptionService = productOptionService;
-    }
+@Service
+@RequiredArgsConstructor
+public class ProductOptionBusinessService {
+    private final ProductReleaseService productReleaseService;
+    private final ProductReceiveService productReceiveService;
+    private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -208,6 +205,29 @@ public class ProductOptionBusinessService {
             .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
 
         ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
+        ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
+        return dto;
+    }
+
+    public ProductOptionGetDto createOAP(ProductOptionCreateReqDto reqDto, UUID userId) {
+        ProductOptionGetDto optionGetDto = reqDto.getOptionDto().setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
+            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+
+        // option save
+        ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
+
+        List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
+            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(userId)
+                .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(userId);
+
+            return OptionPackageEntity.toEntity(r);
+        }).collect(Collectors.toList());
+
+        System.out.println(optionPackageEntities);
+
+        // option package save
+        optionPackageService.createList(optionPackageEntities);
+
         ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
         return dto;
     }
