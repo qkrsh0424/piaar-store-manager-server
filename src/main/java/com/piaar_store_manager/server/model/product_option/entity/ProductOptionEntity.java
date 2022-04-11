@@ -103,7 +103,8 @@ public class ProductOptionEntity {
      */
     public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
         ProductOptionEntity productOptionEntity = ProductOptionEntity.builder()
-                .id(UUID.randomUUID())
+                // .id(UUID.randomUUID())
+                .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
                 .nosUniqueCode(productOptionDto.getNosUniqueCode())
                 .defaultName(productOptionDto.getDefaultName())

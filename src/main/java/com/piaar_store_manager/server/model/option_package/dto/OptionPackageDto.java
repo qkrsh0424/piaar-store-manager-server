@@ -41,7 +41,7 @@ public class OptionPackageDto {
     @Setter
     private UUID parentOptionId;
 
-    public static OptionPackageDto toEntity(OptionPackageEntity entity) {
+    public static OptionPackageDto toDto(OptionPackageEntity entity) {
         OptionPackageDto dto = OptionPackageDto.builder()
             .id(entity.getId())
             .packageUnit(entity.getPackageUnit())

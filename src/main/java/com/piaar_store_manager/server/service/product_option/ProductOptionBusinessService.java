@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,8 +30,8 @@ import com.piaar_store_manager.server.service.option_package.OptionPackageServic
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -223,10 +224,8 @@ public class ProductOptionBusinessService {
             return OptionPackageEntity.toEntity(r);
         }).collect(Collectors.toList());
 
-        System.out.println(optionPackageEntities);
-
         // option package save
-        optionPackageService.createList(optionPackageEntities);
+        optionPackageService.saveListAndModify(optionPackageEntities);
 
         ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
         return dto;
@@ -255,6 +254,100 @@ public class ProductOptionBusinessService {
      */
     public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
         productOptionService.changeOne(productOptionDto, userId);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 상품 옵션과 옵션 패키지를 함께 업데이트한다.
+     */
+    @Transactional
+    public void changeOAP(ProductOptionCreateReqDto reqDto, UUID userId) {
+        productOptionService.changeOne(reqDto.getOptionDto(), userId);
+        this.changeOptionPackage(reqDto, userId);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터가 업데이트되는 경우를 나눠 처리한다.
+     * (새로운 데이터가 추가된 경우, 기존 데이터가 변경된 경우, 기존 데이터가 제거된 경우)
+     */
+    public void changeOptionPackage(ProductOptionCreateReqDto reqDto, UUID userId) {
+        // 기존에 저장된 옵션 패키지
+        List<OptionPackageEntity> savedOptionPackages = optionPackageService.searchListByParentOptionId(reqDto.getOptionDto().getId());
+        List<UUID> savedPackageIdList = savedOptionPackages.stream().map(r -> r.getId()).collect(Collectors.toList());
+        
+        // 기존 데이터가 변경된 경우
+        this.changeOriginOptionPackage(reqDto, savedOptionPackages, userId);
+
+        List<UUID> packageIdList = reqDto.getPackageDtos().stream().map(r -> r.getId()).collect(Collectors.toList());
+
+        // 새로 추가된 데이터
+        List<UUID> newPackageIdList = packageIdList.stream().filter(optionPackage -> !savedPackageIdList.contains(optionPackage)).collect(Collectors.toList());
+        
+        this.saveAddOptionPackage(reqDto, newPackageIdList, userId);
+        this.deleteOriginOptionPackage(savedOptionPackages, packageIdList);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 새로 추가된 데이터들을 저장한다.
+     */
+    public void saveAddOptionPackage(ProductOptionCreateReqDto reqDto, List<UUID> newPackageIdList, UUID userId) {
+        List<OptionPackageEntity> newOptionPackageEntities = new ArrayList<>();
+        reqDto.getPackageDtos().stream().forEach(r -> {
+            if (newPackageIdList.contains(r.getId())) {
+                r.setCreatedAt(LocalDateTime.now()).setCreatedBy(userId)
+                        .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(userId);
+
+                newOptionPackageEntities.add(OptionPackageEntity.toEntity(r));
+            }
+        });
+
+        optionPackageService.saveListAndModify(newOptionPackageEntities);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 기존에 저장된 데이터들의 내용을 업데이트한다.
+     */
+    public void changeOriginOptionPackage(ProductOptionCreateReqDto reqDto, List<OptionPackageEntity> savedOptionPackages, UUID userId) {
+        // 변경된 데이터
+        reqDto.getPackageDtos().stream().forEach(optionPackage -> {
+            savedOptionPackages.stream().forEach(entity -> {
+                if (optionPackage.getId().equals(entity.getId())) {
+                    entity.setPackageUnit(optionPackage.getPackageUnit())
+                            .setOriginOptionCode(optionPackage.getOriginOptionCode())
+                            .setOriginOptionId(optionPackage.getOriginOptionId())
+                            .setUpdatedAt(LocalDateTime.now())
+                            .setUpdatedBy(userId);
+                }
+            });
+        });
+
+        optionPackageService.saveListAndModify(savedOptionPackages);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 제거된 데이터들을 제거한다.
+     */
+    public void deleteOriginOptionPackage(List<OptionPackageEntity> savedOptionPackages, List<UUID> packageIdList) {
+        // 삭제된 데이터
+        List<UUID> deletedIdList = new ArrayList<>();
+        savedOptionPackages.stream().forEach(entity -> {
+            if (!packageIdList.contains(entity.getId())) {
+                deletedIdList.add(entity.getId());
+            }
+        });
+
+        if (deletedIdList.size() != 0) {
+            optionPackageService.deleteBatch(deletedIdList);
+        }
     }
 
     /**

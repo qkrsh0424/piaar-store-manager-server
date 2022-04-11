@@ -294,7 +294,7 @@ public class ProductBusinessService {
         }).collect(Collectors.toList());
 
         // option package save
-        optionPackageService.createList(optionPackageEntities);
+        optionPackageService.saveListAndModify(optionPackageEntities);
     }
 
     /**

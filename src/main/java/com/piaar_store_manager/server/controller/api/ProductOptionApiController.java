@@ -283,7 +283,7 @@ public class ProductOptionApiController {
     }
 
     @PostMapping("/option-packages")
-    public ResponseEntity<?> createOne(@RequestBody ProductOptionCreateReqDto createReqDto){
+    public ResponseEntity<?> createOAP(@RequestBody ProductOptionCreateReqDto createReqDto){
         Message message = new Message();
 
         // 유저 권한을 체크한다.
@@ -365,6 +365,31 @@ public class ProductOptionApiController {
         if (userService.isManager()) {
             try{
                 productOptionBusinessService.changeOne(productOptionGetDto, userService.getUserId());
+                message.setStatus(HttpStatus.OK);
+                message.setMessage("success");
+            } catch(DataIntegrityViolationException e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+                message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
+            }catch(Exception e) {
+                message.setStatus(HttpStatus.BAD_REQUEST);
+                message.setMessage("error");
+            }
+        } else {
+            userService.userDenyCheck(message);
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PutMapping("/option-packages")
+    public ResponseEntity<?> changeOAP(@RequestBody ProductOptionCreateReqDto reqDto){
+        Message message = new Message();
+
+        //유저의 권한을 체크한다.
+        if (userService.isManager()) {
+            try{
+                productOptionBusinessService.changeOAP(reqDto, userService.getUserId());
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(DataIntegrityViolationException e) {

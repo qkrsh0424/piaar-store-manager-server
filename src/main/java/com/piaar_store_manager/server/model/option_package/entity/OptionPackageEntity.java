@@ -34,12 +34,15 @@ public class OptionPackageEntity {
     @Column(name = "id")
     private UUID id;
 
+    @Setter
     @Column(name = "package_unit")
     private Integer packageUnit;
 
+    @Setter
     @Column(name = "origin_option_code")
     private String originOptionCode;
 
+    @Setter
     @Column(name = "origin_option_id")
     private String originOptionId;
 
@@ -50,9 +53,11 @@ public class OptionPackageEntity {
     @Column(name = "created_by")
     private UUID createdBy;
 
+    @Setter
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Setter
     @Type(type = "uuid-char")
     @Column(name = "updated_by")
     private UUID updatedBy;
