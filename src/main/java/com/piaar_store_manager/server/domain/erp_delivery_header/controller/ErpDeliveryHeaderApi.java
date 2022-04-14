@@ -1,9 +1,10 @@
-package com.piaar_store_manager.server.domain.erp_release_complete_header.controller;
+package com.piaar_store_manager.server.domain.erp_delivery_header.controller;
 
-import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
-import com.piaar_store_manager.server.domain.erp_release_complete_header.service.ErpReleaseCompleteHeaderBusinessService;
+import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDto;
+import com.piaar_store_manager.server.domain.erp_delivery_header.service.ErpDeliveryHeaderBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,25 +17,25 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/erp-release-complete-headers")
+@RequestMapping("/api/v1/erp-delivery-headers")
 @RequiredArgsConstructor
-public class ErpReleaseCompleteHeaderApi {
-    private final ErpReleaseCompleteHeaderBusinessService erpReleaseCompleteHeaderBusinessService;
+public class ErpDeliveryHeaderApi {
+    private final ErpDeliveryHeaderBusinessService erpDeliveryHeaderBusinessService;
 
     /**
-     * Create one api for erp release complete header.
+     * Create one api for erp delivery header.
      * <p>
-     * <b>POST : API URL => /api/v1/erp-release-complete-headers</b>
+     * <b>POST : API URL => /api/v1/erp-delivery-headers</b>
      * 
-     * @param headerDto : ErpReleaseCompleteHeaderDto
+     * @param headerDto : ErpDeliveryHeaderDto
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpReleaseCompleteHeaderBusinessService#saveOne
+     * @see ErpDeliveryHeaderBusinessService#saveOne
      */
     @PostMapping("")
-    public ResponseEntity<?> saveOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
+    public ResponseEntity<?> saveOne(@RequestBody ErpDeliveryHeaderDto headerDto) {
         Message message = new Message();
 
-        erpReleaseCompleteHeaderBusinessService.saveOne(headerDto);
+        erpDeliveryHeaderBusinessService.saveOne(headerDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -42,18 +43,18 @@ public class ErpReleaseCompleteHeaderApi {
     }
 
     /**
-     * Search one api for erp release complete header.
+     * Search one api for erp delivery header.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-release-complete-headers</b>
+     * <b>GET : API URL => /api/v1/erp-delivery-headers</b>
      *
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpReleaseCompleteHeaderBusinessService#searchOne
+     * @see ErpDeliveryHeaderBusinessService#searchOne
      */
     @GetMapping("")
     public ResponseEntity<?> searchOne() {
         Message message = new Message();
 
-        message.setData(erpReleaseCompleteHeaderBusinessService.searchOne());
+        message.setData(erpDeliveryHeaderBusinessService.searchOne());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -63,17 +64,17 @@ public class ErpReleaseCompleteHeaderApi {
     /**
      * Create one api for product.
      * <p>
-     * <b>PUT : API URL => /api/v1/erp-release-complete-headers</b>
+     * <b>PUT : API URL => /api/v1/erp-delivery-headers</b>
      * 
-     * @param headerDto : ErpReleaseCompleteHeaderDto
+     * @param headerDto : ErpDeliveryHeaderDto
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpReleaseCompleteHeaderBusinessService#updateOne
+     * @see ErpDeliveryHeaderBusinessService#updateOne
      */
     @PutMapping("")
-    public ResponseEntity<?> updateOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
+    public ResponseEntity<?> updateOne(@RequestBody ErpDeliveryHeaderDto headerDto) {
         Message message = new Message();
 
-        erpReleaseCompleteHeaderBusinessService.updateOne(headerDto);
+        erpDeliveryHeaderBusinessService.updateOne(headerDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

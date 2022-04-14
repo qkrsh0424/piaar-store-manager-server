@@ -10,6 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.domain.erp_release_ready_header.dto.ErpReleaseReadyHeaderDetailDto;
+import com.piaar_store_manager.server.domain.erp_release_ready_header.dto.ErpReleaseReadyHeaderDto;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import org.hibernate.annotations.Type;

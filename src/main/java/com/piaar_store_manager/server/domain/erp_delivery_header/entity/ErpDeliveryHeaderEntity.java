@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.erp_release_complete_header.entity;
+package com.piaar_store_manager.server.domain.erp_delivery_header.entity;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,8 +10,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDetailDto;
-import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
+import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDetailDto;
+import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDto;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import org.hibernate.annotations.Type;
@@ -27,14 +27,14 @@ import lombok.experimental.Accessors;
 
 @Entity
 @Builder
-@Table(name = "erp_release_complete_header")
+@Table(name = "erp_delivery_header")
 @Getter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
 @TypeDef(name = "json", typeClass = JsonStringType.class)
-public class ErpReleaseCompleteHeaderEntity {
+public class ErpDeliveryHeaderEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +47,7 @@ public class ErpReleaseCompleteHeaderEntity {
 
     @Type(type = "json")
     @Column(name = "header_detail", columnDefinition = "json")
-    private ErpReleaseCompleteHeaderDetailDto headerDetail;
+    private ErpDeliveryHeaderDetailDto headerDetail;
 
     @Setter
     @Column(name = "created_at")
@@ -62,10 +62,10 @@ public class ErpReleaseCompleteHeaderEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public static ErpReleaseCompleteHeaderEntity toEntity(ErpReleaseCompleteHeaderDto dto) {
+    public static ErpDeliveryHeaderEntity toEntity(ErpDeliveryHeaderDto dto) {
         if(dto == null) return null;
 
-        ErpReleaseCompleteHeaderEntity entity = ErpReleaseCompleteHeaderEntity.builder()
+        ErpDeliveryHeaderEntity entity = ErpDeliveryHeaderEntity.builder()
             .cid(dto.getCid())
             .id(dto.getId())
             .headerDetail(dto.getHeaderDetail())
