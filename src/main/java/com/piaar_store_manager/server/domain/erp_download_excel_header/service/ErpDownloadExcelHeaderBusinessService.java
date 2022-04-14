@@ -19,6 +19,7 @@ import com.piaar_store_manager.server.domain.erp_download_excel_header.entity.Er
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 
@@ -26,6 +27,7 @@ import com.piaar_store_manager.server.utils.CustomFieldUtils;
 @RequiredArgsConstructor
 public class ErpDownloadExcelHeaderBusinessService {
     private final ErpDownloadExcelHeaderService erpDownloadExcelHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -37,7 +39,11 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void saveOne(ErpDownloadExcelHeaderDto headerDto) {
-        UUID USER_ID = UUID.randomUUID();
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
+        UUID USER_ID = userService.getUserId();
         ErpDownloadExcelHeaderEntity headerEntity = ErpDownloadExcelHeaderEntity.toEntity(headerDto);
         headerEntity
             .setId(UUID.randomUUID())
@@ -58,6 +64,9 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public List<ErpDownloadExcelHeaderDto> searchAll() {
+        // access check
+        userService.userLoginCheck();
+
         List<ErpDownloadExcelHeaderEntity> entities = erpDownloadExcelHeaderService.searchAll();
         List<ErpDownloadExcelHeaderDto> dtos = entities.stream().map(r -> ErpDownloadExcelHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -74,6 +83,10 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void updateOne(ErpDownloadExcelHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpDownloadExcelHeaderEntity entity = erpDownloadExcelHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
@@ -91,6 +104,10 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @ErpDownloadExcelHeaderService#delete
      */
     public void deleteOne(UUID id) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         erpDownloadExcelHeaderService.deleteOne(id);
     }
 
@@ -110,6 +127,10 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see CustomFieldUtils#setFieldValue
      */
     public List<ErpOrderItemVo> downloadByErpDownloadExcelHeader(UUID id, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         // 선택된 병합 헤더데이터 조회
         ErpDownloadExcelHeaderDto headerDto = this.searchErpDownloadExcelHeader(id);
 
@@ -211,6 +232,9 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public ErpDownloadExcelHeaderDto searchErpDownloadExcelHeader(UUID secondMergeHeaderId) {
+        // access check
+        userService.userLoginCheck();
+
         ErpDownloadExcelHeaderEntity downloadHeaderEntity = erpDownloadExcelHeaderService.searchOne(secondMergeHeaderId);
         return ErpDownloadExcelHeaderDto.toDto(downloadHeaderEntity);
     }

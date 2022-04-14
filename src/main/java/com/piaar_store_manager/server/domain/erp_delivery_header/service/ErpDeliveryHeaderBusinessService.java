@@ -5,21 +5,18 @@ import java.util.UUID;
 import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDto;
 import com.piaar_store_manager.server.domain.erp_delivery_header.entity.ErpDeliveryHeaderEntity;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ErpDeliveryHeaderBusinessService {
-    private ErpDeliveryHeaderService erpDeliveryHeaderService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public ErpDeliveryHeaderBusinessService(
-        ErpDeliveryHeaderService erpDeliveryHeaderService
-    ) {
-        this.erpDeliveryHeaderService = erpDeliveryHeaderService;
-    }
+@Service
+@RequiredArgsConstructor
+public class ErpDeliveryHeaderBusinessService {
+    private final ErpDeliveryHeaderService erpDeliveryHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -30,8 +27,12 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderEntity#toEntity
      */
     public void saveOne(ErpDeliveryHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         
         headerDto
             .setId(ID)
@@ -53,6 +54,9 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderDto#toDto
      */
     public ErpDeliveryHeaderDto searchOne() {
+        // access check
+        userService.userLoginCheck();
+        
         ErpDeliveryHeaderEntity headerEntity = erpDeliveryHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpDeliveryHeaderDto.toDto(headerEntity);
@@ -69,6 +73,10 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderEntity#toEntity
      */
     public void updateOne(ErpDeliveryHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpDeliveryHeaderDto dto = this.searchOne();
         
         if(dto == null) {

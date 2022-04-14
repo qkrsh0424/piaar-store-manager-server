@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.sales_analysis.dto.SalesAnalysisItemDto;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
+import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesAnalysisItemBusinessService {
     private final DeliveryReadyNaverItemRepository itemRepository;
+    private final UserService userService;
 
     public List<SalesAnalysisItemDto> searchAll(Map<String, Object> params) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         Calendar startDateCalendar = Calendar.getInstance();
         startDateCalendar.set(Calendar.YEAR, 1970);
         Date startDate = params.get("startDate") != null ? new Date(params.get("startDate").toString())

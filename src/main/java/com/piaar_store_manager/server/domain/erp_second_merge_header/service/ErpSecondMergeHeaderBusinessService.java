@@ -9,12 +9,14 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_second_merge_header.dto.ErpSecondMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_second_merge_header.entity.ErpSecondMergeHeaderEntity;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 @Service
 @RequiredArgsConstructor
 public class ErpSecondMergeHeaderBusinessService {
     private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -26,8 +28,12 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderService#saveAndModify
      */
     public void saveOne(ErpSecondMergeHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         headerDto
             .setId(ID)
             .setCreatedAt(CustomDateUtils.getCurrentDateTime())
@@ -47,6 +53,9 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderDto#toDto
      */
     public List<ErpSecondMergeHeaderDto> searchAll() {
+        // access check
+        userService.userLoginCheck();
+
         List<ErpSecondMergeHeaderEntity> entities = erpSecondMergeHeaderService.searchAll();
         List<ErpSecondMergeHeaderDto> dtos = entities.stream().map(r -> ErpSecondMergeHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -63,6 +72,10 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderService#saveAndModify
      */
     public void updateOne(ErpSecondMergeHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         ErpSecondMergeHeaderEntity entity = erpSecondMergeHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());

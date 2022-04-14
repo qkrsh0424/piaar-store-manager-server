@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.config.auth.PrincipalDetails;
+import com.piaar_store_manager.server.exception.CustomAccessDeniedException;
+import com.piaar_store_manager.server.exception.CustomInvalidUserException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
@@ -13,6 +15,7 @@ import com.piaar_store_manager.server.model.user.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -147,7 +150,6 @@ public class UserService {
      * <b>Check the type of user denial.</b>
      */
     public void userDenyCheck(Message message) {
-
         if(!this.isUserLogin()){
             message.setMessage("need_login");
             message.setMemo("need login");
@@ -157,5 +159,18 @@ public class UserService {
         }
 
         message.setStatus(HttpStatus.FORBIDDEN);
+    }
+
+    public void userLoginCheck() {
+        if (!this.isUserLogin()) {
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
+        }
+    }
+
+    public void userManagerRoleCheck() {
+        System.out.println(this.isManager());
+        if (!this.isManager()) {
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
+        }
     }
 }

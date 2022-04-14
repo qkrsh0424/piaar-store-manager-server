@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.entity.ErpReleaseCompleteHeaderEntity;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ErpReleaseCompleteHeaderBusinessService {
     private final ErpReleaseCompleteHeaderService erpReleaseCompleteHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -25,8 +27,12 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void saveOne(ErpReleaseCompleteHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         headerDto
                 .setId(ID)
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
@@ -47,6 +53,9 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderDto#toDto
      */
     public ErpReleaseCompleteHeaderDto searchOne() {
+        // access check
+        userService.userLoginCheck();
+
         ErpReleaseCompleteHeaderEntity headerEntity = erpReleaseCompleteHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpReleaseCompleteHeaderDto.toDto(headerEntity);
@@ -63,6 +72,10 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void updateOne(ErpReleaseCompleteHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         ErpReleaseCompleteHeaderDto dto = this.searchOne();
         
         if(dto == null) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.entity.ErpSalesHeaderEntity;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ErpSalesHeaderBusinessService {
     private final ErpSalesHeaderService erpSalesHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -25,8 +27,11 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderEntity#toEntity
      */
     public void saveOne(ErpSalesHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         headerDto
                 .setId(ID)
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
@@ -47,6 +52,9 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderDto#toDto
      */
     public ErpSalesHeaderDto searchOne() {
+        // access check
+        userService.userLoginCheck();
+
         ErpSalesHeaderEntity headerEntity = erpSalesHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpSalesHeaderDto.toDto(headerEntity);
@@ -63,6 +71,10 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderEntity#toEntity
      */
     public void updateOne(ErpSalesHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpSalesHeaderDto dto = this.searchOne();
         
         if(dto == null) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeaderDto;
 import com.piaar_store_manager.server.domain.erp_order_header.entity.ErpOrderHeaderEntity;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ErpOrderHeaderBusinessService {
     private final ErpOrderHeaderService erpOrderHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -26,8 +28,12 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderService#saveAndModify
      */
     public void saveOne(ErpOrderHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         headerDto
                 .setId(ID)
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
@@ -48,8 +54,10 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderDto#toDto
      */
     public ErpOrderHeaderDto searchOne() {
-        ErpOrderHeaderEntity headerEntity = erpOrderHeaderService.findAll().stream().findFirst().orElse(null);
+        // access check
+        userService.userLoginCheck();
 
+        ErpOrderHeaderEntity headerEntity = erpOrderHeaderService.findAll().stream().findFirst().orElse(null);
         return ErpOrderHeaderDto.toDto(headerEntity);
     }
 
@@ -64,6 +72,10 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderEntity#toEntity
      */
     public void updateOne(ErpOrderHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpOrderHeaderDto dto = this.searchOne();
 
         if (dto == null) {

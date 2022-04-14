@@ -28,6 +28,7 @@ import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
@@ -58,6 +59,7 @@ public class ErpOrderItemBusinessService {
     private final ErpFirstMergeHeaderService erpFirstMergeHeaderService;
     private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
     private final ReleaseStockService releaseStockService;
+    private final UserService userService;
 
     // Excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
@@ -109,6 +111,9 @@ public class ErpOrderItemBusinessService {
      * @throws CustomExcelFileUploadException
      */
     public void isExcelFile(MultipartFile file) {
+        // access check
+        userService.userLoginCheck();
+
         String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
 
         if (EXTENSIONS_EXCEL.contains(extension)) {
@@ -128,6 +133,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemBusinessService#getErpOrderItemForm
      */
     public List<ErpOrderItemVo> uploadErpOrderExcel(MultipartFile file) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         Workbook workbook = null;
         try {
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -249,7 +258,11 @@ public class ErpOrderItemBusinessService {
     }
 
     public void createBatch(List<ErpOrderItemDto> orderItemDtos) {
-        UUID USER_ID = UUID.randomUUID();
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
+        UUID USER_ID = userService.getUserId();
         List<ErpOrderItemDto> newOrderItemDtos = this.itemDuplicationCheck(orderItemDtos);
 
         List<ErpOrderItemEntity> orderItemEntities = newOrderItemDtos.stream()
@@ -326,6 +339,9 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemBusinessService#setOptionStockUnit
      */
     public List<ErpOrderItemVo> searchBatch(Map<String, Object> params) {
+        // access check
+        userService.userLoginCheck();
+
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
         // 옵션재고수량 추가
@@ -334,6 +350,8 @@ public class ErpOrderItemBusinessService {
     }
 
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
+        // access check
+        userService.userLoginCheck();
 
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
@@ -355,6 +373,9 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemBusinessService#setOptionStockUnit
      */
     public Page<ErpOrderItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        // access check
+        userService.userLoginCheck();
+
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
@@ -365,6 +386,9 @@ public class ErpOrderItemBusinessService {
     }
 
     public Page<ErpOrderItemVo> searchReleaseItemBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        // access check
+        userService.userLoginCheck();
+
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
@@ -418,6 +442,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#saveListAndModify
      */
     public void changeBatchForSalesYn(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<UUID> idList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
@@ -443,6 +471,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#saveListAndModify
      */
     public void changeBatchForReleaseYn(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<UUID> idList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
@@ -467,6 +499,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#delete
      */
     public void deleteBatch(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<UUID> itemId = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         erpOrderItemService.deleteBatch(itemId);
     }
@@ -481,6 +517,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#saveAndModify
      */
     public void updateOne(ErpOrderItemDto dto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpOrderItemEntity entity = erpOrderItemService.searchOne(dto.getId());
 
         entity.setProdName(dto.getProdName()).setOptionName(dto.getOptionName())
@@ -528,6 +568,10 @@ public class ErpOrderItemBusinessService {
      */
     @Transactional
     public void changeBatchForAllOptionCode(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<ErpOrderItemEntity> entities = erpOrderItemService.getEntities(itemDtos);
 
         entities.forEach(entity -> {
@@ -552,6 +596,10 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#saveListAndModify
      */
     public void changeBatchForReleaseOptionCode(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<UUID> idList = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
@@ -580,6 +628,10 @@ public class ErpOrderItemBusinessService {
      * @see CustomFieldUtils#setFieldValue
      */
     public List<ErpOrderItemVo> getFirstMergeItem(UUID firstMergeHeaderId, List<ErpOrderItemDto> dtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
 
         // 선택된 병합 헤더데이터 조회
@@ -680,6 +732,10 @@ public class ErpOrderItemBusinessService {
      * @see CustomFieldUtils#setFieldValue
      */
     public List<ErpOrderItemVo> getSecondMergeItem(UUID secondMergeHeaderId, List<ErpOrderItemDto> dtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
 
         // 선택된 병합 헤더데이터 조회
@@ -773,6 +829,10 @@ public class ErpOrderItemBusinessService {
     }
 
     public List<WaybillExcelFormDto> readWaybillExcelFile(MultipartFile file) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         if (!CustomExcelUtils.isExcelFile(file)) {
             throw new CustomExcelFileUploadException("올바른 파일은 업로드 해주세요.\n[.xls, .xlsx] 확장자 파일만 허용됩니다.");
         }
@@ -835,6 +895,10 @@ public class ErpOrderItemBusinessService {
 
     @Transactional
     public int changeBatchForWaybill(List<ErpOrderItemDto> erpOrderItemDtos, List<WaybillExcelFormDto> waybillExcelFormDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         List<WaybillExcelFormDto> dismantledWaybillExcelFormDtos = new ArrayList<>();
         waybillExcelFormDtos.stream().forEach(r -> {
             List<String> freightCodes = List.of(r.getFreightCode().split(","));
@@ -874,6 +938,10 @@ public class ErpOrderItemBusinessService {
 
     @Transactional
     public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         Set<String> optionCodeSet = new HashSet<>();
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<ProductOptionEntity> productOptionEntities = new ArrayList<>();
@@ -919,6 +987,10 @@ public class ErpOrderItemBusinessService {
 
     @Transactional
     public Integer actionCancelStock(List<ErpOrderItemDto> itemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+        
         itemDtos = itemDtos.stream().filter(r -> r.getStockReflectYn().equals("y")).collect(Collectors.toList());
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<UUID> erpOrderItemIds = new ArrayList<>();

@@ -10,12 +10,14 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_first_merge_header.dto.ErpFirstMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_first_merge_header.entity.ErpFirstMergeHeaderEntity;
+import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 @Service
 @RequiredArgsConstructor
 public class ErpFirstMergeHeaderBusinessService {
     private final ErpFirstMergeHeaderService erpFirstMergeHeaderService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -27,8 +29,12 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderService#saveAndModify
      */
     public void saveOne(ErpFirstMergeHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         UUID ID = UUID.randomUUID();
-        UUID USER_ID = UUID.randomUUID();
+        UUID USER_ID = userService.getUserId();
         ErpFirstMergeHeaderEntity headerEntity = ErpFirstMergeHeaderEntity.toEntity(headerDto);
         headerEntity
             .setId(ID)
@@ -49,6 +55,9 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderDto#toDto
      */
     public List<ErpFirstMergeHeaderDto> searchAll() {
+        // access check
+        userService.userLoginCheck();
+
         List<ErpFirstMergeHeaderEntity> entities = erpFirstMergeHeaderService.searchAll();
         List<ErpFirstMergeHeaderDto> dtos = entities.stream().map(r -> ErpFirstMergeHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -65,6 +74,10 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderService#saveAndModify
      */
     public void updateOne(ErpFirstMergeHeaderDto headerDto) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         ErpFirstMergeHeaderEntity entity = erpFirstMergeHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
@@ -74,6 +87,10 @@ public class ErpFirstMergeHeaderBusinessService {
     }
 
     public void deleteOne(UUID id) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
         erpFirstMergeHeaderService.deleteOne(id);
     }
 }
