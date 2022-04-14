@@ -29,6 +29,7 @@ import com.piaar_store_manager.server.model.delivery_ready.piaar.vo.PiaarUnitCom
 import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.dto.DeliveryReadyPiaarViewHeaderDto;
 import com.piaar_store_manager.server.model.delivery_ready_view_header.piaar.entity.DeliveryReadyPiaarViewHeaderEntity;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.service.delivery_ready_view_header.DeliveryReadyPiaarViewHeaderService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -275,7 +276,8 @@ public class DeliveryReadyPiaarBusinessService {
 
     public List<DeliveryReadyPiaarItemVo> getOptionStockUnit(List<DeliveryReadyPiaarItemVo> itemVos) {
         List<String> optionCodes = itemVos.stream().map(r -> r.getOptionCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(optionCodes);
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByOptionCodes(optionCodes);
+        List<ProductOptionGetDto> optionGetDtos = optionEntities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
         List<DeliveryReadyPiaarItemVo> deliveryReadyPiaarItemVos = itemVos.stream().map(itemVo -> {

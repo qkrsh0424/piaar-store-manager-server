@@ -385,8 +385,9 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverItemViewResDto#toResDtos
      */
     public List<DeliveryReadyNaverItemViewResDto> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+        List<String> optionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByOptionCodes(optionCodes);
+        List<ProductOptionGetDto> optionGetDtos = optionEntities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
         List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = new ArrayList<>();
 
         if(optionGetDtos.isEmpty()) {
@@ -811,7 +812,7 @@ public class DeliveryReadyNaverBusinessService {
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyNaverItemViewDto> dtos) {
         List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        return productOptionService.findAllByCode(managementCodes);
+        return productOptionService.searchListByOptionCodes(managementCodes);
     }
 
     /**

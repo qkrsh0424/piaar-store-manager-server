@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer> {
+public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
 
     /**
      * 단일 ProductOption cid에 대응하는 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 조회한다.

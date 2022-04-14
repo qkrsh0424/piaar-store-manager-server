@@ -5,26 +5,19 @@ import com.piaar_store_manager.server.model.product_option.dto.ProductOptionCrea
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.service.product_option.ProductOptionBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/v1/product-option")
+@RequiredArgsConstructor
 public class ProductOptionApiController {
-    private ProductOptionBusinessService productOptionBusinessService;
-    private UserService userService;
-
-    @Autowired
-    public ProductOptionApiController(
-        ProductOptionBusinessService productOptionBusinessService,
-        UserService userService
-    ) {
-        this.productOptionBusinessService = productOptionBusinessService;
-        this.userService = userService;
-    }
+    private final ProductOptionBusinessService productOptionBusinessService;
+    private final UserService userService;
 
     /**
      * Search one api for productOption.

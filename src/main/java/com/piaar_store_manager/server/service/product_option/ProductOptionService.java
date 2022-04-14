@@ -6,8 +6,9 @@ import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSum
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,15 +19,9 @@ import java.util.stream.Collectors;
 import javax.persistence.Tuple;
 
 @Service
+@RequiredArgsConstructor
 public class ProductOptionService {
-    private ProductOptionRepository productOptionRepository;
-
-    @Autowired
-    public ProductOptionService(
-        ProductOptionRepository productOptionRepository
-    ) {
-        this.productOptionRepository = productOptionRepository;
-    }
+    private final ProductOptionRepository productOptionRepository;
 
     /**
      * <b>DB Select Related Method</b>
@@ -134,10 +129,8 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findAllByCode
      * @see ProductOptionService#searchStockUnit
      */
-    public List<ProductOptionGetDto> searchListByProductListOptionCode(List<String> optionCodes) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAllByCode(optionCodes);
-        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
-        return productOptionGetDtos;
+    public List<ProductOptionEntity> searchListByOptionCodes(List<String> optionCodes) {
+        return productOptionRepository.findAllByCode(optionCodes);
     }
 
     /**
@@ -308,7 +301,18 @@ public class ProductOptionService {
         return productOptionRepository.findCidByCode(optionCode);
     }
 
-    public List<ProductOptionEntity> findAllByCode(List<String> optionCodes) {
-        return productOptionRepository.findAllByCode(optionCodes);
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * ProductOption 데이터를 모두 조회한다.
+     * 해당 ProductOption와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     *
+     * @return List::ProductOptionProj::
+     * @see ProductOptionRepository#qfindAllM2OJ
+     */
+    public List<ProductOptionProj> qfindAllM2OJ() {
+        return productOptionRepository.qfindAllM2OJ();
     }
+
+
 }

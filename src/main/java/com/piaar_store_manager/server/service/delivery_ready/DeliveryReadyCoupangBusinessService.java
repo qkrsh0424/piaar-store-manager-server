@@ -390,8 +390,9 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangItemViewResDto#toResDtos
      */
     public List<DeliveryReadyCoupangItemViewResDto> changeOptionStockUnit(List<DeliveryReadyCoupangItemViewProj> itemViewProj) {
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+        List<String> optionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByOptionCodes(optionCodes);
+        List<ProductOptionGetDto> optionGetDtos = optionEntities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
         List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = new ArrayList<>();
 
         if(optionGetDtos.isEmpty()) {
@@ -816,7 +817,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyCoupangItemViewDto> dtos) {
         List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        return productOptionService.findAllByCode(managementCodes);
+        return productOptionService.searchListByOptionCodes(managementCodes);
     }
     
     /**
