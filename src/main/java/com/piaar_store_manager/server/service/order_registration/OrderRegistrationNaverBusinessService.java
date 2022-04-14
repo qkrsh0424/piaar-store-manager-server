@@ -29,7 +29,7 @@ public class OrderRegistrationNaverBusinessService {
      */
     public List<OrderRegistrationHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<OrderRegistrationHansanExcelFormDto> dtos = new ArrayList<>();
 
@@ -117,7 +117,7 @@ public class OrderRegistrationNaverBusinessService {
     public List<OrderRegistrationTailoExcelFormDto> uploadTailoExcelFile(MultipartFile file) {
     
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<OrderRegistrationTailoExcelFormDto> dtos = new ArrayList<>();
 

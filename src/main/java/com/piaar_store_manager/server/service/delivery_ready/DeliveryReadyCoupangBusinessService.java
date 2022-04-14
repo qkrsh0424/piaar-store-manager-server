@@ -94,7 +94,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<DeliveryReadyCoupangItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
@@ -257,7 +257,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) throws ParseException {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyCoupangExcelItem(sheet, fileDto);
         

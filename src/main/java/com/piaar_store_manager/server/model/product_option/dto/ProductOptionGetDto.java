@@ -25,7 +25,7 @@ public class ProductOptionGetDto {
     private String managementName;
     private Integer salesPrice;
     private Integer stockUnit;
-    private Integer totalPurchasePrice;
+    private Integer totalPurchasePrice;     // 추가된 항목
     private String status;
     private String memo;
     private String imageUrl;

@@ -10,7 +10,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.DownloadExcelDataGetDto;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadedDetailDto;
@@ -132,9 +132,9 @@ public class ExcelTranslatorHeaderApiController {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (IllegalArgumentException e) {
-            throw new ExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
         } catch (NullPointerException e) {
-            throw new ExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -155,7 +155,7 @@ public class ExcelTranslatorHeaderApiController {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
-            throw new ExcelFileUploadException("올바르지 않은 값이 존재합니다. 다시 등록해주세요.");
+            throw new CustomExcelFileUploadException("올바르지 않은 값이 존재합니다. 다시 등록해주세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -222,7 +222,7 @@ public class ExcelTranslatorHeaderApiController {
                         cell.setCellValue((int)detailDto.getColData());
                     }
                 } catch(ParseException e) {
-                    throw new ExcelFileUploadException("데이터 변환에 오류가 생겼습니다. 다시 시도해주세요.");
+                    throw new CustomExcelFileUploadException("데이터 변환에 오류가 생겼습니다. 다시 시도해주세요.");
                 }
             }
         }

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.exception.AccessDeniedException;
-import com.piaar_store_manager.server.exception.InvalidUserException;
+import com.piaar_store_manager.server.exception.CustomAccessDeniedException;
+import com.piaar_store_manager.server.exception.CustomInvalidUserException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemUnitCombinedDto;
 
@@ -111,15 +111,15 @@ public class DeliveryReadyPiaarBusinessService {
      */
     public List<DeliveryReadyPiaarItemVo> uploadDeliveryReadyExcelFile(MultipartFile file) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
 
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
 
         List<DeliveryReadyPiaarItemVo> vos = this.getDeliveryReadyExcelForm(sheet);
@@ -220,11 +220,11 @@ public class DeliveryReadyPiaarBusinessService {
 
     public void createItemList(List<DeliveryReadyPiaarItemDto> deliveryReadyPiaarItemDtos) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
 
         UUID USER_ID = userService.getUserId();
@@ -257,11 +257,11 @@ public class DeliveryReadyPiaarBusinessService {
      */
     public List<DeliveryReadyPiaarItemVo> getDeliveryReadyViewOrderDataByUserId() {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
         
         // 매핑데이터 조회
@@ -293,11 +293,11 @@ public class DeliveryReadyPiaarBusinessService {
 
     public void updateListToSold(List<DeliveryReadyPiaarItemDto> itemDtos) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
 
         List<UUID> itemIdList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
@@ -312,11 +312,11 @@ public class DeliveryReadyPiaarBusinessService {
 
     public void updateListToReleased(List<DeliveryReadyPiaarItemDto> itemDtos) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
         
         List<UUID> itemIdList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
@@ -332,11 +332,11 @@ public class DeliveryReadyPiaarBusinessService {
     // 수취인 + 전화번호 + 주소
     public List<PiaarCombinedDeliveryItemVo> getCombinedDelivery(List<DeliveryReadyPiaarItemDto> dtos) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인이 필요한 서비스 입니다.");
+            throw new CustomInvalidUserException("로그인이 필요한 서비스 입니다.");
         }
 
         if (!userService.isManager()) {
-            throw new AccessDeniedException("접근 권한이 없습니다.");
+            throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }
         
         List<PiaarCombinedDeliveryItemVo> combinedDelivery = new ArrayList<>();

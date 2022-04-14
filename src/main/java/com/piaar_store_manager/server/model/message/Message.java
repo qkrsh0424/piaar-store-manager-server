@@ -1,6 +1,9 @@
 package com.piaar_store_manager.server.model.message;
 
 import lombok.*;
+
+import java.util.Date;
+
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -8,20 +11,35 @@ import org.springframework.http.HttpStatus;
 @ToString
 public class Message {
     private HttpStatus status;
+    private int statusCode;
+    private String statusMessage;
     private String message;
+    private String socketBehavior;
+    private String socketMemo;
     private String memo;
     private Object data;
+    private String path;
+    private Date timestamp;
+    private String error;
+
     private Object pagenation;
 
     public Message() {
         this.status = HttpStatus.BAD_REQUEST;
+        this.statusCode = this.status.value();
+        this.statusMessage = this.status.name();
         this.message = null;
+        this.socketBehavior = null;
+        this.socketMemo = null;
         this.memo = null;
         this.data = null;
-        this.pagenation = null;
+        this.timestamp = new Date();
+        
     }
 
-    public int getStatusCode(){
-        return this.status.value();
+    public void setStatus(HttpStatus status){
+        this.status = status;
+        this.statusCode = status.value();
+        this.statusMessage = status.name();
     }
 }

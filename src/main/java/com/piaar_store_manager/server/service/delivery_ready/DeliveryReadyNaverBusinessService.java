@@ -93,7 +93,7 @@ public class DeliveryReadyNaverBusinessService {
      */
     public List<DeliveryReadyNaverItemDto> uploadDeliveryReadyExcelFile(MultipartFile file){
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
@@ -252,7 +252,7 @@ public class DeliveryReadyNaverBusinessService {
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyNaverExcelItem(sheet, fileDto);
         

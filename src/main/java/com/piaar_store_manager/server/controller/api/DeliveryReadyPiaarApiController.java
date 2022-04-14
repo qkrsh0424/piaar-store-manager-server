@@ -2,7 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.List;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.piaar.dto.DeliveryReadyPiaarItemDto;
 import com.piaar_store_manager.server.model.message.Message;
@@ -63,11 +63,11 @@ public class DeliveryReadyPiaarApiController {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
-            throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+            throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
         } catch (IllegalStateException e) {
-            throw new ExcelFileUploadException("피아르 엑셀 양식과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+            throw new CustomExcelFileUploadException("피아르 엑셀 양식과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
         } catch (IllegalArgumentException e) {
-            throw new ExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
+            throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
         }
 
         return new ResponseEntity<>(message, message.getStatus());

@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class CustomFieldUtils {
-    private static <T> List<Field> getAllFields(T t) {
+    public static <T> List<Field> getAllFields(T t) {
         Objects.requireNonNull(t);
 
         Class<?> clazz = t.getClass();
@@ -19,7 +20,15 @@ public class CustomFieldUtils {
         return fields;
     }
 
-    private static <T> Field getFieldByName(T t, String fieldName) {
+    public static <T> List<String> getAllFieldNames(T t){
+        Objects.requireNonNull(t);
+
+        Field field = null;
+
+        return getAllFields(t).stream().map(r-> r.getName()).collect(Collectors.toList());
+    }
+
+    public static <T> Field getFieldByName(T t, String fieldName) {
         Objects.requireNonNull(t);
 
         Field field = null;
@@ -60,6 +69,17 @@ public class CustomFieldUtils {
         }
     }
 
+    public static void setFieldValueWithSuper(Object obj, String fieldName, Object value) {
+        Objects.requireNonNull(obj);
+
+        try {
+            Field field = getFieldByName(obj, fieldName); // 4. 해당 필드 조회 후
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void setFieldValue(Object obj, String fieldName, Object value) {
         Objects.requireNonNull(obj);
 
@@ -69,17 +89,6 @@ public class CustomFieldUtils {
             field.set(obj, value);
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void setFieldValueWithSuper(Object obj, String fieldName, Object value) {
-        Objects.requireNonNull(obj);
-
-        try {
-            Field field = getFieldByName(obj, fieldName); // 4. 해당 필드 조회 후
-            field.set(obj, value);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

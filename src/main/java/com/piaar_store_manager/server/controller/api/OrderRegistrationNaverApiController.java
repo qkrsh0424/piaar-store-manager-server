@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
@@ -81,11 +81,11 @@ public class OrderRegistrationNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+                throw new CustomExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
+                throw new CustomExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
         }
 
@@ -190,11 +190,11 @@ public class OrderRegistrationNaverApiController {
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+                throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
             } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+                throw new CustomExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
             } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
+                throw new CustomExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
             }
         }
 
