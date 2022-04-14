@@ -285,50 +285,50 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#getFirstMergeItem
      */
-    // @PostMapping("/erp-first-merge-headers/{firstMergeHeaderId}/action-merge")
-    // public ResponseEntity<?> getFirstMergeItem(@PathVariable(value = "firstMergeHeaderId") UUID firstMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-    //     Message message = new Message();
+    @PostMapping("/erp-first-merge-headers/{firstMergeHeaderId}/action-merge")
+    public ResponseEntity<?> getFirstMergeItem(@PathVariable(value = "firstMergeHeaderId") UUID firstMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
+        Message message = new Message();
 
-    //     message.setData(erpOrderItemBusinessService.getFirstMergeItem(firstMergeHeaderId, itemDtos));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
+        message.setData(erpOrderItemBusinessService.getFirstMergeItem(firstMergeHeaderId, itemDtos));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 
-    // /**
-    //  * Change erp order item to combined delivery item by second merge header
-    //  * <p>
-    //  * <b>POST : API URL => /api/v1/erp-order-items/erp-second-merge-headers/{secondMergeHeaderId}/action-merge</b>
-    //  *
-    //  * @param secondMergeHeaderId : UUID
-    //  * @param itemDtos            : List::ErpOrderItemDto::
-    //  * @return ResponseEntity(message, HttpStatus)
-    //  * @see ErpOrderItemBusinessService#getSecondMergeItem
-    //  */
-    // @PostMapping("/erp-second-merge-headers/{secondMergeHeaderId}/action-merge")
-    // public ResponseEntity<?> getSecondMergeItem(@PathVariable(value = "secondMergeHeaderId") UUID secondMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-    //     Message message = new Message();
+    /**
+     * Change erp order item to combined delivery item by second merge header
+     * <p>
+     * <b>POST : API URL => /api/v1/erp-order-items/erp-second-merge-headers/{secondMergeHeaderId}/action-merge</b>
+     *
+     * @param secondMergeHeaderId : UUID
+     * @param itemDtos            : List::ErpOrderItemDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#getSecondMergeItem
+     */
+    @PostMapping("/erp-second-merge-headers/{secondMergeHeaderId}/action-merge")
+    public ResponseEntity<?> getSecondMergeItem(@PathVariable(value = "secondMergeHeaderId") UUID secondMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
+        Message message = new Message();
 
-    //     message.setData(erpOrderItemBusinessService.getSecondMergeItem(secondMergeHeaderId, itemDtos));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
+        message.setData(erpOrderItemBusinessService.getSecondMergeItem(secondMergeHeaderId, itemDtos));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 
-    // @PatchMapping(value = "/batch/waybill")
-    // public ResponseEntity<?> changeBatchForWaybill(
-    //         @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
-    // ) {
-    //     Message message = new Message();
+    @PatchMapping(value = "/batch/waybill")
+    public ResponseEntity<?> changeBatchForWaybill(
+            @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
+    ) {
+        Message message = new Message();
 
-    //     List<WaybillExcelFormDto> waybillExcelFormDtos = erpOrderItemBusinessService.readWaybillExcelFile(file);
-    //     int updatedCount = erpOrderItemBusinessService.changeBatchForWaybill(data, waybillExcelFormDtos);
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-    //     message.setMemo("선택된 데이터 : " + data.size() + " 건\n" + "운송장 입력된 데이터 총 : " + updatedCount + " 건");
+        List<WaybillExcelFormDto> waybillExcelFormDtos = erpOrderItemBusinessService.readWaybillExcelFile(file);
+        int updatedCount = erpOrderItemBusinessService.changeBatchForWaybill(data, waybillExcelFormDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setMemo("선택된 데이터 : " + data.size() + " 건\n" + "운송장 입력된 데이터 총 : " + updatedCount + " 건");
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

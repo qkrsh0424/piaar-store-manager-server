@@ -105,31 +105,31 @@ public class ErpOrderItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
-    // @PatchMapping("/batch/stock/action-reflect")
-    // public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos){
-    //     Message message = new Message();
+    @PatchMapping("/batch/stock/action-reflect")
+    public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos){
+        Message message = new Message();
 
-    //     Integer count = erpOrderItemBusinessService.actionReflectStock(itemDtos);
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-    //     message.setMemo(count + " 건의 데이터가 재고 반영 되었습니다.");
+        Integer count = erpOrderItemBusinessService.actionReflectStock(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setMemo(count + " 건의 데이터가 재고 반영 되었습니다.");
 
-    //     messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 
-    // @PatchMapping("/batch/stock/action-cancel")
-    // public ResponseEntity<?> actionCancelStock(@RequestBody List<ErpOrderItemDto> itemDtos){
-    //     Message message = new Message();
+    @PatchMapping("/batch/stock/action-cancel")
+    public ResponseEntity<?> actionCancelStock(@RequestBody List<ErpOrderItemDto> itemDtos){
+        Message message = new Message();
 
-    //     Integer count = erpOrderItemBusinessService.actionCancelStock(itemDtos);
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-    //     message.setMemo(count + " 건의 데이터가 재고 취소 되었습니다.");
+        Integer count = erpOrderItemBusinessService.actionCancelStock(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setMemo(count + " 건의 데이터가 재고 취소 되었습니다.");
 
-    //     messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 
     @PostMapping("/batch-delete")
     public void deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
@@ -142,20 +142,20 @@ public class ErpOrderItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
-    // @PatchMapping(value = "/batch/waybill")
-    // public ResponseEntity<?> changeBatchForWaybill(
-    //         @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
-    // ) {
-    //     Message message = new Message();
+    @PatchMapping(value = "/batch/waybill")
+    public ResponseEntity<?> changeBatchForWaybill(
+            @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
+    ) {
+        Message message = new Message();
 
-    //     List<WaybillExcelFormDto> waybillExcelFormDtos = erpOrderItemBusinessService.readWaybillExcelFile(file);
-    //     int updatedCount = erpOrderItemBusinessService.changeBatchForWaybill(data, waybillExcelFormDtos);
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-    //     message.setMemo("운송장이 입력된 데이터는 총 : " + updatedCount + " 건 입니다.");
+        List<WaybillExcelFormDto> waybillExcelFormDtos = erpOrderItemBusinessService.readWaybillExcelFile(file);
+        int updatedCount = erpOrderItemBusinessService.changeBatchForWaybill(data, waybillExcelFormDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setMemo("운송장이 입력된 데이터는 총 : " + updatedCount + " 건 입니다.");
 
-    //     messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
 
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }
