@@ -22,12 +22,13 @@ import com.piaar_store_manager.server.domain.erp_second_merge_header.entity.ErpS
 import com.piaar_store_manager.server.domain.erp_second_merge_header.service.ErpSecondMergeHeaderService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
-import com.piaar_store_manager.server.domain.release_stock.entity.ReleaseStockEntity;
 import com.piaar_store_manager.server.domain.release_stock.service.ReleaseStockService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
+import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
@@ -58,7 +59,7 @@ public class ErpOrderItemBusinessService {
     private final ProductOptionService productOptionService;
     private final ErpFirstMergeHeaderService erpFirstMergeHeaderService;
     private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
-    private final ReleaseStockService releaseStockService;
+    private final ProductReleaseService productReleaseService;
     private final UserService userService;
 
     // Excel file extension.
@@ -945,7 +946,7 @@ public class ErpOrderItemBusinessService {
         Set<String> optionCodeSet = new HashSet<>();
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<ProductOptionEntity> productOptionEntities = new ArrayList<>();
-        List<ReleaseStockEntity> releaseStockEntities = new ArrayList<>();
+        List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
         for (ErpOrderItemEntity r : erpOrderItemEntities) {
@@ -964,24 +965,24 @@ public class ErpOrderItemBusinessService {
             productOptionEntities.forEach(optionEntity -> {
                 if (optionEntity.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
                     count.getAndIncrement();
-                    ReleaseStockEntity releaseStockEntity = new ReleaseStockEntity();
+                    ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
 
-                    releaseStockEntity.setId(UUID.randomUUID());
-                    releaseStockEntity.setErpOrderItemId(orderItemEntity.getId());
-                    releaseStockEntity.setReleaseUnit(orderItemEntity.getUnit());
-                    releaseStockEntity.setMemo("");
-                    releaseStockEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-                    releaseStockEntity.setCreatedBy(orderItemEntity.getCreatedBy());
-                    releaseStockEntity.setProductOptionCid(optionEntity.getCid());
-                    releaseStockEntity.setProductOptionId(optionEntity.getId());
+                    releaseEntity.setId(UUID.randomUUID());
+                    releaseEntity.setErpOrderItemId(orderItemEntity.getId());
+                    releaseEntity.setReleaseUnit(orderItemEntity.getUnit());
+                    releaseEntity.setMemo("");
+                    releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
+                    releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                    releaseEntity.setProductOptionCid(optionEntity.getCid());
+                    releaseEntity.setProductOptionId(optionEntity.getId());
 
                     orderItemEntity.setStockReflectYn("y");
-                    releaseStockEntities.add(releaseStockEntity);
+                    releaseEntities.add(releaseEntity);
                 }
             });
         }
 
-        releaseStockService.bulkInsert(releaseStockEntities);
+        productReleaseService.bulkInsert(releaseEntities);
         return count.get();
     }
 
@@ -1002,7 +1003,7 @@ public class ErpOrderItemBusinessService {
             orderItemEntity.setStockReflectYn("n");
         }
 
-        releaseStockService.deleteByErpOrderItemIds(erpOrderItemIds);
+        productReleaseService.deleteByErpOrderItemIds(erpOrderItemIds);
         return count.get();
     }
 }

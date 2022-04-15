@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.release_stock.repository;
+package com.piaar_store_manager.server.model.product_release.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,19 +11,19 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.piaar_store_manager.server.domain.release_stock.entity.ReleaseStockEntity;
+import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class ReleaseStockJdbcImpl implements ReleaseStockCustomJdbc{
+public class ProductReleaseJdbcImpl implements ProductReleaseCustomJdbc{
     private final JdbcTemplate jdbcTemplate;
     private int batchSize = 300;
 
     @Override
-    public void jdbcBulkInsert(List<ReleaseStockEntity> entities){
+    public void jdbcBulkInsert(List<ProductReleaseEntity> entities){
         int batchCount = 0;
-        List<ReleaseStockEntity> subItems = new ArrayList<>();
+        List<ProductReleaseEntity> subItems = new ArrayList<>();
         for (int i = 0; i < entities.size(); i++) {
             subItems.add(entities.get(i));
             if ((i + 1) % batchSize == 0) {
@@ -36,8 +36,8 @@ public class ReleaseStockJdbcImpl implements ReleaseStockCustomJdbc{
 //        log.info("batchCount: " + batchCount);
     }
 
-    private int batchInsert(int batchSize, int batchCount, List<ReleaseStockEntity> subItems){
-        String sql = "INSERT INTO release_stock" +
+    private int batchInsert(int batchSize, int batchCount, List<ProductReleaseEntity> subItems){
+        String sql = "INSERT INTO product_release" +
                 "(cid, id, release_unit, memo, created_at, created_by, product_option_cid, product_option_id, erp_order_item_id)" +
                 "VALUES" +
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -45,7 +45,7 @@ public class ReleaseStockJdbcImpl implements ReleaseStockCustomJdbc{
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
             public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ReleaseStockEntity entity = subItems.get(i);
+                ProductReleaseEntity entity = subItems.get(i);
                 ps.setObject(1, entity.getCid());
                 ps.setObject(2, entity.getId().toString());
                 ps.setInt(3, entity.getReleaseUnit());

@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.product_release.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,9 +24,11 @@ public class ProductReleaseGetDto {
     private UUID id;
     private Integer releaseUnit;
     private String memo;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
     private Integer productOptionCid;
+    private UUID productOptionId;
+    private UUID erpOrderItemId;
 
     /**
      * <b>Convert Method</b>
@@ -44,6 +47,8 @@ public class ProductReleaseGetDto {
            .createdAt(entity.getCreatedAt())
            .createdBy(entity.getCreatedBy())
            .productOptionCid(entity.getProductOptionCid())
+           .productOptionId(entity.getProductOptionId())
+           .erpOrderItemId(entity.getErpOrderItemId())
            .build();
 
         return dto;

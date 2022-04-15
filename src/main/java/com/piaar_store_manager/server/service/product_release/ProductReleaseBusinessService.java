@@ -6,12 +6,12 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJoinResDto;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,7 +122,7 @@ public class ProductReleaseBusinessService {
      */
     @Transactional
     public ProductReleaseGetDto createPL(ProductReleaseGetDto productReleaseGetDto, UUID userId) {
-        productReleaseGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
+        productReleaseGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
 
         // ProductRelease 데이터 생성
         ProductReleaseEntity entity = productReleaseService.createPL(ProductReleaseEntity.toEntity(productReleaseGetDto));
@@ -148,7 +148,7 @@ public class ProductReleaseBusinessService {
     @Transactional
     public List<ProductReleaseGetDto> createPLList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
         List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
-            r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
+            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
             return ProductReleaseEntity.toEntity(r);
         }).collect(Collectors.toList());
 
