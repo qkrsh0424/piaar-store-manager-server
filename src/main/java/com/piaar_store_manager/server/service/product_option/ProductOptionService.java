@@ -132,9 +132,6 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findAllByCode
      * @see ProductOptionService#searchStockUnit
      */
-    // public List<ProductOptionEntity> searchListByOptionCodes(List<String> optionCodes) {
-    //     return productOptionRepository.findAllByCode(optionCodes);
-    // }
     public List<ProductOptionGetDto> searchListByOptionCodes(List<String> optionCodes) {
         List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAllByCode(optionCodes);
         List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);

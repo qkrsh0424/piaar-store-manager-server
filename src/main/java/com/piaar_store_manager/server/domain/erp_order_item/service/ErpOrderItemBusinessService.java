@@ -23,9 +23,11 @@ import com.piaar_store_manager.server.domain.erp_second_merge_header.service.Erp
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -59,6 +61,7 @@ public class ErpOrderItemBusinessService {
     private final ErpFirstMergeHeaderService erpFirstMergeHeaderService;
     private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
     private final ProductReleaseService productReleaseService;
+    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     // Excel file extension.
@@ -945,7 +948,6 @@ public class ErpOrderItemBusinessService {
         Set<String> optionCodeSet = new HashSet<>();
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<ProductOptionEntity> productOptionEntities = new ArrayList<>();
-        List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
         for (ErpOrderItemEntity r : erpOrderItemEntities) {
@@ -954,14 +956,25 @@ public class ErpOrderItemBusinessService {
             }
         }
 
-        productOptionEntities = productOptionService.searchListByOptionCodes(new ArrayList<>(optionCodeSet));
+        List<ProductOptionGetDto> productOptionGetDtos = productOptionService.searchListByOptionCodes(new ArrayList<>(optionCodeSet));
+        productOptionEntities = productOptionGetDtos.stream().map(dto -> ProductOptionEntity.toEntity(dto)).collect(Collectors.toList());
+        
+        // 1. 세트상품 X
+        List<ProductOptionEntity> originOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        // 2. 세트상품 O
+        List<ProductOptionEntity> parentOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        if (productOptionEntities.size() <= 0) {
-            return 0;
-        }
+        count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities));
+        count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities));
+        return count.get();
+    }
+
+    public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities) {
+        List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
+        AtomicInteger count = new AtomicInteger();
 
         for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
-            productOptionEntities.forEach(optionEntity -> {
+            originOptionEntities.forEach(optionEntity -> {
                 if (optionEntity.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
                     count.getAndIncrement();
                     ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
@@ -977,6 +990,44 @@ public class ErpOrderItemBusinessService {
 
                     orderItemEntity.setStockReflectYn("y");
                     releaseEntities.add(releaseEntity);
+                }
+            });
+        }
+
+        productReleaseService.bulkInsert(releaseEntities);
+        return count.get();
+    }
+
+    public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities) {
+        List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
+        AtomicInteger count = new AtomicInteger();
+
+        // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
+        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
+        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+        for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
+            parentOptionEntities.forEach(parentOption -> {
+                if (parentOption.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
+                    optionPackageEntities.stream().forEach(option -> {
+                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                            count.getAndIncrement();
+                            ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
+                                
+                            releaseEntity.setId(UUID.randomUUID());
+                            releaseEntity.setErpOrderItemId(orderItemEntity.getId());
+                            releaseEntity.setReleaseUnit(orderItemEntity.getUnit() * option.getPackageUnit());
+                            releaseEntity.setMemo("");
+                            releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
+                            releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                            releaseEntity.setProductOptionCid(option.getOriginOptionCid());
+                            releaseEntity.setProductOptionId(option.getOriginOptionId());
+                                
+                            orderItemEntity.setStockReflectYn("y");
+                            releaseEntities.add(releaseEntity);
+                        }
+                    });
                 }
             });
         }

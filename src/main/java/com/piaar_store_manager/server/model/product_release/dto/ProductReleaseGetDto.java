@@ -53,24 +53,4 @@ public class ProductReleaseGetDto {
 
         return dto;
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyCoupangItemViewDto => ProductReleaseGetDto
-     * 
-     * @param reqDto : DeliveryReadyCoupangItemViewDto
-     * @param optionCid : int
-     * @return ProductReleaseGetDto
-     */
-    public static ProductReleaseGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, int optionCid){
-        ProductReleaseGetDto dto = ProductReleaseGetDto.builder()
-            .id(UUID.randomUUID())
-            .releaseUnit(reqDto.getDeliveryReadyItem().getUnit())
-            .memo(reqDto.getReleaseMemo())
-            .productOptionCid(optionCid)
-            .build();
-        
-        return dto;
-    }
 }

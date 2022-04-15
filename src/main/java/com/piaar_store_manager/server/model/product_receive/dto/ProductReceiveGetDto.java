@@ -49,24 +49,4 @@ public class ProductReceiveGetDto {
 
         return dto;
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyCoupangItemViewDto => ProductReceiveGetDto
-     * 
-     * @param reqDto : DeliveryReadyCoupangItemViewDto
-     * @param optionCid : Integer
-     * @return ProductReceiveGetDto
-     */
-    public static ProductReceiveGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, Integer optionCid){
-        ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
-            .id(UUID.randomUUID())
-            .receiveUnit(reqDto.getDeliveryReadyItem().getUnit())
-            .memo(reqDto.getReceiveMemo())
-            .productOptionCid(optionCid)
-            .build();
-        
-        return dto;
-    }
 }
