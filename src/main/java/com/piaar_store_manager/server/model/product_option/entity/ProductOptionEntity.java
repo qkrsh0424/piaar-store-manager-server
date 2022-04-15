@@ -74,6 +74,9 @@ public class ProductOptionEntity {
     @Column(name = "unit_krw")
     private String unitKrw;
 
+    @Column(name = "package_yn")
+    private String packageYn;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -103,6 +106,7 @@ public class ProductOptionEntity {
      */
     public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
         ProductOptionEntity productOptionEntity = ProductOptionEntity.builder()
+                .cid(productOptionDto.getCid())
                 // .id(UUID.randomUUID())
                 .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
@@ -119,6 +123,7 @@ public class ProductOptionEntity {
                 .color(productOptionDto.getColor())
                 .unitCny(productOptionDto.getUnitCny())
                 .unitKrw(productOptionDto.getUnitKrw())
+                .packageYn(productOptionDto.getPackageYn())
                 .createdAt(productOptionDto.getCreatedAt())
                 .createdBy(productOptionDto.getCreatedBy())
                 .updatedAt(productOptionDto.getUpdatedAt())

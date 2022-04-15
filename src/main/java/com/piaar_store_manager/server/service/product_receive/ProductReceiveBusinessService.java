@@ -12,6 +12,7 @@ import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJo
 import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -124,14 +125,14 @@ public class ProductReceiveBusinessService {
      */
     @Transactional
     public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
-        productReceiveGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
+        productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
 
         // ProductReceive 데이터 생성
         ProductReceiveEntity entity = productReceiveService.createPR(ProductReceiveEntity.toEntity(productReceiveGetDto));
         ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
         
         // ProductOption 재고 반영
-        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), userId, entity.getReceiveUnit());
+        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), entity.getReceiveUnit());
         
         return dto;
     }
@@ -151,14 +152,14 @@ public class ProductReceiveBusinessService {
     @Transactional
     public List<ProductReceiveGetDto> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
         List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
-            r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId);
+            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
             return ProductReceiveEntity.toEntity(r);
         }).collect(Collectors.toList());
 
         // ProductReceive 데이터 생성
         List<ProductReceiveEntity> entities = productReceiveService.createPRList(convertedEntities);
         // ProductOption 재고 반영
-        entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), userId, r.getReceiveUnit()); });
+        entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), r.getReceiveUnit()); });
 
         List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
@@ -202,7 +203,7 @@ public class ProductReceiveBusinessService {
         productReceiveService.createPR(entity);
 
         // 상품옵션의 재고수량 반영
-        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), userId, changedReceiveUnit);
+        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), changedReceiveUnit);
     }
 
     /**
@@ -238,7 +239,7 @@ public class ProductReceiveBusinessService {
             int storedReceiveUnit = receiveEntity.getReceiveUnit();
             // 변경된 입고 데이터
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-            productOptionService.updateReceiveProductUnit(receiveEntity.getProductOptionCid(), userId, receiveEntity.getReceiveUnit() - storedReceiveUnit);
+            productOptionService.updateReceiveProductUnit(receiveEntity.getProductOptionCid(), receiveEntity.getReceiveUnit() - storedReceiveUnit);
         }
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());

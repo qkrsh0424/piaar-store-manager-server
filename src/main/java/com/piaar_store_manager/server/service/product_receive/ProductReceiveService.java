@@ -158,7 +158,7 @@ public class ProductReceiveService {
      */
     public void destroyOne(Integer productReceiveCid, UUID userId) {
         productReceiveRepository.findById(productReceiveCid).ifPresent(product -> {
-            productOptionService.updateReleaseProductUnit(product.getProductOptionCid(), userId, product.getReceiveUnit());
+            productOptionService.updateReleaseProductUnit(product.getProductOptionCid(), product.getReceiveUnit());
             productReceiveRepository.delete(product);
         });
     }

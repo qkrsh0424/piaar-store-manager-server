@@ -2,7 +2,6 @@ package com.piaar_store_manager.server.model.option_package.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,9 +41,13 @@ public class OptionPackageEntity {
     @Column(name = "origin_option_code")
     private String originOptionCode;
 
+    @Column(name = "origin_option_cid")
+    private Integer originOptionCid;
+
     @Setter
+    @Type(type = "uuid-char")
     @Column(name = "origin_option_id")
-    private String originOptionId;
+    private UUID originOptionId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -71,6 +74,7 @@ public class OptionPackageEntity {
             .id(dto.getId())
             .packageUnit(dto.getPackageUnit())
             .originOptionCode(dto.getOriginOptionCode())
+            .originOptionCid(dto.getOriginOptionCid())
             .originOptionId(dto.getOriginOptionId())
             .createdAt(dto.getCreatedAt())
             .createdBy(dto.getCreatedBy())

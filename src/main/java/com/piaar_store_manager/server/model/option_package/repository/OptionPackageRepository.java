@@ -21,6 +21,12 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
     )
     List<OptionPackageEntity> findAllByParentOptionId(UUID parentOptionId);
 
+    @Query(
+        "SELECT op FROM OptionPackageEntity op\n"
+        + "WHERE op.parentOptionId IN :parentOptionIdList"
+    )
+    List<OptionPackageEntity> findAllByParentOptionIdList(List<UUID> parentOptionIdList);
+
     Optional<OptionPackageEntity> findById(UUID id);
 
     @Modifying(clearAutomatically = true)

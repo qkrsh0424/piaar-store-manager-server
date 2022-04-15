@@ -22,6 +22,10 @@ public class OptionPackageService {
     public List<OptionPackageEntity> searchListByParentOptionId(UUID parentOptionId) {
         return optionPackageRepository.findAllByParentOptionId(parentOptionId);
     }
+
+    public List<OptionPackageEntity> searchListByParentOptionIdList(List<UUID> parentOptionIdList) {
+        return optionPackageRepository.findAllByParentOptionIdList(parentOptionIdList);
+    }
     
     public void deleteBatch(List<UUID> idList) {
         optionPackageRepository.deleteBatch(idList);

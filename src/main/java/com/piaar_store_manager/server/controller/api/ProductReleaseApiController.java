@@ -260,7 +260,7 @@ public class ProductReleaseApiController {
         // 유저 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseBusinessService.createPL(productReleaseGetDto, userService.getUserId());
+                productReleaseBusinessService.createPL(productReleaseGetDto);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
@@ -294,7 +294,7 @@ public class ProductReleaseApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReleaseBusinessService.createPLList(productReleaseGetDtos, userService.getUserId());
+                productReleaseBusinessService.createPLList(productReleaseGetDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {

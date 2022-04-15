@@ -133,7 +133,7 @@ public class DeliveryReadyNaverApiController {
                 throw new FileUploadException("This is not an excel file.");
             };
 
-            deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId());
+            deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } else {
@@ -530,7 +530,7 @@ public class DeliveryReadyNaverApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try {
-                deliveryReadyNaverBusinessService.releaseListStockUnit(dtos, userService.getUserId());
+                deliveryReadyNaverBusinessService.releaseListStockUnit(dtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch (NullPointerException e) {

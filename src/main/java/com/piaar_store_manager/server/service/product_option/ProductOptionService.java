@@ -6,6 +6,8 @@ import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSum
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.service.user.UserService;
+
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import javax.persistence.Tuple;
 @RequiredArgsConstructor
 public class ProductOptionService {
     private final ProductOptionRepository productOptionRepository;
+    private final UserService userService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -129,8 +132,13 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findAllByCode
      * @see ProductOptionService#searchStockUnit
      */
-    public List<ProductOptionEntity> searchListByOptionCodes(List<String> optionCodes) {
-        return productOptionRepository.findAllByCode(optionCodes);
+    // public List<ProductOptionEntity> searchListByOptionCodes(List<String> optionCodes) {
+    //     return productOptionRepository.findAllByCode(optionCodes);
+    // }
+    public List<ProductOptionGetDto> searchListByOptionCodes(List<String> optionCodes) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAllByCode(optionCodes);
+        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
+        return productOptionGetDtos;
     }
 
     /**
@@ -242,11 +250,12 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#save
      */
-    public void updateReceiveProductUnit(Integer optionCid, UUID userId, Integer receiveUnit){
+    public void updateReceiveProductUnit(Integer optionCid, Integer receiveUnit){
+        UUID USER_ID = userService.getUserId();
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() + receiveUnit)
                                .setUpdatedAt(DateHandler.getCurrentDate2())
-                               .setUpdatedBy(userId);
+                               .setUpdatedBy(USER_ID);
 
             productOptionRepository.save(productOptionEntity);
         }, null);
@@ -263,11 +272,12 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#save
      */
-    public void updateReleaseProductUnit(Integer optionCid, UUID userId, Integer releaseUnit){
+    public void updateReleaseProductUnit(Integer optionCid, Integer releaseUnit){
+        UUID USER_ID = userService.getUserId();
         productOptionRepository.findById(optionCid).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setStockUnit(productOptionEntity.getStockUnit() - releaseUnit)
                                .setUpdatedAt(DateHandler.getCurrentDate2())
-                               .setUpdatedBy(userId);
+                               .setUpdatedBy(USER_ID);
 
             productOptionRepository.save(productOptionEntity);
         }, null);

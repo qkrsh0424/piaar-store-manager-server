@@ -73,24 +73,4 @@ public class ProductReleaseGetDto {
         
         return dto;
     }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyNaverItemViewDto => ProductReleaseGetDto
-     * 
-     * @param reqDto : DeliveryReadyNaverItemViewDto
-     * @param optionCid : int
-     * @return ProductReleaseGetDto
-     */
-    public static ProductReleaseGetDto toDto(DeliveryReadyNaverItemViewDto reqDto, int optionCid){
-        ProductReleaseGetDto dto = ProductReleaseGetDto.builder()
-            .id(UUID.randomUUID())
-            .releaseUnit(reqDto.getDeliveryReadyItem().getUnit())
-            .memo(reqDto.getReleaseMemo())
-            .productOptionCid(optionCid)
-            .build();
-        
-        return dto;
-    }
 }

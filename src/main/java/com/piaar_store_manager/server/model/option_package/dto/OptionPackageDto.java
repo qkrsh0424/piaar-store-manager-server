@@ -24,7 +24,8 @@ public class OptionPackageDto {
     private UUID id;
     private Integer packageUnit;
     private String originOptionCode;
-    private String originOptionId;
+    private Integer originOptionCid;
+    private UUID originOptionId;
     
     @Setter
     private LocalDateTime createdAt;
@@ -46,6 +47,7 @@ public class OptionPackageDto {
             .id(entity.getId())
             .packageUnit(entity.getPackageUnit())
             .originOptionCode(entity.getOriginOptionCode())
+            .originOptionCid(entity.getOriginOptionCid())
             .originOptionId(entity.getOriginOptionId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())

@@ -42,6 +42,7 @@ public class ProductOptionGetDto {
     private Integer releasedSumUnit;
     private Integer receivedSumUnit;
     private Integer stockSumUnit;
+    private String packageYn;
 
     /**
      * <b>Convert Method</b>
@@ -69,6 +70,7 @@ public class ProductOptionGetDto {
                 .color(entity.getColor())
                 .unitCny(entity.getUnitCny())
                 .unitKrw(entity.getUnitKrw())
+                .packageYn(entity.getPackageYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())
