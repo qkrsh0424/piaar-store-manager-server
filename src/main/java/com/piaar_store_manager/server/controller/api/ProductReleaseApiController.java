@@ -7,6 +7,7 @@ import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGe
 import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/product-release")
+@RequiredArgsConstructor
 public class ProductReleaseApiController {
-    private ProductReleaseBusinessService productReleaseBusinessService;
-    private UserService userService;
-
-    @Autowired
-    public ProductReleaseApiController(
-        ProductReleaseBusinessService productReleaseBusinessService,
-        UserService userService
-    ) {
-        this.productReleaseBusinessService = productReleaseBusinessService;
-        this.userService = userService;
-    }
+    private final ProductReleaseBusinessService productReleaseBusinessService;
+    private final UserService userService;
 
     /**
      * Search one api for productRelease.

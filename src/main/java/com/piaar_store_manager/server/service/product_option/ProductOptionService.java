@@ -229,11 +229,14 @@ public class ProductOptionService {
                     .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
                     .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
                     .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
-                    .setUnitKrw(productOptionDto.getUnitKrw()).setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
+                    .setUnitKrw(productOptionDto.getUnitKrw())
+                    .setPackageYn(productOptionDto.getPackageYn())
+                    .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
                     .setProductCid(productOptionDto.getProductCid());
 
             productOptionRepository.save(productOptionEntity);
         }, null);
+
     }
 
     /**
@@ -321,5 +324,7 @@ public class ProductOptionService {
         return productOptionRepository.qfindAllM2OJ();
     }
 
-
+    public List<ProductOptionEntity> searchListByOptionCids(List<Integer> cids) {
+        return productOptionRepository.findAllByCids(cids);
+    }
 }

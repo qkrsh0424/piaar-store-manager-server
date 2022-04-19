@@ -6,9 +6,11 @@ import java.util.UUID;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.option_package.repository.OptionPackageRepository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,9 @@ public class OptionPackageService {
     public List<OptionPackageEntity> searchListByParentOptionIdList(List<UUID> parentOptionIdList) {
         return optionPackageRepository.findAllByParentOptionIdList(parentOptionIdList);
     }
-    
+
+    @Transactional
+    @Modifying
     public void deleteBatch(List<UUID> idList) {
         optionPackageRepository.deleteBatch(idList);
     }

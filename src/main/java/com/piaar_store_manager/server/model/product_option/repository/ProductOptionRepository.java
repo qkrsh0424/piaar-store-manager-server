@@ -110,4 +110,10 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
                 "(SELECT SUM(prc.receive_unit) FROM product_receive prc WHERE po.cid=prc.product_option_cid) AS receivedSum \n" +
                 "FROM product_option po WHERE po.cid IN :optionCids", nativeQuery = true)
     List<Tuple> sumStockUnitByOption(List<Integer> optionCids);
+
+    @Query(
+        "SELECT po FROM ProductOptionEntity  po\n" +
+        "WHERE po.cid IN :cids"
+    )
+    List<ProductOptionEntity> findAllByCids(List<Integer> cids);
 }

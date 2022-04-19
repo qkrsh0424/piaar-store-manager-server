@@ -1,15 +1,19 @@
 package com.piaar_store_manager.server.service.product_release;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJoinResDto;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -24,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductReleaseBusinessService {
     private final ProductReleaseService productReleaseService;
     private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     /**
@@ -65,7 +70,7 @@ public class ProductReleaseBusinessService {
      * 
      * @return List::ProductReleaseGetDto::
      * @see ProductReleaseService#searchList
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> searchList() {
         List<ProductReleaseEntity> entities = productReleaseService.searchList();
@@ -81,7 +86,7 @@ public class ProductReleaseBusinessService {
      * @param productOptionCid : Integer
      * @return List::ProductReleaseGetDto
      * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      */
     public List<ProductReleaseGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReleaseEntity> entities = productReleaseService.searchListByOptionCid(productOptionCid);
@@ -97,7 +102,7 @@ public class ProductReleaseBusinessService {
      *
      * @return List::ProductReleaseJoinResDto::
      * @see ProductReleaseService#searchListM2OJ
-     * @see ProductReleaseJoinResDto#toDtos
+     * @see ProductReleaseJoinResDto#toDto
      */
     public List<ProductReleaseJoinResDto> searchListM2OJ() {
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
@@ -111,7 +116,6 @@ public class ProductReleaseBusinessService {
      * ProductRelease 내용을 한개 등록한다. 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
      * 
      * @param productReleaseGetDto : ProductReleaseGetDto
-     * @param userId               : UUID
      * @see ProductReleaseService#createPL
      * @see ProductReleaseGetDto#toDto
      * @see ProductOptionService#updateReleaseProductUnit
@@ -130,38 +134,109 @@ public class ProductReleaseBusinessService {
      * <p>
      * ProductRelease 내용을 여러개 등록한다. 상품 출고 개수만큼 ProductOption 데이터에 반영한다.
      * 
-     * @param productReleaseGetDto : List::ProductReleaseGetDto::
-     * @param userId               : UUID
+     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
      * @see ProductReleaseService#createPLList
      * @see ProductOptionService#updateReleaseProductUnit
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      */
-    // @Transactional
-    // public List<ProductReleaseGetDto> createPLList(List<ProductReleaseGetDto> productReleaseGetDtos, UUID userId) {
-    //     List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
-    //         r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
-    //         return ProductReleaseEntity.toEntity(r);
-    //     }).collect(Collectors.toList());
-
-    //     // ProductRelease 데이터 생성
-    //     List<ProductReleaseEntity> entities = productReleaseService.createPLList(convertedEntities);
-    //     // ProductOption 재고 반영
-    //     entities.forEach(r -> { productOptionService.updateReleaseProductUnit(r.getProductOptionCid(), userId, r.getReleaseUnit()); });
-        
-    //     List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
-    //     return dtos;
-    // }
+//    @Transactional
+//    public void createPLList(List<ProductReleaseGetDto> productReleaseGetDtos) {
+//        UUID USER_ID = userService.getUserId();
+//        List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
+//            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
+//            return ProductReleaseEntity.toEntity(r);
+//        }).collect(Collectors.toList());
+//
+//        // ProductRelease 데이터 생성
+//        productReleaseService.createPLList(convertedEntities);
+//    }
 
     @Transactional
     public void createPLList(List<ProductReleaseGetDto> productReleaseGetDtos) {
-        UUID USER_ID = userService.getUserId();
-        List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
-            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
-            return ProductReleaseEntity.toEntity(r);
-        }).collect(Collectors.toList());
+        // 1. release로 넘어온 productOptionCid로 option데이터를 찾는다.
+        // 2. option 데이터의 packageYn이 n인 것과 y인 것을 분리
+        // 3. 먼저 n인 애들 처리
+        // 4. y인 애들 처리하기
+        List<Integer> optionCids = productReleaseGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
+        List<ProductOptionEntity> optionEntities = productOptionService.searchListByOptionCids(optionCids);
 
-        // ProductRelease 데이터 생성
-        productReleaseService.createPLList(convertedEntities);
+        // 1. 세트상품 X
+        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        // 2. 세트상품 O
+        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
+
+        this.createOfOriginOption(productReleaseGetDtos, originOptionEntities);
+
+        if(parentOptionEntities.size() > 0) {
+            this.createOfPackageOption(productReleaseGetDtos, parentOptionEntities);
+        }
+
+//        UUID USER_ID = userService.getUserId();
+//        List<ProductReleaseEntity> convertedEntities = productReleaseGetDtos.stream().map(r -> {
+//            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
+//            return ProductReleaseEntity.toEntity(r);
+//        }).collect(Collectors.toList());
+//
+//        // ProductRelease 데이터 생성
+//        productReleaseService.createPLList(convertedEntities);
+    }
+
+    public void createOfOriginOption(List<ProductReleaseGetDto> productReleaseGetDtos, List<ProductOptionEntity> originOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+
+        List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
+
+        productReleaseGetDtos.forEach(dto -> {
+            originOptionEntities.forEach(option -> {
+                if(dto.getProductOptionCid().equals(option.getCid())){
+                    ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                            .id(UUID.randomUUID())
+                            .releaseUnit(dto.getReleaseUnit())
+                            .memo(dto.getMemo())
+                            .createdAt(CustomDateUtils.getCurrentDateTime())
+                            .createdBy(USER_ID)
+                            .productOptionCid(option.getCid())
+                            .build();
+
+                    productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+                }
+            });
+        });
+
+        productReleaseService.createPLList(productReleaseEntities);
+    }
+
+    public void createOfPackageOption(List<ProductReleaseGetDto> productReleaseGetDtos, List<ProductOptionEntity> parentOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+
+        // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
+        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
+        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+        List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
+
+        productReleaseGetDtos.forEach(dto -> {
+            parentOptionEntities.forEach(parentOption -> {
+                if(dto.getProductOptionCid().equals(parentOption.getCid())) {
+                    optionPackageEntities.forEach(option -> {
+                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                            ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                                    .id(UUID.randomUUID())
+                                    .releaseUnit(option.getPackageUnit() * dto.getReleaseUnit())
+                                    .memo(dto.getMemo())
+                                    .createdAt(CustomDateUtils.getCurrentDateTime())
+                                    .createdBy(USER_ID)
+                                    .productOptionCid(option.getOriginOptionCid())
+                                    .build();
+
+                            productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+                        }
+                    });
+                }
+            });
+        });
+        productReleaseService.createPLList(productReleaseEntities);
     }
 
     /**

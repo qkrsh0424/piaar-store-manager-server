@@ -248,7 +248,7 @@ public class ProductReceiveApiController {
         // 유저의 권한을 체크한다.
         if (userService.isManager()) {
             try{
-                productReceiveBusinessService.createPRList(productReceiveGetDtos, userService.getUserId());
+                productReceiveBusinessService.createPRList(productReceiveGetDtos);
                 message.setStatus(HttpStatus.OK);
                 message.setMessage("success");
             } catch(Exception e) {
