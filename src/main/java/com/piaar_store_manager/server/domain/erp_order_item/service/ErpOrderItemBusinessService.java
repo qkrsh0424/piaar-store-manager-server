@@ -1010,11 +1010,11 @@ public class ErpOrderItemBusinessService {
         for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
             parentOptionEntities.forEach(parentOption -> {
                 if (parentOption.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
-                    optionPackageEntities.stream().forEach(option -> {
+                    optionPackageEntities.forEach(option -> {
                         if(option.getParentOptionId().equals(parentOption.getId())) {
                             count.getAndIncrement();
+
                             ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
-                                
                             releaseEntity.setId(UUID.randomUUID());
                             releaseEntity.setErpOrderItemId(orderItemEntity.getId());
                             releaseEntity.setReleaseUnit(orderItemEntity.getUnit() * option.getPackageUnit());
@@ -1023,7 +1023,7 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
                             releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
-                                
+                            
                             orderItemEntity.setStockReflectYn("y");
                             releaseEntities.add(releaseEntity);
                         }

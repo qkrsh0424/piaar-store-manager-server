@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.controller.api;
 
+import java.util.Map;
+
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
@@ -28,7 +30,7 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productOptionBusinessService#searchOne
+     * @see ProductOptionBusinessService#searchOne
      */
     @GetMapping("/one/{productOptionCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid){
@@ -64,7 +66,7 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productOptionBusinessService#searchOneM2OJ
+     * @see ProductOptionBusinessService#searchOneM2OJ
      */
     @GetMapping("/one-m2oj/{productOptionCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
@@ -96,7 +98,7 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see productOptionBusinessService#searchList
+     * @see ProductOptionBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
@@ -124,7 +126,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isUserLogin
-     * @see productOptionBusinessService#searchListByProduct
+     * @see ProductOptionBusinessService#searchListByProduct
      */
     @GetMapping("/list/{productCid}")
     public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid){
@@ -155,7 +157,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isUserLogin
-     * @see productOptionBusinessService#searchListM2OJ
+     * @see ProductOptionBusinessService#searchListM2OJ
      */
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
@@ -186,7 +188,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isUserLogin
-     * @see productOptionBusinessService#searchStockStatus
+     * @see ProductOptionBusinessService#searchStockStatus
      */
     @GetMapping("/stock/status/{optionCid}")
     public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
@@ -217,7 +219,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isUserLogin
-     * @see productOptionBusinessService#searchAllStockStatus
+     * @see ProductOptionBusinessService#searchAllStockStatus
      */
     @GetMapping("/stock/statusList")
     public ResponseEntity<?> searchAllStockStatus() {
@@ -237,6 +239,34 @@ public class ProductOptionApiController {
     }
 
     /**
+     * Search list api of status(release & receive) for productOption.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/stock/status</b>
+     * ProductOption 데이터의 입출고 현황을 조회한다.
+     * 입출고 현황(출고 + 입고 데이터)을 파라미터로 넘어온 기간별로 조회한다.
+     *
+     * @param params : Map::String, Object::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ProductOptionBusinessService#searchAllStockStatus
+     */
+    @GetMapping("/stock/status")
+    public ResponseEntity<?> searchAllStockStatus(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        if (!userService.isUserLogin()) {
+            message.setStatus(HttpStatus.FORBIDDEN);
+            message.setMessage("need_login");
+            message.setMemo("need login");
+        } else{
+            message.setData(productOptionBusinessService.searchAllStockStatus(params));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
      * Create one api for productOption.
      * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
@@ -246,7 +276,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isManager
-     * @see productOptionBusinessService#createOne
+     * @see ProductOptionBusinessService#createOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -307,12 +337,12 @@ public class ProductOptionApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/product-option/{productOptionId}</b>
      *
-     * @param productOptionId : Integer
+     * @param productOptionCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see UserService#isSuperAdmin
-     * @see productOptionBusinessService#destroyOne
+     * @see ProductOptionBusinessService#destroyOne
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productOptionCid}")
@@ -346,7 +376,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isManager
-     * @see productOptionBusinessService#changeOne
+     * @see ProductOptionBusinessService#changeOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
@@ -410,7 +440,7 @@ public class ProductOptionApiController {
      * @see Message
      * @see HttpStatus
      * @see UserService#isManager
-     * @see productOptionBusinessService#patchOne
+     * @see ProductOptionBusinessService#patchOne
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */

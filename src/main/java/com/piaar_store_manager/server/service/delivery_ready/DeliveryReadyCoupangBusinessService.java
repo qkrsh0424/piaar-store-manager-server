@@ -871,8 +871,8 @@ public class DeliveryReadyCoupangBusinessService {
         // 1. 세트상품이 아닌 애들 재고반영
         List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
         // 출고데이터 설정 및 생성
-        unreleasedDtos.stream().forEach(dto -> {
-            originOptionEntities.stream().forEach(option -> {
+        unreleasedDtos.forEach(dto -> {
+            originOptionEntities.forEach(option -> {
                 if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
                     ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
                             .id(UUID.randomUUID())
@@ -900,10 +900,10 @@ public class DeliveryReadyCoupangBusinessService {
         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
 
         List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
-        unreleasedDtos.stream().forEach(dto -> {
-            parentOptionEntities.stream().forEach(parentOption -> {
+        unreleasedDtos.forEach(dto -> {
+            parentOptionEntities.forEach(parentOption -> {
                 if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(parentOption.getCode())) {
-                    optionPackageEntities.stream().forEach(option -> {
+                    optionPackageEntities.forEach(option -> {
                         if(option.getParentOptionId().equals(parentOption.getId())) {
                             ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
                                 .id(UUID.randomUUID())

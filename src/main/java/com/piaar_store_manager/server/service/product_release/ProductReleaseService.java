@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.service.product_release;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -110,6 +112,10 @@ public class ProductReleaseService {
      */
     public List<ProductReleaseProj> searchListM2OJ() {
         return productReleaseRepository.selectAll();
+    }
+    
+    public List<ProductReleaseProj> searchListM2OJ(LocalDateTime startDate, LocalDateTime endDate) {
+        return productReleaseRepository.selectAll(startDate, endDate);
     }
 
     /**

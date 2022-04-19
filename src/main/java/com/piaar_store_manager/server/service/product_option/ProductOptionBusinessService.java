@@ -1,8 +1,10 @@
 package com.piaar_store_manager.server.service.product_option;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -180,6 +182,30 @@ public class ProductOptionBusinessService {
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
         List<ProductReceiveJoinOptionDto> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinOptionDto.toDto(proj)).collect(Collectors.toList());
 
+
+        // 3. 합쳐서 ProductOptionStatusDto 생성
+        ProductOptionJoinReceiveAndReleaseDto statusDto = ProductOptionJoinReceiveAndReleaseDto.builder()
+            .productRelease(releaseDtos)
+            .productReceive(receiveDtos)
+            .build();
+
+        return statusDto;
+    }
+
+    public ProductOptionJoinReceiveAndReleaseDto searchAllStockStatus(Map<String,Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = null;
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        
+        // 1. 출고데이터 조회
+        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
+        List<ProductReleaseJoinOptionDto> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+        
+        // // 2. 입고데이터 조회
+        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
+        List<ProductReceiveJoinOptionDto> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinOptionDto.toDto(proj)).collect(Collectors.toList());
 
         // 3. 합쳐서 ProductOptionStatusDto 생성
         ProductOptionJoinReceiveAndReleaseDto statusDto = ProductOptionJoinReceiveAndReleaseDto.builder()

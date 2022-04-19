@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.product_receive.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +43,17 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
         "JOIN UserEntity u ON u.id=pr.createdBy"
     )
     List<ProductReceiveProj> selectAll();
+
+    @Query(
+        "SELECT pr AS productReceive, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReceiveEntity pr\n"+
+        "JOIN ProductOptionEntity po ON po.cid=pr.productOptionCid\n"+
+        "JOIN ProductEntity p ON p.cid=po.productCid\n"+
+        "JOIN ProductCategoryEntity pc ON pc.cid=p.productCategoryCid\n"+
+        "JOIN UserEntity u ON u.id=pr.createdBy\n"+
+        "WHERE pr.createdAt BETWEEN :startDate AND :endDate\n"+
+        "ORDER By pr.createdAt DESC"
+    )
+    List<ProductReceiveProj> selectAll(LocalDateTime startDate, LocalDateTime endDate);
 
     /**
      * ProductReceive cid값에 대응하는 입고데이터를 조회한다.

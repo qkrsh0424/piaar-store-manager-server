@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.service.product_receive;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -117,6 +119,10 @@ public class ProductReceiveService {
      */
     public List<ProductReceiveProj> searchListM2OJ() {
         return productReceiveRepository.selectAll();
+    }
+
+    public List<ProductReceiveProj> searchListM2OJ(LocalDateTime startDate, LocalDateTime endDate) {
+        return productReceiveRepository.selectAll(startDate, endDate);
     }
 
     /**
