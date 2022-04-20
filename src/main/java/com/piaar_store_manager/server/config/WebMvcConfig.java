@@ -1,7 +1,10 @@
 package com.piaar_store_manager.server.config;
 
+import com.piaar_store_manager.server.config.interceptor.RequiredLoginInterceptor;
+import com.piaar_store_manager.server.config.interceptor.RequiredRoleManagerInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -17,5 +20,11 @@ public class WebMvcConfig implements WebMvcConfigurer{
             .addResourceHandler("/uploads/**")
             .addResourceLocations("file://"+assetsPath+"/")
             .setCachePeriod(0);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new RequiredLoginInterceptor());
+        registry.addInterceptor(new RequiredRoleManagerInterceptor());
     }
 }

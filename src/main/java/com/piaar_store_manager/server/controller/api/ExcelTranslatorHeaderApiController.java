@@ -10,6 +10,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.annotation.RequiredRoleManager;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.DownloadExcelDataGetDto;
@@ -73,6 +75,7 @@ public class ExcelTranslatorHeaderApiController {
      * @see ExcelTranslatorHeaderBusinessService#searchList
      */
     @GetMapping("/list")
+    @RequiredRoleManager
     public ResponseEntity<?> searchExcelTranslatorHeader() {
         Message message = new Message();
 
