@@ -2,10 +2,12 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.shipment.packing_list.PackingListCoupangService;
 import com.piaar_store_manager.server.service.shipment.packing_list.PackingListNaverService;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,12 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/shipment")
+@RequiredArgsConstructor
 public class ShipmentApiController {
-    @Autowired
-    PackingListNaverService packingListNaverService;
 
-    @Autowired
-    PackingListCoupangService packingListCoupangService;
+    private final PackingListNaverService packingListNaverService;
+
+    private final PackingListCoupangService packingListCoupangService;
 
     /**
      * Read excel for shipment packing list of naver smartstore and combine to
@@ -42,6 +44,7 @@ public class ShipmentApiController {
      * @see Message
      * @see HttpStatus
      */
+    @RequiredLogin
     @PostMapping("/packing-list/naver/excel/read")
     public ResponseEntity<?> readPackingListNaverExcel(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
@@ -86,6 +89,7 @@ public class ShipmentApiController {
      * @see Message
      * @see HttpStatus
      */
+    @RequiredLogin
     @PostMapping("/packing-list/coupang/excel/read")
     public ResponseEntity<?> readPackingListCoupangExcel(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();

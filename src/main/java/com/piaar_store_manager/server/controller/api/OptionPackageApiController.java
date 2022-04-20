@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.UUID;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.option_package.OptionPackageBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -20,36 +21,29 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OptionPackageApiController {
     private final OptionPackageBusinessService optionPackageBusinessService;
-    private final UserService userService;
 
     /**
      * Search one api for optionPackage.
      * <p>
      * <b>GET : API URL => /api/v1/option-package/parent-option/{parentOptionId}</b>
      *
-     * @param optionId : UUID
+     * @param parentOptionId : UUID
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see optionPackageBusinessService#searchOne
      */
+    @RequiredLogin
     @GetMapping("/parent-option/{parentOptionId}")
-    public ResponseEntity<?> searchListByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId){
+    public ResponseEntity<?> searchListByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            try {
-                message.setData(optionPackageBusinessService.searchListByParentOptionId(parentOptionId));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("Not found optionId=" + parentOptionId + " value.");
-            }
+        try {
+            message.setData(optionPackageBusinessService.searchListByParentOptionId(parentOptionId));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found optionId=" + parentOptionId + " value.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());

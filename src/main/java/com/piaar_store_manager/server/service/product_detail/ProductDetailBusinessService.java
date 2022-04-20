@@ -8,19 +8,16 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
 
+import com.piaar_store_manager.server.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductDetailBusinessService {
     private final ProductDetailService productDetailService;
-    
-    @Autowired
-    public ProductDetailBusinessService(
-        ProductDetailService productDetailService
-    ) {
-        this.productDetailService = productDetailService;
-    }
+    private final UserService userService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -68,14 +65,16 @@ public class ProductDetailBusinessService {
      * @param userId : UUID
      * @see ProductDetailRepository#save
      */
-    public ProductDetailGetDto createOne(ProductDetailGetDto productDetailGetDto, UUID userId) {
+    public ProductDetailGetDto createOne(ProductDetailGetDto productDetailGetDto) {
+        UUID USER_ID = userService.getUserId();
+
         Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / 1000000;
         
         productDetailGetDto.setDetailCbm(detailCbmValue)
             .setCreatedAt(DateHandler.getCurrentDate2())
-            .setCreatedBy(userId)
+            .setCreatedBy(USER_ID)
             .setUpdatedAt(DateHandler.getCurrentDate2())
-            .setUpdatedBy(userId);
+            .setUpdatedBy(USER_ID);
 
         ProductDetailEntity entity = productDetailService.createOne(ProductDetailEntity.toEntity(productDetailGetDto));
         ProductDetailGetDto dto = ProductDetailGetDto.toDto(entity);
@@ -104,7 +103,9 @@ public class ProductDetailBusinessService {
      * @see ProductDetailService#searchOne
      * @see ProductDetailService#createOne
      */
-    public void changeOne(ProductDetailGetDto dto, UUID userId) {
+    public void changeOne(ProductDetailGetDto dto) {
+        UUID USER_ID = userService.getUserId();
+
         // 상세 데이터 조회
         ProductDetailEntity entity = productDetailService.searchOne(dto.getCid());
         // 상세 데이터 변경
@@ -117,7 +118,7 @@ public class ProductDetailBusinessService {
                         .setDetailWeight(dto.getDetailWeight())
                         .setDetailCbm(detailCbmValue)
                         .setUpdatedAt(DateHandler.getCurrentDate2())
-                        .setUpdatedBy(userId)
+                        .setUpdatedBy(USER_ID)
                         .setProductOptionCid(dto.getProductOptionCid());
 
         productDetailService.createOne(entity);
@@ -132,7 +133,9 @@ public class ProductDetailBusinessService {
      * @param userId : UUID
      * 
      */
-    public void patchOne(ProductDetailGetDto dto, UUID userId) {
+    public void patchOne(ProductDetailGetDto dto) {
+        UUID USER_ID = userService.getUserId();
+
         ProductDetailEntity productDetailEntity = productDetailService.searchOne(dto.getCid());
         Float detailCbmValue = ((float)(dto.getDetailWidth() * dto.getDetailLength() * dto.getDetailHeight())) / 1000000;
 
@@ -151,7 +154,7 @@ public class ProductDetailBusinessService {
         if (dto.getDetailWeight() != null) {
             productDetailEntity.setDetailWeight(dto.getDetailWeight());
         }
-        productDetailEntity.setDetailCbm(detailCbmValue).setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+        productDetailEntity.setDetailCbm(detailCbmValue).setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
 
         productDetailService.createOne(productDetailEntity);
     }

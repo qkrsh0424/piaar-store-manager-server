@@ -248,7 +248,7 @@ public class ProductReleaseBusinessService {
      * @param userId            : UUID
      * @see ProductReleaseService#destroyOne
      */
-    public void destroyOne(Integer productReleaseCid, UUID userId) {
+    public void destroyOne(Integer productReleaseCid) {
         productReleaseService.destroyOne(productReleaseCid);
     }
 
@@ -264,7 +264,7 @@ public class ProductReleaseBusinessService {
      * @see ProductOptionService#updateReleaseProductUnit
      */
     @Transactional
-    public void changeOne(ProductReleaseGetDto releaseDto, UUID userId) {
+    public void changeOne(ProductReleaseGetDto releaseDto) {
         // 출고 데이터 조회
         ProductReleaseEntity entity = productReleaseService.searchOne(releaseDto.getCid());
 
@@ -288,8 +288,8 @@ public class ProductReleaseBusinessService {
      * @see ProductReleaseBusinessService#changeOne
      */
     @Transactional
-    public void changeList(List<ProductReleaseGetDto> releaseDtos, UUID userId) {
-        releaseDtos.stream().forEach(r -> this.changeOne(r, userId));
+    public void changeList(List<ProductReleaseGetDto> releaseDtos) {
+        releaseDtos.stream().forEach(r -> this.changeOne(r));
     }
 
     /**
@@ -304,7 +304,7 @@ public class ProductReleaseBusinessService {
      * @see ProductReleaseService#createPL
      * @see ProductOptionService#updateReleaseProductUnit
      */
-    public void patchOne(ProductReleaseGetDto releaseDto, UUID userId) {
+    public void patchOne(ProductReleaseGetDto releaseDto) {
         ProductReleaseEntity releaseEntity = productReleaseService.searchOne(releaseDto.getCid());
 
         if (releaseDto.getReleaseUnit() != null) {

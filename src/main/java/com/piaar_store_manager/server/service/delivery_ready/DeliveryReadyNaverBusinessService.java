@@ -764,22 +764,6 @@ public class DeliveryReadyNaverBusinessService {
     }
 
     /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 재고 반영 취소 시 출고완료 값을 변경한다.
-     *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
-     * @see DeliveryReadyNaverService#searchDeliveryReadyItemList
-     * @see DeliveryReadyNaverService#createItemList
-     */
-    public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
-        List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
-        List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchDeliveryReadyItemList(itemCids);
-        entities.stream().forEach(entity -> entity.setReleaseCompleted(false));
-        deliveryReadyNaverService.createItemList(entities);
-    }
-
-    /**
      * <b>Update data for delivery ready.</b>
      * <p>
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
@@ -934,7 +918,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see productReceiveBusinessService#createPRList
      */
     @Transactional
-    public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos, UUID userId) {
+    public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemViewDto> dtos) {
         // 재고 반영이 선행된 데이터들만 재고 반영
         List<DeliveryReadyNaverItemViewDto> releasedDtos = dtos.stream().filter(dto -> (dto.getDeliveryReadyItem().getReleaseCompleted()) && (dto.getOptionManagementName() != null)).collect(Collectors.toList());
         this.updateListReleaseCompleted(releasedDtos, false);

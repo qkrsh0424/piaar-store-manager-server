@@ -217,7 +217,9 @@ public class ProductOptionService {
      * @see ProductOptionRepository#findById
      * @see ProductOptionRepository#save
      */
-    public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
+    public void changeOne(ProductOptionGetDto productOptionDto) {
+        UUID USER_ID = userService.getUserId();
+
         productOptionRepository.findById(productOptionDto.getCid()).ifPresentOrElse(productOptionEntity -> {
             productOptionEntity.setCode(productOptionDto.getCode())
                     .setNosUniqueCode(productOptionDto.getNosUniqueCode())
@@ -231,7 +233,7 @@ public class ProductOptionService {
                     .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
                     .setUnitKrw(productOptionDto.getUnitKrw())
                     .setPackageYn(productOptionDto.getPackageYn())
-                    .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
+                    .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID)
                     .setProductCid(productOptionDto.getProductCid());
 
             productOptionRepository.saveAndFlush(productOptionEntity);

@@ -32,6 +32,7 @@ import com.piaar_store_manager.server.service.option_package.OptionPackageServic
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 
+import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,7 @@ public class ProductOptionBusinessService {
     private final ProductReceiveService productReceiveService;
     private final ProductOptionService productOptionService;
     private final OptionPackageService optionPackageService;
+    private final UserService userService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -227,25 +229,29 @@ public class ProductOptionBusinessService {
      * @see ProductOptionService#createOne
      * @see ProductOptionGetDto#toDto
      */
-    public ProductOptionGetDto createOne(ProductOptionGetDto optionGetDto, UUID userId) {
-        optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
-            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+    public ProductOptionGetDto createOne(ProductOptionGetDto optionGetDto) {
+        UUID USER_ID = userService.getUserId();
+
+        optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
 
         ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
         ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
         return dto;
     }
 
-    public ProductOptionGetDto createOAP(ProductOptionCreateReqDto reqDto, UUID userId) {
-        ProductOptionGetDto optionGetDto = reqDto.getOptionDto().setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
-            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+    public ProductOptionGetDto createOAP(ProductOptionCreateReqDto reqDto) {
+        UUID USER_ID = userService.getUserId();
+
+        ProductOptionGetDto optionGetDto = reqDto.getOptionDto().setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
 
         // option save
         ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
 
         List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
-            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(userId)
-                .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(userId);
+            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+                .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
 
             return OptionPackageEntity.toEntity(r);
         }).collect(Collectors.toList());
@@ -278,8 +284,8 @@ public class ProductOptionBusinessService {
      * @param userId : UUID
      * @see ProductOptionService#changeOne
      */
-    public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
-        productOptionService.changeOne(productOptionDto, userId);
+    public void changeOne(ProductOptionGetDto productOptionDto) {
+        productOptionService.changeOne(productOptionDto);
     }
 
     /**
@@ -288,9 +294,9 @@ public class ProductOptionBusinessService {
      * 상품 옵션과 옵션 패키지를 함께 업데이트한다.
      */
     @Transactional
-    public void changeOAP(ProductOptionCreateReqDto reqDto, UUID userId) {
-        productOptionService.changeOne(reqDto.getOptionDto(), userId);
-        this.changeOptionPackage(reqDto, userId);
+    public void changeOAP(ProductOptionCreateReqDto reqDto) {
+        productOptionService.changeOne(reqDto.getOptionDto());
+        this.changeOptionPackage(reqDto);
     }
 
     /**
@@ -299,20 +305,20 @@ public class ProductOptionBusinessService {
      * 옵션 패키지 데이터가 업데이트되는 경우를 나눠 처리한다.
      * (새로운 데이터가 추가된 경우, 기존 데이터가 변경된 경우, 기존 데이터가 제거된 경우)
      */
-    public void changeOptionPackage(ProductOptionCreateReqDto reqDto, UUID userId) {
+    public void changeOptionPackage(ProductOptionCreateReqDto reqDto) {
         // 기존에 저장된 옵션 패키지
         List<OptionPackageEntity> savedOptionPackages = optionPackageService.searchListByParentOptionId(reqDto.getOptionDto().getId());
         List<UUID> savedPackageIdList = savedOptionPackages.stream().map(r -> r.getId()).collect(Collectors.toList());
         
         // 기존 데이터가 변경된 경우
-        this.changeOriginOptionPackage(reqDto, savedOptionPackages, userId);
+        this.changeOriginOptionPackage(reqDto, savedOptionPackages);
 
         List<UUID> packageIdList = reqDto.getPackageDtos().stream().map(r -> r.getId()).collect(Collectors.toList());
 
         // 새로 추가된 데이터
         List<UUID> newPackageIdList = packageIdList.stream().filter(optionPackage -> !savedPackageIdList.contains(optionPackage)).collect(Collectors.toList());
         
-        this.saveAddOptionPackage(reqDto, newPackageIdList, userId);
+        this.saveAddOptionPackage(reqDto, newPackageIdList);
         this.deleteOriginOptionPackage(savedOptionPackages, packageIdList);
     }
 
@@ -321,12 +327,14 @@ public class ProductOptionBusinessService {
      * <p>
      * 옵션 패키지 데이터 중 새로 추가된 데이터들을 저장한다.
      */
-    public void saveAddOptionPackage(ProductOptionCreateReqDto reqDto, List<UUID> newPackageIdList, UUID userId) {
+    public void saveAddOptionPackage(ProductOptionCreateReqDto reqDto, List<UUID> newPackageIdList) {
+        UUID USER_ID = userService.getUserId();
+
         List<OptionPackageEntity> newOptionPackageEntities = new ArrayList<>();
         reqDto.getPackageDtos().stream().forEach(r -> {
             if (newPackageIdList.contains(r.getId())) {
-                r.setCreatedAt(LocalDateTime.now()).setCreatedBy(userId)
-                        .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(userId);
+                r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+                        .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
 
                 newOptionPackageEntities.add(OptionPackageEntity.toEntity(r));
             }
@@ -340,7 +348,9 @@ public class ProductOptionBusinessService {
      * <p>
      * 옵션 패키지 데이터 중 기존에 저장된 데이터들의 내용을 업데이트한다.
      */
-    public void changeOriginOptionPackage(ProductOptionCreateReqDto reqDto, List<OptionPackageEntity> savedOptionPackages, UUID userId) {
+    public void changeOriginOptionPackage(ProductOptionCreateReqDto reqDto, List<OptionPackageEntity> savedOptionPackages) {
+        UUID USER_ID = userService.getUserId();
+
         // 변경된 데이터
         reqDto.getPackageDtos().stream().forEach(optionPackage -> {
             savedOptionPackages.stream().forEach(entity -> {
@@ -349,7 +359,7 @@ public class ProductOptionBusinessService {
                             .setOriginOptionCode(optionPackage.getOriginOptionCode())
                             .setOriginOptionId(optionPackage.getOriginOptionId())
                             .setUpdatedAt(LocalDateTime.now())
-                            .setUpdatedBy(userId);
+                            .setUpdatedBy(USER_ID);
                 }
             });
         });
@@ -386,7 +396,8 @@ public class ProductOptionBusinessService {
      * @see ProductOptionService#searchOne
      * @see ProductOptionService#createOne
      */
-    public void patchOne(ProductOptionGetDto productOptionDto, UUID userId) {
+    public void patchOne(ProductOptionGetDto productOptionDto) {
+        UUID USER_ID = userService.getUserId();
         ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
         if (productOptionDto.getCode() != null) {
@@ -434,7 +445,7 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
-        productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+        productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
         productOptionService.createOne(productOptionEntity);
     }
 }

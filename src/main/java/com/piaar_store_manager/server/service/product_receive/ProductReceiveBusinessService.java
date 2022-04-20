@@ -126,8 +126,10 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveGetDto#toDto
      */
     @Transactional
-    public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto, UUID userId) {
-        productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
+    public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto) {
+        UUID USER_ID = userService.getUserId();
+
+        productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
 
         // ProductReceive 데이터 생성
         ProductReceiveEntity entity = productReceiveService.createPR(ProductReceiveEntity.toEntity(productReceiveGetDto));
@@ -269,8 +271,9 @@ public class ProductReceiveBusinessService {
      * @param userId : UUID
      * @see ProductReceiveService#destroyOne
      */
-    public void destroyOne(Integer productReceiveCid, UUID userId) {
-        productReceiveService.destroyOne(productReceiveCid, userId);
+    public void destroyOne(Integer productReceiveCid) {
+        UUID USER_ID = userService.getUserId();
+        productReceiveService.destroyOne(productReceiveCid, USER_ID);
     }
 
     /**
@@ -286,7 +289,7 @@ public class ProductReceiveBusinessService {
      * @see ProductOptionService#updateReceiveProductUnit
      */
     @Transactional
-    public void changeOne(ProductReceiveGetDto receiveDto, UUID userId) {
+    public void changeOne(ProductReceiveGetDto receiveDto) {
         // 입고 데이터 조회
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
         
@@ -307,12 +310,11 @@ public class ProductReceiveBusinessService {
      * ProductOption 의 재고수량을 변경한다.
      * 
      * @param receiveDtos : List::roductReceiveGetDto::
-     * @param userId : UUID
      * @see ProductReceiveBusinessService#changeOne
      */
     @Transactional
-    public void changeList(List<ProductReceiveGetDto> receiveDtos, UUID userId) {
-        receiveDtos.stream().forEach(r -> this.changeOne(r, userId));
+    public void changeList(List<ProductReceiveGetDto> receiveDtos) {
+        receiveDtos.stream().forEach(r -> this.changeOne(r));
     }
 
     /**
@@ -321,12 +323,11 @@ public class ProductReceiveBusinessService {
      * ProductReceive cid 값과 상응되는 데이터의 일부분을 업데이트한다.
      * 
      * @param receiveDto : ProductReceiveGetDto
-     * @param userId : UUID
      * @see ProductReceiveService#searchOne
      * @see ProductReceiveService#createPR
      * @see ProductOptionService#updateReceiveProductUnit
      */
-    public void patchOne(ProductReceiveGetDto receiveDto, UUID userId) {
+    public void patchOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
 
         if (receiveDto.getReceiveUnit() != null) {

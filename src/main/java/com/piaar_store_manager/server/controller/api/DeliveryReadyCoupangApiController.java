@@ -11,7 +11,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.annotation.RequiredRoleManager;
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
@@ -34,7 +34,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,11 +50,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/delivery-ready/coupang")
 @RequiredArgsConstructor
-@RequiredLogin
-@RequiredRoleManager
 public class DeliveryReadyCoupangApiController {
     private final DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService;
-    private final UserService userService;
 
     /**
      * Upload excel data for delivery ready.
@@ -72,6 +68,8 @@ public class DeliveryReadyCoupangApiController {
      * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#uploadDeliveryReadyExcelFile
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws ParseException {
         Message message = new Message();
@@ -112,6 +110,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/store")
     public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws ParseException {
         Message message = new Message();
@@ -121,7 +121,7 @@ public class DeliveryReadyCoupangApiController {
             throw new FileUploadException("This is not an excel file.");
         }
 
-        deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId());
+        deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -140,6 +140,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/unreleased")
     public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
         Message message = new Message();
@@ -165,6 +167,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/released")
     public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
@@ -189,6 +193,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @DeleteMapping("/view/delete/one/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
@@ -219,6 +225,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/delete/batch")
     public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
@@ -249,6 +257,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/one")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
@@ -279,6 +289,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/list/unrelease")
     public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
@@ -305,10 +317,12 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/list/release")
     public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         Message message = new Message();
@@ -338,6 +352,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/search/list/option-info")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
         Message message = new Message();
@@ -362,6 +378,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/option")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
@@ -392,6 +410,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/options")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
@@ -422,6 +442,8 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/release-option")
     public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
@@ -454,12 +476,14 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/stock-unit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.releaseListStockUnit(dtos, userService.getUserId());
+            deliveryReadyCoupangBusinessService.releaseListStockUnit(dtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -486,12 +510,14 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/stock-unit/cancel")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.cancelReleaseListStockUnit(dtos, userService.getUserId());
+            deliveryReadyCoupangBusinessService.cancelReleaseListStockUnit(dtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -514,6 +540,8 @@ public class DeliveryReadyCoupangApiController {
      * @see DeliveryReadyCoupangBusinessService#changeDeliveryReadyItemToHansan
      * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
 
@@ -647,6 +675,8 @@ public class DeliveryReadyCoupangApiController {
      * @see HttpStatus
      * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
@@ -796,6 +826,8 @@ public class DeliveryReadyCoupangApiController {
      * @see Message
      * @see HttpStatus
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/lotte")
     public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         // 중복데이터 처리
@@ -914,6 +946,8 @@ public class DeliveryReadyCoupangApiController {
         deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/excel")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyCoupangItemExcelFormDto> dtos = new ArrayList<>();

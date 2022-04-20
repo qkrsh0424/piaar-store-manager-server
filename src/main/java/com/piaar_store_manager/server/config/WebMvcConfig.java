@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.config;
 
 import com.piaar_store_manager.server.config.interceptor.RequiredLoginInterceptor;
-import com.piaar_store_manager.server.config.interceptor.RequiredRoleManagerInterceptor;
+import com.piaar_store_manager.server.config.interceptor.PermissionRoleInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -25,6 +25,6 @@ public class WebMvcConfig implements WebMvcConfigurer{
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RequiredLoginInterceptor());
-        registry.addInterceptor(new RequiredRoleManagerInterceptor());
+        registry.addInterceptor(new PermissionRoleInterceptor());
     }
 }

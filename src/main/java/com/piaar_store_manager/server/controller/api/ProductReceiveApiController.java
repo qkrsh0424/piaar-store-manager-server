@@ -2,11 +2,14 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.List;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/product-receive")
+@RequiredArgsConstructor
 public class ProductReceiveApiController {
-    private ProductReceiveBusinessService productReceiveBusinessService;
-    private UserService userService;
-
-    @Autowired
-    public ProductReceiveApiController(
-        ProductReceiveBusinessService productReceiveBusinessService,
-        UserService userService
-    ) {
-        this.productReceiveBusinessService = productReceiveBusinessService;
-        this.userService = userService;
-    }
+    private final ProductReceiveBusinessService productReceiveBusinessService;
 
     /**
      * Search one api for productReceive.
@@ -46,23 +40,18 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchOne
      */
+    @RequiredLogin
     @GetMapping("/one/{productReceiveCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            try {
-                message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
-            }
+        try {
+            message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -75,30 +64,25 @@ public class ProductReceiveApiController {
      * <p>
      * ProductReceive cid 값과 상응되는 데이터를 조회한다.
      * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
-     * 
+     *
      * @param productReceiveCid : Integer
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchOneM2OJ
      */
+    @RequiredLogin
     @GetMapping("/one-m2oj/{productReceiveCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            try {
-                message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
-            }
+        try {
+            message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -114,19 +98,14 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchList
      */
+    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            message.setData(productReceiveBusinessService.searchList());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        }
+        message.setData(productReceiveBusinessService.searchList());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -142,23 +121,18 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchList
      */
+    @RequiredLogin
     @GetMapping("/list/{productOptionCid}")
     public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            try {
-                message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
-            }
+        try {
+            message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -176,19 +150,14 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchListM2OJ
      */
+    @RequiredLogin
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
-        
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            message.setData(productReceiveBusinessService.searchListM2OJ());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        }
+
+        message.setData(productReceiveBusinessService.searchListM2OJ());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -198,7 +167,7 @@ public class ProductReceiveApiController {
      * And Update list api for productOption.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/one</b>
-     * 
+     *
      * @param productReceiveGetDto : ProductReceiveGetDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -208,21 +177,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        // 유저 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.createPR(productReceiveGetDto, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.createPR(productReceiveGetDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -232,7 +198,7 @@ public class ProductReceiveApiController {
      * Create list api for productReceive.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/list</b>
-     * 
+     *
      * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
@@ -242,21 +208,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.createPRList(productReceiveGetDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.createPRList(productReceiveGetDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -276,21 +239,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReceiveCid}")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.destroyOne(productReceiveCid, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.destroyOne(productReceiveCid);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -310,21 +270,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
 
-        //유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.changeOne(receiveDto, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.changeOne(receiveDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -344,21 +301,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        //유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.changeList(productReceiveGetDtos, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.changeList(productReceiveGetDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -378,21 +332,18 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
+    @RequiredLogin
+    @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        //유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try{
-                productReceiveBusinessService.patchOne(productReceiveGetDto, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch(Exception e) {
-                message.setStatus(HttpStatus.BAD_REQUEST);
-                message.setMessage("error");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            productReceiveBusinessService.patchOne(productReceiveGetDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (Exception e) {
+            message.setStatus(HttpStatus.BAD_REQUEST);
+            message.setMessage("error");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
