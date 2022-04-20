@@ -234,9 +234,8 @@ public class ProductOptionService {
                     .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId)
                     .setProductCid(productOptionDto.getProductCid());
 
-            productOptionRepository.save(productOptionEntity);
+            productOptionRepository.saveAndFlush(productOptionEntity);
         }, null);
-
     }
 
     /**

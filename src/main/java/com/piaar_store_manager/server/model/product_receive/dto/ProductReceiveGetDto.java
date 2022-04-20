@@ -33,7 +33,7 @@ public class ProductReceiveGetDto {
      * <p>
      * ProductReceiveEntity => ProductReceiveGetDto
      * 
-     * @param productReceiveEntity : ProductReceiveEntity
+     * @param entity : ProductReceiveEntity
      * @return ProductReceiveGetDto
      */
     public static ProductReceiveGetDto toDto(ProductReceiveEntity entity) {

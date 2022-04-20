@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.model.product_option.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Tuple;
 
@@ -112,7 +113,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     List<Tuple> sumStockUnitByOption(List<Integer> optionCids);
 
     @Query(
-        "SELECT po FROM ProductOptionEntity  po\n" +
+        "SELECT po FROM ProductOptionEntity po\n" +
         "WHERE po.cid IN :cids"
     )
     List<ProductOptionEntity> findAllByCids(List<Integer> cids);
