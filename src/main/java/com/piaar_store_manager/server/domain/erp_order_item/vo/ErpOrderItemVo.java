@@ -1,17 +1,25 @@
 package com.piaar_store_manager.server.domain.erp_order_item.vo;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.apache.poi.ss.usermodel.*;
 
 @Builder
 @Data
@@ -188,5 +196,142 @@ public class ErpOrderItemVo {
                 .build();
 
         return itemVo;
+    }
+
+    public static List<ErpOrderItemVo> excelSheetToVos(Sheet worksheet){
+        Integer PIAAR_ERP_ORDER_ITEM_SIZE = 34;
+        Integer PIAAR_ERP_ORDER_MEMO_START_INDEX = 24;
+
+        List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
+                "피아르 고유번호",
+                "상품명",
+                "옵션정보",
+                "수량",
+                "수취인명",
+                "전화번호1",
+                "전화번호2",
+                "주소",
+                "판매채널",
+                "판매채널 주문번호1",
+                "판매채널 주문번호2",
+                "판매채널 상품코드",
+                "판매채널 옵션코드",
+                "우편번호",
+                "택배사",
+                "배송방식",
+                "배송메세지",
+                "운송장번호",
+                "판매금액",
+                "배송비",
+                "바코드",
+                "피아르 상품코드",
+                "피아르 옵션코드",
+                "출고 옵션코드",
+                "관리메모1",
+                "관리메모2",
+                "관리메모3",
+                "관리메모4",
+                "관리메모5",
+                "관리메모6",
+                "관리메모7",
+                "관리메모8",
+                "관리메모9",
+                "관리메모10"
+        );
+
+        List<ErpOrderItemVo> itemVos = new ArrayList<>();
+
+        Row firstRow = worksheet.getRow(0);
+        // 피아르 엑셀 양식 검사
+        for (int i = 0; i < PIAAR_ERP_ORDER_ITEM_SIZE; i++) {
+            Cell cell = firstRow.getCell(i);
+            String headerName = cell != null ? cell.getStringCellValue() : null;
+            // 지정된 양식이 아니라면
+            if (!PIAAR_ERP_ORDER_HEADER_NAME_LIST.get(i).equals(headerName)) {
+                throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+            }
+        }
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            Row row = worksheet.getRow(i);
+            if (row == null)
+                break;
+
+            Object cellValue = new Object();
+            List<String> customManagementMemo = new ArrayList<>();
+
+            // type check and data setting of managementMemo1~10.
+            for (int j = PIAAR_ERP_ORDER_MEMO_START_INDEX; j < PIAAR_ERP_ORDER_ITEM_SIZE; j++) {
+                Cell cell = row.getCell(j);
+
+                if (cell == null || cell.getCellType().equals(CellType.BLANK)) {
+                    cellValue = "";
+                } else if (cell.getCellType().equals(CellType.NUMERIC)) {
+                    if (DateUtil.isCellDateFormatted(cell)) {
+                        Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
+                        LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
+                        String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                        cellValue = newDate;
+                    } else {
+                        cellValue = cell.getNumericCellValue();
+                    }
+                } else {
+                    cellValue = cell.getStringCellValue();
+                }
+                customManagementMemo.add(cellValue.toString());
+            }
+
+            // price, deliveryCharge - 엑셀 타입 string, number 허용
+            String priceStr = (row.getCell(18) == null) ? "0" : (row.getCell(18).getCellType().equals(CellType.NUMERIC) ?
+                    Integer.toString((int) row.getCell(18).getNumericCellValue()) : row.getCell(18).getStringCellValue());
+
+            String deliveryChargeStr = (row.getCell(19) == null) ? "0" : (row.getCell(19).getCellType().equals(CellType.NUMERIC) ?
+                    Integer.toString((int) row.getCell(19).getNumericCellValue()) : row.getCell(19).getStringCellValue());
+
+            // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
+            String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());
+
+            ErpOrderItemVo excelVo = ErpOrderItemVo.builder()
+                    .uniqueCode(null)
+                    .prodName(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
+                    .optionName(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
+                    .unit(row.getCell(3) != null ? Integer.toString((int) row.getCell(3).getNumericCellValue()) : "")
+                    .receiver(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "")
+                    .receiverContact1(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "")
+                    .receiverContact2(row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "")
+                    .destination(row.getCell(7) != null ? row.getCell(7).getStringCellValue() : "")
+                    .salesChannel(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
+                    .orderNumber1(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
+                    .orderNumber2(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
+                    .channelProdCode(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : "")
+                    .channelOptionCode(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : "")
+                    .zipCode(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
+                    .courier(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
+                    .transportType(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
+                    .deliveryMessage(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
+                    .waybillNumber(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : "")
+                    .price(priceStr)
+                    .deliveryCharge(deliveryChargeStr)
+                    .barcode(row.getCell(20) != null ? row.getCell(20).getStringCellValue() : "")
+                    .prodCode(row.getCell(21) != null ? row.getCell(21).getStringCellValue() : "")
+                    .optionCode(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : "")
+                    .releaseOptionCode(releaseOptionCode)
+                    .managementMemo1(customManagementMemo.get(0))
+                    .managementMemo2(customManagementMemo.get(1))
+                    .managementMemo3(customManagementMemo.get(2))
+                    .managementMemo4(customManagementMemo.get(3))
+                    .managementMemo5(customManagementMemo.get(4))
+                    .managementMemo6(customManagementMemo.get(5))
+                    .managementMemo7(customManagementMemo.get(6))
+                    .managementMemo8(customManagementMemo.get(7))
+                    .managementMemo9(customManagementMemo.get(8))
+                    .managementMemo10(customManagementMemo.get(9))
+                    .freightCode(null)
+                    .build();
+
+            itemVos.add(excelVo);
+        }
+        return itemVos;
     }
 }

@@ -34,6 +34,7 @@ public class ErpOrderItemApi {
 
     /**
      * Upload excel data for order excel.
+     * 주문 파일 업로드 엑셀 대량등록시 사용하는 API
      * <p>
      * <b>POST : API URL => /api/v1/erp-order-items/excel/upload</b>
      *
