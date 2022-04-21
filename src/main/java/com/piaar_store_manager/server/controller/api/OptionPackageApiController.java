@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/option-package")
 @RequiredArgsConstructor
+@RequiredLogin
 public class OptionPackageApiController {
     private final OptionPackageBusinessService optionPackageBusinessService;
 
@@ -32,7 +33,6 @@ public class OptionPackageApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @GetMapping("/parent-option/{parentOptionId}")
     public ResponseEntity<?> searchListByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId) {
         Message message = new Message();

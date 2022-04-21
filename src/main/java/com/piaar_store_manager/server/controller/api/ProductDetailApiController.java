@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-detail")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ProductDetailApiController {
     private final ProductDetailBusinessService productDetailBusinessService;
 
@@ -38,7 +39,6 @@ public class ProductDetailApiController {
      * @see HttpStatus
      * @see ProductDetailBusinessService#searchOne
      */
-    @RequiredLogin
     @GetMapping("/one/{detailCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "detailCid") Integer detailCid) {
         Message message = new Message();
@@ -65,7 +65,6 @@ public class ProductDetailApiController {
      * @see HttpStatus
      * @see ProductDetailBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list/{optionCid}")
     public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "optionCid") Integer optionCid) {
         Message message = new Message();
@@ -82,7 +81,6 @@ public class ProductDetailApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchAll() {
         Message message = new Message();
@@ -108,7 +106,6 @@ public class ProductDetailApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();
@@ -138,7 +135,6 @@ public class ProductDetailApiController {
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{detailCid}")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "detailCid") Integer detailCid) {
         Message message = new Message();
@@ -169,7 +165,6 @@ public class ProductDetailApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();
@@ -200,7 +195,6 @@ public class ProductDetailApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();

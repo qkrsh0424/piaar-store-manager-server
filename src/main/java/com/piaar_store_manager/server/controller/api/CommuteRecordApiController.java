@@ -14,10 +14,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/commute-record")
 @RequiredArgsConstructor
+@RequiredLogin
 public class CommuteRecordApiController {
     private final CommuteRecordBusinessService commuteRecordBusinessService;
 
-    @RequiredLogin
     @GetMapping("/today/strict")
     public ResponseEntity<?> searchTodayRecordStrict() {
         Message message = new Message();
@@ -27,7 +27,6 @@ public class CommuteRecordApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @RequiredLogin
     @PatchMapping("/work/start")
     public ResponseEntity<?> setWorkStart(@RequestBody Map<String, Object> params){
         Message message = new Message();
@@ -37,7 +36,6 @@ public class CommuteRecordApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @RequiredLogin
     @PatchMapping("/work/end")
     public ResponseEntity<?> setWorkEnd(@RequestBody Map<String, Object> params){
         Message message = new Message();

@@ -43,9 +43,10 @@ public class ProductJoinResDto {
             .category(ProductCategoryGetDto.toDto(proj.getCategory()))
             .user(UserGetDto.toDto(proj.getUser()))
             // .options(proj.getOptions().stream().map(r->ProductOptionGetDto.toDto(r)).collect(Collectors.toList()))
-            .build()
-        ;
+            .build();
 
         return dto;
     }
+
+
 }

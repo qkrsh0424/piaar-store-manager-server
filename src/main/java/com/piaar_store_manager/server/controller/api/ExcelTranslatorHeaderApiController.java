@@ -42,17 +42,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/excel-translator")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ExcelTranslatorHeaderApiController {
 
     private final ExcelTranslatorHeaderBusinessService excelTranslatorHeaderBusinessService;
 
     /**
      * Create one api for excel translator header.
-     * 
-     * @param dto : ExcelTranslatorHeaderGetDto
-     * @see ExcelTranslatorHeaderSerivce#createTitle
      */
-    @RequiredLogin
     @PostMapping("/one")
     public ResponseEntity<?> createExcelTranslatorHeaderTitle(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
@@ -70,7 +67,6 @@ public class ExcelTranslatorHeaderApiController {
      * @see ExcelTranslatorHeaderBusinessService#searchList
      */
     @GetMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> searchExcelTranslatorHeader() {
         Message message = new Message();
@@ -87,7 +83,6 @@ public class ExcelTranslatorHeaderApiController {
      * 
      * @see ExcelTranslatorHeaderBusinessService#changeOne
      */
-    @RequiredLogin
     @PutMapping("/one")
     public ResponseEntity<?> changeExcelTranslatorHeader(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
@@ -105,7 +100,6 @@ public class ExcelTranslatorHeaderApiController {
      * @query query : Map::String, Object::
      * @see ExcelTranslatorHeaderBusinessService#deleteOne
      */
-    @RequiredLogin
     @DeleteMapping("/one")
     public ResponseEntity<?> deleteExcelTranslatorHeader(@RequestParam Map<String, Object> query) {
         Message message = new Message();
@@ -124,7 +118,6 @@ public class ExcelTranslatorHeaderApiController {
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderBusinessService#uploadExcelFile
      */
-    @RequiredLogin
     @PostMapping("/upload")
     public ResponseEntity<?> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestPart ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
@@ -148,7 +141,6 @@ public class ExcelTranslatorHeaderApiController {
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderBusinessService#updateUploadHeaderDetailOfExcelTranslator
      */
-    @RequiredLogin
     @PutMapping("/header/upload/one")
     public ResponseEntity<?> updateUploadHeaderDetailOfExcelTranslator(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
@@ -170,7 +162,6 @@ public class ExcelTranslatorHeaderApiController {
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderBusinessService#updateDownloadHeaderDetailOfExcelTranslator
      */
-    @RequiredLogin
     @PutMapping("/header/download/one")
     public ResponseEntity<?> updateDownloadHeaderDetailOfExcelTranslator(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
@@ -188,7 +179,6 @@ public class ExcelTranslatorHeaderApiController {
      * @param response : HttpServletResponse
      * @param dtos : List::DownloadExcelDataGetDto::
      */
-    @RequiredLogin
     @PostMapping("/download")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DownloadExcelDataGetDto> dtos) {
 
@@ -253,7 +243,6 @@ public class ExcelTranslatorHeaderApiController {
      * @param response : HttpServletResponse
      * @param dtos : List::DownloadExcelDataGetDto::
      */
-    @RequiredLogin
     @PostMapping("/header/upload/download")
     public void downloadUploadedDetails(HttpServletResponse response, @RequestBody List<UploadedDetailDto> dtos) {
 

@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeaderDto;
 import com.piaar_store_manager.server.domain.erp_order_header.service.ErpOrderHeaderBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/erp-order-headers")
+@RequiredLogin
 public class ErpOrderHeaderApi {
     private ErpOrderHeaderBusinessService erpOrderHeaderBusinessService;
 

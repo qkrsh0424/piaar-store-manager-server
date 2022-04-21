@@ -35,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/order-registration/naver")
 @RequiredArgsConstructor
+@RequiredLogin
 public class OrderRegistrationNaverApiController {
     private final OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService;
 
@@ -56,7 +57,6 @@ public class OrderRegistrationNaverApiController {
      * @see OrderRegistrationNaverBusinessService#uploadHansanExcelFile
      * @see UserService#isUserLogin
      */
-    @RequiredLogin
     @PostMapping("/upload/hansan")
     public ResponseEntity<?> uploadHansanExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -93,7 +93,6 @@ public class OrderRegistrationNaverApiController {
      * @see HttpStatus
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByHansanFormDto
      */
-    @RequiredLogin
     @PostMapping("/download/hansan")
     public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationHansanExcelFormDto> hansanDto) {
 
@@ -161,7 +160,6 @@ public class OrderRegistrationNaverApiController {
      * @see OrderRegistrationNaverBusinessService#uploadTailoExcelFile
      * @see UserService#isUserLogin
      */
-    @RequiredLogin
     @PostMapping("/upload/tailo")
     public ResponseEntity<?> uploadTailoExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -198,7 +196,6 @@ public class OrderRegistrationNaverApiController {
      * @see HttpStatus
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByTailoFormDto
      */
-    @RequiredLogin
     @PostMapping("/download/tailo")
     public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDto) {
 

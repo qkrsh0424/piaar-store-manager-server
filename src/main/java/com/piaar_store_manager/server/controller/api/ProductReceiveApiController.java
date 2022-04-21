@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-receive")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ProductReceiveApiController {
     private final ProductReceiveBusinessService productReceiveBusinessService;
 
@@ -40,7 +41,6 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchOne
      */
-    @RequiredLogin
     @GetMapping("/one/{productReceiveCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
@@ -71,7 +71,6 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchOneM2OJ
      */
-    @RequiredLogin
     @GetMapping("/one-m2oj/{productReceiveCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
@@ -98,7 +97,6 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -121,7 +119,6 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list/{productOptionCid}")
     public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -150,7 +147,6 @@ public class ProductReceiveApiController {
      * @see HttpStatus
      * @see ProductReceiveBusinessService#searchListM2OJ
      */
-    @RequiredLogin
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
@@ -177,7 +173,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
@@ -208,7 +203,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
@@ -239,7 +233,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReceiveCid}")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
@@ -270,7 +263,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
@@ -301,7 +293,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
@@ -332,7 +323,6 @@ public class ProductReceiveApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();

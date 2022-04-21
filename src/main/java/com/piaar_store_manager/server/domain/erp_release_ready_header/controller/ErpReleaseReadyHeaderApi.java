@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_release_ready_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.dto.ErpReleaseReadyHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.service.ErpReleaseReadyHeaderBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/erp-release-ready-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpReleaseReadyHeaderApi {
     private final ErpReleaseReadyHeaderBusinessService erpReleaseReadyHeaderBusinessService;
 

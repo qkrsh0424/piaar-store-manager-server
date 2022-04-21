@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.controller.api;
 
-import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ProductApiController {
     private final ProductBusinessService productBusinessService;
 
@@ -34,7 +35,6 @@ public class ProductApiController {
      * @see UserService#isUserLogin
      * @see ProductBusinessService#searchOne
      */
-    @RequiredLogin
     @GetMapping("/one/{productCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
@@ -66,7 +66,6 @@ public class ProductApiController {
      * @see UserService#isUserLogin
      * @see ProductBusinessService#searchOneM2OJ
      */
-    @RequiredLogin
     @GetMapping("/one-m2oj/{productCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
@@ -98,7 +97,6 @@ public class ProductApiController {
      * @see UserService#isUserLogin
      * @see ProductBusinessService#searchOneFJ
      */
-    @RequiredLogin
     @GetMapping("/one-fj/{productCid}")
     public ResponseEntity<?> searchOneFJ(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
@@ -126,7 +124,6 @@ public class ProductApiController {
      * @see UserServie#isUserLogin
      * @see ProductBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -149,7 +146,6 @@ public class ProductApiController {
      * @see UserServie#isUserLogin
      * @see productBusinessService#searchListByCategory
      */
-    @RequiredLogin
     @GetMapping("/list/{categoryCid}")
     public ResponseEntity<?> searchListByCategory(@PathVariable(value = "categoryCid") Integer categoryCid) {
         Message message = new Message();
@@ -172,7 +168,6 @@ public class ProductApiController {
      * @see UserService#isUserLogin
      * @see ProductBusinessService#searchListM2OJ
      */
-    @RequiredLogin
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
@@ -195,7 +190,6 @@ public class ProductApiController {
      * @see UserService#isUserLogin
      * @see ProductBusinessService#searchListFJ
      */
-    @RequiredLogin
     @GetMapping("/list-fj")
     public ResponseEntity<?> searchListFJ() {
         Message message = new Message();
@@ -217,7 +211,6 @@ public class ProductApiController {
      * @see HttpStatus
      * @see ProductBusinessService#searchListFJ
      */
-    @RequiredLogin
     @GetMapping("/list-fj/stock")
     public ResponseEntity<?> searchStockListFJ() {
         Message message = new Message();
@@ -243,7 +236,6 @@ public class ProductApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductCreateReqDto productCreateReqDto) {
         Message message = new Message();
@@ -274,7 +266,6 @@ public class ProductApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductCreateReqDto> productCreateReqDtos) {
         Message message = new Message();
@@ -308,7 +299,6 @@ public class ProductApiController {
      * @see ProductBusinessService#destroyOne
      * @see UserService#userDenyCheck
      */
-    @RequiredLogin
     @PermissionRole(role = "ROLE_SUPERADMIN")
     @DeleteMapping("/one/{productId}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
@@ -341,7 +331,6 @@ public class ProductApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductGetDto productGetDto) {
         Message message = new Message();
@@ -372,7 +361,6 @@ public class ProductApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changePAOList(@RequestBody List<ProductCreateReqDto> productCreateReqDto) {
         Message message = new Message();
@@ -403,7 +391,6 @@ public class ProductApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductGetDto productGetDto) {
         Message message = new Message();

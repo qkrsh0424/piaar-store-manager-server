@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.account_book.AccountBookService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/account-book")
 @RequiredArgsConstructor
+@RequiredLogin
 public class AccountBookApiController {
 
     private final AccountBookService accountBookService;
@@ -46,7 +46,6 @@ public class AccountBookApiController {
      * @see AccountBookService#searchPagenation
      */
     @GetMapping("/list")
-    @RequiredLogin
     public ResponseEntity<?> searchList(@RequestParam Map<String, Object> query) {
 
         Message message = new Message();
@@ -70,7 +69,6 @@ public class AccountBookApiController {
      * @see AccountBookDefDto
      * @see AccountBookService#createList
      */
-    @RequiredLogin
     @PostMapping("/list")
     public ResponseEntity<?> createList(@RequestBody List<AccountBookDefDto> accountBookDefDtos) {
         Message message = new Message();
@@ -95,7 +93,6 @@ public class AccountBookApiController {
      * @see HttpStatus
      * @see AccountBookService#getSumIncome
      */
-    @RequiredLogin
     @GetMapping("/sum/income")
     public ResponseEntity<?> calcSumIncome(@RequestParam Map<String, Object> query) {
         Message message = new Message();
@@ -119,7 +116,6 @@ public class AccountBookApiController {
      * @see HttpStatus
      * @see AccountBookService#getSumExpenditure
      */
-    @RequiredLogin
     @GetMapping("/sum/expenditure")
     public ResponseEntity<?> calcSumExpenditure(@RequestParam Map<String, Object> query) {
         Message message = new Message();
@@ -143,7 +139,6 @@ public class AccountBookApiController {
      * @see HttpStatus
      * @see AccountBookService#destroyOne
      */
-    @RequiredLogin
     @PermissionRole
     @DeleteMapping("/one")
     public ResponseEntity<?> destroyOne(@RequestParam("id") UUID id) {
@@ -175,7 +170,6 @@ public class AccountBookApiController {
      * @see HttpStatus
      * @see AccountBookService#patchOne
      */
-    @RequiredLogin
     @PatchMapping("/{accountBookId}")
     public ResponseEntity<?> patchOne(@PathVariable(value = "accountBookId") UUID accountBookId, @RequestBody AccountBookDefDto accountBookDefDto) {
         Message message = new Message();

@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.controller;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
@@ -30,6 +31,7 @@ import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 @RestController
 @RequestMapping("/api/v1/erp-download-excel-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpDownloadExcelHeaderApi {
     private final ErpDownloadExcelHeaderBusinessService erpDownloadExcelHeaderBusinessService;
 

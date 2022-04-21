@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_second_merge_header.controller;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import com.piaar_store_manager.server.model.message.Message;
 @RestController
 @RequestMapping("/api/v1/erp-second-merge-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpSecondMergeHeaderApi {
     private ErpSecondMergeHeaderBusinessService erpSecondMergeHeaderBusinessService;
 

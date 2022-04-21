@@ -19,7 +19,17 @@ public class RequiredLoginInterceptor implements HandlerInterceptor {
 
         HandlerMethod method = (HandlerMethod) handler;
 
+        /**
+         * RequiredLogin requiredLogin = method.getMethodAnnotation(RequiredLogin.class); => 메서드 단에서 처리
+         * 만약에
+         * RequiredLogin requiredLogin = method.getBean().getClass().getAnnotation(RequiredLogin.class);
+         * 에서 버그 발생시 메서드 단에서 처리하는 부분으로 다시 복구
+         */
         RequiredLogin requiredLogin = method.getMethodAnnotation(RequiredLogin.class);
+
+        if(requiredLogin == null) {
+            requiredLogin = method.getBean().getClass().getAnnotation(RequiredLogin.class);
+        }
 
         if(requiredLogin == null) {
             return true;

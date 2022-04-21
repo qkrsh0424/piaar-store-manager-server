@@ -25,7 +25,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
         "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"+
         "WHERE p.cid=:cid"
     )
-    Optional<ProductProj> selectByCid(Integer cid);
+    Optional<ProductProj> searchOneM2OJ(Integer cid);
 
     // FIX : Added "ORDER BY" query for product.created_at ASC
     /**

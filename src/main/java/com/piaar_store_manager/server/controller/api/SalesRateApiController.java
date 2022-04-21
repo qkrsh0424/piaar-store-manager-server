@@ -29,12 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/sales-rate")
 @RequiredArgsConstructor
+@RequiredLogin
 public class SalesRateApiController {
 
     private final SalesRateService salesRateService;
 
     // /api/v1/sales-rate/excel/naver/read
-    @RequiredLogin
     @PostMapping("/excel/naver/read")
     public ResponseEntity<?> readSalesRate(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();

@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product.dto.ProductCreateReqDto;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
@@ -26,46 +23,42 @@ import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductBusinessService {
     private final ProductService productService;
     private final ProductOptionService productOptionService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * Product cid 값과 상응되는 데이터를 조회한다.
-     *
-     * @param productCid : Integer
-     * @return ProductGetDto
-     * @see ProductService#searchOne
-     * @see ProductGetDto#toDto
-     */
     public ProductGetDto searchOne(Integer productCid) {
         ProductEntity entity = productService.searchOne(productCid);
-        ProductGetDto dto = ProductGetDto.toDto(entity);
-        return dto;
+        return ProductGetDto.toDto(entity);
+    }
+
+    public List<ProductGetDto> searchList() {
+        List<ProductEntity> entities = productService.searchList();
+        List<ProductGetDto> dtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
      * Product cid 값과 상응되는 데이터를 조회한다.
-     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * Product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category 조회한다.
      *
      * @param productCid : Integer
      * @return ProductJoinResDto
-     * @see ProductService#searchProjOne
+     * @see ProductService#searchOneM2OJ
      * @see ProductJoinResDto#toDto
      */
     public ProductJoinResDto searchOneM2OJ(Integer productCid) {
-        ProductProj productProj = productService.searchProjOne(productCid);
-        ProductJoinResDto resDto = ProductJoinResDto.toDto(productProj);
-        return resDto;
+        ProductProj productProj = productService.searchOneM2OJ(productCid);
+        return ProductJoinResDto.toDto(productProj);
     }
 
     /**
@@ -76,32 +69,16 @@ public class ProductBusinessService {
      *
      * @param productCid : Integer
      * @return ProductJoinResDto
-     * @see ProducService#searchProjOne
      * @see ProductOptionService#searchListByProduct
      * @see ProductJoinResDto#toDto
      */
     public ProductJoinResDto searchOneFJ(Integer productCid) {
-        ProductProj productProj = productService.searchProjOne(productCid);
+        ProductProj productProj = productService.searchOneM2OJ(productCid);
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByProduct(productProj.getProduct().getCid());
         List<ProductOptionGetDto> optionDtos = optionEntities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
         ProductJoinResDto resDto = ProductJoinResDto.toDto(productProj);
         resDto.setOptions(optionDtos);
         return resDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * Product 데이터를 모두 조회한다.
-     * 
-     * @return List::ProductGetDto::
-     * @see ProductService#searchList
-     * @see ProductGetDto#toDto
-     */
-    public List<ProductGetDto> searchList() {
-        List<ProductEntity> entities = productService.searchList();
-        List<ProductGetDto> dtos = ProductGetDto.toDtos(entities);
-        return dtos;
     }
 
     /**
@@ -114,8 +91,8 @@ public class ProductBusinessService {
      * @see ProductGetDto#toDto
      */
     public List<ProductGetDto> searchListByCategory(Integer categoryCid) {
-        List<ProductEntity> productEntities = productService.searchListByCategory(categoryCid);
-        List<ProductGetDto> productDtos = ProductGetDto.toDtos(productEntities);
+        List<ProductEntity> entities = productService.searchListByCategory(categoryCid);
+        List<ProductGetDto> productDtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
         return productDtos;
     }
     
@@ -183,21 +160,40 @@ public class ProductBusinessService {
      * @see ProductOptionService#searchListByProductList
      * @see ProductJoinResDto#toDto
      */
-    public List<ProductJoinResDto> searchStockListFJ(){
+//    public List<ProductJoinResDto> searchStockListFJ(){
+    public List<ProductGetDto.FullJoin> searchStockListFJ(){
         List<ProductProj> productProjs = productService.searchProjList();
         List<ProductProj> stockManagementProductProjs = new ArrayList<>();
         List<Integer> productCids = new ArrayList<>();
 
         for(ProductProj proj : productProjs){
+            // 재고관리 상품 여부
             if(proj.getProduct().getStockManagement()){
                 productCids.add(proj.getProduct().getCid());
                 stockManagementProductProjs.add(proj);
             }
         }
 
+
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductList(productCids);
-        
-        List<ProductJoinResDto> joinResDto = stockManagementProductProjs.stream().map(r -> {
+
+
+//        List<ProductJoinResDto> joinResDto = stockManagementProductProjs.stream().map(r -> {
+//            List<ProductOptionGetDto> optionDtosByProduct = new ArrayList<>();
+//
+//            optionGetDtos.stream().forEach(option -> {
+//                if(r.getProduct().getCid().equals(option.getProductCid())) {
+//                    option.setStockUnit(option.getStockSumUnit());
+//                    optionDtosByProduct.add(option);
+//                }
+//            });
+//
+//            ProductJoinResDto resDto = ProductJoinResDto.toDto(r);
+//            resDto.setOptions(optionDtosByProduct);
+//            return resDto;
+//        }).collect(Collectors.toList());
+
+        List<ProductGetDto.FullJoin> joinResDto = stockManagementProductProjs.stream().map(r -> {
             List<ProductOptionGetDto> optionDtosByProduct = new ArrayList<>();
 
             optionGetDtos.stream().forEach(option -> {
@@ -207,9 +203,9 @@ public class ProductBusinessService {
                 }
             });
 
-            ProductJoinResDto resDto = ProductJoinResDto.toDto(r);
-            resDto.setOptions(optionDtosByProduct);
-            return resDto;
+            ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(r);
+            productFJDto.setOptions(optionDtosByProduct);
+            return productFJDto;
         }).collect(Collectors.toList());
 
         return joinResDto;
@@ -255,7 +251,7 @@ public class ProductBusinessService {
         }).collect(Collectors.toList());
 
         List<ProductEntity> entities = productService.createList(productEntities);
-        List<ProductGetDto> dtos = ProductGetDto.toDtos(entities);
+        List<ProductGetDto> dtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -274,6 +270,14 @@ public class ProductBusinessService {
             r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
                 .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
 
+            // 패키지 상품 여부
+            if(reqDto.getPackageDtos().size() > 0) {
+                r.setPackageYn("y");
+            }else {
+                r.setPackageYn("n");
+            }
+
+            // 상품에 등록된 totalPurchasePrice가 있다면 옵션에 동일한 값 부여
             if(r.getTotalPurchasePrice() == 0) {
                 r.setTotalPurchasePrice(savedProductDto.getDefaultTotalPurchasePrice());
             }
@@ -281,6 +285,7 @@ public class ProductBusinessService {
             return ProductOptionEntity.toEntity(r);
         }).collect(Collectors.toList());
 
+        System.out.println(entities);
         // option save
         productOptionService.createList(entities);
 

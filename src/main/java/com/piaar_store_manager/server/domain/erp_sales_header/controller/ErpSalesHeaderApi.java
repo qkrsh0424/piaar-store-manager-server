@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_sales_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.service.ErpSalesHeaderBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/erp-sales-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpSalesHeaderApi {
     private final ErpSalesHeaderBusinessService erpSalesHeaderBusinessService;
 

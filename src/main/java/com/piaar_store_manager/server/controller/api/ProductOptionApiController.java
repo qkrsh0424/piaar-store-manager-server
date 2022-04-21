@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/product-option")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ProductOptionApiController {
     private final ProductOptionBusinessService productOptionBusinessService;
 
@@ -33,7 +34,6 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionBusinessService#searchOne
      */
-    @RequiredLogin
     @GetMapping("/one/{productOptionCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -64,7 +64,6 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionBusinessService#searchOneM2OJ
      */
-    @RequiredLogin
     @GetMapping("/one-m2oj/{productOptionCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -91,7 +90,6 @@ public class ProductOptionApiController {
      * @see HttpStatus
      * @see ProductOptionBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -114,7 +112,6 @@ public class ProductOptionApiController {
      * @see UserService#isUserLogin
      * @see ProductOptionBusinessService#searchListByProduct
      */
-    @RequiredLogin
     @GetMapping("/list/{productCid}")
     public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid) {
         Message message = new Message();
@@ -140,7 +137,6 @@ public class ProductOptionApiController {
      * @see UserService#isUserLogin
      * @see ProductOptionBusinessService#searchListM2OJ
      */
-    @RequiredLogin
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
@@ -166,7 +162,6 @@ public class ProductOptionApiController {
      * @see UserService#isUserLogin
      * @see ProductOptionBusinessService#searchStockStatus
      */
-    @RequiredLogin
     @GetMapping("/stock/status/{optionCid}")
     public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
         Message message = new Message();
@@ -192,7 +187,6 @@ public class ProductOptionApiController {
      * @see UserService#isUserLogin
      * @see ProductOptionBusinessService#searchAllStockStatus
      */
-    @RequiredLogin
     @GetMapping("/stock/statusList")
     public ResponseEntity<?> searchAllStockStatus() {
         Message message = new Message();
@@ -215,7 +209,6 @@ public class ProductOptionApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see ProductOptionBusinessService#searchAllStockStatus
      */
-    @RequiredLogin
     @GetMapping("/stock/status")
     public ResponseEntity<?> searchAllStockStatus(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -242,7 +235,6 @@ public class ProductOptionApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();
@@ -264,7 +256,6 @@ public class ProductOptionApiController {
     }
 
     @PostMapping("/option-packages")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOAP(@RequestBody ProductOptionCreateReqDto createReqDto) {
         Message message = new Message();
@@ -301,7 +292,6 @@ public class ProductOptionApiController {
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productOptionCid}")
-    @RequiredLogin
     @PermissionRole(role = "ROLE_SUPERADMIN")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -333,7 +323,6 @@ public class ProductOptionApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();
@@ -355,7 +344,6 @@ public class ProductOptionApiController {
     }
 
     @PutMapping("/option-packages")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOAP(@RequestBody ProductOptionCreateReqDto reqDto) {
         Message message = new Message();
@@ -391,7 +379,6 @@ public class ProductOptionApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();

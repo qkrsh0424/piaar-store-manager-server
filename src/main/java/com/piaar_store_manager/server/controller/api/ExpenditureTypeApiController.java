@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/expenditure-type")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ExpenditureTypeApiController {
 
     private final ExpenditureTypeService expenditureTypeService;
@@ -50,7 +51,6 @@ public class ExpenditureTypeApiController {
      * @see HttpStatus
      * @see BankTypeService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList(@RequestParam Map<String,Object> query){
         Message message = new Message();

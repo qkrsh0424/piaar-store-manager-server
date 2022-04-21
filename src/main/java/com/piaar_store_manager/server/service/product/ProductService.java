@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.service.product;
 import com.piaar_store_manager.server.model.product.entity.ProductEntity;
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,24 +11,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
-    private ProductRepository productRepository;
-
-    @Autowired
-    public ProductService(
-        ProductRepository productRepository
-    ) {
-        this.productRepository = productRepository;
-    }
+    private final ProductRepository productRepository;
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
      * Product cid 값과 상응되는 데이터를 조회한다.
-     *
-     * @param productCid : Integer
-     * @return ProductGetDto
-     * @see ProductRepository#findById
      */
     public ProductEntity searchOne(Integer productCid) {
         Optional<ProductEntity> productEntityOpt = productRepository.findById(productCid);
@@ -47,10 +38,10 @@ public class ProductService {
      *
      * @param productCid : Integer
      * @return ProductProj
-     * @see ProductRepository#selectByCid
+     * @see ProductRepository#searchOneM2OJ
      */
-    public ProductProj searchProjOne(Integer productCid) {
-        Optional<ProductProj> productProjOpt = productRepository.selectByCid(productCid);
+    public ProductProj searchOneM2OJ(Integer productCid) {
+        Optional<ProductProj> productProjOpt = productRepository.searchOneM2OJ(productCid);
 
         if(productProjOpt.isPresent()) {
             return productProjOpt.get();

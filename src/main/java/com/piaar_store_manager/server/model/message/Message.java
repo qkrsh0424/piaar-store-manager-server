@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.message;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import lombok.*;
 
 import java.util.Date;

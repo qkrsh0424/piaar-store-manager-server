@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/bank-type")
 @RequiredArgsConstructor
+@RequiredLogin
 public class BankTypeApiController {
 
     private final BankTypeService bankTypeService;
@@ -28,7 +29,6 @@ public class BankTypeApiController {
      * @see HttpStatus
      * @see BankTypeService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList(){
         Message message = new Message();

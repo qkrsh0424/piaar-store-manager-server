@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/excel")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ExcelApiController {
 
     private final OrderConfirmService orderConfirmService;
@@ -47,7 +48,6 @@ public class ExcelApiController {
     private final WaybillService waybillService;
 
     // /api/excel/order-confirm/read
-    @RequiredLogin
     @PostMapping("/order-confirm/read")
     public ResponseEntity<?> readOrderConfirm(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
@@ -75,7 +75,6 @@ public class ExcelApiController {
     }
 
     // /api/excel/waybill/read
-    @RequiredLogin
     @PostMapping("/waybill/read")
     public ResponseEntity<?> readWaybill(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();
@@ -105,7 +104,6 @@ public class ExcelApiController {
     }
 
     // /api/excel/waybill/logen/write
-    @RequiredLogin
     @PostMapping("/waybill/logen/write")
     public void writeLogenWaybill(HttpServletResponse response, @RequestBody WaybillGetDto getDto) {
         Workbook wb = new XSSFWorkbook();
@@ -201,7 +199,6 @@ public class ExcelApiController {
     }
 
     // /api/excel/waybill/logen/write
-    @RequiredLogin
     @PostMapping("/waybill/logen-all/write")
     public void writeLogenAllWaybill(HttpServletResponse response, @RequestBody List<WaybillGetDto> getDtos) {
         Workbook wb = new XSSFWorkbook();
@@ -315,7 +312,6 @@ public class ExcelApiController {
     }
 
     // /api/excel/waybill/send-today/write
-    @RequiredLogin
     @PostMapping("/waybill/send-today/write")
     public void writeSendTodayWaybill(HttpServletResponse response, @RequestBody List<WaybillGetDto> getDtos) {
 

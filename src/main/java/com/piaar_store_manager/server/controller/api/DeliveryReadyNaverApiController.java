@@ -10,8 +10,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
@@ -49,6 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/delivery-ready/naver")
 @RequiredArgsConstructor
+@RequiredLogin
 public class DeliveryReadyNaverApiController {
     private final DeliveryReadyNaverBusinessService deliveryReadyNaverBusinessService;
 
@@ -68,7 +69,6 @@ public class DeliveryReadyNaverApiController {
      * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyNaverBusinessService#uploadDeliveryReadyExcelFile
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
@@ -107,7 +107,6 @@ public class DeliveryReadyNaverApiController {
      * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyNaverBusinessService#storeDeliveryReadyExcelFile
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/store")
     public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) {
@@ -135,7 +134,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#getDeliveryReadyViewUnreleasedData
      */
-    @RequiredLogin
     @PermissionRole
     @GetMapping("/view/unreleased")
     public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
@@ -160,7 +158,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#getDeliveryReadyViewReleased
      */
-    @RequiredLogin
     @PermissionRole
     @GetMapping("/view/released")
     public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
@@ -184,7 +181,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#deleteOneDeliveryReadyViewData
      */
-    @RequiredLogin
     @PermissionRole
     @DeleteMapping("/view/delete/one/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
@@ -211,7 +207,6 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/view/delete/batch")
     public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
@@ -241,7 +236,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateReleasedDeliveryReadyItem
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/one")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
@@ -270,7 +264,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateListToUnreleasedDeliveryReadyItem
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/list/unrelease")
     public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
@@ -300,7 +293,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateListToReleaseDeliveryReadyItem
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/list/release")
     public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -329,7 +321,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#searchDeliveryReadyItemOptionInfo
      */
-    @RequiredLogin
     @PermissionRole
     @GetMapping("/view/search/list/option-info")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
@@ -352,7 +343,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemOptionInfo
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/option")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
@@ -382,7 +372,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemsOptionInfo
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/options")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
@@ -411,7 +400,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemReleaseOptionInfo
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/update/release-option")
     public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
@@ -441,7 +429,6 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/stock-unit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
@@ -471,7 +458,6 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @PermissionRole
     @PutMapping("/view/stock-unit/cancel")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
@@ -501,7 +487,6 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -635,7 +620,6 @@ public class DeliveryReadyNaverApiController {
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#releasedDeliveryReadyItem
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -786,7 +770,6 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/view/download/lotte")
     public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
@@ -906,7 +889,6 @@ public class DeliveryReadyNaverApiController {
         deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/view/download/excel")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {

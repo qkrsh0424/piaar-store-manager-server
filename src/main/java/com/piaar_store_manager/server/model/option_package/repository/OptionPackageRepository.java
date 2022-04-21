@@ -37,4 +37,12 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
         + "WHERE op.id IN :idList"
     )
     void deleteBatch(List<UUID> idList);
+
+    @Modifying
+    @Transactional
+    @Query(
+            "DELETE FROM OptionPackageEntity  op\n"
+            + "WHERE op.parentOptionId = :parentOptionId"
+    )
+    void deleteBatchByParentOptionId(UUID parentOptionId);
 }

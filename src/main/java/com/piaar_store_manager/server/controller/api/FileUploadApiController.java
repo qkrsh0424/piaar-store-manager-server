@@ -2,8 +2,8 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.List;
 
-import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.file_upload.FileUploadBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/file-upload")
 @RequiredArgsConstructor
+@RequiredLogin
 public class FileUploadApiController {
     private final FileUploadBusinessService fileUploadBusinessService;
 
@@ -35,7 +36,6 @@ public class FileUploadApiController {
      * @see FileUploadBusinessService#uploadFilesToLocal
      * @see UserService#userDenyCheck
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/local")
     public ResponseEntity<?> uploadFilesToLocal(@RequestParam("files") List<MultipartFile> files) {
@@ -68,7 +68,6 @@ public class FileUploadApiController {
      * @see FileUploadBusinessService#uploadFilesToCloud
      * @see UserService#userDenyCheck
      */
-    @RequiredLogin
     @PermissionRole
     @PostMapping("/cloud")
     public ResponseEntity<?> uploadFilesToCloud(@RequestParam("files") List<MultipartFile> files) {

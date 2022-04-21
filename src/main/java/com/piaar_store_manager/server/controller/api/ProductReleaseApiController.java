@@ -10,7 +10,6 @@ import com.piaar_store_manager.server.service.product_release.ProductReleaseBusi
 import com.piaar_store_manager.server.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/product-release")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ProductReleaseApiController {
     private final ProductReleaseBusinessService productReleaseBusinessService;
 
@@ -40,7 +40,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseBusinessService#searchOne
      */
-    @RequiredLogin
     @GetMapping("/one/{productReleaseCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
@@ -71,7 +70,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseBusinessService#searchOneM2OJ
      */
-    @RequiredLogin
     @GetMapping("/one-m2oj/{productReleaseCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
@@ -98,7 +96,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
         Message message = new Message();
@@ -121,7 +118,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseBusinessService#searchListByOptionCid
      */
-    @RequiredLogin
     @GetMapping("/list/{productOptionCid}")
     public ResponseEntity<?> searchList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -148,7 +144,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseBusinessService#searchList
      */
-    @RequiredLogin
     @GetMapping("/test/list")
     public ResponseEntity<?> searchReleaseList() {
         Message message = new Message();
@@ -171,7 +166,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see ProductReleaseBusinessService#searchListByOptionCid
      */
-    @RequiredLogin
     @GetMapping("/test/list/{productOptionCid}")
     public ResponseEntity<?> searchReleaseList(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
@@ -200,7 +194,6 @@ public class ProductReleaseApiController {
      * @see HttpStatus
      * @see productReleaseBusinessService#searchListM2OJ
      */
-    @RequiredLogin
     @GetMapping("/list-m2oj")
     public ResponseEntity<?> searchListM2OJ() {
         Message message = new Message();
@@ -226,7 +219,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();
@@ -257,7 +249,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
@@ -288,7 +279,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReleaseCid}")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
         Message message = new Message();
@@ -319,7 +309,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductReleaseGetDto releaseDto) {
         Message message = new Message();
@@ -350,7 +339,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> changeList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
@@ -381,7 +369,6 @@ public class ProductReleaseApiController {
      * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
-    @RequiredLogin
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReleaseGetDto productReleaseGetDto) {
         Message message = new Message();

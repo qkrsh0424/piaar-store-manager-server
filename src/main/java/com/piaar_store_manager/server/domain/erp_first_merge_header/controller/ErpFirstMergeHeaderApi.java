@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_first_merge_header.controller;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import com.piaar_store_manager.server.model.message.Message;
 @RestController
 @RequestMapping("/api/v1/erp-first-merge-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpFirstMergeHeaderApi {
     private final ErpFirstMergeHeaderBusinessService erpFirstMergeHeaderBusinessService;
 

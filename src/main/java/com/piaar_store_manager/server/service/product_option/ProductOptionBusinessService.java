@@ -33,6 +33,7 @@ import com.piaar_store_manager.server.service.product_receive.ProductReceiveServ
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -242,8 +243,16 @@ public class ProductOptionBusinessService {
     public ProductOptionGetDto createOAP(ProductOptionCreateReqDto reqDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductOptionGetDto optionGetDto = reqDto.getOptionDto().setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+        ProductOptionGetDto optionGetDto = reqDto.getOptionDto()
+                .setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
             .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+
+        // 패키지 상품 여부
+        if(reqDto.getPackageDtos().size() > 0) {
+            optionGetDto.setPackageYn("y");
+        } else {
+            optionGetDto.setPackageYn("n");
+        }
 
         // option save
         ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
@@ -294,8 +303,8 @@ public class ProductOptionBusinessService {
     @Transactional
     public void changeOAP(ProductOptionCreateReqDto reqDto) {
         UUID USER_ID = userService.getUserId();
-        ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();
 
+        ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();
         ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionGetDto.getCid());
         /*
         영속성 업데이트
@@ -316,94 +325,23 @@ public class ProductOptionBusinessService {
                 .setUpdatedAt(DateHandler.getCurrentDate2())
                 .setUpdatedBy(USER_ID)
                 .setProductCid(productOptionGetDto.getProductCid());
-        this.changeOptionPackage(reqDto);
-    }
 
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 옵션 패키지 데이터가 업데이트되는 경우를 나눠 처리한다.
-     * (새로운 데이터가 추가된 경우, 기존 데이터가 변경된 경우, 기존 데이터가 제거된 경우)
-     */
-    public void changeOptionPackage(ProductOptionCreateReqDto reqDto) {
-        // 기존에 저장된 옵션 패키지
-        List<OptionPackageEntity> savedOptionPackages = optionPackageService.searchListByParentOptionId(reqDto.getOptionDto().getId());
-        List<UUID> savedPackageIdList = savedOptionPackages.stream().map(r -> r.getId()).collect(Collectors.toList());
-        
-        // 기존 데이터가 변경된 경우
-        this.changeOriginOptionPackage(reqDto, savedOptionPackages);
+        // 패키지 상품 여부
+        if(reqDto.getPackageDtos().size() > 0) {
+            productOptionEntity.setPackageYn("y");
+        }else {
+            productOptionEntity.setPackageYn("n");
+        }
 
-        List<UUID> packageIdList = reqDto.getPackageDtos().stream().map(r -> r.getId()).collect(Collectors.toList());
+        // 등록된 옵션패키지 모두 제거
+        optionPackageService.deleteBatchByParentOptionId(productOptionEntity.getId());
 
-        // 새로 추가된 데이터
-        List<UUID> newPackageIdList = packageIdList.stream().filter(optionPackage -> !savedPackageIdList.contains(optionPackage)).collect(Collectors.toList());
-        
-        this.saveAddOptionPackage(reqDto, newPackageIdList);
-        this.deleteOriginOptionPackage(savedOptionPackages, packageIdList);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 옵션 패키지 데이터 중 새로 추가된 데이터들을 저장한다.
-     */
-    public void saveAddOptionPackage(ProductOptionCreateReqDto reqDto, List<UUID> newPackageIdList) {
-        UUID USER_ID = userService.getUserId();
-
-        List<OptionPackageEntity> newOptionPackageEntities = new ArrayList<>();
-        reqDto.getPackageDtos().stream().forEach(r -> {
-            if (newPackageIdList.contains(r.getId())) {
-                r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
-                        .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
-
-                newOptionPackageEntities.add(OptionPackageEntity.toEntity(r));
-            }
-        });
+        List<OptionPackageEntity> newOptionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
+            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID).setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+            return OptionPackageEntity.toEntity(r);
+        }).collect(Collectors.toList());
 
         optionPackageService.saveListAndModify(newOptionPackageEntities);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 옵션 패키지 데이터 중 기존에 저장된 데이터들의 내용을 업데이트한다.
-     */
-    public void changeOriginOptionPackage(ProductOptionCreateReqDto reqDto, List<OptionPackageEntity> savedOptionPackages) {
-        UUID USER_ID = userService.getUserId();
-
-        // 변경된 데이터
-        reqDto.getPackageDtos().stream().forEach(optionPackage -> {
-            savedOptionPackages.stream().forEach(entity -> {
-                if (optionPackage.getId().equals(entity.getId())) {
-                    entity.setPackageUnit(optionPackage.getPackageUnit())
-                            .setOriginOptionCode(optionPackage.getOriginOptionCode())
-                            .setOriginOptionId(optionPackage.getOriginOptionId())
-                            .setUpdatedAt(LocalDateTime.now())
-                            .setUpdatedBy(USER_ID);
-                }
-            });
-        });
-
-        optionPackageService.saveListAndModify(savedOptionPackages);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 옵션 패키지 데이터 중 제거된 데이터들을 제거한다.
-     */
-    public void deleteOriginOptionPackage(List<OptionPackageEntity> savedOptionPackages, List<UUID> packageIdList) {
-        // 삭제된 데이터
-        List<UUID> deletedIdList = new ArrayList<>();
-        savedOptionPackages.stream().forEach(entity -> {
-            if (!packageIdList.contains(entity.getId())) {
-                deletedIdList.add(entity.getId());
-            }
-        });
-
-        if (deletedIdList.size() != 0) {
-            optionPackageService.deleteBatch(deletedIdList);
-        }
     }
 
     /**
@@ -412,7 +350,6 @@ public class ProductOptionBusinessService {
      * ProductOption cid 값과 상응되는 데이터의 일부분을 업데이트한다.
      * 
      * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
      * @see ProductOptionService#searchOne
      * @see ProductOptionService#createOne
      */

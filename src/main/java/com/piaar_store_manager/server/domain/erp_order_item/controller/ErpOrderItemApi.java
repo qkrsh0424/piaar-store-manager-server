@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/erp-order-items")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpOrderItemApi {
     private final ErpOrderItemBusinessService erpOrderItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;

@@ -32,4 +32,8 @@ public class OptionPackageService {
     public void deleteBatch(List<UUID> idList) {
         optionPackageRepository.deleteBatch(idList);
     }
+
+    public void deleteBatchByParentOptionId(UUID parentOptionId) {
+        optionPackageRepository.deleteBatchByParentOptionId(parentOptionId);
+    }
 }

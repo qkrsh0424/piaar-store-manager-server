@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_delivery_header.controller;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDto;
 import com.piaar_store_manager.server.domain.erp_delivery_header.service.ErpDeliveryHeaderBusinessService;
 import com.piaar_store_manager.server.model.message.Message;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/v1/erp-delivery-headers")
 @RequiredArgsConstructor
+@RequiredLogin
 public class ErpDeliveryHeaderApi {
     private final ErpDeliveryHeaderBusinessService erpDeliveryHeaderBusinessService;
 

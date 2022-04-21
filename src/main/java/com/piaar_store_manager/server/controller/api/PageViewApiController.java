@@ -24,11 +24,11 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/v1/page-view")
 @RequiredArgsConstructor
+@RequiredLogin
 public class PageViewApiController {
 
     private final NAPageViewService naPageViewService;
 
-    @RequiredLogin
     @PostMapping("/na/popular-page/excel/read")
     public ResponseEntity<?> readPageViewNAPopularPageExcel(@RequestParam("file") MultipartFile file)
             throws IOException {

@@ -1,9 +1,10 @@
 package com.piaar_store_manager.server.model.product.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.piaar_store_manager.server.model.product.proj.ProductProj;
+import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.user.dto.UserGetDto;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
@@ -46,12 +47,64 @@ public class ProductGetDto {
     private UUID updatedBy;
     private Integer productCategoryCid;
 
+    @Data
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ManyToOneJoin {
+        ProductGetDto product;
+        ProductCategoryGetDto category;
+        UserGetDto user;
+
+        public static ManyToOneJoin toDto(ProductProj proj){
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            UserGetDto user = UserGetDto.toDto(proj.getUser());
+
+            ManyToOneJoin dto = ManyToOneJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .user(user)
+                    .build();
+
+            return dto;
+        }
+    }
+
+    @Data
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FullJoin {
+        ProductGetDto product;
+        ProductCategoryGetDto category;
+        UserGetDto user;
+        List<ProductOptionGetDto> options;
+
+        // require option
+        public static FullJoin toDto(ProductProj proj){
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            UserGetDto user = UserGetDto.toDto(proj.getUser());
+
+            FullJoin dto = FullJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .user(user)
+                    .build();
+
+            return dto;
+        }
+    }
+
     /**
      * <b>Convert Method</b>
      * <p>
      * ProductEntity => ProductGetDto
-     * 
-     * @param productEntity : ProductEntity
+     *
+     * @param entity : ProductEntity
      * @return ProductGetDto
      */
     public static ProductGetDto toDto(ProductEntity entity) {
@@ -86,51 +139,5 @@ public class ProductGetDto {
             .build();
 
         return productDto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::ProductEntity:: => List::ProductGetDto::
-     * 
-     * @param entities : List::ProductEntity::
-     * @return List::ProductGetDto::
-     */
-    public static List<ProductGetDto> toDtos(List<ProductEntity> entities) {
-        List<ProductGetDto> productDtos = entities.stream().map(entity -> {
-            ProductGetDto productDto = ProductGetDto.builder()
-                .cid(entity.getCid())
-                .id(entity.getId())
-                .code(entity.getCode())
-                .manufacturingCode(entity.getManufacturingCode())
-                .naverProductCode(entity.getNaverProductCode())
-                .defaultName(entity.getDefaultName())
-                .managementName(entity.getManagementName())
-                .imageUrl(entity.getImageUrl())
-                .imageFileName(entity.getImageFileName())
-                .purchaseUrl(entity.getPurchaseUrl())
-                .memo(entity.getMemo())
-                .hsCode(entity.getHsCode())
-                .tariffRate(entity.getTariffRate())
-                .style(entity.getStyle())
-                .tariffRate(entity.getTariffRate())
-                .defaultWidth(entity.getDefaultWidth())
-                .defaultLength(entity.getDefaultLength())
-                .defaultHeight(entity.getDefaultHeight())
-                .defaultQuantity(entity.getDefaultQuantity())
-                .defaultWeight(entity.getDefaultWeight())
-                .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
-                .stockManagement(entity.getStockManagement())
-                .createdAt(entity.getCreatedAt())
-                .createdBy(entity.getCreatedBy())
-                .updatedAt(entity.getUpdatedAt())
-                .updatedBy(entity.getUpdatedBy())
-                .productCategoryCid(entity.getProductCategoryCid())
-                .build();
-
-            return productDto;
-        }).collect(Collectors.toList());
-
-        return productDtos;
     }
 }
