@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.product_receive.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class ProductReceiveGetDto {
     private UUID id;
     private Integer receiveUnit;
     private String memo;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
     private Integer productOptionCid;
 
@@ -32,7 +33,7 @@ public class ProductReceiveGetDto {
      * <p>
      * ProductReceiveEntity => ProductReceiveGetDto
      * 
-     * @param productReceiveEntity : ProductReceiveEntity
+     * @param entity : ProductReceiveEntity
      * @return ProductReceiveGetDto
      */
     public static ProductReceiveGetDto toDto(ProductReceiveEntity entity) {
@@ -46,46 +47,6 @@ public class ProductReceiveGetDto {
             .productOptionCid(entity.getProductOptionCid())
             .build();
 
-        return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyCoupangItemViewDto => ProductReceiveGetDto
-     * 
-     * @param reqDto : DeliveryReadyCoupangItemViewDto
-     * @param optionCid : Integer
-     * @return ProductReceiveGetDto
-     */
-    public static ProductReceiveGetDto toDto(DeliveryReadyCoupangItemViewDto reqDto, Integer optionCid){
-        ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
-            .id(UUID.randomUUID())
-            .receiveUnit(reqDto.getDeliveryReadyItem().getUnit())
-            .memo(reqDto.getReceiveMemo())
-            .productOptionCid(optionCid)
-            .build();
-        
-        return dto;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * DeliveryReadyNaverItemViewDto => ProductReceiveGetDto
-     * 
-     * @param reqDto : DeliveryReadyNaverItemViewDto
-     * @param optionCid : Integer
-     * @return ProductReceiveGetDto
-     */
-    public static ProductReceiveGetDto toDto(DeliveryReadyNaverItemViewDto reqDto, Integer optionCid){
-        ProductReceiveGetDto dto = ProductReceiveGetDto.builder()
-            .id(UUID.randomUUID())
-            .receiveUnit(reqDto.getDeliveryReadyItem().getUnit())
-            .memo(reqDto.getReceiveMemo())
-            .productOptionCid(optionCid)
-            .build();
-        
         return dto;
     }
 }

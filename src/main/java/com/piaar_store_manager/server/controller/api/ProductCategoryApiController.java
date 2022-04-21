@@ -1,10 +1,12 @@
 package com.piaar_store_manager.server.controller.api;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryBusinessService;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 import com.piaar_store_manager.server.service.user.UserService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,18 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/product-category")
+@RequiredArgsConstructor
 public class ProductCategoryApiController {
-    private ProductCategoryBusinessService productCategoryBusinessService;
-    private UserService userService;
-
-    @Autowired
-    public ProductCategoryApiController(
-        ProductCategoryBusinessService productCategoryBusinessService,
-        UserService userService
-    ) {
-        this.productCategoryBusinessService = productCategoryBusinessService;
-        this.userService = userService;
-    }
+    private final ProductCategoryBusinessService productCategoryBusinessService;
 
     /**
      * Search list api for productCategory.
@@ -37,19 +30,14 @@ public class ProductCategoryApiController {
      * @see HttpStatus
      * @see ProductCategoryService#searchList
      */
+    @RequiredLogin
     @GetMapping("/list")
-    public ResponseEntity<?> searchList(){
+    public ResponseEntity<?> searchList() {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else{
-            message.setData(productCategoryBusinessService.searchList());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        }
+        message.setData(productCategoryBusinessService.searchList());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

@@ -5,14 +5,18 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.service.order_registration.OrderRegistrationNaverBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -30,58 +34,48 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/order-registration/naver")
+@RequiredArgsConstructor
 public class OrderRegistrationNaverApiController {
-    private OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService;
-    private UserService userService;
+    private final OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService;
 
-    @Autowired
-    public OrderRegistrationNaverApiController(
-        OrderRegistrationNaverBusinessService orderRegistrationNaverBusinessService,
-        UserService userService
-    ) {
-        this.orderRegistrationNaverBusinessService = orderRegistrationNaverBusinessService;
-        this.userService = userService;
-    }
 
     /**
      * Upload excel data for hansan order form.
      * <p>
      * <b>POST : API URL => /api/v1/order-registration/naver/upload/hansan</b>
-     * 
+     *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadHansanExcelFile
      * @see UserService#isUserLogin
      */
+    @RequiredLogin
     @PostMapping("/upload/hansan")
     public ResponseEntity<?> uploadHansanExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
-            // file extension check.
-            orderRegistrationNaverBusinessService.isExcelFile(file);
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new FileUploadException("This is not an excel file.");
+        }
 
-            try{
-                message.setData(orderRegistrationNaverBusinessService.uploadHansanExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
-            } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
-            }
+        try {
+            message.setData(orderRegistrationNaverBusinessService.uploadHansanExcelFile(file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+        } catch (IllegalStateException e) {
+            throw new CustomExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+        } catch (IllegalArgumentException e) {
+            throw new CustomExcelFileUploadException("운송장번호가 기입된 한산 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -99,11 +93,12 @@ public class OrderRegistrationNaverApiController {
      * @see HttpStatus
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByHansanFormDto
      */
+    @RequiredLogin
     @PostMapping("/download/hansan")
     public void downloadHansanOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationHansanExcelFormDto> hansanDto) {
-       
+
         // 한산 엑셀 dto를 네이버 대량등록 양식으로 변환
-         List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByHansanFormDto(hansanDto);
+        List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByHansanFormDto(hansanDto);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -122,7 +117,7 @@ public class OrderRegistrationNaverApiController {
         cell = row.createCell(3);
         cell.setCellValue("송장번호");
 
-        for(int i = 0; i < dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue(dtos.get(i).getProdOrderNumber());
@@ -134,14 +129,14 @@ public class OrderRegistrationNaverApiController {
             cell.setCellValue(dtos.get(i).getTransportNumber());
         }
 
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
@@ -153,41 +148,39 @@ public class OrderRegistrationNaverApiController {
      * Upload excel data for tailo order form.
      * <p>
      * <b>POST : API URL => /api/v1/order-registration/naver/upload/tailo</b>
-     * 
+     *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
+     * @throws FileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
      * @see Message
      * @see HttpStatus
-     * @see OrderRegistrationNaverBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadTailoExcelFile
      * @see UserService#isUserLogin
      */
+    @RequiredLogin
     @PostMapping("/upload/tailo")
     public ResponseEntity<?> uploadTailoExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
-            // file extension check.
-            orderRegistrationNaverBusinessService.isExcelFile(file);
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new FileUploadException("This is not an excel file.");
+        }
 
-            try{
-                message.setData(orderRegistrationNaverBusinessService.uploadTailoExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
-            } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
-            }
+        try {
+            message.setData(orderRegistrationNaverBusinessService.uploadTailoExcelFile(file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+        } catch (IllegalStateException e) {
+            throw new CustomExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요");
+        } catch (IllegalArgumentException e) {
+            throw new CustomExcelFileUploadException("운송장번호가 기입된 테일로 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -205,6 +198,7 @@ public class OrderRegistrationNaverApiController {
      * @see HttpStatus
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByTailoFormDto
      */
+    @RequiredLogin
     @PostMapping("/download/tailo")
     public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDto) {
 
@@ -228,7 +222,7 @@ public class OrderRegistrationNaverApiController {
         cell = row.createCell(3);
         cell.setCellValue("송장번호");
 
-        for(int i = 0; i < dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue(dtos.get(i).getProdOrderNumber());
@@ -240,14 +234,14 @@ public class OrderRegistrationNaverApiController {
             cell.setCellValue(dtos.get(i).getTransportNumber());
         }
 
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {

@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.product_receive.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class ProductReceiveEntity {
     private String memo;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Type(type = "uuid-char")
     @Column(name = "created_by")

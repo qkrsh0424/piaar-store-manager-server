@@ -15,22 +15,15 @@ import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyF
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.delivery_ready.repository.DeliveryReadyFileRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class DeliveryReadyCoupangService {
-    private DeliveryReadyFileRepository deliveryReadyFileRepository;
-    private DeliveryReadyCoupangItemRepository deliveryReadyCoupangItemRepository;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public DeliveryReadyCoupangService(
-        DeliveryReadyFileRepository deliveryReadyFileRepository,
-        DeliveryReadyCoupangItemRepository deliveryReadyCoupangItemRepository
-    ) {
-        this.deliveryReadyFileRepository = deliveryReadyFileRepository;
-        this.deliveryReadyCoupangItemRepository = deliveryReadyCoupangItemRepository;
-    }
+@Service
+@RequiredArgsConstructor
+public class DeliveryReadyCoupangService {
+    private final DeliveryReadyFileRepository deliveryReadyFileRepository;
+    private final DeliveryReadyCoupangItemRepository deliveryReadyCoupangItemRepository;
 
     /**
      * <b>DB Insert Related Method</b>

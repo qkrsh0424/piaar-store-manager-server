@@ -32,7 +32,8 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      * @return List::DeliveryReadyCoupangItemViewProj::
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyCoupangItemEntity dri\n"
-        + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE dri.released=false")
     List<DeliveryReadyCoupangItemViewProj> findSelectedUnreleased();
@@ -46,7 +47,8 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      * @param date2 : Date
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyCoupangItemEntity dri\n"
-        + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")
     List<DeliveryReadyCoupangItemViewProj> findSelectedReleased(Date date1, Date date2);

@@ -1,9 +1,11 @@
 package com.piaar_store_manager.server.model.delivery_ready.naver.repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.model.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
@@ -32,7 +34,8 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
      * @return List::DeliveryReadyNaverItemViewProj::
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyNaverItemEntity dri\n"
-        + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE dri.released=false")
     List<DeliveryReadyNaverItemViewProj> findSelectedUnreleased();
@@ -46,7 +49,8 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
      * @param date2 : Date
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyNaverItemEntity dri\n"
-        + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
+        + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")
     List<DeliveryReadyNaverItemViewProj> findSelectedReleased(Date date1, Date date2);
@@ -92,4 +96,18 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         "WHERE dri.cid IN :itemCids"
     )
     List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> itemCids);
+
+    @Query("SELECT pc AS productCategory, p AS product, po AS productOption,\n"
+        + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
+        + "FROM DeliveryReadyNaverItemEntity drni\n"
+        + "WHERE drni.optionManagementCode = po.code AND (drni.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyNaverSalesUnit,\n"
+        + "(SELECT CASE WHEN SUM(drci.unit) IS NULL THEN 0 ELSE SUM(drci.unit) END\n"
+        + "FROM DeliveryReadyCoupangItemEntity drci\n"
+        + "WHERE drci.optionManagementCode = po.code AND (drci.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyCoupangSalesUnit\n"
+        + "FROM ProductOptionEntity po\n"
+        + "JOIN ProductEntity p ON po.productCid = p.cid\n"
+        + "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"
+        + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
+    )
+    List<SalesAnalysisItemProj> findSalesAnalysisItem(Date date1, Date date2);
 }

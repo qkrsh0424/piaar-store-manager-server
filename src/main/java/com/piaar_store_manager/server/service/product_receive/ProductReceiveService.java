@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.service.product_receive;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -119,6 +121,10 @@ public class ProductReceiveService {
         return productReceiveRepository.selectAll();
     }
 
+    public List<ProductReceiveProj> searchListM2OJ(LocalDateTime startDate, LocalDateTime endDate) {
+        return productReceiveRepository.selectAll(startDate, endDate);
+    }
+
     /**
      * <b>DB Insert Related Method</b>
      * <p>
@@ -158,7 +164,7 @@ public class ProductReceiveService {
      */
     public void destroyOne(Integer productReceiveCid, UUID userId) {
         productReceiveRepository.findById(productReceiveCid).ifPresent(product -> {
-            productOptionService.updateReleaseProductUnit(product.getProductOptionCid(), userId, product.getReceiveUnit());
+            productOptionService.updateReleaseProductUnit(product.getProductOptionCid(), product.getReceiveUnit());
             productReceiveRepository.delete(product);
         });
     }

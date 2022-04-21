@@ -47,6 +47,9 @@ public class ProductOptionEntity {
     @Column(name = "sales_price")
     private Integer salesPrice;
 
+    @Column(name = "total_purchase_price")
+    private Integer totalPurchasePrice;
+
     @Column(name = "stock_unit")
     private Integer stockUnit;
 
@@ -70,6 +73,9 @@ public class ProductOptionEntity {
 
     @Column(name = "unit_krw")
     private String unitKrw;
+
+    @Column(name = "package_yn", columnDefinition = "n")
+    private String packageYn;
 
     @Column(name = "created_at")
     private Date createdAt;
@@ -100,12 +106,15 @@ public class ProductOptionEntity {
      */
     public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
         ProductOptionEntity productOptionEntity = ProductOptionEntity.builder()
-                .id(UUID.randomUUID())
+                .cid(productOptionDto.getCid())
+                // .id(UUID.randomUUID())
+                .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
                 .nosUniqueCode(productOptionDto.getNosUniqueCode())
                 .defaultName(productOptionDto.getDefaultName())
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
+                .totalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                 .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
@@ -114,6 +123,7 @@ public class ProductOptionEntity {
                 .color(productOptionDto.getColor())
                 .unitCny(productOptionDto.getUnitCny())
                 .unitKrw(productOptionDto.getUnitKrw())
+                .packageYn(productOptionDto.getPackageYn())
                 .createdAt(productOptionDto.getCreatedAt())
                 .createdBy(productOptionDto.getCreatedBy())
                 .updatedAt(productOptionDto.getUpdatedAt())

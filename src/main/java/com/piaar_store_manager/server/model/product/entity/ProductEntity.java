@@ -53,6 +53,9 @@ public class ProductEntity {
     @Column(name = "image_file_name")
     private String imageFileName;
 
+    @Column(name = "purchase_url")
+    private String purchaseUrl;
+
     @Column(name = "memo")
     private String memo;
 
@@ -80,6 +83,12 @@ public class ProductEntity {
     @Column(name = "default_weight")
     private Integer defaultWeight;
 
+    @Column(name = "default_total_purchase_price")
+    private Integer defaultTotalPurchasePrice;
+
+    @Column(name = "stock_management")
+    private Boolean stockManagement;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -93,9 +102,6 @@ public class ProductEntity {
     @Type(type = "uuid-char")
     @Column(name = "updated_by")
     private UUID updatedBy;
-
-    @Column(name = "stock_management")
-    private Boolean stockManagement;
 
     @Column(name = "product_category_cid")
     private Integer productCategoryCid;
@@ -119,6 +125,7 @@ public class ProductEntity {
             .managementName(productDto.getManagementName())
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
+            .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
             .hsCode(productDto.getHsCode())
             .tariffRate(productDto.getTariffRate())
@@ -129,11 +136,12 @@ public class ProductEntity {
             .defaultHeight(productDto.getDefaultHeight())
             .defaultQuantity(productDto.getDefaultQuantity())
             .defaultWeight(productDto.getDefaultWeight())
+            .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
+            .stockManagement(productDto.getStockManagement())
             .createdAt(productDto.getCreatedAt())
             .createdBy(productDto.getCreatedBy())
             .updatedAt(productDto.getUpdatedAt())
             .updatedBy(productDto.getUpdatedBy())
-            .stockManagement(productDto.getStockManagement())
             .productCategoryCid(productDto.getProductCategoryCid())
             .build();
 

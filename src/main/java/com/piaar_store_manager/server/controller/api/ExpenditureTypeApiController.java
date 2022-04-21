@@ -2,9 +2,11 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.util.Map;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/expenditure-type")
+@RequiredArgsConstructor
 public class ExpenditureTypeApiController {
-    @Autowired
-    ExpenditureTypeService expenditureTypeService;
+
+    private final ExpenditureTypeService expenditureTypeService;
      
     // /**
     //  * Search all list for expenditureType
@@ -47,6 +50,7 @@ public class ExpenditureTypeApiController {
      * @see HttpStatus
      * @see BankTypeService#searchList
      */
+    @RequiredLogin
     @GetMapping("/list")
     public ResponseEntity<?> searchList(@RequestParam Map<String,Object> query){
         Message message = new Message();

@@ -3,12 +3,14 @@ package com.piaar_store_manager.server.controller.api;
 import java.io.IOException;
 import java.util.List;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.sales_rate.dto.OrderSearchExcelFormDto;
 import com.piaar_store_manager.server.model.sales_rate.dto.SalesRateCommonGetDto;
 import com.piaar_store_manager.server.model.sales_rate.dto.SalesRateCommonGetDto;
 import com.piaar_store_manager.server.service.sales_rate.SalesRateService;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -26,11 +28,13 @@ import org.springframework.web.multipart.MultipartFile;
 // TODO : Code Refactoring All 안건들여도 됩니다~~
 @RestController
 @RequestMapping("/api/v1/sales-rate")
+@RequiredArgsConstructor
 public class SalesRateApiController {
-    @Autowired
-    SalesRateService salesRateService;
+
+    private final SalesRateService salesRateService;
 
     // /api/v1/sales-rate/excel/naver/read
+    @RequiredLogin
     @PostMapping("/excel/naver/read")
     public ResponseEntity<?> readSalesRate(@RequestParam("file") MultipartFile file) throws IOException {
         Message message = new Message();

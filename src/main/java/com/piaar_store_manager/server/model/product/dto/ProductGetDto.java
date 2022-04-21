@@ -28,6 +28,7 @@ public class ProductGetDto {
     private String managementName;
     private String imageUrl;
     private String imageFileName;
+    private String purchaseUrl;
     private String memo;
     private String hsCode;
     private String style;
@@ -37,11 +38,12 @@ public class ProductGetDto {
     private Integer defaultHeight;
     private Integer defaultQuantity;
     private Integer defaultWeight;
+    private Integer defaultTotalPurchasePrice;
+    private Boolean stockManagement;
     private Date createdAt;
     private UUID createdBy;
     private Date updatedAt;
     private UUID updatedBy;
-    private Boolean stockManagement;
     private Integer productCategoryCid;
 
     /**
@@ -62,6 +64,7 @@ public class ProductGetDto {
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
+            .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
             .hsCode(entity.getHsCode())
@@ -73,11 +76,12 @@ public class ProductGetDto {
             .defaultHeight(entity.getDefaultHeight())
             .defaultQuantity(entity.getDefaultQuantity())
             .defaultWeight(entity.getDefaultWeight())
+            .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
+            .stockManagement(entity.getStockManagement())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
-            .stockManagement(entity.getStockManagement())
             .productCategoryCid(entity.getProductCategoryCid())
             .build();
 
@@ -104,6 +108,7 @@ public class ProductGetDto {
                 .managementName(entity.getManagementName())
                 .imageUrl(entity.getImageUrl())
                 .imageFileName(entity.getImageFileName())
+                .purchaseUrl(entity.getPurchaseUrl())
                 .memo(entity.getMemo())
                 .hsCode(entity.getHsCode())
                 .tariffRate(entity.getTariffRate())
@@ -114,11 +119,12 @@ public class ProductGetDto {
                 .defaultHeight(entity.getDefaultHeight())
                 .defaultQuantity(entity.getDefaultQuantity())
                 .defaultWeight(entity.getDefaultWeight())
+                .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
+                .stockManagement(entity.getStockManagement())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())
                 .updatedBy(entity.getUpdatedBy())
-                .stockManagement(entity.getStockManagement())
                 .productCategoryCid(entity.getProductCategoryCid())
                 .build();
 

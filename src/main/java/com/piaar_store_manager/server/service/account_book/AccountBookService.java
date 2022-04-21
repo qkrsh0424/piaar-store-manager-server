@@ -18,6 +18,8 @@ import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureType
 import com.piaar_store_manager.server.model.pagenation.PagenationDto;
 import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
 
+import com.piaar_store_manager.server.service.user.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,16 +30,15 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class AccountBookService {
     private final Integer DEFAULT_ITEM_PER_PAGE = 30;
-    @Autowired
-    AccountBookRepository accountBookRepository;
+    private final AccountBookRepository accountBookRepository;
 
-    @Autowired
-    DateHandler dateHandler;
+    private final DateHandler dateHandler;
 
-    @Autowired
-    ExpenditureTypeService expendtureTypeService;
+    private final ExpenditureTypeService expendtureTypeService;
+    private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
@@ -47,8 +48,8 @@ public class AccountBookService {
      * @param userId
      * @see AccountBookRepository
      */
-    public void createList(List<AccountBookDefDto> accountBookDefDtos, UUID userId) {
-        List<AccountBookEntity> entities = convEntitiesByDtos(accountBookDefDtos, userId);
+    public void createList(List<AccountBookDefDto> accountBookDefDtos) {
+        List<AccountBookEntity> entities = convEntitiesByDtos(accountBookDefDtos);
         accountBookRepository.saveAll(entities);
     }
 
@@ -60,10 +61,12 @@ public class AccountBookService {
      * @param userId
      * @return AccountBookEntity
      */
-    private AccountBookEntity convEntityByDto(AccountBookDefDto dto, UUID userId) {
+    private AccountBookEntity convEntityByDto(AccountBookDefDto dto) {
+        UUID USER_ID = userService.getUserId();
+
         AccountBookEntity entity = new AccountBookEntity();
         entity.setId(UUID.randomUUID());
-        entity.setUserId(userId);
+        entity.setUserId(USER_ID);
         entity.setAccountBookType(dto.getAccountBookType());
         entity.setBankType(dto.getBankType());
         entity.setDesc(dto.getDesc());
@@ -83,12 +86,14 @@ public class AccountBookService {
      * @param userId
      * @return List::AccountBookEntity::
      */
-    private List<AccountBookEntity> convEntitiesByDtos(List<AccountBookDefDto> dtos, UUID userId) {
+    private List<AccountBookEntity> convEntitiesByDtos(List<AccountBookDefDto> dtos) {
+        UUID USER_ID = userService.getUserId();
+
         List<AccountBookEntity> entities = new ArrayList<>();
         for (AccountBookDefDto dto : dtos) {
             AccountBookEntity entity = new AccountBookEntity();
             entity.setId(UUID.randomUUID());
-            entity.setUserId(userId);
+            entity.setUserId(USER_ID);
             entity.setAccountBookType(dto.getAccountBookType());
             entity.setBankType(dto.getBankType());
             entity.setDesc(dto.getDesc());

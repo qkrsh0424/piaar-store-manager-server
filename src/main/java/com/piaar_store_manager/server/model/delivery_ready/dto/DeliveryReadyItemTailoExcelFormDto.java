@@ -62,7 +62,7 @@ public class DeliveryReadyItemTailoExcelFormDto {
                 .managementMemo3("네이버")
                 .prodMemo1(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .prodMemo2(viewDto.getDeliveryReadyItem().getProdName() + "|" + viewDto.getDeliveryReadyItem().getOptionInfo())
-                .prodMemo3(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .prodMemo3(viewDto.getDeliveryReadyItem().getReleaseOptionCode())
                 .build();
 
         return formDto;
@@ -92,7 +92,7 @@ public class DeliveryReadyItemTailoExcelFormDto {
                 .managementMemo3("쿠팡")
                 .prodMemo1(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .prodMemo2(viewDto.getDeliveryReadyItem().getProdName() + "|" + viewDto.getDeliveryReadyItem().getOptionInfo())
-                .prodMemo3(viewDto.getDeliveryReadyItem().getOptionManagementCode())
+                .prodMemo3(viewDto.getDeliveryReadyItem().getReleaseOptionCode())
                 .build();
 
         return formDto;

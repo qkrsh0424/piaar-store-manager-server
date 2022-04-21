@@ -1,44 +1,51 @@
 package com.piaar_store_manager.server.service.product_option;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinReceiveAndReleaseDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionJoinResDto;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionStatusDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJoinOptionDto;
 import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseJoinOptionDto;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.model.user.dto.UserGetDto;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.piaar_store_manager.server.service.user.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProductOptionBusinessService {
-    private ProductReleaseService productReleaseService;
-    private ProductReceiveService productReceiveService;
-    private ProductOptionService productOptionService;
-
-    @Autowired
-    public ProductOptionBusinessService(
-        ProductReleaseService productReleaseService,
-        ProductReceiveService productReceiveService,
-        ProductOptionService productOptionService
-    ) {
-        this.productReleaseService = productReleaseService;
-        this.productReceiveService = productReceiveService;
-        this.productOptionService = productOptionService;
-    }
+    private final ProductReleaseService productReleaseService;
+    private final ProductReceiveService productReceiveService;
+    private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
+    private final UserService userService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -118,7 +125,9 @@ public class ProductOptionBusinessService {
      * @see ProductOptionGetDto#toDto
      */
     public List<ProductOptionGetDto> searchListByProduct(Integer productCid) {
-        return productOptionService.searchListByProduct(productCid);
+        List<ProductOptionEntity> entities = productOptionService.searchListByProduct(productCid);
+        List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -131,9 +140,9 @@ public class ProductOptionBusinessService {
      * @return ProductOptionStatusDto
      * @param optionCid : Integer
      * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      * @see ProductReceiveService#searchListByOptionCid
-     * @see ProductReceiveGetDto#toDtos
+     * @see ProductReceiveGetDto#toDto
      */
     public ProductOptionStatusDto searchStockStatus(Integer optionCid) {
         // 1. 출고데이터 조회
@@ -154,21 +163,101 @@ public class ProductOptionBusinessService {
     }
 
     /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 출고데이터와 그에 대응하는 옵션 및 상품 데이터를 모두 조회한다.
+     * 입고데이터와 그에 대응하는 옵션 및 상품 데이터를 모두 조회한다.
+     * 입, 출고 데이터를 이용해 ProductOptionStatusDto 생성한다.
+     *
+     * @return ProductOptionJoinReceiveAndReleaseDto
+     * @see ProductReleaseService#searchListM2OJ
+     * @see ProductReleaseGetDto#toDto
+     * @see ProductReceiveService#searchListM2OJ
+     * @see ProductReceiveGetDto#toDto
+     */
+    public ProductOptionJoinReceiveAndReleaseDto searchAllStockStatus() {
+        // 1. 출고데이터 조회
+        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
+        List<ProductReleaseJoinOptionDto> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+        
+        // // 2. 입고데이터 조회
+        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
+        List<ProductReceiveJoinOptionDto> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+
+
+        // 3. 합쳐서 ProductOptionStatusDto 생성
+        ProductOptionJoinReceiveAndReleaseDto statusDto = ProductOptionJoinReceiveAndReleaseDto.builder()
+            .productRelease(releaseDtos)
+            .productReceive(receiveDtos)
+            .build();
+
+        return statusDto;
+    }
+
+    public ProductOptionJoinReceiveAndReleaseDto searchAllStockStatus(Map<String,Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = null;
+        LocalDateTime endDate = null;
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        
+        // 1. 출고데이터 조회
+        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
+        List<ProductReleaseJoinOptionDto> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+        
+        // // 2. 입고데이터 조회
+        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
+        List<ProductReceiveJoinOptionDto> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinOptionDto.toDto(proj)).collect(Collectors.toList());
+
+        // 3. 합쳐서 ProductOptionStatusDto 생성
+        ProductOptionJoinReceiveAndReleaseDto statusDto = ProductOptionJoinReceiveAndReleaseDto.builder()
+            .productRelease(releaseDtos)
+            .productReceive(receiveDtos)
+            .build();
+
+        return statusDto;
+    }
+
+    /**
      * <b>DB Insert Related Method</b>
      * <p>
      * ProductOption 내용을 한개 등록한다.
      * 
      * @param optionGetDto : ProductOptionGetDto
-     * @param userId : UUID
      * @see ProductOptionEntity#toEntity
      * @see ProductOptionService#createOne
      * @see ProductOptionGetDto#toDto
      */
-    public ProductOptionGetDto createOne(ProductOptionGetDto optionGetDto, UUID userId) {
-        optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
-            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+    public ProductOptionGetDto createOne(ProductOptionGetDto optionGetDto) {
+        UUID USER_ID = userService.getUserId();
+
+        optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
 
         ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
+        ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
+        return dto;
+    }
+
+    public ProductOptionGetDto createOAP(ProductOptionCreateReqDto reqDto) {
+        UUID USER_ID = userService.getUserId();
+
+        ProductOptionGetDto optionGetDto = reqDto.getOptionDto().setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+
+        // option save
+        ProductOptionEntity entity = productOptionService.createOne(ProductOptionEntity.toEntity(optionGetDto));
+
+        List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
+            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+                .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+
+            return OptionPackageEntity.toEntity(r);
+        }).collect(Collectors.toList());
+
+        // option package save
+        optionPackageService.saveListAndModify(optionPackageEntities);
+
         ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
         return dto;
     }
@@ -191,11 +280,130 @@ public class ProductOptionBusinessService {
      * ProductOption cid 값과 상응되는 데이터를 업데이트한다.
      * 
      * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
      * @see ProductOptionService#changeOne
      */
-    public void changeOne(ProductOptionGetDto productOptionDto, UUID userId) {
-        productOptionService.changeOne(productOptionDto, userId);
+    public void changeOne(ProductOptionGetDto productOptionDto) {
+        productOptionService.changeOne(productOptionDto);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 상품 옵션과 옵션 패키지를 함께 업데이트한다.
+     */
+    @Transactional
+    public void changeOAP(ProductOptionCreateReqDto reqDto) {
+        UUID USER_ID = userService.getUserId();
+        ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();
+
+        ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionGetDto.getCid());
+        /*
+        영속성 업데이트
+         */
+        productOptionEntity
+                .setCode(productOptionGetDto.getCode())
+                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
+                .setDefaultName(productOptionGetDto.getDefaultName())
+                .setManagementName(productOptionGetDto.getManagementName())
+                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
+                .setSalesPrice(productOptionGetDto.getSalesPrice()).setStockUnit(productOptionGetDto.getStockUnit())
+                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
+                .setStatus(productOptionGetDto.getStatus()).setMemo(productOptionGetDto.getMemo())
+                .setImageUrl(productOptionGetDto.getImageUrl()).setImageFileName(productOptionGetDto.getImageFileName())
+                .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
+                .setUnitKrw(productOptionGetDto.getUnitKrw())
+                .setPackageYn(productOptionGetDto.getPackageYn())
+                .setUpdatedAt(DateHandler.getCurrentDate2())
+                .setUpdatedBy(USER_ID)
+                .setProductCid(productOptionGetDto.getProductCid());
+        this.changeOptionPackage(reqDto);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터가 업데이트되는 경우를 나눠 처리한다.
+     * (새로운 데이터가 추가된 경우, 기존 데이터가 변경된 경우, 기존 데이터가 제거된 경우)
+     */
+    public void changeOptionPackage(ProductOptionCreateReqDto reqDto) {
+        // 기존에 저장된 옵션 패키지
+        List<OptionPackageEntity> savedOptionPackages = optionPackageService.searchListByParentOptionId(reqDto.getOptionDto().getId());
+        List<UUID> savedPackageIdList = savedOptionPackages.stream().map(r -> r.getId()).collect(Collectors.toList());
+        
+        // 기존 데이터가 변경된 경우
+        this.changeOriginOptionPackage(reqDto, savedOptionPackages);
+
+        List<UUID> packageIdList = reqDto.getPackageDtos().stream().map(r -> r.getId()).collect(Collectors.toList());
+
+        // 새로 추가된 데이터
+        List<UUID> newPackageIdList = packageIdList.stream().filter(optionPackage -> !savedPackageIdList.contains(optionPackage)).collect(Collectors.toList());
+        
+        this.saveAddOptionPackage(reqDto, newPackageIdList);
+        this.deleteOriginOptionPackage(savedOptionPackages, packageIdList);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 새로 추가된 데이터들을 저장한다.
+     */
+    public void saveAddOptionPackage(ProductOptionCreateReqDto reqDto, List<UUID> newPackageIdList) {
+        UUID USER_ID = userService.getUserId();
+
+        List<OptionPackageEntity> newOptionPackageEntities = new ArrayList<>();
+        reqDto.getPackageDtos().stream().forEach(r -> {
+            if (newPackageIdList.contains(r.getId())) {
+                r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+                        .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+
+                newOptionPackageEntities.add(OptionPackageEntity.toEntity(r));
+            }
+        });
+
+        optionPackageService.saveListAndModify(newOptionPackageEntities);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 기존에 저장된 데이터들의 내용을 업데이트한다.
+     */
+    public void changeOriginOptionPackage(ProductOptionCreateReqDto reqDto, List<OptionPackageEntity> savedOptionPackages) {
+        UUID USER_ID = userService.getUserId();
+
+        // 변경된 데이터
+        reqDto.getPackageDtos().stream().forEach(optionPackage -> {
+            savedOptionPackages.stream().forEach(entity -> {
+                if (optionPackage.getId().equals(entity.getId())) {
+                    entity.setPackageUnit(optionPackage.getPackageUnit())
+                            .setOriginOptionCode(optionPackage.getOriginOptionCode())
+                            .setOriginOptionId(optionPackage.getOriginOptionId())
+                            .setUpdatedAt(LocalDateTime.now())
+                            .setUpdatedBy(USER_ID);
+                }
+            });
+        });
+
+        optionPackageService.saveListAndModify(savedOptionPackages);
+    }
+
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * 옵션 패키지 데이터 중 제거된 데이터들을 제거한다.
+     */
+    public void deleteOriginOptionPackage(List<OptionPackageEntity> savedOptionPackages, List<UUID> packageIdList) {
+        // 삭제된 데이터
+        List<UUID> deletedIdList = new ArrayList<>();
+        savedOptionPackages.stream().forEach(entity -> {
+            if (!packageIdList.contains(entity.getId())) {
+                deletedIdList.add(entity.getId());
+            }
+        });
+
+        if (deletedIdList.size() != 0) {
+            optionPackageService.deleteBatch(deletedIdList);
+        }
     }
 
     /**
@@ -208,7 +416,8 @@ public class ProductOptionBusinessService {
      * @see ProductOptionService#searchOne
      * @see ProductOptionService#createOne
      */
-    public void patchOne(ProductOptionGetDto productOptionDto, UUID userId) {
+    public void patchOne(ProductOptionGetDto productOptionDto) {
+        UUID USER_ID = userService.getUserId();
         ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
         if (productOptionDto.getCode() != null) {
@@ -225,6 +434,9 @@ public class ProductOptionBusinessService {
         }
         if (productOptionDto.getSalesPrice() != null) {
             productOptionEntity.setSalesPrice(productOptionDto.getSalesPrice());
+        }
+        if (productOptionDto.getTotalPurchasePrice() != null) {
+            productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());
         }
         if (productOptionDto.getStockUnit() != null) {
             productOptionEntity.setStockUnit(productOptionDto.getStockUnit());
@@ -253,7 +465,7 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
-        productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
+        productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
         productOptionService.createOne(productOptionEntity);
     }
 }

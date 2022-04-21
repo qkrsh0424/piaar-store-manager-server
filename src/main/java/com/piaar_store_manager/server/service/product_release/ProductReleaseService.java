@@ -1,31 +1,28 @@
 package com.piaar_store_manager.server.service.product_release;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.model.product_release.proj.ProductReleaseProj;
+import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseCustomJdbc;
 import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-public class ProductReleaseService {
-    private ProductReleaseRepository productReleaseRepository;
-    private ProductOptionService productOptionService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public ProductReleaseService(
-        ProductReleaseRepository productReleaseRepository,
-        ProductOptionService productOptionService
-    ) {
-        this.productReleaseRepository = productReleaseRepository;
-        this.productOptionService = productOptionService;
-    }
+@Service
+@RequiredArgsConstructor
+public class ProductReleaseService {
+    private final ProductReleaseRepository productReleaseRepository;
+    private final ProductOptionService productOptionService;
+    private final ProductReleaseCustomJdbc productReleaseCustomJdbc;
 
     /**
      * <b>DB Select Related Method</b>
@@ -116,6 +113,10 @@ public class ProductReleaseService {
     public List<ProductReleaseProj> searchListM2OJ() {
         return productReleaseRepository.selectAll();
     }
+    
+    public List<ProductReleaseProj> searchListM2OJ(LocalDateTime startDate, LocalDateTime endDate) {
+        return productReleaseRepository.selectAll(startDate, endDate);
+    }
 
     /**
      * <b>DB Insert Related Method</b>
@@ -154,10 +155,26 @@ public class ProductReleaseService {
      * @see ProductOptionService#updateReceiveProductUnit
      * @see ProductReleaseRepository#delete
      */
-    public void destroyOne(Integer productReleaseCid, UUID userId) {
+    public void destroyOne(Integer productReleaseCid) {
         productReleaseRepository.findById(productReleaseCid).ifPresent(product -> {
-            productOptionService.updateReceiveProductUnit(product.getProductOptionCid(), userId, product.getReleaseUnit());
+            productOptionService.updateReceiveProductUnit(product.getProductOptionCid(), product.getReleaseUnit());
             productReleaseRepository.delete(product);
         });
+    }
+
+    public void bulkInsert(List<ProductReleaseEntity> entities){
+        // access check
+        // userService.userLoginCheck();
+        // userService.userManagerRoleCheck();
+        
+        productReleaseCustomJdbc.jdbcBulkInsert(entities);
+    }
+
+    public void deleteByErpOrderItemIds(List<UUID> erpOrderItemIds){
+        // access check
+        // userService.userLoginCheck();
+        // userService.userManagerRoleCheck();
+        
+        productReleaseRepository.deleteByErpOrderItemIds(erpOrderItemIds);
     }
 }

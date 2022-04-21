@@ -2,34 +2,51 @@ package com.piaar_store_manager.server.controller;
 
 import java.text.ParseException;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
-import com.piaar_store_manager.server.exception.FileUploadException;
+import javax.validation.ConstraintViolationException;
+
 import com.piaar_store_manager.server.model.message.Message;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import lombok.extern.slf4j.Slf4j;
-
 @ControllerAdvice
 @Slf4j
-public class ExceptionHandlerController {
-    @ExceptionHandler({ FileUploadException.class })
-    public ResponseEntity<?> FileUploadExceptionHandler(FileUploadException e) {
-        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+public class GlobalExceptionHandler {
 
-        Message message = new Message();
-        message.setMessage("file_upload_error");
-        message.setStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        message.setMemo(e.getMessage());
+   /**
+    * 데이터 베이스 Valid 유효성 검사 예외가 발생했을 때
+    * http status 409
+    */
+   @ExceptionHandler({ ConstraintViolationException.class })
+   public ResponseEntity<?> constraintViolationExceptionHandler(ConstraintViolationException e) {
+       log.error("ERROR STACKTRACE => {}", e.getStackTrace());
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+       Message message = new Message();
+       message.setStatus(HttpStatus.CONFLICT);
+       message.setMessage("data_error");
+       message.setMemo("입력된 데이터를 등록할 수 없습니다.\n 수정 후 재등록해주세요.");
 
-    @ExceptionHandler({ NullPointerException.class })
+       return new ResponseEntity<>(message, message.getStatus());
+   }
+
+   @ExceptionHandler({ MethodArgumentNotValidException.class })
+   public ResponseEntity<?> argumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+       log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+       Message message = new Message();
+       message.setStatus(HttpStatus.CONFLICT);
+       message.setMessage("data_error");
+       message.setMemo("허용할 수 없는 데이터가 존재합니다.");
+
+       return new ResponseEntity<>(message, message.getStatus());
+   }
+
+   @ExceptionHandler({ NullPointerException.class })
     public ResponseEntity<?> NullPointerExceptionHandler(NullPointerException e) {
         log.error("ERROR STACKTRACE => {}", e.getStackTrace());
 
@@ -41,6 +58,10 @@ public class ExceptionHandlerController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+    * 데이터 베이스 관련 예외가 발생했을 때
+    * http status 400
+    */
     @ExceptionHandler({ DataAccessException.class })
     public ResponseEntity<?> DataAccessExceptionHandler(DataAccessException e) {
         log.error("ERROR STACKTRACE => {}", e.getStackTrace());
@@ -61,18 +82,6 @@ public class ExceptionHandlerController {
         message.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         message.setMessage("error");
         message.setMemo("undefined error.");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @ExceptionHandler({ ExcelFileUploadException.class })
-    public ResponseEntity<?> DeliveryReadyExceptionHandler(ExcelFileUploadException e) {
-        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
-
-        Message message = new Message();
-        message.setStatus(HttpStatus.BAD_REQUEST);
-        message.setMessage("data_error");
-        message.setMemo(e.getMessage());
 
         return new ResponseEntity<>(message, message.getStatus());
     }

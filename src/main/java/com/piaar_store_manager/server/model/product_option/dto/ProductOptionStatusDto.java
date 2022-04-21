@@ -17,6 +17,6 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductOptionStatusDto {
-    List<ProductReleaseGetDto> productRelease;
-    List<ProductReceiveGetDto> productReceive;
+    private List<ProductReleaseGetDto> productRelease;
+    private List<ProductReceiveGetDto> productReceive;
 }

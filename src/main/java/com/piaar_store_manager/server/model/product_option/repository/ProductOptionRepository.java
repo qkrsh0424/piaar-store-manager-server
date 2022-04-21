@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.model.product_option.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Tuple;
 
@@ -13,7 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer> {
+public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
 
     /**
      * 단일 ProductOption cid에 대응하는 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 조회한다.
@@ -110,4 +111,10 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
                 "(SELECT SUM(prc.receive_unit) FROM product_receive prc WHERE po.cid=prc.product_option_cid) AS receivedSum \n" +
                 "FROM product_option po WHERE po.cid IN :optionCids", nativeQuery = true)
     List<Tuple> sumStockUnitByOption(List<Integer> optionCids);
+
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" +
+        "WHERE po.cid IN :cids"
+    )
+    List<ProductOptionEntity> findAllByCids(List<Integer> cids);
 }

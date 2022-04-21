@@ -25,6 +25,7 @@ public class ProductOptionGetDto {
     private String managementName;
     private Integer salesPrice;
     private Integer stockUnit;
+    private Integer totalPurchasePrice;     // 추가된 항목
     private String status;
     private String memo;
     private String imageUrl;
@@ -41,6 +42,7 @@ public class ProductOptionGetDto {
     private Integer releasedSumUnit;
     private Integer receivedSumUnit;
     private Integer stockSumUnit;
+    private String packageYn;
 
     /**
      * <b>Convert Method</b>
@@ -59,6 +61,7 @@ public class ProductOptionGetDto {
                 .defaultName(entity.getDefaultName())
                 .managementName(entity.getManagementName())
                 .salesPrice(entity.getSalesPrice())
+                .totalPurchasePrice(entity.getTotalPurchasePrice())
                 .stockUnit(entity.getStockUnit())
                 .status(entity.getStatus())
                 .memo(entity.getMemo())
@@ -67,6 +70,7 @@ public class ProductOptionGetDto {
                 .color(entity.getColor())
                 .unitCny(entity.getUnitCny())
                 .unitKrw(entity.getUnitKrw())
+                .packageYn(entity.getPackageYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())

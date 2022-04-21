@@ -10,7 +10,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -20,7 +23,9 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -29,7 +34,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,24 +49,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/delivery-ready/coupang")
+@RequiredArgsConstructor
 public class DeliveryReadyCoupangApiController {
-    private DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService;
-    private UserService userService;
-
-    @Autowired
-    public DeliveryReadyCoupangApiController(
-        DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService,
-        UserService userService
-    ) {
-        this.deliveryReadyCoupangBusinessService = deliveryReadyCoupangBusinessService;
-        this.userService = userService;
-    }
+    private final DeliveryReadyCoupangBusinessService deliveryReadyCoupangBusinessService;
 
     /**
      * Upload excel data for delivery ready.
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/upload</b>
-     * 
+     *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
      * @throws NullPointerException
@@ -70,35 +65,33 @@ public class DeliveryReadyCoupangApiController {
      * @throws ParseException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#uploadDeliveryReadyExcelFile
-     * @see UserService#isUserLogin
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/upload")
     public ResponseEntity<?> uploadDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws ParseException {
         Message message = new Message();
 
-        if (!userService.isUserLogin()) {
-            message.setStatus(HttpStatus.FORBIDDEN);
-            message.setMessage("need_login");
-            message.setMemo("need login");
-        } else {
-            // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
-
-            try{
-                message.setData(deliveryReadyCoupangBusinessService.uploadDeliveryReadyExcelFile(file));
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                throw new ExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
-            } catch (IllegalStateException e) {
-                throw new ExcelFileUploadException("쿠팡 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
-            } catch (IllegalArgumentException e) {
-                throw new ExcelFileUploadException("쿠팡 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
-            }
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new FileUploadException("This is not an excel file.");
         }
-    
+
+        try {
+            message.setData(deliveryReadyCoupangBusinessService.uploadDeliveryReadyExcelFile(file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+        } catch (IllegalStateException e) {
+            throw new CustomExcelFileUploadException("쿠팡 배송 준비 엑셀 파일과 데이터 타입이 다른 값이 존재합니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+        } catch (IllegalArgumentException e) {
+            throw new CustomExcelFileUploadException("쿠팡 배송 준비 엑셀 파일이 아닙니다.\n올바른 배송 준비 엑셀 파일을 업로드해주세요");
+        }
+
+
         return new ResponseEntity<>(message, message.getStatus());
     }
 
@@ -106,33 +99,31 @@ public class DeliveryReadyCoupangApiController {
      * Store excel data for delivery ready.
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/store</b>
-     * 
+     *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
      * @throws ParseException
-     * @throws IOException
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see DeliveryReadyCoupangBusinessService#storeDeliveryReadyExcelFile
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/store")
     public ResponseEntity<?> storeDeliveryReadyExcelFile(@RequestParam("file") MultipartFile file) throws ParseException {
         Message message = new Message();
 
-        // 유저 권한을 체크한다.
-        if (userService.isManager()) {
-            // file extension check.
-            deliveryReadyCoupangBusinessService.isExcelFile(file);
-
-            message.setData(deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file, userService.getUserId()));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
+        // file extension check.
+        if (CustomExcelUtils.isExcelFile(file)) {
+            throw new FileUploadException("This is not an excel file.");
         }
+
+        deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -141,7 +132,7 @@ public class DeliveryReadyCoupangApiController {
      * Search unreleased data for delivery ready.
      * <p>
      * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/unreleased</b>
-     * 
+     *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -149,18 +140,15 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/unreleased")
     public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewUnreleasedData());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
-        }
+        message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewUnreleasedData());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -169,7 +157,7 @@ public class DeliveryReadyCoupangApiController {
      * Search released data for delivery ready.
      * <p>
      * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/released</b>
-     * 
+     *
      * @param query : Map[startDate, endDate]
      * @return ResponseEntity(message, HttpStatus)
      * @throws ParseException
@@ -179,18 +167,15 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/released")
     public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewReleased(query));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
-        }
+        message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewReleased(query));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -204,26 +189,24 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#deleteOneDeliveryReadyViewData
+     * @see DeliveryReadyCoupangBusinessService#deleteOneDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @DeleteMapping("/view/delete/one/{itemCid}")
     public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
-        if (userService.isManager()) {
-            try{
-                deliveryReadyCoupangBusinessService.deleteOneDeliveryReadyViewData(itemCid);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyCoupangBusinessService.deleteOneDeliveryReadyViewData(itemCid);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -238,26 +221,24 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#deleteListDeliveryReadyViewData
+     * @see DeliveryReadyCoupangBusinessService#deleteListDeliveryReadyViewData
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/delete/batch")
     public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
-        if (userService.isManager()) {
-            try{
-                deliveryReadyCoupangBusinessService.deleteListDeliveryReadyViewData(deliveryReadyCoupangItemDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyCoupangBusinessService.deleteListDeliveryReadyViewData(deliveryReadyCoupangItemDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -272,27 +253,24 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#updateReleasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateReleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/one")
     public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyCoupangBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -303,31 +281,28 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/list/unrelease</b>
      *
-     * @param deliveryReadyCoupangItemDto : List::DeliveryReadyCoupangItemDto::
+     * @param deliveryReadyCoupangItemDtos : List::DeliveryReadyCoupangItemDto::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#updateListReleasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListToUnreleasedDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/list/unrelease")
     public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyCoupangItemDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+        try {
+            deliveryReadyCoupangBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyCoupangItemDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -342,27 +317,24 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/list/release")
     public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         Message message = new Message();
-        
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+
+        try {
+            deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -372,7 +344,7 @@ public class DeliveryReadyCoupangApiController {
      * Search option info for product.
      * <p>
      * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/seach/list/option-info</b>
-     * 
+     *
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -380,18 +352,15 @@ public class DeliveryReadyCoupangApiController {
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @GetMapping("/view/search/list/option-info")
     public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
         Message message = new Message();
 
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            message.setData(deliveryReadyCoupangBusinessService.searchDeliveryReadyItemOptionInfo());
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } else {
-            userService.userDenyCheck(message);
-        }
+        message.setData(deliveryReadyCoupangBusinessService.searchDeliveryReadyItemOptionInfo());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -405,27 +374,24 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#updateDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyCoupangBusinessService#updateDeliveryReadyItemOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/option")
     public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
-        
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+
+        try {
+            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -437,36 +403,64 @@ public class DeliveryReadyCoupangApiController {
      * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/options</b>
      *
      * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
-     * @param query : Map[optionCode]
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#updateDeliveryReadyItemsOptionInfo
+     * @see DeliveryReadyCoupangBusinessService#updateDeliveryReadyItemsOptionInfo
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/update/options")
     public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
-        
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+
+        try {
+            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
     }
-    
+
+    /**
+     * Change released data to unreleased data for delivery ready.
+     * <p>
+     * <b>GET : API URL => /api/v1/delivery-ready/coupang/view/update/release-option</b>
+     *
+     * @param deliveryReadyCoupangItemDto : DeliveryReadyCoupangItemDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see Message
+     * @see HttpStatus
+     * @see DeliveryReadyCoupangBusinessService#updateDeliveryReadyItemReleaseOptionInfo
+     * @see UserService#isManager
+     * @see UserService#userDenyCheck
+     */
+    @RequiredLogin
+    @PermissionRole
+    @PutMapping("/view/update/release-option")
+    public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
+        Message message = new Message();
+
+        try {
+            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemReleaseOptionInfo(deliveryReadyCoupangItemDto);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
+        }
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Update data for delivery ready data.
      * Reflect the stock unit of product options.
@@ -477,33 +471,30 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#releaseListStockUnit
+     * @see DeliveryReadyCoupangBusinessService#releaseListStockUnit
      * @see UserService#isManager
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/stock-unit")
     public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
-        
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.releaseListStockUnit(dtos, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+
+        try {
+            deliveryReadyCoupangBusinessService.releaseListStockUnit(dtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
     }
-    
+
     /**
      * Update data for delivery ready.
      * Cancel the stock unit reflection of product options.
@@ -514,28 +505,25 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#cancelReleaseListStockUnit
+     * @see DeliveryReadyCoupangBusinessService#cancelReleaseListStockUnit
      * @see UserService#isManager
      * @see UserService#getUserId
      * @see UserService#userDenyCheck
      */
+    @RequiredLogin
+    @PermissionRole
     @PutMapping("/view/stock-unit/cancel")
     public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
         Message message = new Message();
-        
-        // 유저의 권한을 체크한다.
-        if (userService.isManager()) {
-            try {
-                deliveryReadyCoupangBusinessService.cancelReleaseListStockUnit(dtos, userService.getUserId());
-                message.setStatus(HttpStatus.OK);
-                message.setMessage("success");
-            } catch (NullPointerException e) {
-                message.setStatus(HttpStatus.NOT_FOUND);
-                message.setMessage("not_found");
-                message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
-            }
-        } else {
-            userService.userDenyCheck(message);
+
+        try {
+            deliveryReadyCoupangBusinessService.cancelReleaseListStockUnit(dtos);
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (NullPointerException e) {
+            message.setStatus(HttpStatus.NOT_FOUND);
+            message.setMessage("not_found");
+            message.setMemo("해당 데이터를 찾을 수 없습니다. 관리자에게 문의하세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -549,15 +537,17 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#changeDeliveryReadyItem
-     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#changeDeliveryReadyItemToHansan
+     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItem(viewDtos);
-        
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItemToHansan(viewDtos);
+
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("한산 발주서");
@@ -610,12 +600,12 @@ public class DeliveryReadyCoupangApiController {
         cellStyle.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
         cellStyle.setFillPattern(FillPatternType.BRICKS);
 
-        for (int i=0; i<dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
 
             // 받는사람 + 번호 + 주소 : 중복데이터 엑셀 셀 색상 설정
-            if(dtos.get(i).isDuplication()){
+            if (dtos.get(i).isDuplication()) {
                 cell.setCellStyle(cellStyle);
             }
             cell.setCellValue(dtos.get(i).getReceiver());
@@ -657,14 +647,14 @@ public class DeliveryReadyCoupangApiController {
             cell.setCellValue("쿠팡");
         }
 
-        for(int i = 0; i < 19; i++){
+        for (int i = 0; i < 19; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
@@ -683,13 +673,15 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
      * @see Message
      * @see HttpStatus
-     * @see deliveryReadyCoupangBusinessService#releasedDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/tailo")
     public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
-        
-        for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+
+        for (DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
 
@@ -700,7 +692,7 @@ public class DeliveryReadyCoupangApiController {
                 .thenComparing(DeliveryReadyItemTailoExcelFormDto::getDestination1);
 
         dtos.sort(comparing);
-        
+
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("테일로 발주서");
@@ -756,7 +748,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(22);
         cell.setCellValue("출고희망일");
 
-        for (int i=0; i<dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue(dtos.get(i).getProdUniqueCode());
@@ -806,14 +798,14 @@ public class DeliveryReadyCoupangApiController {
             cell.setCellValue(dtos.get(i).getReleaseDesiredDate());
         }
 
-        for(int i = 0; i < 23; i++){
+        for (int i = 0; i < 23; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
@@ -834,6 +826,8 @@ public class DeliveryReadyCoupangApiController {
      * @see Message
      * @see HttpStatus
      */
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/lotte")
     public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         // 중복데이터 처리
@@ -894,7 +888,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(18);
         cell.setCellValue("총 상품정보");
 
-        for (int i=0; i<dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue(dtos.get(i).getReceiver());
@@ -934,14 +928,14 @@ public class DeliveryReadyCoupangApiController {
             cell.setCellValue(dtos.get(i).getAllProdOrderNumber());
         }
 
-        for(int i = 0; i < 18; i++){
+        for (int i = 0; i < 18; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {
@@ -952,14 +946,16 @@ public class DeliveryReadyCoupangApiController {
         deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
     }
 
+    @RequiredLogin
+    @PermissionRole
     @PostMapping("/view/download/excel")
     public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
         List<DeliveryReadyCoupangItemExcelFormDto> dtos = new ArrayList<>();
 
-        for(DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+        for (DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
             dtos.add(DeliveryReadyCoupangItemExcelFormDto.toCoupangFormDto(viewDto));
         }
-        
+
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
         Sheet sheet = workbook.createSheet("쿠팡 배송준비 데이터");
@@ -1023,7 +1019,7 @@ public class DeliveryReadyCoupangApiController {
         cell = row.createCell(25);
         cell.setCellValue("출고일시");
 
-        for (int i=0; i<dtos.size(); i++) {
+        for (int i = 0; i < dtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue(dtos.get(i).getShipmentCostBundleNumber());
@@ -1074,7 +1070,7 @@ public class DeliveryReadyCoupangApiController {
             cell = row.createCell(23);
             cell.setCellValue(dtos.get(i).getOrderDateTime() != null ? dateFormat.format(dtos.get(i).getOrderDateTime()) : null);
             cell = row.createCell(24);
-            if(dtos.get(i).getReleased()) {
+            if (dtos.get(i).getReleased()) {
                 cell.setCellValue("O");
             } else {
                 cell.setCellValue("X");
@@ -1083,14 +1079,14 @@ public class DeliveryReadyCoupangApiController {
             cell.setCellValue(dtos.get(i).getReleasedAt() != null ? dateFormat.format(dtos.get(i).getReleasedAt()) : null);
         }
 
-        for(int i = 0; i < 26; i++){
+        for (int i = 0; i < 26; i++) {
             sheet.autoSizeColumn(i);
         }
 
         response.setContentType("ms-vnd/excel");
         response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try{
+        try {
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {

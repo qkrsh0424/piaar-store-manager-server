@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.order_confirm.dto.OrderConfirmGetDto;
 import com.piaar_store_manager.server.model.order_confirm.dto.OrdererDto;
 
@@ -66,8 +67,8 @@ public class OrderConfirmService {
                     ordererDto.setAddress(row.getCell(42).getStringCellValue());
                     ordererDto.setPhone(row.getCell(43).getStringCellValue());
                     ordererDto.setOrderUnit((int) row.getCell(20).getNumericCellValue());
-                    ordererDto.setOrderDate(row.getCell(14).getDateCellValue());
-                    ordererDto.setDeliveryLimitDate(row.getCell(28).getDateCellValue());
+                    ordererDto.setOrderDate(DateHandler.getUtcDate(row.getCell(14).getDateCellValue()));
+                    ordererDto.setDeliveryLimitDate(DateHandler.getUtcDate(row.getCell(28).getDateCellValue()));
                     ordererList.add(ordererDto);
                 }
             }
