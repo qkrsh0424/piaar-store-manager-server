@@ -140,9 +140,9 @@ public class ProductOptionBusinessService {
      * @return ProductOptionStatusDto
      * @param optionCid : Integer
      * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      * @see ProductReceiveService#searchListByOptionCid
-     * @see ProductReceiveGetDto#toDtos
+     * @see ProductReceiveGetDto#toDto
      */
     public ProductOptionStatusDto searchStockStatus(Integer optionCid) {
         // 1. 출고데이터 조회
@@ -171,9 +171,9 @@ public class ProductOptionBusinessService {
      *
      * @return ProductOptionJoinReceiveAndReleaseDto
      * @see ProductReleaseService#searchListM2OJ
-     * @see ProductReleaseGetDto#toDtos
+     * @see ProductReleaseGetDto#toDto
      * @see ProductReceiveService#searchListM2OJ
-     * @see ProductReceiveGetDto#toDtos
+     * @see ProductReceiveGetDto#toDto
      */
     public ProductOptionJoinReceiveAndReleaseDto searchAllStockStatus() {
         // 1. 출고데이터 조회
@@ -224,7 +224,6 @@ public class ProductOptionBusinessService {
      * ProductOption 내용을 한개 등록한다.
      * 
      * @param optionGetDto : ProductOptionGetDto
-     * @param userId : UUID
      * @see ProductOptionEntity#toEntity
      * @see ProductOptionService#createOne
      * @see ProductOptionGetDto#toDto
@@ -281,7 +280,6 @@ public class ProductOptionBusinessService {
      * ProductOption cid 값과 상응되는 데이터를 업데이트한다.
      * 
      * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
      * @see ProductOptionService#changeOne
      */
     public void changeOne(ProductOptionGetDto productOptionDto) {
@@ -295,7 +293,29 @@ public class ProductOptionBusinessService {
      */
     @Transactional
     public void changeOAP(ProductOptionCreateReqDto reqDto) {
-        productOptionService.changeOne(reqDto.getOptionDto());
+        UUID USER_ID = userService.getUserId();
+        ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();
+
+        ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionGetDto.getCid());
+        /*
+        영속성 업데이트
+         */
+        productOptionEntity
+                .setCode(productOptionGetDto.getCode())
+                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
+                .setDefaultName(productOptionGetDto.getDefaultName())
+                .setManagementName(productOptionGetDto.getManagementName())
+                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
+                .setSalesPrice(productOptionGetDto.getSalesPrice()).setStockUnit(productOptionGetDto.getStockUnit())
+                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
+                .setStatus(productOptionGetDto.getStatus()).setMemo(productOptionGetDto.getMemo())
+                .setImageUrl(productOptionGetDto.getImageUrl()).setImageFileName(productOptionGetDto.getImageFileName())
+                .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
+                .setUnitKrw(productOptionGetDto.getUnitKrw())
+                .setPackageYn(productOptionGetDto.getPackageYn())
+                .setUpdatedAt(DateHandler.getCurrentDate2())
+                .setUpdatedBy(USER_ID)
+                .setProductCid(productOptionGetDto.getProductCid());
         this.changeOptionPackage(reqDto);
     }
 

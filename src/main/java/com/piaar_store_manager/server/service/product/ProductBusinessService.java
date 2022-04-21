@@ -22,7 +22,7 @@ import com.piaar_store_manager.server.service.option_package.OptionPackageServic
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
 
 import com.piaar_store_manager.server.service.user.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -227,7 +227,7 @@ public class ProductBusinessService {
      * @see ProductGetDto#toDto
      */
     public ProductGetDto createOne(ProductGetDto productGetDto, UUID userId) {
-        productGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
+        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(userId)
             .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(userId);
 
         ProductEntity entity = productService.createOne(ProductEntity.toEntity(productGetDto));
@@ -263,11 +263,6 @@ public class ProductBusinessService {
      * <b>DB Insert Related Method</b>
      * <p>
      * Product와 ProductOption 내용을 한개 등록한다.
-     * 
-     * @param productCreateReqDtos : List::ProductCreateReqDto::
-     * @param userId : UUID
-     * @see ProductService#createOne
-     * @see productOptionService#createList
      */
     @Transactional
     public void createPAO(ProductCreateReqDto reqDto) {
@@ -276,7 +271,7 @@ public class ProductBusinessService {
         ProductGetDto savedProductDto = this.createOne(reqDto.getProductDto(), USER_ID);
 
         List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
-            r.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
                 .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
 
             if(r.getTotalPurchasePrice() == 0) {

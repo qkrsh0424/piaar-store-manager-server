@@ -29,7 +29,8 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
 
     Optional<OptionPackageEntity> findById(UUID id);
 
-    @Modifying(clearAutomatically = true)
+//    @Modifying(clearAutomatically = true)
+    @Modifying
     @Transactional
     @Query(
         "DELETE FROM OptionPackageEntity op\n"

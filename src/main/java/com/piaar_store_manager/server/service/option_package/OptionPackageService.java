@@ -29,8 +29,6 @@ public class OptionPackageService {
         return optionPackageRepository.findAllByParentOptionIdList(parentOptionIdList);
     }
 
-    @Transactional
-    @Modifying
     public void deleteBatch(List<UUID> idList) {
         optionPackageRepository.deleteBatch(idList);
     }

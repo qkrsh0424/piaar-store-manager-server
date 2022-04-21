@@ -74,7 +74,7 @@ public class ProductOptionEntity {
     @Column(name = "unit_krw")
     private String unitKrw;
 
-    @Column(name = "package_yn")
+    @Column(name = "package_yn", columnDefinition = "n")
     private String packageYn;
 
     @Column(name = "created_at")
