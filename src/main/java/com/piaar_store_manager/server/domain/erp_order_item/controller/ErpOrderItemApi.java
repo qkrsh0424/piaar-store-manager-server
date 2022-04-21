@@ -84,13 +84,13 @@ public class ErpOrderItemApi {
      *
      * @param params : Map::String, Object::
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#searchBatch
+     * @see ErpOrderItemBusinessService#searchList
      */
     @GetMapping("")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchBatch(params));
+        message.setData(erpOrderItemBusinessService.searchList(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

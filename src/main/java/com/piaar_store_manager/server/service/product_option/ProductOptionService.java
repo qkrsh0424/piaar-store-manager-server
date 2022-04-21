@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.service.product_option;
 
+import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSumOnlyDto;
@@ -168,6 +169,30 @@ public class ProductOptionService {
         return productOptionGetDtos;
     }
 
+    public List<ReceiveReleaseSumOnlyDto> getReceiveReleaseSumOnlyDtos(List<ProductOptionEntity> entities) {
+        List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
+        List<ReceiveReleaseSumOnlyDto> receiveReleaseSumOnlyDtos = this.sumStockUnit(productOptionCids);
+        return receiveReleaseSumOnlyDtos;
+    }
+
+    public void setReceivedAndReleasedAndStockSum(List<ProductOptionEntity> entities){
+        List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
+
+        List<Tuple> stockUnitTuple = productOptionRepository.sumStockUnitByOption(productOptionCids);
+        stockUnitTuple.forEach(r -> {
+            Integer cid = r.get("cid", Integer.class);
+            Integer receivedSum = r.get("receivedSum", BigDecimal.class) != null ? r.get("receivedSum", BigDecimal.class).intValue() : 0;
+            Integer releasedSum = r.get("releasedSum", BigDecimal.class) != null ? r.get("releasedSum", BigDecimal.class).intValue() : 0;
+
+            entities.forEach(entity -> {
+                if(entity.getCid().equals(cid)){
+                    entity.setReceivedSum(receivedSum);
+                    entity.setReleasedSum(releasedSum);
+                    entity.setStockSumUnit(receivedSum - releasedSum);
+                }
+            });
+        });
+    }
     /**
      * <b>DB Insert Related Method</b>
      * <p>

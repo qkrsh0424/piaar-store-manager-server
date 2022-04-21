@@ -25,6 +25,7 @@ import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelForm
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.service.option_package.OptionPackageService;
@@ -95,6 +96,7 @@ public class ErpOrderItemBusinessService {
      * @return List::ErpOrderItemVo::
      * @throws CustomExcelFileUploadException
      */
+//    RE-OK
     public List<ErpOrderItemVo> uploadErpOrderExcel(MultipartFile file) {
         // access check
         userService.userLoginCheck();
@@ -123,6 +125,7 @@ public class ErpOrderItemBusinessService {
         return vos;
     }
 
+    @Transactional
     public void createBatch(List<ErpOrderItemDto> orderItemDtos) {
         // access check
         userService.userLoginCheck();
@@ -146,10 +149,12 @@ public class ErpOrderItemBusinessService {
                     return ErpOrderItemEntity.toEntity(r);
                 }).collect(Collectors.toList());
 
-//        erpOrderItemService.saveListAndModify(orderItemEntities);
         erpOrderItemService.bulkInsert(orderItemEntities);
     }
 
+    /*
+    로직 분리 부분 한번 더 고려 해보기
+     */
     public List<ErpOrderItemDto> itemDuplicationCheck(List<ErpOrderItemDto> dtos) {
         List<ErpOrderItemDto> newItems = dtos.stream().filter(r -> r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
         List<ErpOrderItemDto> duplicationCheckItems = dtos.stream().filter(r -> !r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
@@ -196,61 +201,73 @@ public class ErpOrderItemBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 유저가 업로드한 엑셀을 전체 가져온다.
-     * 피아르 관리코드에 대응하는 데이터들을 반환 Dto에 추가한다.
+     * 아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
+     * 옵션 재고 수량 추가 및 vos 변환
+     * <p>
      *
      * @param params : Map::String, Object::
      * @return List::ErpOrderItemVo::
-     * @see ErpOrderItemService#findAllM2OJ
-     * @see ErpOrderItemBusinessService#setOptionStockUnit
      */
-    public List<ErpOrderItemVo> searchBatch(Map<String, Object> params) {
+//    RE-OK
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo> searchList(Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
 
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
-        return ErpOrderItemVos;
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+
+        return erpOrderItemVos;
     }
 
+    /*
+    아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
+     */
+//    RE-OK
+    @Transactional(readOnly = true)
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
 
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
-        return ErpOrderItemVos;
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+
+        return erpOrderItemVos;
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 유저가 업로드한 엑셀을 전체 가져온다.
-     * 피아르 관리코드에 대응하는 데이터들을 반환 Dto에 추가한다.
-     *
-     * @param params   : Map::String, Object::
-     * @param pageable : Pageable
-     * @return List::ErpOrderItemVo::
-     * @see ErpOrderItemService#findAllM2OJ
-     * @see ErpOrderItemBusinessService#setOptionStockUnit
+    /*
+    조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
      */
+//    RE-OK
+    @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
         // access check
         userService.userLoginCheck();
 
+        /*
+        조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+         */
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
-        // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
 
-        return new PageImpl(ErpOrderItemVos, pageable, itemPages.getTotalElements());
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+
+        return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     }
 
+    /*
+    조건별 페이지별 출고 상태인 ErpOrderItemProj Page 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
+     */
+//    RE-OK
+    @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchReleaseItemBatchByPaging(Map<String, Object> params, Pageable pageable) {
         // access check
         userService.userLoginCheck();
@@ -258,41 +275,43 @@ public class ErpOrderItemBusinessService {
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
 
-        return new PageImpl(ErpOrderItemVos, pageable, itemPages.getTotalElements());
+        return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     }
 
     /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 조회된 피아르 엑셀 데이터에서 옵션코드 값과 대응하는 옵션데이터를 조회한다.
-     * 옵션데이터의 재고수량을 피아르 엑셀 데이터에 추가한다.
+     * ErpOrderItemProjs => ErpOrderItemVos
+     * proj -> vos 변환 및 재고 수량 셋
      *
-     * @param itemProjs : List::ErpOrderItemVo::
-     * @return List::ErpOrderItemVo::
-     * @see ProductOptionService#searchStockUnit
-     * @see ErpOrderItemVo#toVo
+     * @param itemProjs
+     * @return
      */
-    public List<ErpOrderItemVo> setOptionStockUnit(List<ErpOrderItemProj> itemProjs) {
-        // 옵션이 존재하는 데이터들의 
-        List<ProductOptionEntity> optionEntities = itemProjs.stream().filter(r -> r.getProductOption() != null ? true : false).collect(Collectors.toList())
-                .stream().map(r -> r.getProductOption()).collect(Collectors.toList());
-
-        List<ProductOptionGetDto> optionDtos = productOptionService.searchStockUnit(optionEntities);
-        List<ErpOrderItemVo> itemVos = itemProjs.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
-
-        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
-        List<ErpOrderItemVo> erpOrderItemVos = itemVos.stream().map(itemVo -> {
-            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
-            optionDtos.stream().forEach(option -> {
-                if (itemVo.getOptionCode().equals(option.getCode())) {
-                    itemVo.setOptionStockUnit(option.getStockSumUnit().toString());
-                }
-            });
-            return itemVo;
-        }).collect(Collectors.toList());
+    /*
+    ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+    옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+    ErpOrderItemProjs -> ErpOrderItemVos 변환
+    ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+     */
+//    RE-OK
+    private List<ErpOrderItemVo> setOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
+        /*
+        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+         */
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+        /*
+        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+         */
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+        /*
+        ErpOrderItemProjs -> ErpOrderItemVos 변환
+         */
+        List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+        /*
+        ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+         */
+        ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
 
         return erpOrderItemVos;
     }
@@ -303,9 +322,6 @@ public class ErpOrderItemBusinessService {
      * 엑셀 데이터의 salesYn(판매 여부)을 업데이트한다.
      *
      * @param itemDtos : List::ErpOrderItemDto::
-     * @see ErpOrderItemService#findAllByIdList
-     * @see CustomDateUtils#getCurrentDateTime
-     * @see ErpOrderItemService#saveListAndModify
      */
     public void changeBatchForSalesYn(List<ErpOrderItemDto> itemDtos) {
         // access check
@@ -497,7 +513,7 @@ public class ErpOrderItemBusinessService {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-        
+
         List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
 
         // 선택된 병합 헤더데이터 조회
@@ -642,7 +658,7 @@ public class ErpOrderItemBusinessService {
                 for (int j = 0; j < matchedDetail.getViewDetails().size(); j++) {
                     appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedDetail.getViewDetails().get(j).getMatchedColumnName()).toString();
                     if (j < matchedDetail.getViewDetails().size() - 1) {
-                        appendFieldValue += mergeMap.getValue().toString();
+                        appendFieldValue += mergeMap.getValue();
                     }
                 }
                 CustomFieldUtils.setFieldValue(currentVo, mergeMap.getKey(), appendFieldValue);
@@ -821,7 +837,7 @@ public class ErpOrderItemBusinessService {
 
         List<ProductOptionGetDto> productOptionGetDtos = productOptionService.searchListByOptionCodes(new ArrayList<>(optionCodeSet));
         productOptionEntities = productOptionGetDtos.stream().map(dto -> ProductOptionEntity.toEntity(dto)).collect(Collectors.toList());
-        
+
         // 1. 세트상품 X
         List<ProductOptionEntity> originOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         // 2. 세트상품 O
@@ -874,7 +890,7 @@ public class ErpOrderItemBusinessService {
             parentOptionEntities.forEach(parentOption -> {
                 if (parentOption.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
                     optionPackageEntities.forEach(option -> {
-                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                        if (option.getParentOptionId().equals(parentOption.getId())) {
                             count.getAndIncrement();
 
                             ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
@@ -886,7 +902,7 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
                             releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
-                            
+
                             orderItemEntity.setStockReflectYn("y");
                             releaseEntities.add(releaseEntity);
                         }
@@ -904,7 +920,7 @@ public class ErpOrderItemBusinessService {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-        
+
         itemDtos = itemDtos.stream().filter(r -> r.getStockReflectYn().equals("y")).collect(Collectors.toList());
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<UUID> erpOrderItemIds = new ArrayList<>();

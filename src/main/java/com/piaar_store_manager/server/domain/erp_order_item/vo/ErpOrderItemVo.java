@@ -8,12 +8,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +26,7 @@ import org.apache.poi.ss.usermodel.*;
 
 @Builder
 @Data
-@Accessors(chain=true)
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErpOrderItemVo {
@@ -147,7 +150,7 @@ public class ErpOrderItemVo {
     }
 
     public static ErpOrderItemVo toVo(ErpOrderItemDto dto) {
-        if(dto == null) return null;
+        if (dto == null) return null;
 
         ErpOrderItemVo itemVo = ErpOrderItemVo.builder()
                 .id(dto.getId())
@@ -198,7 +201,18 @@ public class ErpOrderItemVo {
         return itemVo;
     }
 
-    public static List<ErpOrderItemVo> excelSheetToVos(Sheet worksheet){
+    public static void setOptionStockUnitForList(List<ErpOrderItemVo> erpOrderItemVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemVos.forEach(erpOrderItemVo -> {
+            optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemVo.getOptionCode().isEmpty() && erpOrderItemVo.getOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemVo.setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static List<ErpOrderItemVo> excelSheetToVos(Sheet worksheet) {
         Integer PIAAR_ERP_ORDER_ITEM_SIZE = 34;
         Integer PIAAR_ERP_ORDER_MEMO_START_INDEX = 24;
 
