@@ -112,7 +112,6 @@ public class ProductEntity {
      * ProductGetDto => ProductEntity
      * 
      * @param productDto : ProductGetDto
-     * @param userId : UUID
      * @return ProductEntity
      */
     public static ProductEntity toEntity(ProductGetDto productDto) {

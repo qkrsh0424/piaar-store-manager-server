@@ -4,7 +4,6 @@ import com.piaar_store_manager.server.model.product.entity.ProductEntity;
 import com.piaar_store_manager.server.model.product.proj.ProductProj;
 import com.piaar_store_manager.server.model.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +14,6 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * Product cid 값과 상응되는 데이터를 조회한다.
-     */
     public ProductEntity searchOne(Integer productCid) {
         Optional<ProductEntity> productEntityOpt = productRepository.findById(productCid);
 
@@ -30,11 +24,14 @@ public class ProductService {
         }
     }
 
+    public List<ProductEntity> searchList() {
+        return productRepository.findAll();
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * Product cid 값과 상응되는 데이터를 조회한다.
-     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
+     * productCid에 대응되는 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
      *
      * @param productCid : Integer
      * @return ProductProj
@@ -53,20 +50,20 @@ public class ProductService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * Product 데이터를 모두 조회한다.
-     * 
-     * @return List::ProductEntity::
-     * @see ProductRepository#findAll
+     * 모든 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
+     *
+     * @return List::ProductProj::
+     * @see ProductRepository#selectAll
      */
-    public List<ProductEntity> searchList() {
-        return productRepository.findAll();
+    public List<ProductProj> searchListM2OJ(){
+        return productRepository.selectAll();
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * Category cid에 대응하는 Product 데이터를 모두 조회한다.
-     * 
+     * categoryCid에 대응하는 Product 데이터를 모두 조회한다.
+     *
      * @return List::ProductEntity::
      * @see ProductRepository#findByProductCategoryCid
      */
@@ -74,52 +71,18 @@ public class ProductService {
         return productRepository.findByProductCategoryCid(categoryCid);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * Product 데이터를 모두 조회한다.
-     * 해당 Product와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
-     *
-     * @return List::ProductProj::
-     * @see ProductRepository#selectAll
-     */
-    public List<ProductProj> searchProjList(){
-        return productRepository.selectAll();
+    public void saveAndModify(ProductEntity entity) {
+        productRepository.save(entity);
     }
 
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product 내용을 한개 등록한다.
-     * 
-     * @param entity : ProductEntity
-     * @see ProductRepository#save
-     */
-    public ProductEntity createOne(ProductEntity entity) {
+    public ProductEntity saveAndGet(ProductEntity entity) {
         return productRepository.save(entity);
     }
 
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * Product 내용을 여러개 등록한다.
-     * 
-     * @param entities : List::ProductEntity::
-     * @see ProductRepository#saveAll
-     */
-    public List<ProductEntity> createList(List<ProductEntity> entities) {
-        return productRepository.saveAll(entities);
+    public void saveListAndModify(List<ProductEntity> entities) {
+        productRepository.saveAll(entities);
     }
 
-    /**
-     * <b>DB Delete Related Method</b>
-     * <p>
-     * Product cid 값과 상응되는 데이터를 삭제한다.
-     * 
-     * @param productCid : Integer
-     * @see ProductRepository#findById
-     * @see ProductRepository#delete
-     */
     public void destroyOne(Integer productCid) {
         productRepository.findById(productCid).ifPresent(product -> {
             productRepository.delete(product);
