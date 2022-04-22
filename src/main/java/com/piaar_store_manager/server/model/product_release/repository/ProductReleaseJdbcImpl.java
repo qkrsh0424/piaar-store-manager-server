@@ -18,7 +18,7 @@ import com.piaar_store_manager.server.model.product_release.entity.ProductReleas
 @Slf4j
 public class ProductReleaseJdbcImpl implements ProductReleaseCustomJdbc{
     private final JdbcTemplate jdbcTemplate;
-    private int batchSize = 300;
+    private final int DEFAULT_BATCH_SIZE = 300;
 
     @Override
     public void jdbcBulkInsert(List<ProductReleaseEntity> entities){
@@ -26,12 +26,12 @@ public class ProductReleaseJdbcImpl implements ProductReleaseCustomJdbc{
         List<ProductReleaseEntity> subItems = new ArrayList<>();
         for (int i = 0; i < entities.size(); i++) {
             subItems.add(entities.get(i));
-            if ((i + 1) % batchSize == 0) {
-                batchCount = batchInsert(batchSize, batchCount, subItems);
+            if ((i + 1) % DEFAULT_BATCH_SIZE == 0) {
+                batchCount = batchInsert(DEFAULT_BATCH_SIZE, batchCount, subItems);
             }
         }
         if (!subItems.isEmpty()) {
-            batchCount = batchInsert(batchSize, batchCount, subItems);
+            batchCount = batchInsert(DEFAULT_BATCH_SIZE, batchCount, subItems);
         }
 //        log.info("batchCount: " + batchCount);
     }
