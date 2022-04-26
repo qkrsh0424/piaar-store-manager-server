@@ -6,30 +6,14 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.model.product_category.entity.ProductCategoryEntity;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductCategoryBusinessService {
-    private ProductCategoryService productCategoryService;
+    private final ProductCategoryService productCategoryService;
 
-    @Autowired
-    public ProductCategoryBusinessService(
-        ProductCategoryService productCategoryService
-    ) {
-        this.productCategoryService = productCategoryService;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductCategory 데이터를 모두 조회한다.
-     * 조회된 데이터를 dto로 변환한다.
-     *
-     * @return List::ProductCategoryGetDto::
-     * @see ProductCategoryService:searchList
-     * @see ProductCategoryGetDto:toDto
-     */
     public List<ProductCategoryGetDto> searchList(){
         List<ProductCategoryEntity> productCategoryEntities = productCategoryService.searchList();
         List<ProductCategoryGetDto> productCategoryGetDtos = productCategoryEntities.stream().map(entity -> ProductCategoryGetDto.toDto(entity)).collect(Collectors.toList());

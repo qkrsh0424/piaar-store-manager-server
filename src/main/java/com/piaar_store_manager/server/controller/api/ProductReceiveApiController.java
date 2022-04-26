@@ -7,10 +7,8 @@ import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
-import com.piaar_store_manager.server.service.user.UserService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,71 +29,43 @@ public class ProductReceiveApiController {
     private final ProductReceiveBusinessService productReceiveBusinessService;
 
     /**
-     * Search one api for productReceive.
+     * Search one api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
-     *
-     * @param productReceiveCid : Integer
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#searchOne
      */
     @GetMapping("/one/{productReceiveCid}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        try {
-            message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
-        }
+        message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Search one api for productReceive.
+     * Search one api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/one-m2oj/{productReceiveCid}</b>
      * <p>
-     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
-     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
-     *
-     * @param productReceiveCid : Integer
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#searchOneM2OJ
+     * productReceiveCid에 대응하는 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      */
     @GetMapping("/one-m2oj/{productReceiveCid}")
     public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        try {
-            message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productReceiveCid=" + productReceiveCid + " value.");
-        }
+        message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Search list api for productReceive.
+     * Search list api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list</b>
-     *
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {
@@ -109,34 +79,23 @@ public class ProductReceiveApiController {
     }
 
     /**
-     * Search list api for productReceive.
+     * Search list api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list/{productOptionCid}</b>
-     *
-     * @param productOptionCid : Integer
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#searchList
      */
     @GetMapping("/list/{productOptionCid}")
     public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
         Message message = new Message();
 
-        try {
-            message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found productOptionCid=" + productOptionCid + " value.");
-        }
+        message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Search list api for productReceive.
+     * Search list api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
      * ProductReceive 데이터를 조회한다.
@@ -159,182 +118,104 @@ public class ProductReceiveApiController {
     }
 
     /**
-     * Create one api for productReceive.
-     * And Update list api for productOption.
+     * Create one api for receive.
+     * And Update list api for option.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/one</b>
-     *
-     * @param productReceiveGetDto : ProductReceiveGetDto
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#createPR
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @PostMapping("/one")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.createPR(productReceiveGetDto);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.createOne(productReceiveGetDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Create list api for productReceive.
+     * Create list api for receive.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/list</b>
-     *
-     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#createPRList
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @PostMapping("/list")
     @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.createPRList(productReceiveGetDtos);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.createList(productReceiveGetDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Destroy( Delete or Remove ) one api for productReceive.
+     * Destroy( Delete or Remove ) one api for receive.
      * <p>
      * <b>DELETE : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
-     *
-     * @param productReceiveCid : Integer
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#destroyOne
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @DeleteMapping("/one/{productReceiveCid}")
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.destroyOne(productReceiveCid);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.destroyOne(productReceiveCid);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Change one api for productReceive
+     * Change one api for receive.
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive/one</b>
-     *
-     * @param receiveDto : ProductReceiveGetDto
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#changeOne
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @PutMapping("/one")
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.changeOne(receiveDto);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.changeOne(receiveDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Change list api for productReceive
+     * Change list api for receive.
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive/list</b>
-     *
-     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see productReceiveBusinessService#changeList
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @PutMapping("/list")
     @PermissionRole
     public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.changeList(productReceiveGetDtos);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.changeList(productReceiveGetDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Patch one api for productReceive
+     * Patch one api for receive.
      * <p>
      * <b>PATCH : API URL => /api/v1/product-receive/one</b>
-     *
-     * @param productReceiveGetDto : ProductReceiveGetDto
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductReceiveBusinessService#patchOne
-     * @see UserService#getUserId
-     * @see UserService#userDenyCheck
      */
     @PatchMapping("/one")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        try {
-            productReceiveBusinessService.patchOne(productReceiveGetDto);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (Exception e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-        }
+        productReceiveBusinessService.patchOne(productReceiveGetDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

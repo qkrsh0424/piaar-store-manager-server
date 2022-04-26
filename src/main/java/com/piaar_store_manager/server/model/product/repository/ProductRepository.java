@@ -29,7 +29,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
 
     /**
      * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     * 조회된 데이터를 상품 생성 시간 오름차순으로 정렬한다.
+     * 조회된 데이터를 생성 시간 오름차순으로 정렬한다.
      * 
      * @return List::ProductProj::
      */

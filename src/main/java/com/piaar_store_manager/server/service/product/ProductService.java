@@ -62,7 +62,7 @@ public class ProductService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * categoryCid에 대응하는 Product 데이터를 모두 조회한다.
+     * categoryCid에 대응하는 product 데이터를 모두 조회한다.
      *
      * @return List::ProductEntity::
      * @see ProductRepository#findByProductCategoryCid

@@ -6,11 +6,9 @@ import java.util.UUID;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.model.option_package.repository.OptionPackageRepository;
 
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

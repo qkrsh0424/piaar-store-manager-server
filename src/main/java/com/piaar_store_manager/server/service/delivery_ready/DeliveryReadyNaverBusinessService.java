@@ -959,7 +959,7 @@ public class DeliveryReadyNaverBusinessService {
                 }
             });
         });
-        productReceiveService.createPRList(productReceiveEntities);
+        productReceiveService.saveListAndModify(productReceiveEntities);
     }
 
     public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyNaverItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
@@ -991,6 +991,6 @@ public class DeliveryReadyNaverBusinessService {
                 }
             });
         });
-        productReceiveService.createPRList(productReceiveEntities);
+        productReceiveService.saveListAndModify(productReceiveEntities);
     }
 }

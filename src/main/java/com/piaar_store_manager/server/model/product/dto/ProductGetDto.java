@@ -10,7 +10,6 @@ import lombok.experimental.Accessors;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.model.product.entity.ProductEntity;
 
@@ -46,58 +45,6 @@ public class ProductGetDto {
     private Date updatedAt;
     private UUID updatedBy;
     private Integer productCategoryCid;
-
-    @Data
-    @Accessors(chain = true)
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ManyToOneJoin {
-        ProductGetDto product;
-        ProductCategoryGetDto category;
-        UserGetDto user;
-
-        public static ManyToOneJoin toDto(ProductProj proj){
-            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
-            UserGetDto user = UserGetDto.toDto(proj.getUser());
-
-            ManyToOneJoin dto = ManyToOneJoin.builder()
-                    .product(product)
-                    .category(category)
-                    .user(user)
-                    .build();
-
-            return dto;
-        }
-    }
-
-    @Data
-    @Accessors(chain = true)
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class FullJoin {
-        ProductGetDto product;
-        ProductCategoryGetDto category;
-        UserGetDto user;
-        List<ProductOptionGetDto> options;
-
-        // require option
-        public static FullJoin toDto(ProductProj proj){
-            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
-            UserGetDto user = UserGetDto.toDto(proj.getUser());
-
-            FullJoin dto = FullJoin.builder()
-                    .product(product)
-                    .category(category)
-                    .user(user)
-                    .build();
-
-            return dto;
-        }
-    }
 
     /**
      * <b>Convert Method</b>
@@ -139,5 +86,63 @@ public class ProductGetDto {
             .build();
 
         return productDto;
+    }
+
+    /**
+     * product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category로 구성된 객체
+     */
+    @Data
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ManyToOneJoin {
+        ProductGetDto product;
+        ProductCategoryGetDto category;
+        UserGetDto user;
+
+        public static ManyToOneJoin toDto(ProductProj proj){
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            UserGetDto user = UserGetDto.toDto(proj.getUser());
+
+            ManyToOneJoin dto = ManyToOneJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .user(user)
+                    .build();
+
+            return dto;
+        }
+    }
+
+    /**
+     * product, product와 Full Join(fj) 연관관계에 놓여있는 user, category, option으로 구성된 객체
+     */
+    @Data
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FullJoin {
+        ProductGetDto product;
+        ProductCategoryGetDto category;
+        UserGetDto user;
+        List<ProductOptionGetDto> options;
+
+        // require option
+        public static FullJoin toDto(ProductProj proj){
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            UserGetDto user = UserGetDto.toDto(proj.getUser());
+
+            FullJoin dto = FullJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .user(user)
+                    .build();
+
+            return dto;
+        }
     }
 }

@@ -15,10 +15,10 @@ import org.springframework.stereotype.Repository;
 public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEntity, Integer>{
     
     /**
-     * ProductReceive cid에 대응하는 입고데이터의 M2OJ 관계인(상품, 상품옵션, 카테고리, 입고, 유저) 데이터를 조회한다.
-     * 
+     * cid값에 대응되는 receive, receive와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
+     *
      * @param cid : Integer
-     * @return ProductReceiveProj
+     * @return Optional::ProductReceiveProj::
      */
     @Query(
         "SELECT pr AS productReceive, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReceiveEntity pr\n"+
@@ -28,12 +28,12 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
         "JOIN UserEntity u ON u.id=pr.createdBy\n"+
         "WHERE pr.cid=:cid"
     )
-    Optional<ProductReceiveProj> selectByCid(Integer cid);
+    Optional<ProductReceiveProj> searchOneM2OJ(Integer cid);
 
     /**
-     * ProductReceive 입고데이터의 M2OJ 관계인(상품, 상품옵션, 카테고리, 입고, 유저) 데이터를 모두 조회한다. 
+     * 모든 receive, receive와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option ,category, user를 함께 조회한다.
      * 
-     * @return ProductReceiveProj
+     * @return List::ProductReceiveProj::
      */
     @Query(
         "SELECT pr AS productReceive, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReceiveEntity pr\n"+
@@ -44,6 +44,12 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
     )
     List<ProductReceiveProj> selectAll();
 
+    /**
+     * startDate와 endDate기간 사이에 등록된 모든 receive, receive와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option ,category, user를 함께 조회한다.
+     * 조회된 데이터를 생성 시간 내림차순으로 정렬한다.
+     * 
+     * @return List::ProductReceiveProj::
+     */
     @Query(
         "SELECT pr AS productReceive, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReceiveEntity pr\n"+
         "JOIN ProductOptionEntity po ON po.cid=pr.productOptionCid\n"+
@@ -56,10 +62,10 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
     List<ProductReceiveProj> selectAll(LocalDateTime startDate, LocalDateTime endDate);
 
     /**
-     * ProductReceive cid값에 대응하는 입고데이터를 조회한다.
-     * 
+     * 다중 cid값에 대응되는 receive를 모두 조회한다.
+     *
      * @param cids : List::Integer::
-     * @return List::ProductReceiveEntity
+     * @return List::ProductReceiveEntity::
      */
     @Query(
         "SELECT pr\n" +
@@ -69,8 +75,8 @@ public interface ProductReceiveRepository extends JpaRepository<ProductReceiveEn
     List<ProductReceiveEntity> selectAllByCid(List<Integer> cids);
 
     /**
-     * productOption cid값에 대응하는 ProductReceive 입고데이터를 조회한다.
-     * 
+     * productOptionCid값에 대응되는 receive를 모두 조회한다.
+     *
      * @param productOptionCid : Integer
      * @return List::ProductReceiveEntity::
      */

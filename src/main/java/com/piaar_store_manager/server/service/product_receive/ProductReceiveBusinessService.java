@@ -7,12 +7,9 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJoinResDto;
 import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.model.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.service.option_package.OptionPackageService;
@@ -21,7 +18,6 @@ import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,49 +28,12 @@ public class ProductReceiveBusinessService {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
-     *
-     * @param productReceiveCid : Integer
-     * @return ProductReceiveGetDto
-     * @see ProductReceiveService#searchOne
-     * @see ProductReceiveGetDto#toDto
-     */
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
         ProductReceiveEntity entity = productReceiveService.searchOne(productReceiveCid);
         ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
         return dto;
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductReceive cid 값과 상응되는 데이터를 조회한다.
-     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
-     *
-     * @param productReceiveCid : Integer
-     * @return ProductReceiveJoinResDto
-     * @see ProductReceiveService#searchOneM2OJ
-     * @see ProductReceiveJoinResDto#toDto
-     */
-    public ProductReceiveJoinResDto searchOneM2OJ(Integer productReceiveCid){
-        ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
-        ProductReceiveJoinResDto resDto = ProductReceiveJoinResDto.toDto(receiveProj);
-        return resDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductReceive 데이터를 모두 조회한다.
-     * 
-     * @return List::ProductReceiveGetDto::
-     * @see ProductReceiveService#searchList
-     * @see ProductReceiveGetDto#toDto
-     */
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveService.searchList();
         List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
@@ -84,130 +43,117 @@ public class ProductReceiveBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductOption cid 값과 상응되는 ProductReceive 데이터를 조회한다.
+     * productReceiveCid 대응하는 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, otion, category, user를 함께 조회한다.
+     *
+     * @param productReceiveCid : Integer
+     * @see ProductReceiveService#searchOneM2OJ
+     */
+    public ProductReceiveGetDto.ManyToOneJoin searchOneM2OJ(Integer productReceiveCid){
+        ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
+        ProductReceiveGetDto.ManyToOneJoin resDto = ProductReceiveGetDto.ManyToOneJoin.toDto(receiveProj);
+        return resDto;
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 모든 receive 조회, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, otion, category, user를 함께 조회한다.
+     *
+     * @see ProductReceiveService#searchListM2OJ
+     */
+    public List<ProductReceiveGetDto.ManyToOneJoin> searchListM2OJ() {
+        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
+        List<ProductReceiveGetDto.ManyToOneJoin> resDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
+        return resDtos;
+    }
+    
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * productOptionCid에 대응하는 receive를 조회한다.
      *
      * @param productOptionCid : Integer
-     * @return List::ProductReceiveGetDto
-     * @see  ProductReceiveService#searchListByOptionCid
-     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveService#searchListByOptionCid
      */
     public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
         List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
+
     
     /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductReceive 데이터를 모두 조회한다.
-     * 해당 ProductReceive와 연관관계에 놓여있는 Many To One JOIN(m2oj) 상태를 조회한다.
-     *
-     * @return List::ProductReceiveJoinResDto::
-     * @see ProductReceiveService#searchListM2OJ
-     * @see ProductReceiveJoinResDto#toDto
-     */
-    public List<ProductReceiveJoinResDto> searchListM2OJ() {
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-        List<ProductReceiveJoinResDto> resDtos = receiveProjs.stream().map(proj -> ProductReceiveJoinResDto.toDto(proj)).collect(Collectors.toList());
-        return resDtos;
-    }
-
-    /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * ProductReceive 내용을 한개 등록한다.
-     * 상품 입고 개수만큼 ProductOption 데이터에 반영한다.
-     * 
+     * 단일 receive등록.
+     * receive로 넘어온 productOptionCid로 option 데이터를 조회한다.
+     * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성하고,
+     * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
+     *
      * @param productReceiveGetDto : ProductReceiveGetDto
-     * @param userId : UUID
-     * @see ProductReceiveService#createPR
-     * @see ProductOptionService#updateReceiveProductUnit
-     * @see ProductReceiveGetDto#toDto
+     * @see ProductReceiveService#saveAndModify
+     * @see ProductReceiveService#saveListAndModify
+     * @see OptionPackageService#searchListByParentOptionId
      */
-    @Transactional
-    public ProductReceiveGetDto createPR(ProductReceiveGetDto productReceiveGetDto) {
+    public void createOne(ProductReceiveGetDto productReceiveGetDto) {
         UUID USER_ID = userService.getUserId();
-
         productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
 
-        // ProductReceive 데이터 생성
-        ProductReceiveEntity entity = productReceiveService.createPR(ProductReceiveEntity.toEntity(productReceiveGetDto));
-        ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
-        
-        // ProductOption 재고 반영
-        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), entity.getReceiveUnit());
-        
-        return dto;
+        ProductOptionEntity optionEntity = productOptionService.searchOne(productReceiveGetDto.getProductOptionCid());
+
+        if(optionEntity.getPackageYn().equals("n")) {
+            // 1) 실행
+            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                    .id(UUID.randomUUID())
+                    .receiveUnit(productReceiveGetDto.getReceiveUnit())
+                    .memo(productReceiveGetDto.getMemo())
+                    .createdAt(CustomDateUtils.getCurrentDateTime())
+                    .createdBy(USER_ID)
+                    .productOptionCid(productReceiveGetDto.getCid())
+                    .build();
+            productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
+        } else {
+            // 2) 실행
+            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+            
+            List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+            optionPackageEntities.forEach(option -> {
+                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                        .id(UUID.randomUUID())
+                        .receiveUnit(option.getPackageUnit() * productReceiveGetDto.getReceiveUnit())
+                        .memo(productReceiveGetDto.getMemo())
+                        .createdAt(CustomDateUtils.getCurrentDateTime())
+                        .createdBy(USER_ID)
+                        .productOptionCid(option.getOriginOptionCid())
+                        .build();
+
+                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+            });
+            productReceiveService.saveListAndModify(productReceiveEntities);
+        }
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * ProductReceive 내용을 여러개 등록한다.
-     * 상품 입고 개수만큼 ProductOption 데이터에 반영한다.
-     * 
-     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
-     * @param userId : UUID
-     * @see ProductReceiveService#createPRList
-     * @see ProductOptionService#updateReceiveProductUnit
-     * @see ProductReceiveGetDto#toDto
+     * 다중 receive등록.
+     * receive로 넘어온 productOptionCid로 option 데이터를 조회한다.
+     * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성,
+     * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
+     *
+     * @param productReceiveGetDto : List::ProductReceiveGetDto::
+     * @see ProductReceiveService#saveAndModify
      */
-//    @Transactional
-//    public List<ProductReceiveGetDto> createPRList(List<ProductReceiveGetDto> productReceiveGetDtos, UUID userId) {
-//        List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
-//            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
-//            return ProductReceiveEntity.toEntity(r);
-//        }).collect(Collectors.toList());
-//
-//        // ProductReceive 데이터 생성
-//        List<ProductReceiveEntity> entities = productReceiveService.createPRList(convertedEntities);
-//        // ProductOption 재고 반영
-//        entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), r.getReceiveUnit()); });
-//
-//        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-//        return dtos;
-//    }
-
     @Transactional
-    public void createPRList(List<ProductReceiveGetDto> productReceiveGetDtos) {
-        // 1. receive로 넘어온 productOptionCid로 option데이터를 찾는다.
-        // 2. option 데이터의 packageYn이 n인 것과 y인 것을 분리
-        // 3. 먼저 n인 애들 처리
-        // 4. y인 애들 처리하기
-
+    public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
+        UUID USER_ID = userService.getUserId();
         List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByOptionCids(optionCids);
-        // 1. 세트상품 X
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        // 2. 세트상품 O
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        this.createOfOriginOption(productReceiveGetDtos, originOptionEntities);
-
-        if(parentOptionEntities.size() > 0) {
-            this.createOfPackageOption(productReceiveGetDtos, parentOptionEntities);
-        }
-
-//        List<ProductReceiveEntity> convertedEntities = productReceiveGetDtos.stream().map(r -> {
-//            r.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(userId);
-//            return ProductReceiveEntity.toEntity(r);
-//        }).collect(Collectors.toList());
-//
-//        // ProductReceive 데이터 생성
-//        List<ProductReceiveEntity> entities = productReceiveService.createPRList(convertedEntities);
-//        // ProductOption 재고 반영
-//        entities.forEach(r -> { productOptionService.updateReceiveProductUnit(r.getProductOptionCid(), r.getReceiveUnit()); });
-//
-//        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-//        return dtos;
-    }
-
-    public void createOfOriginOption(List<ProductReceiveGetDto> productReceiveGetDtos, List<ProductOptionEntity> originOptionEntities) {
-        UUID USER_ID = userService.getUserId();
-
+        // 1) 실행
         List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-
         productReceiveGetDtos.forEach(dto -> {
             originOptionEntities.forEach(option -> {
                 if(dto.getProductOptionCid().equals(option.getCid())){
@@ -225,121 +171,63 @@ public class ProductReceiveBusinessService {
             });
         });
 
-        productReceiveService.createPRList(productReceiveEntities);
-    }
+        productReceiveService.saveListAndModify(productReceiveEntities);
+        productReceiveEntities.clear();
 
-    public void createOfPackageOption(List<ProductReceiveGetDto> productReceiveGetDtos, List<ProductOptionEntity> parentOptionEntities) {
-        UUID USER_ID = userService.getUserId();
+        // 2) 실행
+        if (parentOptionEntities.size() > 0) {
+            List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
 
-        // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
-        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
-        // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
-        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+            productReceiveGetDtos.forEach(dto -> {
+                parentOptionEntities.forEach(parentOption -> {
+                    if (dto.getProductOptionCid().equals(parentOption.getCid())) {
+                        optionPackageEntities.forEach(option -> {
+                            if (option.getParentOptionId().equals(parentOption.getId())) {
+                                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                                        .id(UUID.randomUUID())
+                                        .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
+                                        .memo(dto.getMemo())
+                                        .createdAt(CustomDateUtils.getCurrentDateTime())
+                                        .createdBy(USER_ID)
+                                        .productOptionCid(option.getOriginOptionCid())
+                                        .build();
 
-        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-
-        productReceiveGetDtos.forEach(dto -> {
-            parentOptionEntities.forEach(parentOption -> {
-                if(dto.getProductOptionCid().equals(parentOption.getCid())) {
-                    optionPackageEntities.forEach(option -> {
-                        if(option.getParentOptionId().equals(parentOption.getId())) {
-                            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                                    .id(UUID.randomUUID())
-                                    .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
-                                    .memo(dto.getMemo())
-                                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                                    .createdBy(USER_ID)
-                                    .productOptionCid(option.getOriginOptionCid())
-                                    .build();
-
-                            productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-                        }
-                    });
-                }
+                                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+                            }
+                        });
+                    }
+                });
             });
-        });
-        productReceiveService.createPRList(productReceiveEntities);
+            productReceiveService.saveListAndModify(productReceiveEntities);
+        }
     }
 
-
-    /**
-     * <b>DB Delete Related Method</b>
-     * <p>
-     * ProductReceive cid 값과 상응되는 데이터를 삭제한다.
-     * 
-     * @param productReceiveCid : Integer
-     * @param userId : UUID
-     * @see ProductReceiveService#destroyOne
-     */
     public void destroyOne(Integer productReceiveCid) {
-        UUID USER_ID = userService.getUserId();
-        productReceiveService.destroyOne(productReceiveCid, USER_ID);
+        productReceiveService.destroyOne(productReceiveCid);
     }
 
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 단일 ProductReceive cid 값과 상응되는 데이터를 업데이트한다.
-     * ProductOption 의 재고수량을 변경한다.
-     * 
-     * @param receiveDto : ProductReceiveGetDto
-     * @param userId : UUID
-     * @see ProductReceiveService#searchOne
-     * @see ProductReceiveService#createPR
-     * @see ProductOptionService#updateReceiveProductUnit
-     */
     @Transactional
     public void changeOne(ProductReceiveGetDto receiveDto) {
-        // 입고 데이터 조회
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
-        
-        // 변경된 입고수량
-        int changedReceiveUnit = receiveDto.getReceiveUnit() - entity.getReceiveUnit();
-        // 변경된 입고 데이터
         entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-        productReceiveService.createPR(entity);
-
-        // 상품옵션의 재고수량 반영
-        productOptionService.updateReceiveProductUnit(entity.getProductOptionCid(), changedReceiveUnit);
+        productReceiveService.saveAndModify(entity);
     }
 
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 다중 ProductReceive cid 값과 상응되는 데이터를 업데이트한다.
-     * ProductOption 의 재고수량을 변경한다.
-     * 
-     * @param receiveDtos : List::roductReceiveGetDto::
-     * @see ProductReceiveBusinessService#changeOne
-     */
     @Transactional
     public void changeList(List<ProductReceiveGetDto> receiveDtos) {
         receiveDtos.stream().forEach(r -> this.changeOne(r));
     }
 
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * ProductReceive cid 값과 상응되는 데이터의 일부분을 업데이트한다.
-     * 
-     * @param receiveDto : ProductReceiveGetDto
-     * @see ProductReceiveService#searchOne
-     * @see ProductReceiveService#createPR
-     * @see ProductOptionService#updateReceiveProductUnit
-     */
     public void patchOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
 
         if (receiveDto.getReceiveUnit() != null) {
-            int storedReceiveUnit = receiveEntity.getReceiveUnit();
-            // 변경된 입고 데이터
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-            productOptionService.updateReceiveProductUnit(receiveEntity.getProductOptionCid(), receiveEntity.getReceiveUnit() - storedReceiveUnit);
         }
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());
         }
-        productReceiveService.createPR(receiveEntity);
-
+        productReceiveService.saveAndModify(receiveEntity);
     }
 }

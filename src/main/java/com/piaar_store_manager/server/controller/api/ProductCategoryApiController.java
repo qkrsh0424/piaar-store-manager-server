@@ -3,7 +3,6 @@ package com.piaar_store_manager.server.controller.api;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.product_category.ProductCategoryBusinessService;
-import com.piaar_store_manager.server.service.product_category.ProductCategoryService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,14 +19,9 @@ public class ProductCategoryApiController {
     private final ProductCategoryBusinessService productCategoryBusinessService;
 
     /**
-     * Search list api for productCategory.
+     * Search list api for product category.
      * <p>
      * <b>GET : API URL => /api/v1/product-category/list</b>
-     *
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see ProductCategoryService#searchList
      */
     @GetMapping("/list")
     public ResponseEntity<?> searchList() {

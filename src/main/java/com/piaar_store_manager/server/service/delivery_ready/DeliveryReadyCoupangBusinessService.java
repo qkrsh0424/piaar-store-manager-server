@@ -47,9 +47,7 @@ import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGe
 import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
 import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
 import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
 import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -952,7 +950,7 @@ public class DeliveryReadyCoupangBusinessService {
                 }
             });
         });
-        productReceiveService.createPRList(productReceiveEntities);
+        productReceiveService.saveListAndModify(productReceiveEntities);
     }
 
     public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
@@ -984,6 +982,6 @@ public class DeliveryReadyCoupangBusinessService {
                 }
             });
         });
-        productReceiveService.createPRList(productReceiveEntities);
+        productReceiveService.saveListAndModify(productReceiveEntities);
     }
 }
