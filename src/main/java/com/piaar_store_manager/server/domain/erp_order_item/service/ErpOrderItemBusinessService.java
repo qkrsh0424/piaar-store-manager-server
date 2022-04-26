@@ -1,14 +1,5 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 import com.piaar_store_manager.server.domain.erp_first_merge_header.dto.ErpFirstMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_first_merge_header.entity.ErpFirstMergeHeaderEntity;
 import com.piaar_store_manager.server.domain.erp_first_merge_header.service.ErpFirstMergeHeaderService;
@@ -35,15 +26,9 @@ import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
-
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +36,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -67,57 +55,17 @@ public class ErpOrderItemBusinessService {
     // Excel file extension.
     private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
 
-    private final Integer PIAAR_ERP_ORDER_ITEM_SIZE = 34;
-    private final Integer PIAAR_ERP_ORDER_MEMO_START_INDEX = 24;
-
-    private final List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
-            "피아르 고유번호",
-            "상품명",
-            "옵션정보",
-            "수량",
-            "수취인명",
-            "전화번호1",
-            "전화번호2",
-            "주소",
-            "판매채널",
-            "판매채널 주문번호1",
-            "판매채널 주문번호2",
-            "판매채널 상품코드",
-            "판매채널 옵션코드",
-            "우편번호",
-            "택배사",
-            "배송방식",
-            "배송메세지",
-            "운송장번호",
-            "판매금액",
-            "배송비",
-            "바코드",
-            "피아르 상품코드",
-            "피아르 옵션코드",
-            "출고 옵션코드",
-            "관리메모1",
-            "관리메모2",
-            "관리메모3",
-            "관리메모4",
-            "관리메모5",
-            "관리메모6",
-            "관리메모7",
-            "관리메모8",
-            "관리메모9",
-            "관리메모10");
-
     /**
      * <b>Extension Check</b>
      * <p>
      *
      * @param file : MultipartFile
-     * @throws CustomExcelFileUploadException
      */
     public void isExcelFile(MultipartFile file) {
         // access check
         userService.userLoginCheck();
 
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
+        String extension = FilenameUtils.getExtension(Objects.requireNonNull(file.getOriginalFilename()).toLowerCase());
 
         if (EXTENSIONS_EXCEL.contains(extension)) {
             return;
@@ -132,15 +80,14 @@ public class ErpOrderItemBusinessService {
      *
      * @param file : MultipartFile
      * @return List::ErpOrderItemVo::
-     * @throws CustomExcelFileUploadException
-     * @see ErpOrderItemBusinessService#getErpOrderItemForm
      */
+//    RE-OK
     public List<ErpOrderItemVo> uploadErpOrderExcel(MultipartFile file) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
-        Workbook workbook = null;
+        Workbook workbook;
         try {
             workbook = WorkbookFactory.create(file.getInputStream());
         } catch (IOException e) {
@@ -149,9 +96,9 @@ public class ErpOrderItemBusinessService {
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<ErpOrderItemVo> vos = new ArrayList<>();
+        List<ErpOrderItemVo> vos;
         try {
-            vos = this.getErpOrderItemForm(sheet);
+            vos = ErpOrderItemVo.excelSheetToVos(sheet);
         } catch (NullPointerException e) {
             throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
         } catch (IllegalStateException e) {
@@ -163,103 +110,7 @@ public class ErpOrderItemBusinessService {
         return vos;
     }
 
-    private List<ErpOrderItemVo> getErpOrderItemForm(Sheet worksheet) {
-        List<ErpOrderItemVo> itemVos = new ArrayList<>();
-
-        Row firstRow = worksheet.getRow(0);
-        // 피아르 엑셀 양식 검사
-        for (int i = 0; i < PIAAR_ERP_ORDER_ITEM_SIZE; i++) {
-            Cell cell = firstRow.getCell(i);
-            String headerName = cell != null ? cell.getStringCellValue() : null;
-            // 지정된 양식이 아니라면
-            if (!PIAAR_ERP_ORDER_HEADER_NAME_LIST.get(i).equals(headerName)) {
-                throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
-            }
-        }
-
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            Row row = worksheet.getRow(i);
-            if (row == null)
-                break;
-
-            Object cellValue = new Object();
-            List<String> customManagementMemo = new ArrayList<>();
-
-            // type check and data setting of managementMemo1~10.
-            for (int j = PIAAR_ERP_ORDER_MEMO_START_INDEX; j < PIAAR_ERP_ORDER_ITEM_SIZE; j++) {
-                Cell cell = row.getCell(j);
-
-                if (cell == null || cell.getCellType().equals(CellType.BLANK)) {
-                    cellValue = "";
-                } else if (cell.getCellType().equals(CellType.NUMERIC)) {
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
-                        LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-                        // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
-                        String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        cellValue = newDate;
-                    } else {
-                        cellValue = cell.getNumericCellValue();
-                    }
-                } else {
-                    cellValue = cell.getStringCellValue();
-                }
-                customManagementMemo.add(cellValue.toString());
-            }
-
-            // price, deliveryCharge - 엑셀 타입 string, number 허용
-            String priceStr = (row.getCell(18) == null) ? "0" : (row.getCell(18).getCellType().equals(CellType.NUMERIC) ?
-                    Integer.toString((int) row.getCell(18).getNumericCellValue()) : row.getCell(18).getStringCellValue());
-
-            String deliveryChargeStr = (row.getCell(19) == null) ? "0" : (row.getCell(19).getCellType().equals(CellType.NUMERIC) ?
-                    Integer.toString((int) row.getCell(19).getNumericCellValue()) : row.getCell(19).getStringCellValue());
-
-            // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
-            String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());
-
-            ErpOrderItemVo excelVo = ErpOrderItemVo.builder()
-                    .uniqueCode(null)
-                    .prodName(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
-                    .optionName(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
-                    .unit(row.getCell(3) != null ? Integer.toString((int) row.getCell(3).getNumericCellValue()) : "")
-                    .receiver(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "")
-                    .receiverContact1(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "")
-                    .receiverContact2(row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "")
-                    .destination(row.getCell(7) != null ? row.getCell(7).getStringCellValue() : "")
-                    .salesChannel(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
-                    .orderNumber1(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
-                    .orderNumber2(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
-                    .channelProdCode(row.getCell(11) != null ? row.getCell(11).getStringCellValue() : "")
-                    .channelOptionCode(row.getCell(12) != null ? row.getCell(12).getStringCellValue() : "")
-                    .zipCode(row.getCell(13) != null ? row.getCell(13).getStringCellValue() : "")
-                    .courier(row.getCell(14) != null ? row.getCell(14).getStringCellValue() : "")
-                    .transportType(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
-                    .deliveryMessage(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
-                    .waybillNumber(row.getCell(17) != null ? row.getCell(17).getStringCellValue() : "")
-                    .price(priceStr)
-                    .deliveryCharge(deliveryChargeStr)
-                    .barcode(row.getCell(20) != null ? row.getCell(20).getStringCellValue() : "")
-                    .prodCode(row.getCell(21) != null ? row.getCell(21).getStringCellValue() : "")
-                    .optionCode(row.getCell(22) != null ? row.getCell(22).getStringCellValue() : "")
-                    .releaseOptionCode(releaseOptionCode)
-                    .managementMemo1(customManagementMemo.get(0))
-                    .managementMemo2(customManagementMemo.get(1))
-                    .managementMemo3(customManagementMemo.get(2))
-                    .managementMemo4(customManagementMemo.get(3))
-                    .managementMemo5(customManagementMemo.get(4))
-                    .managementMemo6(customManagementMemo.get(5))
-                    .managementMemo7(customManagementMemo.get(6))
-                    .managementMemo8(customManagementMemo.get(7))
-                    .managementMemo9(customManagementMemo.get(8))
-                    .managementMemo10(customManagementMemo.get(9))
-                    .freightCode(null)
-                    .build();
-
-            itemVos.add(excelVo);
-        }
-        return itemVos;
-    }
-
+    @Transactional
     public void createBatch(List<ErpOrderItemDto> orderItemDtos) {
         // access check
         userService.userLoginCheck();
@@ -283,10 +134,12 @@ public class ErpOrderItemBusinessService {
                     return ErpOrderItemEntity.toEntity(r);
                 }).collect(Collectors.toList());
 
-//        erpOrderItemService.saveListAndModify(orderItemEntities);
         erpOrderItemService.bulkInsert(orderItemEntities);
     }
 
+    /*
+    로직 분리 부분 한번 더 고려 해보기
+     */
     public List<ErpOrderItemDto> itemDuplicationCheck(List<ErpOrderItemDto> dtos) {
         List<ErpOrderItemDto> newItems = dtos.stream().filter(r -> r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
         List<ErpOrderItemDto> duplicationCheckItems = dtos.stream().filter(r -> !r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
@@ -296,7 +149,7 @@ public class ErpOrderItemBusinessService {
         List<String> prodName = new ArrayList<>();
         List<String> optionName = new ArrayList<>();
         List<Integer> unit = new ArrayList<>();
-        duplicationCheckItems.stream().forEach(r -> {
+        duplicationCheckItems.forEach(r -> {
             orderNumber1.add(r.getOrderNumber1());
             receiver.add(r.getReceiver());
             prodName.add(r.getProdName());
@@ -309,21 +162,21 @@ public class ErpOrderItemBusinessService {
         if (duplicationEntities.size() == 0) {
             return dtos;
         } else {
-            for (int i = 0; i < duplicationCheckItems.size(); i++) {
+            for (ErpOrderItemDto duplicationCheckItem : duplicationCheckItems) {
                 boolean duplication = false;
                 // 주문번호 + 수령인 + 상품명 + 옵션명 + 수량 이 동일하다면 저장 제외
-                for (int j = 0; j < duplicationEntities.size(); j++) {
-                    if (duplicationEntities.get(j).getOrderNumber1().equals(duplicationCheckItems.get(i).getOrderNumber1())
-                            && duplicationEntities.get(j).getReceiver().equals(duplicationCheckItems.get(i).getReceiver())
-                            && duplicationEntities.get(j).getProdName().equals(duplicationCheckItems.get(i).getProdName())
-                            && duplicationEntities.get(j).getOptionName().equals(duplicationCheckItems.get(i).getOptionName())
-                            && duplicationEntities.get(j).getUnit().equals(duplicationCheckItems.get(i).getUnit())) {
+                for (ErpOrderItemEntity duplicationEntity : duplicationEntities) {
+                    if (duplicationEntity.getOrderNumber1().equals(duplicationCheckItem.getOrderNumber1())
+                            && duplicationEntity.getReceiver().equals(duplicationCheckItem.getReceiver())
+                            && duplicationEntity.getProdName().equals(duplicationCheckItem.getProdName())
+                            && duplicationEntity.getOptionName().equals(duplicationCheckItem.getOptionName())
+                            && duplicationEntity.getUnit().equals(duplicationCheckItem.getUnit())) {
                         duplication = true;
                         break;
                     }
                 }
                 if (!duplication) {
-                    newItems.add(duplicationCheckItems.get(i));
+                    newItems.add(duplicationCheckItem);
                 }
             }
         }
@@ -333,61 +186,70 @@ public class ErpOrderItemBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 유저가 업로드한 엑셀을 전체 가져온다.
-     * 피아르 관리코드에 대응하는 데이터들을 반환 Dto에 추가한다.
+     * 아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
+     * 옵션 재고 수량 추가 및 vos 변환
+     * <p>
      *
      * @param params : Map::String, Object::
      * @return List::ErpOrderItemVo::
-     * @see ErpOrderItemService#findAllM2OJ
-     * @see ErpOrderItemBusinessService#setOptionStockUnit
      */
-    public List<ErpOrderItemVo> searchBatch(Map<String, Object> params) {
+//    RE-OK
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo> searchList(Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
 
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
-        return ErpOrderItemVos;
+        // 옵션재고수량 추가 및 vos 변환
+
+        return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
+    /*
+    아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
+     */
+//    RE-OK
+    @Transactional(readOnly = true)
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
 
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
-        return ErpOrderItemVos;
+        // 옵션재고수량 추가 및 vos 변환
+        return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 유저가 업로드한 엑셀을 전체 가져온다.
-     * 피아르 관리코드에 대응하는 데이터들을 반환 Dto에 추가한다.
-     *
-     * @param params   : Map::String, Object::
-     * @param pageable : Pageable
-     * @return List::ErpOrderItemVo::
-     * @see ErpOrderItemService#findAllM2OJ
-     * @see ErpOrderItemBusinessService#setOptionStockUnit
+    /*
+    조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
      */
+//    RE-OK
+    @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
         // access check
         userService.userLoginCheck();
 
+        /*
+        조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+         */
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
-        // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
 
-        return new PageImpl(ErpOrderItemVos, pageable, itemPages.getTotalElements());
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+
+        return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     }
 
+    /*
+    조건별 페이지별 출고 상태인 ErpOrderItemProj Page 데이터를 가져온다.
+    옵션 재고 수량 추가 및 vos 변환
+     */
+//    RE-OK
+    @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchReleaseItemBatchByPaging(Map<String, Object> params, Pageable pageable) {
         // access check
         userService.userLoginCheck();
@@ -395,41 +257,43 @@ public class ErpOrderItemBusinessService {
         Page<ErpOrderItemProj> itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
-        // 옵션재고수량 추가
-        List<ErpOrderItemVo> ErpOrderItemVos = this.setOptionStockUnit(itemProjs);
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
 
-        return new PageImpl(ErpOrderItemVos, pageable, itemPages.getTotalElements());
+        return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     }
 
     /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 조회된 피아르 엑셀 데이터에서 옵션코드 값과 대응하는 옵션데이터를 조회한다.
-     * 옵션데이터의 재고수량을 피아르 엑셀 데이터에 추가한다.
+     * ErpOrderItemProjs => ErpOrderItemVos
+     * proj -> vos 변환 및 재고 수량 셋
      *
-     * @param itemProjs : List::ErpOrderItemVo::
-     * @return List::ErpOrderItemVo::
-     * @see ProductOptionService#searchStockUnit
-     * @see ErpOrderItemVo#toVo
+     * @param itemProjs
+     * @return
      */
-    public List<ErpOrderItemVo> setOptionStockUnit(List<ErpOrderItemProj> itemProjs) {
-        // 옵션이 존재하는 데이터들의 
-        List<ProductOptionEntity> optionEntities = itemProjs.stream().filter(r -> r.getProductOption() != null ? true : false).collect(Collectors.toList())
-                .stream().map(r -> r.getProductOption()).collect(Collectors.toList());
-
-        List<ProductOptionGetDto> optionDtos = productOptionService.searchStockUnit(optionEntities);
-        List<ErpOrderItemVo> itemVos = itemProjs.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
-
-        // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
-        List<ErpOrderItemVo> erpOrderItemVos = itemVos.stream().map(itemVo -> {
-            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
-            optionDtos.stream().forEach(option -> {
-                if (itemVo.getOptionCode().equals(option.getCode())) {
-                    itemVo.setOptionStockUnit(option.getStockSumUnit().toString());
-                }
-            });
-            return itemVo;
-        }).collect(Collectors.toList());
+    /*
+    ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+    옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+    ErpOrderItemProjs -> ErpOrderItemVos 변환
+    ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+     */
+//    RE-OK
+    private List<ErpOrderItemVo> setOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
+        /*
+        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+         */
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+        /*
+        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+         */
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+        /*
+        ErpOrderItemProjs -> ErpOrderItemVos 변환
+         */
+        List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+        /*
+        ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+         */
+        ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
 
         return erpOrderItemVos;
     }
@@ -440,25 +304,22 @@ public class ErpOrderItemBusinessService {
      * 엑셀 데이터의 salesYn(판매 여부)을 업데이트한다.
      *
      * @param itemDtos : List::ErpOrderItemDto::
-     * @see ErpOrderItemService#findAllByIdList
-     * @see CustomDateUtils#getCurrentDateTime
-     * @see ErpOrderItemService#saveListAndModify
      */
+//    PASS
+    @Transactional
     public void changeBatchForSalesYn(List<ErpOrderItemDto> itemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
-        List<UUID> idList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
-        entities.forEach(entity -> {
-            itemDtos.forEach(dto -> {
-                if (entity.getId().equals(dto.getId())) {
-                    entity.setSalesYn(dto.getSalesYn()).setSalesAt(dto.getSalesAt());
-                }
-            });
-        });
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+                entity.setSalesYn(dto.getSalesYn()).setSalesAt(dto.getSalesAt());
+            }
+        }));
 
         erpOrderItemService.saveListAndModify(entities);
     }
@@ -473,21 +334,21 @@ public class ErpOrderItemBusinessService {
      * @see CustomDateUtils#getCurrentDateTime
      * @see ErpOrderItemService#saveListAndModify
      */
+//    PASS
+    @Transactional
     public void changeBatchForReleaseYn(List<ErpOrderItemDto> itemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
-        List<UUID> idList = itemDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
-        entities.forEach(entity -> {
-            itemDtos.forEach(dto -> {
-                if (entity.getId().equals(dto.getId())) {
-                    entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(dto.getReleaseAt());
-                }
-            });
-        });
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(dto.getReleaseAt());
+            }
+        }));
 
         erpOrderItemService.saveListAndModify(entities);
     }
@@ -501,13 +362,15 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemEntity#toEntity
      * @see ErpOrderItemService#delete
      */
+//    PASS
+    @Transactional
     public void deleteBatch(List<ErpOrderItemDto> itemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
-        List<UUID> itemId = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
-        erpOrderItemService.deleteBatch(itemId);
+        List<UUID> itemIds = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
+        erpOrderItemService.deleteBatch(itemIds);
     }
 
     /**
@@ -519,6 +382,8 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#searchOne
      * @see ErpOrderItemService#saveAndModify
      */
+//    PASS
+    @Transactional
     public void updateOne(ErpOrderItemDto dto) {
         // access check
         userService.userLoginCheck();
@@ -526,6 +391,9 @@ public class ErpOrderItemBusinessService {
 
         ErpOrderItemEntity entity = erpOrderItemService.searchOne(dto.getId());
 
+        /*
+        Dirty Checking 업데이트
+         */
         entity.setProdName(dto.getProdName()).setOptionName(dto.getOptionName())
                 .setUnit(dto.getUnit()).setReceiver(dto.getReceiver()).setReceiverContact1(dto.getReceiverContact1())
                 .setReceiverContact2(dto.getReceiverContact2())
@@ -556,8 +424,6 @@ public class ErpOrderItemBusinessService {
                 .setManagementMemo8(dto.getManagementMemo8())
                 .setManagementMemo9(dto.getManagementMemo9())
                 .setManagementMemo10(dto.getManagementMemo10());
-
-        erpOrderItemService.saveAndModify(entity);
     }
 
     /**
@@ -577,16 +443,13 @@ public class ErpOrderItemBusinessService {
 
         List<ErpOrderItemEntity> entities = erpOrderItemService.getEntities(itemDtos);
 
-        entities.forEach(entity -> {
-            itemDtos.forEach(dto -> {
-                if (entity.getId().equals(dto.getId())) {
-                    entity.setOptionCode(dto.getOptionCode())
-                            .setReleaseOptionCode(dto.getOptionCode());
-                }
-            });
-        });
-
-//        erpOrderItemService.saveListAndModify(entities);
+//        Dirty Checking update
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+                entity.setOptionCode(dto.getOptionCode())
+                        .setReleaseOptionCode(dto.getOptionCode());
+            }
+        }));
     }
 
     /**
@@ -598,25 +461,28 @@ public class ErpOrderItemBusinessService {
      * @see ErpOrderItemService#findAllByIdList
      * @see ErpOrderItemService#saveListAndModify
      */
+//    PASS
+    @Transactional
     public void changeBatchForReleaseOptionCode(List<ErpOrderItemDto> itemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
-        List<UUID> idList = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
 
-        entities.stream().forEach(entity -> {
-            itemDtos.stream().forEach(dto -> {
-                if (entity.getId().equals(dto.getId())) {
-                    entity.setReleaseOptionCode(dto.getReleaseOptionCode());
-                }
-            });
-        });
-        erpOrderItemService.saveListAndModify(entities);
+        /*
+        Dirty Checking update
+         */
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+                entity.setReleaseOptionCode(dto.getReleaseOptionCode());
+            }
+        }));
     }
 
     /**
+     * @Deprecated
      * <b>Data Processing Related Method</b>
      * <p>
      * 수령인 > 수령인 전화번호 > 주소 > 상품명 > 옵션명 순으로 정렬해서
@@ -634,7 +500,7 @@ public class ErpOrderItemBusinessService {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-        
+
         List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
 
         // 선택된 병합 헤더데이터 조회
@@ -706,6 +572,7 @@ public class ErpOrderItemBusinessService {
     }
 
     /**
+     * @Deprecated
      * <b>Data Select Related Method</b>
      * <p>
      * firstMergeHeaderId에 대응하는 1차 병합헤더 데이터를 조회한다.
@@ -721,6 +588,7 @@ public class ErpOrderItemBusinessService {
     }
 
     /**
+     * @Deprecated
      * <b>Data Processing Related Method</b>
      * <p>
      * 병합 여부와 splitter로 구분해 나타낼 컬럼들을 확인해 데이터를 나열한다
@@ -779,7 +647,7 @@ public class ErpOrderItemBusinessService {
                 for (int j = 0; j < matchedDetail.getViewDetails().size(); j++) {
                     appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedDetail.getViewDetails().get(j).getMatchedColumnName()).toString();
                     if (j < matchedDetail.getViewDetails().size() - 1) {
-                        appendFieldValue += mergeMap.getValue().toString();
+                        appendFieldValue += mergeMap.getValue();
                     }
                 }
                 CustomFieldUtils.setFieldValue(currentVo, mergeMap.getKey(), appendFieldValue);
@@ -791,15 +659,13 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemVo> mergeItemVos = new ArrayList<>();
 
         Set<String> deliverySet = new HashSet<>();
-        for (int i = 0; i < itemVos.size(); i++) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(itemVos.get(i).getReceiver());
-            sb.append(itemVos.get(i).getReceiverContact1());
-            sb.append(itemVos.get(i).getDestination());
+        for (ErpOrderItemVo itemVo : itemVos) {
 
-            String resultStr = sb.toString();
+            String resultStr = itemVo.getReceiver() +
+                    itemVo.getReceiverContact1() +
+                    itemVo.getDestination();
 
-            mergeItemVos.add(itemVos.get(i));
+            mergeItemVos.add(itemVo);
             int currentMergeItemIndex = mergeItemVos.size() - 1;
 
             // 중복데이터(상품 + 옵션)
@@ -807,10 +673,10 @@ public class ErpOrderItemBusinessService {
                 ErpOrderItemVo currentVo = mergeItemVos.get(currentMergeItemIndex);
                 ErpOrderItemVo prevVo = mergeItemVos.get(currentMergeItemIndex - 1);
 
-                splitterMap.entrySet().stream().forEach(mergeMap -> {
-                    String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, mergeMap.getKey()) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, mergeMap.getKey());
-                    String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, mergeMap.getKey()) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, mergeMap.getKey());
-                    CustomFieldUtils.setFieldValue(prevVo, mergeMap.getKey(), prevFieldValue + "|&&|" + currentFieldValue);
+                splitterMap.forEach((key, value) -> {
+                    String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, key) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, key);
+                    String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, key) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, key);
+                    CustomFieldUtils.setFieldValue(prevVo, key, prevFieldValue + "|&&|" + currentFieldValue);
                 });
 
                 // 중복데이터 제거
@@ -818,19 +684,28 @@ public class ErpOrderItemBusinessService {
             }
 
             // 3. fixedValue가 지정된 column들은 fixedValue값으로 데이터를 덮어씌운다
-            fixedValueMap.entrySet().stream().forEach(map -> {
-                CustomFieldUtils.setFieldValue(mergeItemVos.get(mergeItemVos.size() - 1), map.getKey(), map.getValue());
-            });
+            fixedValueMap.forEach((key, value) -> CustomFieldUtils.setFieldValue(mergeItemVos.get(mergeItemVos.size() - 1), key, value));
         }
 
         return mergeItemVos;
     }
 
+    /**
+     * @Deprecated
+     */
     public ErpSecondMergeHeaderDto searchErpSecondMergeHeader(UUID secondMergeHeaderId) {
         ErpSecondMergeHeaderEntity secondMergeHeaderEntity = erpSecondMergeHeaderService.searchOne(secondMergeHeaderId);
         return ErpSecondMergeHeaderDto.toDto(secondMergeHeaderEntity);
     }
 
+    /**
+     * 운송장 업로드 엑셀 파일을 읽어들이고 해당 엑셀 파일을 DTO로 변환해서 리턴해준다.
+     * <p>Last Modifier : Austin Park 22.4.22</p>
+     *
+     * @since 1.1
+     * @see ErpOrderItemBusinessService#changeBatchForWaybill
+     */
+    @Transactional(readOnly = true)
     public List<WaybillExcelFormDto> readWaybillExcelFile(MultipartFile file) {
         // access check
         userService.userLoginCheck();
@@ -844,7 +719,7 @@ public class ErpOrderItemBusinessService {
         List<String> FIELD_NAMES = WaybillExcelFormManager.getAllFieldNames();
         List<Integer> REQUIRED_CELL_NUMBERS = WaybillExcelFormManager.REQUIRED_CELL_NUMBERS;
 
-        Integer SHEET_INDEX = 0;
+        int SHEET_INDEX = 0;
         Integer HEADER_ROW_INDEX = WaybillExcelFormManager.HEADER_ROW_INDEX;
         Integer DATA_START_ROW_INDEX = WaybillExcelFormManager.DATA_START_ROW_INDEX;
         Integer ALLOWED_CELL_SIZE = WaybillExcelFormManager.ALLOWED_CELL_SIZE;
@@ -853,10 +728,14 @@ public class ErpOrderItemBusinessService {
         Sheet worksheet = workbook.getSheetAt(SHEET_INDEX);
         Row headerRow = worksheet.getRow(HEADER_ROW_INDEX);
 
-//        최종 데이터 담는 리스트
+        /*
+        최종 데이터 담는 리스트 생성
+         */
         List<WaybillExcelFormDto> waybillExcelFormDtos = new ArrayList<>();
 
-//        엑셀 형식 검사 => cell size, header cell name check
+        /*
+        엑셀 형식 검사 => cell size, header cell name check
+         */
         if (
                 !CustomExcelUtils.getCellCount(worksheet, HEADER_ROW_INDEX).equals(ALLOWED_CELL_SIZE) ||
                         !CustomExcelUtils.isCheckedHeaderCell(headerRow, HEADER_NAMES)
@@ -864,30 +743,39 @@ public class ErpOrderItemBusinessService {
             throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드 해주세요.");
         }
 
-//        엑셀 데이터 부분 컨트롤 Row Loop
+        /*
+        엑셀 데이터 부분 컨트롤 Row Loop
+         */
         for (int i = DATA_START_ROW_INDEX; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
             WaybillExcelFormDto waybillExcelFormDto = new WaybillExcelFormDto();
 
-//            Cell Loop
+            /*
+            Cell Loop
+             */
             for (int j = 0; j < ALLOWED_CELL_SIZE; j++) {
                 Cell cell = row.getCell(j);
                 CellType cellType = cell.getCellType();
-                Object cellValue = new Object();
-
-//                필수 데이터 셀이 하나라도 비어있게 되면 dto를 Null로 처리하고 break
+                Object cellValue;
+                /*
+                필수 데이터 셀이 하나라도 비어있게 되면 dto를 Null로 처리하고 break
+                 */
                 if (REQUIRED_CELL_NUMBERS.contains(j) && cellType.equals(CellType.BLANK)) {
                     waybillExcelFormDto = null;
                     break;
                 }
-
-//                cellValue 가져오기
+                /*
+                cellValue 가져오기
+                 */
                 cellValue = CustomExcelUtils.getCellValueObject(cell, CustomExcelUtils.NUMERIC_TO_INT);
-//                cellValue dto에 매핑시키기
+                /*
+                cellValue dto에 매핑시키기
+                 */
                 CustomFieldUtils.setFieldValueWithSuper(waybillExcelFormDto, FIELD_NAMES.get(j), cellValue.toString());
             }
-
-//            dto가 널이 아니라면 리스트에 담는다.
+            /*
+            dto가 널이 아니라면 리스트에 담는다.
+             */
             if (waybillExcelFormDto != null) {
                 waybillExcelFormDtos.add(waybillExcelFormDto);
             }
@@ -896,17 +784,29 @@ public class ErpOrderItemBusinessService {
         return waybillExcelFormDtos;
     }
 
+    /**
+     * <p>선택된 데이터와 운송장 일괄 등록을 위해 엑셀에서 dto 로 변환된 데이터를 비교 대조해서 선택된 데이터의 운송장 관련 데이터들을 업데이트 한다.</p>
+     * <p>일반적으로 ErpOrderItemBusinessService#readWaybillExcelFile의 작업이 선행 되어야한다. </p>
+     * <p>Last Modifier : Austin Park 22.4.22</p>
+     *
+     * @return 운송장 관련 데이터가 정상적으로 적용된 데이터의 수
+     * @since 1.1
+     * @see ErpOrderItemBusinessService#readWaybillExcelFile
+     */
     @Transactional
     public int changeBatchForWaybill(List<ErpOrderItemDto> erpOrderItemDtos, List<WaybillExcelFormDto> waybillExcelFormDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
 
+        /*
+        수취인명 별 운임번호 분해작업
+         */
         List<WaybillExcelFormDto> dismantledWaybillExcelFormDtos = new ArrayList<>();
-        waybillExcelFormDtos.stream().forEach(r -> {
+        waybillExcelFormDtos.forEach(r -> {
             List<String> freightCodes = List.of(r.getFreightCode().split(","));
 
-            freightCodes.stream().forEach(freightCode -> {
+            freightCodes.forEach(freightCode -> {
                 WaybillExcelFormDto dto = new WaybillExcelFormDto();
                 dto.setReceiver(r.getReceiver());
                 dto.setFreightCode(freightCode);
@@ -918,10 +818,17 @@ public class ErpOrderItemBusinessService {
             });
         });
 
-        List<UUID> ids = erpOrderItemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        /*
+        선택된 주문건의 엔터티들을 불러온다.
+         */
+        List<UUID> ids = erpOrderItemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.findAllByIdList(ids);
         AtomicInteger updatedCount = new AtomicInteger();
 
+        /*
+        분해작업이 완료된 운임코드+수취인명과 선택된 주문건들의 운임코드+수취인명을 비교해서 일치하는 데이터에 운송장 관련 데이터들을 업데이트한다.
+        업데이트 완료된건 카운팅
+         */
         erpOrderItemEntities.forEach(erpOrderItemEntity -> {
             String matchingData = erpOrderItemEntity.getReceiver() + erpOrderItemEntity.getFreightCode();
             dismantledWaybillExcelFormDtos.forEach(waybillExcelFormDto -> {
@@ -939,6 +846,11 @@ public class ErpOrderItemBusinessService {
         return updatedCount.get();
     }
 
+    /**
+     * 선택된 데이터들의 재고를 반영한다.
+     *
+     * TODO : 현재 세트상품과 세트상품이 아닌 데이터들을 구분해서 insert 쿼리를 날리는데 이렇게되면 insert쿼리가 두번이 나누어져서 던져지게됨. 세트상품을 먼저 분해해서 일반 옵션 엔터티로 만들어서 한번에 던지는게 낫지않을까?
+     */
     @Transactional
     public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos) {
         // access check
@@ -947,7 +859,7 @@ public class ErpOrderItemBusinessService {
 
         Set<String> optionCodeSet = new HashSet<>();
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
-        List<ProductOptionEntity> productOptionEntities = new ArrayList<>();
+        List<ProductOptionEntity> productOptionEntities;
         AtomicInteger count = new AtomicInteger();
 
         for (ErpOrderItemEntity r : erpOrderItemEntities) {
@@ -957,8 +869,8 @@ public class ErpOrderItemBusinessService {
         }
 
         List<ProductOptionGetDto> productOptionGetDtos = productOptionService.searchListByOptionCodes(new ArrayList<>(optionCodeSet));
-        productOptionEntities = productOptionGetDtos.stream().map(dto -> ProductOptionEntity.toEntity(dto)).collect(Collectors.toList());
-        
+        productOptionEntities = productOptionGetDtos.stream().map(ProductOptionEntity::toEntity).collect(Collectors.toList());
+
         // 1. 세트상품 X
         List<ProductOptionEntity> originOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         // 2. 세트상품 O
@@ -1003,7 +915,7 @@ public class ErpOrderItemBusinessService {
         AtomicInteger count = new AtomicInteger();
 
         // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
-        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(ProductOptionEntity::getId).collect(Collectors.toList());
         // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
 
@@ -1011,7 +923,7 @@ public class ErpOrderItemBusinessService {
             parentOptionEntities.forEach(parentOption -> {
                 if (parentOption.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
                     optionPackageEntities.forEach(option -> {
-                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                        if (option.getParentOptionId().equals(parentOption.getId())) {
                             count.getAndIncrement();
 
                             ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
@@ -1023,7 +935,7 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
                             releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
-                            
+
                             orderItemEntity.setStockReflectYn("y");
                             releaseEntities.add(releaseEntity);
                         }
@@ -1036,23 +948,37 @@ public class ErpOrderItemBusinessService {
         return count.get();
     }
 
+    /**
+     * 선택된 데이터들중 이미 재고가 반영된 데이터들을 대상으로 재고 반영을 취소시킨다.
+     * @param itemDtos
+     * @return
+     */
     @Transactional
     public Integer actionCancelStock(List<ErpOrderItemDto> itemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-        
+
+        /*
+        재고 반영이 완료된 데이터들을 가져온다.
+         */
         itemDtos = itemDtos.stream().filter(r -> r.getStockReflectYn().equals("y")).collect(Collectors.toList());
         List<ErpOrderItemEntity> erpOrderItemEntities = erpOrderItemService.getEntities(itemDtos);
         List<UUID> erpOrderItemIds = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
+        /*
+        재고에 이미 반영된 데이터들의 재고반영 여부를 업데이트하고, 재고에 이미 반영된 데이터의 아이디 값들을 가져온다.
+         */
         for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
             count.getAndIncrement();
             erpOrderItemIds.add(orderItemEntity.getId());
             orderItemEntity.setStockReflectYn("n");
         }
 
+        /*
+        이미 재고가 반영되었던 데이터들의 아이디값을 이용해서 재고 반영 여부에서 해당 데이터들을 삭제한다.
+         */
         productReleaseService.deleteByErpOrderItemIds(erpOrderItemIds);
         return count.get();
     }

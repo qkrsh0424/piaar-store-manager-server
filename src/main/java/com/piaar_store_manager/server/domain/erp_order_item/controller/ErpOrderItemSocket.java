@@ -112,7 +112,7 @@ public class ErpOrderItemSocket {
         Integer count = erpOrderItemBusinessService.actionReflectStock(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
-        message.setMemo(count + " 건의 데이터가 재고 반영 되었습니다.");
+        message.setMemo(count + " 건의 옵션 상품에 재고 반영 되었습니다.");
 
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
         return new ResponseEntity<>(message, message.getStatus());

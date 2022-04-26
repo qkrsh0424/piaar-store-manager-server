@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.model.product_option.entity;
 
+import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,9 @@ import javax.persistence.*;
 import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -94,14 +97,21 @@ public class ProductOptionEntity {
     @Column(name = "product_cid")
     private Integer productCid;
 
+    @Transient
+    private Integer receivedSum;
+    @Transient
+    private Integer releasedSum;
+    @Transient
+    private Integer stockSumUnit;
+
     /**
      * <b>Convert Method</b>
      * <p>
      * ProductOptionGetDto => ProductOptionEntity
-     * 
+     *
      * @param productOptionDto : ProductOptionGetDto
-     * @param userId : UUID
-     * @param productCid : Integer
+     * @param userId           : UUID
+     * @param productCid       : Integer
      * @return ProductOptionEntity
      */
     public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
@@ -132,5 +142,12 @@ public class ProductOptionEntity {
                 .build();
 
         return productOptionEntity;
+    }
+
+    public static List<ProductOptionEntity> getExistList(List<ErpOrderItemProj> itemProjs) {
+        return itemProjs.stream()
+                .filter(r -> r.getProductOption() != null)
+                .map(ErpOrderItemProj::getProductOption)
+                .collect(Collectors.toList());
     }
 }

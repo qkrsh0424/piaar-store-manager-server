@@ -1,15 +1,13 @@
 package com.piaar_store_manager.server.utils;
 
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.poi.ss.formula.FormulaType;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
-import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 
 public class CustomExcelUtils {
     private static final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");

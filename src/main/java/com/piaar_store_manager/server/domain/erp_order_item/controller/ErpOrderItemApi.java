@@ -36,6 +36,7 @@ public class ErpOrderItemApi {
 
     /**
      * Upload excel data for order excel.
+     * 주문 파일 업로드 엑셀 대량등록시 사용하는 API
      * <p>
      * <b>POST : API URL => /api/v1/erp-order-items/excel/upload</b>
      *
@@ -85,13 +86,13 @@ public class ErpOrderItemApi {
      *
      * @param params : Map::String, Object::
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#searchBatch
+     * @see ErpOrderItemBusinessService#searchList
      */
     @GetMapping("")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchBatch(params));
+        message.setData(erpOrderItemBusinessService.searchList(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
