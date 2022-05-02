@@ -1,11 +1,12 @@
 package com.piaar_store_manager.server.service.commute_record;
 
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomInvalidUserException;
 import com.piaar_store_manager.server.exception.CustomNotMatchedParamsException;
 import com.piaar_store_manager.server.model.commute_record.CommuteRecordInterface;
 import com.piaar_store_manager.server.model.commute_record.dto.CommuteRecordGetDto;
 import com.piaar_store_manager.server.model.commute_record.entity.CommuteRecordEntity;
-import com.piaar_store_manager.server.service.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

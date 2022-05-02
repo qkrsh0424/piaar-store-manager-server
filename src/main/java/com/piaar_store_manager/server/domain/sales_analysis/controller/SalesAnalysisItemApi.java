@@ -3,8 +3,8 @@ package com.piaar_store_manager.server.domain.sales_analysis.controller;
 import java.util.Map;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.sales_analysis.service.SalesAnalysisItemBusinessService;
-import com.piaar_store_manager.server.model.message.Message;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

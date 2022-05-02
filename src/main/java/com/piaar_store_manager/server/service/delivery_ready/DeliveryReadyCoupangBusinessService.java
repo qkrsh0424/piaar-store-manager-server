@@ -26,6 +26,16 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -39,17 +49,7 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.service.option_package.OptionPackageService;
-import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
-import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
@@ -196,8 +196,6 @@ public class DeliveryReadyCoupangBusinessService {
      */
     @Transactional
     public void storeDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
-        UUID USER_ID = userService.getUserId();
-
         String fileName = file.getOriginalFilename();
         String newFileName = "[COUPANG_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = bucket + "/coupang-order";
@@ -859,7 +857,7 @@ public class DeliveryReadyCoupangBusinessService {
                 }
             });
         });
-        productReleaseService.createPLList(productReleaseEntities);
+        productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
@@ -892,7 +890,7 @@ public class DeliveryReadyCoupangBusinessService {
                 }
             });
         });
-        productReleaseService.createPLList(productReleaseEntities);
+        productReleaseService.saveListAndModify(productReleaseEntities);
     }
     
     /**

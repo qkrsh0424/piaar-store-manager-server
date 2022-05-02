@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_first_merge_header.dto.ErpFirstMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_first_merge_header.entity.ErpFirstMergeHeaderEntity;
-import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 @Service

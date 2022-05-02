@@ -2,7 +2,7 @@ package com.piaar_store_manager.server.service.product_category;
 
 import java.util.List;
 
-import com.piaar_store_manager.server.model.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

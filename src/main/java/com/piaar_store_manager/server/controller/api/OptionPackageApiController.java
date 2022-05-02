@@ -3,9 +3,9 @@ package com.piaar_store_manager.server.controller.api;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.service.option_package.OptionPackageBusinessService;
-import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

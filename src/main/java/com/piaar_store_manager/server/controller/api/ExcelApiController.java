@@ -7,7 +7,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.model.order_confirm.dto.OrderConfirmGetDto;
 import com.piaar_store_manager.server.model.waybill.WaybillAssembledDto;
 import com.piaar_store_manager.server.model.waybill.WaybillGetDto;

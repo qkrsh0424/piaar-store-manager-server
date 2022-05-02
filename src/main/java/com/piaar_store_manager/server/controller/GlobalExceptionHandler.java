@@ -4,7 +4,7 @@ import java.text.ParseException;
 
 import javax.validation.ConstraintViolationException;
 
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

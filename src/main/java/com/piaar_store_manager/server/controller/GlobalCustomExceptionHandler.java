@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.controller;
 
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.*;
-import com.piaar_store_manager.server.model.message.Message;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

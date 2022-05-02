@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.sales_analysis.dto.SalesAnalysisItemDto;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
-import com.piaar_store_manager.server.service.user.UserService;
 
 import org.springframework.stereotype.Service;
 

@@ -11,7 +11,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.erp_first_merge_header.dto.ErpFirstMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_first_merge_header.service.ErpFirstMergeHeaderBusinessService;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 @RestController
 @RequestMapping("/api/v1/erp-first-merge-headers")

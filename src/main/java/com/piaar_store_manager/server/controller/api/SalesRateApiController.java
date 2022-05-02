@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.model.sales_rate.dto.OrderSearchExcelFormDto;
 import com.piaar_store_manager.server.model.sales_rate.dto.SalesRateCommonGetDto;
 import com.piaar_store_manager.server.model.sales_rate.dto.SalesRateCommonGetDto;

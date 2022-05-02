@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
@@ -20,7 +21,6 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
-import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.delivery_ready.DeliveryReadyNaverBusinessService;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 

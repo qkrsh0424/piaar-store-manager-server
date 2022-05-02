@@ -6,8 +6,8 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
-import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.account_book.AccountBookService;
 
 import lombok.RequiredArgsConstructor;

@@ -2,8 +2,8 @@ package com.piaar_store_manager.server.service.product_detail;
 
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.product_detail.dto.ProductDetailGetDto;
-import com.piaar_store_manager.server.model.product_detail.entity.ProductDetailEntity;
+import com.piaar_store_manager.server.domain.product_detail.dto.ProductDetailGetDto;
+import com.piaar_store_manager.server.domain.product_detail.entity.ProductDetailEntity;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

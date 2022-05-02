@@ -4,7 +4,7 @@ package com.piaar_store_manager.server.domain.erp_order_header.controller;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeaderDto;
 import com.piaar_store_manager.server.domain.erp_order_header.service.ErpOrderHeaderBusinessService;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

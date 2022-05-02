@@ -3,7 +3,7 @@ package com.piaar_store_manager.server.controller.api;
 import java.util.Map;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
 
 import lombok.RequiredArgsConstructor;

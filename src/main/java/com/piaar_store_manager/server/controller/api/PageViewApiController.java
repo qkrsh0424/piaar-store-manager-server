@@ -3,7 +3,7 @@ package com.piaar_store_manager.server.controller.api;
 import java.io.IOException;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.page_view.naver_analytics.NAPageViewService;
 
 import lombok.RequiredArgsConstructor;

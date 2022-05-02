@@ -24,6 +24,16 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyFileDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
@@ -37,17 +47,7 @@ import com.piaar_store_manager.server.model.delivery_ready.naver.entity.Delivery
 import com.piaar_store_manager.server.model.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.service.option_package.OptionPackageService;
-import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseService;
-import com.piaar_store_manager.server.service.user.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
@@ -866,7 +866,7 @@ public class DeliveryReadyNaverBusinessService {
                 }
             });
         });
-        productReleaseService.createPLList(productReleaseEntities);
+        productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyNaverItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
@@ -899,7 +899,7 @@ public class DeliveryReadyNaverBusinessService {
                 }
             });
         });
-        productReleaseService.createPLList(productReleaseEntities);
+        productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
     /**

@@ -24,7 +24,7 @@ import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDo
 import com.piaar_store_manager.server.domain.erp_download_excel_header.service.ErpDownloadExcelHeaderBusinessService;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 

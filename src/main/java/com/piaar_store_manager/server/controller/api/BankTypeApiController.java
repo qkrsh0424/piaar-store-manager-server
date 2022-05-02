@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.controller.api;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.bank_type.BankTypeService;
 
 import lombok.RequiredArgsConstructor;

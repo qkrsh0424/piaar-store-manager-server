@@ -4,7 +4,7 @@ package com.piaar_store_manager.server.domain.erp_release_ready_header.controlle
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.dto.ErpReleaseReadyHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.service.ErpReleaseReadyHeaderBusinessService;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

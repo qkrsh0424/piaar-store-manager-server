@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 import java.util.Collections;
 import java.util.List;

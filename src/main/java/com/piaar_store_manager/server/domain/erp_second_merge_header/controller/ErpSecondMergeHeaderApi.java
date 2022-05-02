@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.erp_second_merge_header.dto.ErpSecondMergeHeaderDto;
 import com.piaar_store_manager.server.domain.erp_second_merge_header.service.ErpSecondMergeHeaderBusinessService;
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.domain.message.Message;
 
 @RestController
 @RequestMapping("/api/v1/erp-second-merge-headers")
