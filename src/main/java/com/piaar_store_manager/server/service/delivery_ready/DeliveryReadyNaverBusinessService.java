@@ -780,18 +780,18 @@ public class DeliveryReadyNaverBusinessService {
         deliveryReadyNaverService.createItemList(entities);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
-     *
-     * @param dto : DeliveryReadyCoupangItemViewDto
-     * @return Integer
-     * @see ProductOptionService#findOptionCidByCode
-     */
-    public Integer getOptionCid(DeliveryReadyNaverItemViewDto dto) {
-        return productOptionService.findOptionCidByCode(dto.getOptionManagementName());
-    }
+    // /**
+    //  * <b>DB Select Related Method</b>
+    //  * <p>
+    //  * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
+    //  *
+    //  * @param dto : DeliveryReadyCoupangItemViewDto
+    //  * @return Integer
+    //  * @see ProductOptionService#findOptionCidByCode
+    //  */
+    // public Integer getOptionCid(DeliveryReadyNaverItemViewDto dto) {
+    //     return productOptionService.findOptionCidByCode(dto.getOptionManagementName());
+    // }
 
     /**
      * <b>DB Select Related Method</b>

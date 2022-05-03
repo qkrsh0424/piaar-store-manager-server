@@ -7,9 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStatusDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
@@ -107,14 +106,14 @@ public class ProductOptionBusinessService {
      * @see ProductReleaseService#searchListByOptionCid
      * @see ProductReceiveService#searchListByOptionCid
      */
-    public ProductOptionStatusDto searchStockStatus(Integer optionCid) {
+    public ProductOptionStockStatusDto searchStockStatus(Integer optionCid) {
         List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
         List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
         
         List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
         List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
 
-        ProductOptionStatusDto statusDto = ProductOptionStatusDto.builder()
+        ProductOptionStockStatusDto statusDto = ProductOptionStockStatusDto.builder()
             .productRelease(releaseDtos)
             .productReceive(receiveDtos)
             .build();
@@ -128,21 +127,22 @@ public class ProductOptionBusinessService {
      * release(출고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
      * receive(입고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
      * 입출고 데이터를 이용해 ProductOptionGetDto.JoinReceiveAndRelease 생성한다.
+     * TODO :: refactor전에 사용하던 api. 제거해야 함.
      *
      * @return ProductOptionGetDto.JoinReceiveAndRelease
      * @see ProductReleaseService#searchListM2OJ
      * @see ProductReceiveService#searchListM2OJ
      */
-    public ProductOptionGetDto.JoinReceiveAndRelease searchAllStockStatus() {
+    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus() {
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
         
         List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
         List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
 
-        ProductOptionGetDto.JoinReceiveAndRelease statusDto = ProductOptionGetDto.JoinReceiveAndRelease.builder()
-            .receiveJoinProdAndOption(receiveDtos)
-            .releaseJoinProdAndOption(releaseDtos)
+        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
+            .productReceive(receiveDtos)
+            .productRelease(releaseDtos)
             .build();
 
         return statusDto;
@@ -159,7 +159,7 @@ public class ProductOptionBusinessService {
      * @see ProductReleaseService#searchListM2OJ
      * @see ProductReceiveService#searchListM2OJ
      */
-    public ProductOptionGetDto.JoinReceiveAndRelease searchAllStockStatus(Map<String,Object> params) {
+    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus(Map<String,Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
@@ -172,9 +172,9 @@ public class ProductOptionBusinessService {
         List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
         List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
 
-        ProductOptionGetDto.JoinReceiveAndRelease statusDto = ProductOptionGetDto.JoinReceiveAndRelease.builder()
-            .receiveJoinProdAndOption(receiveDtos)
-            .releaseJoinProdAndOption(releaseDtos)
+        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
+            .productReceive(receiveDtos)
+            .productRelease(releaseDtos)
             .build();
 
         return statusDto;
@@ -200,7 +200,7 @@ public class ProductOptionBusinessService {
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
-    public void createOAP(ProductOptionCreateReqDto reqDto) {
+    public void createOAP(ProductOptionGetDto.CreateReq reqDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto optionGetDto = reqDto.getOptionDto()
@@ -268,7 +268,7 @@ public class ProductOptionBusinessService {
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
-    public void changeOAP(ProductOptionCreateReqDto reqDto) {
+    public void changeOAP(ProductOptionGetDto.CreateReq reqDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();

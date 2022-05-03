@@ -5,6 +5,7 @@ import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSu
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class ProductOptionService {
         if (productOptionEntityOpt.isPresent()) {
             return productOptionEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
         }
     }
 
@@ -42,7 +43,7 @@ public class ProductOptionService {
      * productOptionCid에 대응하는 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
      *
      * @return ProductOptionProj
-     * @see ProductOptionRepository#selectByCid
+     * @see ProductOptionRepository#searchOneM2OJ
      */
     public ProductOptionProj searchOneM2OJ(Integer productOptionCid) {
         Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.searchOneM2OJ(productOptionCid);
@@ -50,14 +51,14 @@ public class ProductOptionService {
         if(productOptionProjOpt.isPresent()) {
             return productOptionProjOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
         }
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 모든 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
+     * 모든 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
      *
      * @return List::ProductOptionProj::
      * @see ProductOptionRepository#searchListM2OJ
@@ -82,7 +83,7 @@ public class ProductOptionService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * optionCodes에 대응되는 option 데이터를 모두 조회한다.
+     * cids에 대응되는 option 데이터를 모두 조회한다.
      * 
      * @param cids : List::Integer:;
      * @see ProductOptionRepository#findAllByCids
@@ -99,7 +100,7 @@ public class ProductOptionService {
      *
      * @param productCids : List::Integer::
      * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#selectAllByProductCids
+     * @see ProductOptionRepository#searchListByProductCids
      * @see ProductOptionService#searchStockUnit
      */
     public List<ProductOptionGetDto> searchListByProductCids(List<Integer> productCids) {
@@ -116,7 +117,7 @@ public class ProductOptionService {
      *
      * @param productCids : List::Integer::
      * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#findAllByCode
+     * @see ProductOptionRepository#selectListByCodes
      * @see ProductOptionService#searchStockUnit
      */
     public List<ProductOptionGetDto> searchListByOptionCodes(List<String> optionCodes) {
@@ -132,9 +133,9 @@ public class ProductOptionService {
      * 입고수량과 출고수량을 이용해 ProductOption의 stockUnit을 세팅한다.
      * (receivedSumUnit, releasedSumUnit, stockSunUnit을 반환하기 위해 dto사용)
      *
+     * @param entities : List::ProductOptionEntity::
      * @return List::ProductOptionGetDto::
-     * @param productCid : Integer
-     * @see ProductOptionBusinessService#sumStockUnit
+     * @see ProductOptionService#sumStockUnit
      */
     public List<ProductOptionGetDto> searchStockUnit(List<ProductOptionEntity> entities) {
         List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
@@ -170,8 +171,8 @@ public class ProductOptionService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * ProductOption cid 값과 상응되는 입고데이터와 출고데이터의 합을 모두 조회한다.
-     * 입고데이터와 출고데이터를 이용해 재고수량을 계산한다.
+     * cids에 대응되는 옵션 조회,
+     * receive(입고)와 release(출고) 데이터를 이용해 재고수량을 계산한다.
      * 
      * @param cids : List::Integer::
      * @see ProductOptionRepository#sumStockUnitByOption
@@ -191,10 +192,31 @@ public class ProductOptionService {
         return stockUnitByOption;
     }
 
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * 
+     * @param optionCode : String
+     * @return Integer
+     */
     public Integer findOptionCidByCode(String optionCode) {
-        return productOptionRepository.findCidByCode(optionCode);
+        Optional<ProductOptionEntity> optionEntityOpt = productOptionRepository.findByCode(optionCode);
+        
+        if(optionEntityOpt.isPresent()) {
+            return optionEntityOpt.get().getCid();
+        }else{
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
     }
 
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * productOptionCids값에 대응되는 총 옵션수량, 출고수량, 재고수량을 조회한다.
+     * 
+     * @param entities List::ProductOptionEntity::
+     * @see ProductOptionRepository#sumStockUnitByOption
+     */
     public void setReceivedAndReleasedAndStockSum(List<ProductOptionEntity> entities){
         List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
 

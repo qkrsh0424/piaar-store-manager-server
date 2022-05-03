@@ -136,20 +136,4 @@ public class ProductOptionGetDto {
         ProductOptionGetDto optionDto;
         List<OptionPackageDto> packageDtos;
     }
-
-    /**
-     * 모든 option 조회,
-     * option에 대응되는 receive, receive 데이터에 대응되는 option, product를 포함
-     * option에 대응되는 release, release 데이터에 대응되는 option, product를 포함
-     */
-    @Getter
-    @ToString
-    @Accessors(chain = true)
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class JoinReceiveAndRelease {
-        List<ProductReceiveGetDto.JoinProdAndOption> receiveJoinProdAndOption;
-        List<ProductReleaseGetDto.JoinProdAndOption> releaseJoinProdAndOption;
-    }
 }

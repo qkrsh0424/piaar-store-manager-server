@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
 
     /**
-     * 단일 ProductOption cid에 대응하는 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 조회한다.
+     * cid값에 대응하는 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category
      * 
      * @param cid : Integer
      * @return ProductOptionProj
@@ -32,7 +32,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
 
     // FIX : Added "ORDER BY" query for product_option.created_at ASC
     /**
-     * 옵션데이터의 FJ 관계인(상품, 상품옵션, 카테고리, 유저) 데이터를 모두 조회한다.
+     * 모든 option, option과 Full Join(fj) 연관관계에 놓여있는 product, user, category
      * 
      * @return List::ProductOptionProj::
      */
@@ -46,24 +46,12 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     List<ProductOptionProj> searchListM2OJ();
 
     /**
-     * ProductOption 데이터의 code에 대응하는 옵션데이터를 조회한다.
+     * code값에 대응되는 option을 조회한다.
      * 
      * @param code : String
      * @return Optional::ProductOptionEntity::
      */
     Optional<ProductOptionEntity> findByCode(String code);
-
-    /**
-     * ProductOption 데이터의 code에 대응하는 옵션데이터의 cid를 조회한다.
-     * 
-     * @param code : String
-     * @return Integer
-     */
-    @Query(
-        "SELECT po.cid FROM ProductOptionEntity po\n" +
-        "WHERE po.code=:code"
-    )
-    Integer findCidByCode(String code);
 
     /**
      * ProductOption 데이터의 code들에 대응하는 옵션데이터를 조회한다.

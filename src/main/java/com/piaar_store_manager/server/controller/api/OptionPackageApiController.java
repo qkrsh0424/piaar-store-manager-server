@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.service.option_package.OptionPackageBusinessService;
 
 import org.springframework.http.HttpStatus;

@@ -111,6 +111,7 @@ public class ProductApiController {
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list-m2oj</b>
+     * <p>
      * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category을 함께 조회한다.
      */
     @GetMapping("/list-m2oj")
@@ -128,6 +129,7 @@ public class ProductApiController {
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list-fj</b>
+     * <p>
      * 모든 product, product와 Full Join(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
      */
     @GetMapping("/list-fj")
@@ -145,6 +147,7 @@ public class ProductApiController {
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list-fj</b>
+     * <p>
      * 재고관리 여부가 true인 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
      */
     @GetMapping("/list-fj/stock")
@@ -185,6 +188,8 @@ public class ProductApiController {
      * Create one api for product.
      * <p>
      * <b>POST : API URL => /api/v1/product/one</b>
+     * <p>
+     * 단일 product, product 하위의 다중 option, option 하위의 다중 package를 등록한다.
      */
     @PostMapping("/one")
     @PermissionRole
