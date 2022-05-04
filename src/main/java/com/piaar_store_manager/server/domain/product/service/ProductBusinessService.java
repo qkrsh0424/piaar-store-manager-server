@@ -188,10 +188,10 @@ public class ProductBusinessService {
         UUID USER_ID = userService.getUserId();
 
         // Save Product
-        reqDto.getProduct().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
+        reqDto.getProductDto().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
                 .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
 
-        ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProduct()));
+        ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProductDto()));
         ProductGetDto savedProductDto = ProductGetDto.toDto(savedEntity);
 
         List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
@@ -288,7 +288,7 @@ public class ProductBusinessService {
     @Transactional
     public void changePAOList(List<ProductGetDto.CreateReq> productCreateReqDtos) {
         productCreateReqDtos.stream().forEach(req -> {
-            this.changePAO(req.getProduct());
+            this.changePAO(req.getProductDto());
         });
     }
 

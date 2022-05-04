@@ -5,7 +5,6 @@ import java.util.Map;
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionCreateReqDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionBusinessService;
 

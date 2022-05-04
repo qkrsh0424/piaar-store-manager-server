@@ -159,7 +159,7 @@ public class ProductGetDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateReq {
-        ProductGetDto product;
+        ProductGetDto productDto;
         List<ProductOptionGetDto> optionDtos;
         List<OptionPackageDto> packageDtos;
     }
