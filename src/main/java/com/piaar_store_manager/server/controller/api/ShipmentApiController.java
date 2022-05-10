@@ -2,19 +2,19 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.shipment.packing_list.PackingListCoupangService;
 import com.piaar_store_manager.server.service.shipment.packing_list.PackingListNaverService;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,12 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/shipment")
+@RequiredArgsConstructor
+@RequiredLogin
 public class ShipmentApiController {
-    @Autowired
-    PackingListNaverService packingListNaverService;
-
-    @Autowired
-    PackingListCoupangService packingListCoupangService;
+    private final PackingListNaverService packingListNaverService;
+    private final PackingListCoupangService packingListCoupangService;
 
     /**
      * Read excel for shipment packing list of naver smartstore and combine to

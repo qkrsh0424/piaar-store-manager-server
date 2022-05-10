@@ -1,7 +1,9 @@
 package com.piaar_store_manager.server.controller.api;
 
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.commute_record.CommuteRecordBusinessService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,15 +13,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/commute-record")
+@RequiredArgsConstructor
+@RequiredLogin
 public class CommuteRecordApiController {
     private final CommuteRecordBusinessService commuteRecordBusinessService;
-
-    @Autowired
-    public CommuteRecordApiController(
-            CommuteRecordBusinessService commuteRecordBusinessService
-    ) {
-        this.commuteRecordBusinessService = commuteRecordBusinessService;
-    }
 
     @GetMapping("/today/strict")
     public ResponseEntity<?> searchTodayRecordStrict() {

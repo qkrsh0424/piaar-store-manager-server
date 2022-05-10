@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.model.product.dto.ProductJoinResDto;
-import com.piaar_store_manager.server.model.product.entity.ProductEntity;
+// import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
+// import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

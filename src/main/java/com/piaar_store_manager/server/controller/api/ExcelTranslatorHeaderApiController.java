@@ -10,20 +10,22 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.piaar_store_manager.server.exception.ExcelFileUploadException;
+import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.DownloadExcelDataGetDto;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadedDetailDto;
 import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
-import com.piaar_store_manager.server.model.message.Message;
 import com.piaar_store_manager.server.service.excel_translator.ExcelTranslatorHeaderBusinessService;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,22 +41,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/excel-translator")
+@RequiredArgsConstructor
+@RequiredLogin
 public class ExcelTranslatorHeaderApiController {
-    
-    private ExcelTranslatorHeaderBusinessService excelTranslatorHeaderBusinessService;
 
-    @Autowired
-    public ExcelTranslatorHeaderApiController(
-        ExcelTranslatorHeaderBusinessService excelTranslatorHeaderBusinessService
-    ) {
-        this.excelTranslatorHeaderBusinessService = excelTranslatorHeaderBusinessService;
-    }
+    private final ExcelTranslatorHeaderBusinessService excelTranslatorHeaderBusinessService;
 
     /**
      * Create one api for excel translator header.
-     * 
-     * @param dto : ExcelTranslatorHeaderGetDto
-     * @see ExcelTranslatorHeaderSerivce#createTitle
      */
     @PostMapping("/one")
     public ResponseEntity<?> createExcelTranslatorHeaderTitle(@RequestBody ExcelTranslatorHeaderGetDto dto) {
@@ -73,6 +67,7 @@ public class ExcelTranslatorHeaderApiController {
      * @see ExcelTranslatorHeaderBusinessService#searchList
      */
     @GetMapping("/list")
+    @PermissionRole
     public ResponseEntity<?> searchExcelTranslatorHeader() {
         Message message = new Message();
 
@@ -132,9 +127,9 @@ public class ExcelTranslatorHeaderApiController {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (IllegalArgumentException e) {
-            throw new ExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
         } catch (NullPointerException e) {
-            throw new ExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("설정된 양식과 동일한 엑셀 파일을 업로드해주세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -155,7 +150,7 @@ public class ExcelTranslatorHeaderApiController {
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
-            throw new ExcelFileUploadException("올바르지 않은 값이 존재합니다. 다시 등록해주세요.");
+            throw new CustomExcelFileUploadException("올바르지 않은 값이 존재합니다. 다시 등록해주세요.");
         }
 
         return new ResponseEntity<>(message, message.getStatus());
@@ -211,7 +206,7 @@ public class ExcelTranslatorHeaderApiController {
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
                 try{
-                    if(detailDto == null || detailDto.getCellType().isBlank()) {
+                    if(detailDto.getCellType() == null || detailDto.getCellType().isBlank()) {
                         cell.setCellValue("");
                     }else if(detailDto.getCellType().equals("String")) {
                         cell.setCellValue(detailDto.getColData().toString());
@@ -222,7 +217,7 @@ public class ExcelTranslatorHeaderApiController {
                         cell.setCellValue((int)detailDto.getColData());
                     }
                 } catch(ParseException e) {
-                    throw new ExcelFileUploadException("데이터 변환에 오류가 생겼습니다. 다시 시도해주세요.");
+                    throw new CustomExcelFileUploadException("데이터 변환에 오류가 생겼습니다. 다시 시도해주세요.");
                 }
             }
         }

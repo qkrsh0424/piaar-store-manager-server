@@ -1,44 +1,21 @@
 package com.piaar_store_manager.server.service.order_registration;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
 import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class OrderRegistrationNaverBusinessService {
-    
-    // excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
-
-    /**
-     * <b>Extension Check</b>
-     * <p>
-     * 
-     * @param file : MultipartFile
-     * @throws FileUploadException
-     */
-    public void isExcelFile(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
-
-        if(EXTENSIONS_EXCEL.contains(extension)){
-            return;
-        }
-        throw new FileUploadException("This is not an excel file.");
-    }
 
     /**
      * <b>Data Processing Related Method</b>
@@ -49,14 +26,9 @@ public class OrderRegistrationNaverBusinessService {
      * @return List::OrderRegistrationHansanExcelFormDto::
      */
     public List<OrderRegistrationHansanExcelFormDto> uploadHansanExcelFile(MultipartFile file) {
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        Sheet sheet = workbook.getSheetAt(0);
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<OrderRegistrationHansanExcelFormDto> dtos = new ArrayList<>();
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {
@@ -141,15 +113,10 @@ public class OrderRegistrationNaverBusinessService {
      * @return List::OrderRegistrationTailoExcelFormDto::
      */
     public List<OrderRegistrationTailoExcelFormDto> uploadTailoExcelFile(MultipartFile file) {
-        
-        Workbook workbook = null;
-        try{
-            workbook = WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
-
-        Sheet sheet = workbook.getSheetAt(0);
+    
+        Integer SHEET_INDEX = 0;
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
+        Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<OrderRegistrationTailoExcelFormDto> dtos = new ArrayList<>();
 
         for(int i = 1; i < sheet.getPhysicalNumberOfRows(); i++) {

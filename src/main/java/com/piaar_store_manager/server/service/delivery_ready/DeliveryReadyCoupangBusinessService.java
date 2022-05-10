@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -27,6 +26,16 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -39,13 +48,9 @@ import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItem
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.model.delivery_ready.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.model.delivery_ready.proj.DeliveryReadyItemOptionInfoProj;
-import com.piaar_store_manager.server.model.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.service.product_option.ProductOptionService;
-import com.piaar_store_manager.server.service.product_receive.ProductReceiveBusinessService;
-import com.piaar_store_manager.server.service.product_release.ProductReleaseBusinessService;
+import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.service.option_package.OptionPackageService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.commons.io.FilenameUtils;
@@ -62,9 +67,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DeliveryReadyCoupangBusinessService {
     private final DeliveryReadyCoupangService deliveryReadyCoupangService;
-    private final ProductReleaseBusinessService productReleaseBusinessService;
-    private final ProductReceiveBusinessService productReceiveBusinessService;
+    private final ProductReleaseService productReleaseService;
+    private final ProductReceiveService productReceiveService;
     private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
+    private final UserService userService;
 
     // AWS S3
     private AmazonS3 s3Client;
@@ -83,7 +90,6 @@ public class DeliveryReadyCoupangBusinessService {
 
     @Value("${cloud.aws.s3.bucket}")
     public String bucket;
-    
     /**
      * <b>Upload Excel File</b>
      * <p>
@@ -95,7 +101,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public List<DeliveryReadyCoupangItemDto> uploadDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
         return dtos;
@@ -165,10 +171,7 @@ public class DeliveryReadyCoupangBusinessService {
     /**
      * <b>S3 Upload Setting Related Method</b>
      * <p>
-     * AWS S3 설정 메소드.
-     *
-     * @param accessKey : String
-     * @param secretKey : String
+     * AWS S3 설정 메소드
      */
     @PostConstruct
     public void setS3Client() {
@@ -186,14 +189,12 @@ public class DeliveryReadyCoupangBusinessService {
      * 업로드된 엑셀파일을 S3 및 DB에 저장한다.
      *
      * @param file : MultipartFile
-     * @param userId : UUID
-     * @return FileUploadResponse
      * @throws ParseException
      * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelFile
      * @see DeliveryReadyCoupangBusinessService#createDeliveryReadyExcelItem
      */
     @Transactional
-    public void storeDeliveryReadyExcelFile(MultipartFile file, UUID userId) throws ParseException {
+    public void storeDeliveryReadyExcelFile(MultipartFile file) throws ParseException {
         String fileName = file.getOriginalFilename();
         String newFileName = "[COUPANG_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = bucket + "/coupang-order";
@@ -209,7 +210,7 @@ public class DeliveryReadyCoupangBusinessService {
         }
 
         // 파일 저장
-        DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize(), userId);
+        DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(s3Client.getUrl(uploadPath, newFileName).toString(), newFileName, (int)file.getSize());
         // 데이터 저장
         this.createDeliveryReadyExcelItem(file, fileDto);
     }
@@ -222,12 +223,13 @@ public class DeliveryReadyCoupangBusinessService {
      * @param filePath : String
      * @param fileName : String
      * @param fileSize : Integer
-     * @param userId : UUID
      * @return DeliveryReadyFileDto
      * @see DeliveryReadyCoupangService#createFile
      * @see DeliveryReadyFileDto#toDto
      */
-    public DeliveryReadyFileDto createDeliveryReadyExcelFile(String filePath, String fileName, Integer fileSize, UUID userId) {
+    public DeliveryReadyFileDto createDeliveryReadyExcelFile(String filePath, String fileName, Integer fileSize) {
+        UUID USER_ID = userService.getUserId();
+
         // File data 생성 및 저장
         DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
             .id(UUID.randomUUID())
@@ -236,7 +238,7 @@ public class DeliveryReadyCoupangBusinessService {
             .fileSize(fileSize)
             .fileExtension(FilenameUtils.getExtension(fileName))
             .createdAt(DateHandler.getCurrentDate2())
-            .createdBy(userId)
+            .createdBy(USER_ID)
             .deleted(false)
             .build();
 
@@ -259,7 +261,7 @@ public class DeliveryReadyCoupangBusinessService {
      */
     public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) throws ParseException {
         Integer SHEET_INDEX = 0;
-        Workbook workbook = CustomExcelUtils.createWorkBook(file);
+        Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
         List<DeliveryReadyCoupangItemDto> dtos = this.getDeliveryReadyCoupangExcelItem(sheet, fileDto);
         
@@ -279,7 +281,6 @@ public class DeliveryReadyCoupangBusinessService {
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
      * @return List::DeliveryReadyCoupangItemDto::
-     * @see DeliveryReadyCoupangItemRepository#findAllProdOrderNumber
      */
     private List<DeliveryReadyCoupangItemDto> getDeliveryReadyCoupangExcelItem(Sheet worksheet, DeliveryReadyFileDto fileDto) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
@@ -370,14 +371,6 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyCoupangItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
-        // SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // Date startDate = null;
-        // Date endDate = null;
-
-        // if(query.get("startDate") != null && query.get("endDate") != null) {
-        //     startDate = dateFormat.parse(query.get("startDate").toString());
-        //     endDate = dateFormat.parse(query.get("endDate").toString());
-        // }
         Calendar startDateCalendar = Calendar.getInstance();
         startDateCalendar.set(Calendar.YEAR, 1970);
         Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
@@ -396,12 +389,10 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param itemViewProj : List::DeliveryReadyCoupangItemViewProj::
      * @return List::DeliveryReadyCoupangItemViewResDto::
-     * @see ProductOptionService#searchListByProductListOptionCode
-     * @see DeliveryReadyCoupangItemViewResDto#toResDtos
      */
     public List<DeliveryReadyCoupangItemViewResDto> changeOptionStockUnit(List<DeliveryReadyCoupangItemViewProj> itemViewProj) {
-        List<String> productOptionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductListOptionCode(productOptionCodes);
+        List<String> optionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
+        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByOptionCodes(optionCodes);
         List<DeliveryReadyCoupangItemViewResDto> itemViewResDto = new ArrayList<>();
 
         if(optionGetDtos.isEmpty()) {
@@ -462,7 +453,6 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dto : DeliveryReadyCoupangItemDto
      * @see DeliveryReadyCoupangService#searchDeliveryReadyItem
-     * @see DeliveryReadyCoupnagService#createItem
      */
     public void updateReleasedDeliveryReadyItem(DeliveryReadyCoupangItemDto dto) {
         DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchDeliveryReadyItem(dto.getCid());
@@ -495,7 +485,6 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @return List::DeliveryReadyItemOptionInfoResDto::
      * @see DeliveryReadyCoupangService#findAllOptionInfo
-     * @see DeliveryReadyItemOptionInfoProj#toResDtos
      */
     public List<DeliveryReadyItemOptionInfoResDto> searchDeliveryReadyItemOptionInfo() {
         List<DeliveryReadyItemOptionInfoProj> optionInfoProjs = deliveryReadyCoupangService.findAllOptionInfo();
@@ -529,7 +518,6 @@ public class DeliveryReadyCoupangBusinessService {
      * @param dto : DeliveryReadyCoupangItemDto
      * @see DeliveryReadyCoupangService#searchDeliveryReadyItem
      * @see DeliveryReadyCoupangService#createItem
-     * @see DeliveryReadyCoupangService#updateChangedOption
      */
     public void updateDeliveryReadyItemsOptionInfo(DeliveryReadyCoupangItemDto dto) {
         DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchDeliveryReadyItem(dto.getCid());
@@ -757,29 +745,11 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @see DeliveryReadyCoupangItemEntity#toEntity
-     * @see DeliveryReadyCoupangItemRepository#findById
-     * @see DeliveryReadyCoupangItemRepository#save
      */
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemViewDto> dtos) {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchDeliveryReadyItemList(itemCids);
         entities.stream().forEach(entity -> entity.setReleaseCompleted(true));
-        deliveryReadyCoupangService.createItemList(entities);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 재고 반영 취소 시 출고완료 값을 변경한다.
-     *
-     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @see DeliveryReadyCoupangService#searchDeliveryReadyItemList
-     * @see DeliveryReadyCoupangService#createItemList
-     */
-    public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
-        List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
-        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchDeliveryReadyItemList(itemCids);
-        entities.stream().forEach(entity -> entity.setReleaseCompleted(false));
         deliveryReadyCoupangService.createItemList(entities);
     }
 
@@ -800,31 +770,32 @@ public class DeliveryReadyCoupangBusinessService {
         deliveryReadyCoupangService.createItemList(entities);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
-     *
-     * @param dto : DeliveryReadyCoupangItemViewDto
-     * @return Integer
-     * @see ProductOptionService#findOptionCidByCode
-     */
-    public Integer getOptionCid(DeliveryReadyCoupangItemViewDto dto) {
-        return productOptionService.findOptionCidByCode(dto.getOptionManagementName());
-    }
+    // /**
+    //  * <b>DB Select Related Method</b>
+    //  * <p>
+    //  * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
+    //  *
+    //  * @param dto : DeliveryReadyCoupangItemViewDto
+    //  * @return Integer
+    //  * @see ProductOptionService#findOptionCidByCode
+    //  */
+    // public Integer getOptionCid(DeliveryReadyCoupangItemViewDto dto) {
+    //     return productOptionService.findOptionCidByCode(dto.getOptionManagementName());
+    // }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
      * 옵션관리 코드와 대응하는 상품옵션 데이터를 조회한다.
      *
-     * @param dto : List::DeliveryReadyCoupangItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
      * @return List::ProductOptionEntity::
-     * @see ProductOptionService#findAllByCode
+     * @see ProductOptionService#searchListByOptionCodes
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyCoupangItemViewDto> dtos) {
         List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
-        return productOptionService.findAllByCode(managementCodes);
+        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByOptionCodes(managementCodes);
+        return optionGetDtos.stream().map(dto -> ProductOptionEntity.toEntity(dto)).collect(Collectors.toList());
     }
     
     /**
@@ -833,69 +804,179 @@ public class DeliveryReadyCoupangBusinessService {
      * <p>
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      * 출고(재고 반영) 데이터를 생성하여 재고에 반영한다.
+     * 기본 옵션 상품과 세트 구성 상품을 분리하여 재고반영 처리한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @param userId : UUID
-     * @see DeliveryReadyNaveBusinessService#updateListReleaseCompleted
-     * @see DeliveryReadyNaveBusinessService#getOptionByCode
-     * @see ProductReleaseGetDto#toDto
-     * @see productReleaseBusinessService#createPLList
+     * @see DeliveryReadyCoupangBusinessService#updateListReleaseCompleted
+     * @see DeliveryReadyCoupangBusinessService#getOptionByCode
+     * @see DeliveryReadyCoupangBusinessService#reflectStockUnitOfPackageOption
      */
     @Transactional
-    public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+    public void releaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
         // 재고반영이 선행되지 않은 데이터들만 재고 반영
-        List<DeliveryReadyCoupangItemViewDto> unreleasedDtos = dtos.stream().filter(dto -> !dto.getDeliveryReadyItem().getReleaseCompleted()).collect(Collectors.toList());
+        List<DeliveryReadyCoupangItemViewDto> unreleasedDtos = dtos.stream().filter(dto -> ((!dto.getDeliveryReadyItem().getReleaseCompleted()) && (dto.getOptionManagementName() != null))).collect(Collectors.toList());
         this.updateListReleaseCompleted(unreleasedDtos, true);
-
-        // 옵션데이터 추출
+        
+        // 출고 옵션데이터 추출
         List<ProductOptionEntity> optionEntities = this.getOptionByCode(unreleasedDtos);
-        List<ProductReleaseGetDto> productReleaseGetDtos = new ArrayList<>();
+        // 1. 세트상품 X
+        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        // 2. 세트상품 O
+        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
+        this.reflectStockUnit(unreleasedDtos, originOptionEntities);
+
+        if (parentOptionEntities.size() > 0) {
+            this.reflectStockUnitOfPackageOption(unreleasedDtos, parentOptionEntities);
+        }
+    }
+
+    public void reflectStockUnit(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+        
+        // 1. 세트상품이 아닌 애들 재고반영
+        List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
         // 출고데이터 설정 및 생성
-        unreleasedDtos.stream().forEach(dto -> {
-            optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
-                    ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.toDto(dto, option.getCid());
-                    productReleaseGetDtos.add(releaseGetDto);
+        unreleasedDtos.forEach(dto -> {
+            originOptionEntities.forEach(option -> {
+                if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
+                    ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                            .id(UUID.randomUUID())
+                            .releaseUnit(dto.getDeliveryReadyItem().getUnit())
+                            .memo(dto.getReleaseMemo())
+                            .createdAt(CustomDateUtils.getCurrentDateTime())
+                            .createdBy(USER_ID)
+                            .productOptionCid(option.getCid())
+                            .productOptionId(option.getId())
+                            .build();
+
+                    productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
                 }
             });
         });
-        productReleaseBusinessService.createPLList(productReleaseGetDtos, userId);
+        productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
+    public void reflectStockUnitOfPackageOption(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+
+        // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
+        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
+        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+        List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
+        unreleasedDtos.forEach(dto -> {
+            parentOptionEntities.forEach(parentOption -> {
+                if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(parentOption.getCode())) {
+                    optionPackageEntities.forEach(option -> {
+                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                            ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                                .id(UUID.randomUUID())
+                                .releaseUnit(option.getPackageUnit() * dto.getDeliveryReadyItem().getUnit())
+                                .memo(dto.getReleaseMemo())
+                                .createdAt(CustomDateUtils.getCurrentDateTime())
+                                .createdBy(USER_ID)
+                                .productOptionCid(option.getOriginOptionCid())
+                                .productOptionId(option.getOriginOptionId())
+                                .build();
+                            
+                            productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+                        }
+                    });
+                }
+            });
+        });
+        productReleaseService.saveListAndModify(productReleaseEntities);
+    }
+    
     /**
      * <b>Update data for delivery ready.</b>
      * <b>Cancel the stock unit reflection of product options.</b>
      * <p>
      * 배송준비 데이터의 출고완료 항목을 업데이트한다.
      * 입고(재고 반영 취소) 데이터를 생성하여 재고에 반영한다.
+     * 기본 옵션 상품과 세트 구성 상품을 분리하여 재고반영 취소 처리한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemViewDto::
-     * @param userId : UUID
      * @see DeliveryReadyCoupangBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangBusinessService#getOptionByCode
-     * @see ProductReceiveGetDto#toDto
-     * @see productReceiveBusinessService#createPRList
+     * @see DeliveryReadyCoupangBusinessService#cancelReflectedStockUnitOfPackageOption
      */
     @Transactional
-    public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos, UUID userId) {
+    public void cancelReleaseListStockUnit(List<DeliveryReadyCoupangItemViewDto> dtos) {
         // 재고 반영이 선행된 데이터들만 재고 반영
-        List<DeliveryReadyCoupangItemViewDto> releasedDtos = dtos.stream().filter(dto -> dto.getDeliveryReadyItem().getReleaseCompleted()).collect(Collectors.toList());
+        List<DeliveryReadyCoupangItemViewDto> releasedDtos = dtos.stream().filter(dto -> (dto.getDeliveryReadyItem().getReleaseCompleted()) && (dto.getOptionManagementName() != null)).collect(Collectors.toList());
         this.updateListReleaseCompleted(releasedDtos, false);
 
         // 옵션데이터 추출
         List<ProductOptionEntity> optionEntities = this.getOptionByCode(releasedDtos);
-        List<ProductReceiveGetDto> productReceiveGetDtos = new ArrayList<>();
+        // 1. 세트상품 X
+        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        // 2. 세트상품 O
+        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
+        this.cancelReflectedStockUnit(releasedDtos, originOptionEntities);
+
+        if(parentOptionEntities.size() > 0) {
+            this.cancelReflectedStockUnitOfPackageOption(releasedDtos, parentOptionEntities);
+        }
+    }
+
+    public void cancelReflectedStockUnit(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+        
+        // 1. 세트상품이 아닌 애들 재고반영
+        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
         // 출고 취소데이터 설정 및 생성
-        releasedDtos.stream().forEach(dto -> {
-            optionEntities.stream().forEach(option -> {
-                if(dto.getOptionManagementName() != null && dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())){
-                    ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.toDto(dto, option.getCid());
-                    productReceiveGetDtos.add(receiveGetDto);
+        unreleasedDtos.stream().forEach(dto -> {
+            originOptionEntities.stream().forEach(option -> {
+                if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
+                    ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                            .id(UUID.randomUUID())
+                            .receiveUnit(dto.getDeliveryReadyItem().getUnit())
+                            .memo(dto.getReceiveMemo())
+                            .createdAt(CustomDateUtils.getCurrentDateTime())
+                            .createdBy(USER_ID)
+                            .productOptionCid(option.getCid())
+                            .build();
+
+                    productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
                 }
             });
         });
-        productReceiveBusinessService.createPRList(productReceiveGetDtos, userId);
+        productReceiveService.saveListAndModify(productReceiveEntities);
+    }
+
+    public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyCoupangItemViewDto> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
+        UUID USER_ID = userService.getUserId();
+
+        // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
+        List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
+        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+        unreleasedDtos.stream().forEach(dto -> {
+            parentOptionEntities.stream().forEach(parentOption -> {
+                if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(parentOption.getCode())) {
+                    optionPackageEntities.stream().forEach(option -> {
+                        if(option.getParentOptionId().equals(parentOption.getId())) {
+                            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                                .id(UUID.randomUUID())
+                                .receiveUnit(option.getPackageUnit() * dto.getDeliveryReadyItem().getUnit())
+                                .memo(dto.getReceiveMemo())
+                                .createdAt(CustomDateUtils.getCurrentDateTime())
+                                .createdBy(USER_ID)
+                                .productOptionCid(option.getOriginOptionCid())
+                                .build();
+                            
+                            productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+                        }
+                    });
+                }
+            });
+        });
+        productReceiveService.saveListAndModify(productReceiveEntities);
     }
 }

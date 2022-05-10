@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.user.entity.UserEntity;
+import com.piaar_store_manager.server.domain.user.entity.UserEntity;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

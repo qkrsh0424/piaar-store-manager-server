@@ -9,12 +9,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.ServerApplication;
-import com.piaar_store_manager.server.controller.api.ProductReleaseApiController;
+import com.piaar_store_manager.server.domain.product_release.controller.ProductReleaseApiController;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseRepository;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.model.product_release.entity.ProductReleaseEntity;
-import com.piaar_store_manager.server.model.product_release.repository.ProductReleaseRepository;
-import com.piaar_store_manager.server.service.user.UserService;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

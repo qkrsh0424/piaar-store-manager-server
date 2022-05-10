@@ -2,9 +2,11 @@ package com.piaar_store_manager.server.controller.api;
 
 import java.io.IOException;
 
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.page_view.naver_analytics.NAPageViewService;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -21,9 +23,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/page-view")
+@RequiredArgsConstructor
+@RequiredLogin
 public class PageViewApiController {
-    @Autowired
-    NAPageViewService naPageViewService;
+
+    private final NAPageViewService naPageViewService;
 
     @PostMapping("/na/popular-page/excel/read")
     public ResponseEntity<?> readPageViewNAPopularPageExcel(@RequestParam("file") MultipartFile file)

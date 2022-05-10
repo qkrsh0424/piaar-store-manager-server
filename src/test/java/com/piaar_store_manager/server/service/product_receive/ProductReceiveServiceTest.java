@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.model.product_option.repository.ProductOptionRepository;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.model.product_receive.dto.ProductReceiveJoinResDto;
-import com.piaar_store_manager.server.model.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.model.product_receive.repository.ProductReceiveRepository;
-import com.piaar_store_manager.server.service.user.UserService;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+// import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveJoinResDto;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

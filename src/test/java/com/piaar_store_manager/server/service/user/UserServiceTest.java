@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.service.user;
 
-import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
+import com.piaar_store_manager.server.domain.user.dto.SignupReqDto;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

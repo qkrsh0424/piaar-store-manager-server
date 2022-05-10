@@ -1,11 +1,12 @@
 package com.piaar_store_manager.server.service.commute_record;
 
-import com.piaar_store_manager.server.exception.InvalidUserException;
-import com.piaar_store_manager.server.exception.NotMatchedParamsException;
+import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.exception.CustomInvalidUserException;
+import com.piaar_store_manager.server.exception.CustomNotMatchedParamsException;
 import com.piaar_store_manager.server.model.commute_record.CommuteRecordInterface;
 import com.piaar_store_manager.server.model.commute_record.dto.CommuteRecordGetDto;
 import com.piaar_store_manager.server.model.commute_record.entity.CommuteRecordEntity;
-import com.piaar_store_manager.server.service.user.UserService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class CommuteRecordBusinessService {
 
     public Object searchTodayRecordStrict() {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인 상태를 체크해 주세요.");
+            throw new CustomInvalidUserException("로그인 상태를 체크해 주세요.");
         }
         UUID userId = userService.getUserId();
 
@@ -47,7 +48,7 @@ public class CommuteRecordBusinessService {
 
     public void setWorkStart(Map<String, Object> params) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인 상태를 체크해 주세요.");
+            throw new CustomInvalidUserException("로그인 상태를 체크해 주세요.");
         }
 
         Object idObj = params.get("id");
@@ -56,7 +57,7 @@ public class CommuteRecordBusinessService {
         try {
             id = UUID.fromString(idObj.toString());
         } catch (IllegalStateException | NullPointerException e) {
-            throw new NotMatchedParamsException("요청 데이터가 잘못되었습니다.");
+            throw new CustomNotMatchedParamsException("요청 데이터가 잘못되었습니다.");
         }
 
         Date currDate = Calendar.getInstance().getTime();
@@ -67,13 +68,13 @@ public class CommuteRecordBusinessService {
                     entity.setStatus(CommuteRecordInterface.STATUS_NORMAL);
                     return entity;
                 })
-                .orElseThrow(() -> new NotMatchedParamsException("요청 데이터가 잘못되었습니다."));
+                .orElseThrow(() -> new CustomNotMatchedParamsException("요청 데이터가 잘못되었습니다."));
         commuteRecordService.createAndModify(commuteRecordEntity);
     }
 
     public void setWorkEnd(Map<String, Object> params) {
         if (!userService.isUserLogin()) {
-            throw new InvalidUserException("로그인 상태를 체크해 주세요.");
+            throw new CustomInvalidUserException("로그인 상태를 체크해 주세요.");
         }
 
         Object idObj = params.get("id");
@@ -82,7 +83,7 @@ public class CommuteRecordBusinessService {
         try {
             id = UUID.fromString(idObj.toString());
         } catch (IllegalStateException | NullPointerException e) {
-            throw new NotMatchedParamsException("요청 데이터가 잘못되었습니다.");
+            throw new CustomNotMatchedParamsException("요청 데이터가 잘못되었습니다.");
         }
 
         Date currDate = Calendar.getInstance().getTime();
@@ -92,7 +93,7 @@ public class CommuteRecordBusinessService {
                     entity.setWorkEndDate(currDate);
                     return entity;
                 })
-                .orElseThrow(() -> new NotMatchedParamsException("요청 데이터가 잘못되었습니다."));
+                .orElseThrow(() -> new CustomNotMatchedParamsException("요청 데이터가 잘못되었습니다."));
         commuteRecordService.createAndModify(commuteRecordEntity);
     }
 }

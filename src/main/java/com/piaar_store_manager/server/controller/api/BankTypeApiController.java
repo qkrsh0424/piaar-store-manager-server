@@ -1,8 +1,10 @@
 package com.piaar_store_manager.server.controller.api;
 
-import com.piaar_store_manager.server.model.message.Message;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.service.bank_type.BankTypeService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/bank-type")
+@RequiredArgsConstructor
+@RequiredLogin
 public class BankTypeApiController {
-    @Autowired
-    BankTypeService bankTypeService;
+
+    private final BankTypeService bankTypeService;
 
     /**
      * Search all list for bankType

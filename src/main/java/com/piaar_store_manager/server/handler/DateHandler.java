@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DateHandler {
-    public Date getCurrentDate(){
+    public static Date getCurrentDate(){
         Date date = Calendar.getInstance().getTime();
         return date;
     }

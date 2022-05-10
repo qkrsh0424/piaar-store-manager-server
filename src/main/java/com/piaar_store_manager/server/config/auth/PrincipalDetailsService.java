@@ -2,8 +2,8 @@ package com.piaar_store_manager.server.config.auth;
 
 import java.util.Optional;
 
-import com.piaar_store_manager.server.model.user.entity.UserEntity;
-import com.piaar_store_manager.server.model.user.repository.UserRepository;
+import com.piaar_store_manager.server.domain.user.entity.UserEntity;
+import com.piaar_store_manager.server.domain.user.repository.UserRepository;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
