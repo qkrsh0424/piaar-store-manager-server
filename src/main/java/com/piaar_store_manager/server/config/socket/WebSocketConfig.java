@@ -45,7 +45,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(
-                        "http://localhost:3000"
+                        "http://localhost:3000",
+                        "http://www.piaar.co.kr",
+                        "https://www.piaar.co.kr",
+                        "http://dev.www.piaar.co.kr",
+                        "https://dev.www.piaar.co.kr"
                 )
                 .withSockJS()
         ;
