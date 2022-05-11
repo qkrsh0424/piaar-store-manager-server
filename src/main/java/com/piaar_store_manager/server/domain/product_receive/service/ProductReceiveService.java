@@ -7,6 +7,7 @@ import java.util.Optional;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,7 @@ public class ProductReceiveService {
         if (receiveEntityOpt.isPresent()) {
             return receiveEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -47,7 +48,7 @@ public class ProductReceiveService {
         if(productReceiveProjOpt.isPresent()) {
             return productReceiveProjOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 

@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.entity.DeliveryReadyCoupangItemEntity;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.proj.DeliveryReadyCoupangItemViewProj;
@@ -144,7 +145,7 @@ public class DeliveryReadyCoupangService {
         if (itemEntityOpt.isPresent()) {
             return itemEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 

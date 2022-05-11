@@ -36,14 +36,9 @@ public class OptionPackageApiController {
     public ResponseEntity<?> searchListByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId) {
         Message message = new Message();
 
-        try {
-            message.setData(optionPackageBusinessService.searchListByParentOptionId(parentOptionId));
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (NullPointerException e) {
-            message.setStatus(HttpStatus.NOT_FOUND);
-            message.setMessage("Not found optionId=" + parentOptionId + " value.");
-        }
+        message.setData(optionPackageBusinessService.searchListByParentOptionId(parentOptionId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

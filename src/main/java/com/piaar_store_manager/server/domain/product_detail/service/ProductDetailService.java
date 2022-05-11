@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.piaar_store_manager.server.domain.product_detail.entity.ProductDetailEntity;
 import com.piaar_store_manager.server.domain.product_detail.repository.ProductDetailRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class ProductDetailService {
         if (detailEntityOpt.isPresent()) {
             return detailEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 

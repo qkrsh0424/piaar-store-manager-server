@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.model.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
 import com.piaar_store_manager.server.model.excel_translator_header.repository.ExcelTranslatorHeaderRepository;
 
@@ -49,7 +50,7 @@ public class ExcelTranslatorHeaderService {
         if (headerEntityOpt.isPresent()) {
             return headerEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 

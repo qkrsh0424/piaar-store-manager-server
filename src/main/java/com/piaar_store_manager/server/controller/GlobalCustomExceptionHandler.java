@@ -43,7 +43,7 @@ public class GlobalCustomExceptionHandler {
 
     /**
      * 데이터를 찾을 수 없을 때
-     * http status 403
+     * http status 404
      */
     @ExceptionHandler({ CustomNotFoundDataException.class })
     public ResponseEntity<?> customNotFoundExceptionHandler(CustomNotFoundDataException e) {

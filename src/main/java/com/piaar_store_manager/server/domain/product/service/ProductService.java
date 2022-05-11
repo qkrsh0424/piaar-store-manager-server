@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product.repository.ProductRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class ProductService {
         if (productEntityOpt.isPresent()) {
             return productEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -44,7 +45,7 @@ public class ProductService {
         if(productProjOpt.isPresent()) {
             return productProjOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 

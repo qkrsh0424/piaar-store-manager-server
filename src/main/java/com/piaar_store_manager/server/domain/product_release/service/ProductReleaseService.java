@@ -10,6 +10,7 @@ import com.piaar_store_manager.server.domain.product_release.entity.ProductRelea
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseCustomJdbc;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class ProductReleaseService {
         if (releaseEntityOpt.isPresent()) {
             return releaseEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 
