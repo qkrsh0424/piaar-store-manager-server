@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
+
 import org.hibernate.annotations.Type;
 
 import lombok.Data;
@@ -59,5 +61,42 @@ public class UserEntity {
             return Arrays.asList(this.roles.split(","));
         }
         return new ArrayList<>();
+    }
+
+    public boolean hasPermissionRole(String permissionRole) {
+        List<String> userRole = this.getRoleList();
+
+        int allowedAccessLevel = 0;
+        if(userRole.contains("ROLE_SUPERADMIN")){
+            allowedAccessLevel = 4;
+        }else if(userRole.contains("ROLE_ADMIN")) {
+            allowedAccessLevel = 3;
+        }else if(userRole.contains("ROLE_MANAGER")) {
+            allowedAccessLevel = 2;
+        }else if(userRole.contains("ROLE_USER")) {
+            allowedAccessLevel = 1;
+        }
+
+        int roleAccessLevel = 0;
+        switch(permissionRole) {
+            case "ROLE_SUPERADMIN":
+                roleAccessLevel = 4;
+                break;
+            case "ROLE_ADMIN":
+                roleAccessLevel = 3;
+                break;
+            case "ROLE_MANAGER":
+                roleAccessLevel = 2;
+                break;
+            case "ROLE_USER":
+                roleAccessLevel = 1;
+                break;
+        }
+
+        if(allowedAccessLevel >= roleAccessLevel) {
+            return true;
+        }else {
+            return false;
+        }
     }
 }
