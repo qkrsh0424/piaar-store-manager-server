@@ -135,6 +135,17 @@ public class ExcelTranslatorHeaderApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PostMapping("/upload/download-header")
+    public ResponseEntity<?> uploadDownloadHeaderExcelFile(@RequestParam("file") MultipartFile file) {
+        Message message = new Message();
+
+        message.setData(excelTranslatorHeaderBusinessService.uploadDownloadHeaderExcelFile(file));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Change one api for upload detail of excel translator header.
      * 

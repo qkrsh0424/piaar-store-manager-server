@@ -172,6 +172,37 @@ public class ExcelTranslatorHeaderBusinessService {
         return dtos;
     }
 
+    public UploadExcelDataGetDto uploadDownloadHeaderExcelFile(MultipartFile file) {
+        Workbook workbook = null;
+        try{
+            workbook = WorkbookFactory.create(file.getInputStream());
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+
+        Sheet sheet = workbook.getSheetAt(0);
+        Row headerRow = sheet.getRow(0);
+
+        List<UploadedDetailDto> detailDtos = new ArrayList<>();
+        for(int j = 0; j < headerRow.getLastCellNum(); j++) {
+            Cell cell = headerRow.getCell(j);
+            Object cellObj = new Object();
+
+            if(cell == null || cell.getCellType().equals(CellType.BLANK)) {
+                cellObj = "";
+            } else {
+                cellObj = cell.getStringCellValue();
+            }
+
+            UploadedDetailDto detailDto = UploadedDetailDto.builder().id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();  
+            detailDtos.add(detailDto);
+        }
+        UploadExcelDataDetailDto uploadedData = UploadExcelDataDetailDto.builder().details(detailDtos).build();
+        UploadExcelDataGetDto dataDto = UploadExcelDataGetDto.builder().id(UUID.randomUUID()).uploadedData(uploadedData).build();
+
+        return dataDto;
+    }
+
     /**
      * <b>DB Update Related Method</b>
      * 엑셀 변환기 헤더 데이터의 업로드 헤더 상세를 업데이트한다.
