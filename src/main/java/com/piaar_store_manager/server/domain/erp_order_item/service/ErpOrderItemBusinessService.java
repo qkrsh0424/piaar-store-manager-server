@@ -317,7 +317,7 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setSalesYn(dto.getSalesYn()).setSalesAt(dto.getSalesAt());
+                entity.setSalesYn(dto.getSalesYn()).setSalesAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -346,7 +346,7 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(dto.getReleaseAt());
+                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
