@@ -16,6 +16,7 @@ import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemPro
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -216,6 +217,8 @@ public class ErpOrderItemVo {
         Integer PIAAR_ERP_ORDER_ITEM_SIZE = 34;
         Integer PIAAR_ERP_ORDER_MEMO_START_INDEX = 24;
 
+        List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
+
         List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
                 "피아르 고유번호",
                 "상품명",
@@ -254,22 +257,10 @@ public class ErpOrderItemVo {
         );
 
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
-
-        Row firstRow = worksheet.getRow(0);
-        // 피아르 엑셀 양식 검사
-        for (int i = 0; i < PIAAR_ERP_ORDER_ITEM_SIZE; i++) {
-            Cell cell = firstRow.getCell(i);
-            String headerName = cell != null ? cell.getStringCellValue() : null;
-            // 지정된 양식이 아니라면
-            if (!PIAAR_ERP_ORDER_HEADER_NAME_LIST.get(i).equals(headerName)) {
-                throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
-            }
-        }
-
+        
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
-            if (row == null)
-                break;
+            if (row == null) break;
 
             Object cellValue = new Object();
             List<String> customManagementMemo = new ArrayList<>();
@@ -305,6 +296,14 @@ public class ErpOrderItemVo {
 
             // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
             String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());
+
+            // 피아르 양식 필수값 검사
+            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
+                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
+                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
+                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                }
+            }            
 
             ErpOrderItemVo excelVo = ErpOrderItemVo.builder()
                     .uniqueCode(null)
