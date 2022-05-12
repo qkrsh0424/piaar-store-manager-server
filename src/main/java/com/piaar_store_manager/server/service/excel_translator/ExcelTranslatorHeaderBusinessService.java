@@ -11,6 +11,8 @@ import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadExcelDataDetailDto;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadExcelDataGetDto;
 import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadedDetailDto;
+import com.piaar_store_manager.server.model.excel_translator_header.dto.DownloadDetailDto;
+import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
 import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
 import com.piaar_store_manager.server.model.excel_translator_header.dto.UploadDetailDto;
 import com.piaar_store_manager.server.model.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
@@ -214,6 +216,12 @@ public class ExcelTranslatorHeaderBusinessService {
     public void updateUploadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setUploadHeaderDetail(dto.getUploadHeaderDetail());
+
+        // 업로드 헤더가 변경된다면 다운로드 헤더를 초기화
+        ExcelTranslatorDownloadHeaderDetailDto downloadDetail = new ExcelTranslatorDownloadHeaderDetailDto();
+        List<DownloadDetailDto> details = new ArrayList<>();
+        downloadDetail.setDetails(details);
+        entity.setDownloadHeaderDetail(downloadDetail);
 
         excelTranslatorHeaderService.saveOne(entity);
     }
