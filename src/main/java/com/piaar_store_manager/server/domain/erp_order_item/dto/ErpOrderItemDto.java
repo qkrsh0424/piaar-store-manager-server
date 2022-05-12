@@ -147,7 +147,7 @@ public class ErpOrderItemDto {
     private String freightCode; // 운송코드
 
     @Setter
-    private String salesYn;  // 판매등록일
+    private String salesYn;
 
     @Setter
     private LocalDateTime salesAt;

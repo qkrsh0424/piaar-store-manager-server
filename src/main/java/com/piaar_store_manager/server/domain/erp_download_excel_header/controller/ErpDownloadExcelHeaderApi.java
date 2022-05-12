@@ -1,12 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.controller;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jboss.jandex.Index;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,6 +22,7 @@ import com.piaar_store_manager.server.domain.erp_download_excel_header.service.E
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 
@@ -152,7 +150,11 @@ public class ErpDownloadExcelHeaderApi {
                 if (headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName().equals("freightCode")) {
                     cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
                 } else {
-                    cellValue = CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName());
+                    if(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()).getClass().equals(LocalDateTime.class)) {
+                        cellValue = CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()));
+                    }else {
+                        cellValue = CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName());
+                    }
                 }
                 cell = row.createCell(j);
                 cell.setCellValue(cellValue);

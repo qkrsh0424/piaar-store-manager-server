@@ -3,20 +3,17 @@ package com.piaar_store_manager.server.domain.erp_order_item.vo;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -219,42 +216,42 @@ public class ErpOrderItemVo {
 
         List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
 
-        List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
-                "피아르 고유번호",
-                "상품명",
-                "옵션정보",
-                "수량",
-                "수취인명",
-                "전화번호1",
-                "전화번호2",
-                "주소",
-                "판매채널",
-                "판매채널 주문번호1",
-                "판매채널 주문번호2",
-                "판매채널 상품코드",
-                "판매채널 옵션코드",
-                "우편번호",
-                "택배사",
-                "배송방식",
-                "배송메세지",
-                "운송장번호",
-                "판매금액",
-                "배송비",
-                "바코드",
-                "피아르 상품코드",
-                "피아르 옵션코드",
-                "출고 옵션코드",
-                "관리메모1",
-                "관리메모2",
-                "관리메모3",
-                "관리메모4",
-                "관리메모5",
-                "관리메모6",
-                "관리메모7",
-                "관리메모8",
-                "관리메모9",
-                "관리메모10"
-        );
+        // List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
+        //         "피아르 고유번호",
+        //         "상품명",
+        //         "옵션정보",
+        //         "수량",
+        //         "수취인명",
+        //         "전화번호1",
+        //         "전화번호2",
+        //         "주소",
+        //         "판매채널",
+        //         "판매채널 주문번호1",
+        //         "판매채널 주문번호2",
+        //         "판매채널 상품코드",
+        //         "판매채널 옵션코드",
+        //         "우편번호",
+        //         "택배사",
+        //         "배송방식",
+        //         "배송메세지",
+        //         "운송장번호",
+        //         "판매금액",
+        //         "배송비",
+        //         "바코드",
+        //         "피아르 상품코드",
+        //         "피아르 옵션코드",
+        //         "출고 옵션코드",
+        //         "관리메모1",
+        //         "관리메모2",
+        //         "관리메모3",
+        //         "관리메모4",
+        //         "관리메모5",
+        //         "관리메모6",
+        //         "관리메모7",
+        //         "관리메모8",
+        //         "관리메모9",
+        //         "관리메모10"
+        // );
 
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
         
@@ -274,10 +271,10 @@ public class ErpOrderItemVo {
                 } else if (cell.getCellType().equals(CellType.NUMERIC)) {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
-                        LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+
                         // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
-                        String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        cellValue = newDate;
+                        cellValue = CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(localDateTime);
                     } else {
                         cellValue = cell.getNumericCellValue();
                     }

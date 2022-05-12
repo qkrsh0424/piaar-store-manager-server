@@ -26,4 +26,9 @@ public class CustomDateUtils {
         Date date = Calendar.getInstance().getTime();
         return date;
     }
+
+    // yyyy-MM-dd HH:mm:ss
+    public static String getLocalDateTimeToyyyyMMddHHmmss(LocalDateTime localDateTime) {
+        return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
 }

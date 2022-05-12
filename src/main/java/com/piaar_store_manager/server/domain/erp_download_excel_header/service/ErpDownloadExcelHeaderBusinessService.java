@@ -134,6 +134,7 @@ public class ErpDownloadExcelHeaderBusinessService {
         // 선택된 병합 헤더데이터 조회
         ErpDownloadExcelHeaderDto headerDto = this.searchErpDownloadExcelHeader(id);
 
+        // 병합 여부가 y인 데이터들의 컬럼명, 구분자 추출
         Map<String, String> splitterMap = headerDto.getHeaderDetail().getDetails().stream()
                 .filter(r -> r.getMergeYn().equals("y")).collect(Collectors.toList())
                 .stream().collect(Collectors.toMap(
@@ -147,9 +148,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                         r -> r.getMatchedColumnName(),
                         r -> r.getFixedValue()));
 
-        // 2. 수령인 동일하면 |&&|구분자로 병합해서 나열.
         List<ErpOrderItemVo> mergeItemVos = new ArrayList<>();
-
         for (int k = 0; k < erpDownloadOrderItemDtos.size(); k++) {
             // downloadDto의 k번쨰 collection
             List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(k).getCollections();
@@ -161,22 +160,22 @@ public class ErpDownloadExcelHeaderBusinessService {
                     .thenComparing(ErpOrderItemVo::getProdName)
                     .thenComparing(ErpOrderItemVo::getOptionName));
 
+            // 구분자로 데이터들 병합
             for (int i = 0; i < itemVos.size() && i < dtos.size(); i++) {
                 ErpOrderItemVo currentVo = itemVos.get(i);
                 ErpOrderItemDto originDto = dtos.get(i);
 
                 // 1. splitter로 나타낼 데이터 컬럼을 추출
                 splitterMap.entrySet().stream().forEach(mergeMap -> {
-                    // viewDetails
+                    // detailDto에 splitter로 구분지을 컬럼을 가진 viewDetails 존재. 이를 추출
                     DetailDto matchedDetail = headerDto.getHeaderDetail().getDetails().stream()
                             .filter(r -> r.getMatchedColumnName().equals(mergeMap.getKey()))
                             .collect(Collectors.toList()).get(0);
+
                     String appendFieldValue = "";
 
                     for (int j = 0; j < matchedDetail.getViewDetails().size(); j++) {
-                        appendFieldValue += CustomFieldUtils
-                                .getFieldValue(originDto, matchedDetail.getViewDetails().get(j).getMatchedColumnName())
-                                .toString();
+                        appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedDetail.getViewDetails().get(j).getMatchedColumnName()).toString();
                         if (j < matchedDetail.getViewDetails().size() - 1) {
                             appendFieldValue += mergeMap.getValue().toString();
                         }
@@ -185,6 +184,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                 });
             }
 
+            // 합배송 처리
             Set<String> deliverySet = new HashSet<>();
             for (int i = 0; i < itemVos.size(); i++) {
                 StringBuilder sb = new StringBuilder();
@@ -202,6 +202,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                     ErpOrderItemVo currentVo = mergeItemVos.get(currentMergeItemIndex);
                     ErpOrderItemVo prevVo = mergeItemVos.get(currentMergeItemIndex - 1);
 
+                    // 구분자로 이미 데이터를 병합해놓았으므로 그 데이터를 가져온다.
                     splitterMap.entrySet().stream().forEach(mergeMap -> {
                         String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, mergeMap.getKey()) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, mergeMap.getKey());
                         String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, mergeMap.getKey()) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, mergeMap.getKey());
