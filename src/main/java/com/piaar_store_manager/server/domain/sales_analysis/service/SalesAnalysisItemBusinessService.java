@@ -37,7 +37,7 @@ public class SalesAnalysisItemBusinessService {
         List<SalesAnalysisItemProj> salesItemList = itemRepository.findSalesAnalysisItem(startDate, endDate);
         List<SalesAnalysisItemDto> salesItemDtos = salesItemList.stream().map(proj -> SalesAnalysisItemDto.toDto(proj)).collect(Collectors.toList());
 
-        salesItemDtos.stream().forEach(r -> r.setTotalSalesUnit(r.getNaverSalesUnit() + r.getCoupangSalesUnit()));
+        salesItemDtos.stream().forEach(r -> r.setTotalSalesUnit(r.getNaverSalesUnit() + r.getCoupangSalesUnit() + r.getErpSalesUnit()));
         salesItemDtos.sort(Comparator.comparing(SalesAnalysisItemDto::getTotalSalesUnit).reversed());
 
         return salesItemDtos;

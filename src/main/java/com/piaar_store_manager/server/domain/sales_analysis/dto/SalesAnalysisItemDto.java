@@ -25,6 +25,7 @@ public class SalesAnalysisItemDto {
     private String salesProdImageUrl;
     private Integer naverSalesUnit;
     private Integer coupangSalesUnit;
+    private Integer erpSalesUnit;
     
     private String categoryName;
     @Setter
@@ -40,6 +41,7 @@ public class SalesAnalysisItemDto {
             .salesProdImageUrl(proj.getProduct().getImageUrl())
             .naverSalesUnit(proj.getDeliveryReadyNaverSalesUnit())
             .coupangSalesUnit(proj.getDeliveryReadyCoupangSalesUnit())
+            .erpSalesUnit(proj.getErpSalesUnit())
             .salesOptionPrice(proj.getProductOption().getSalesPrice())
             .categoryName(proj.getProductCategory().getName())
             .salesProductId(proj.getProduct().getId())

@@ -11,4 +11,5 @@ public interface SalesAnalysisItemProj {
     
     Integer getDeliveryReadyNaverSalesUnit();
     Integer getDeliveryReadyCoupangSalesUnit();
+    Integer getErpSalesUnit();
 }
