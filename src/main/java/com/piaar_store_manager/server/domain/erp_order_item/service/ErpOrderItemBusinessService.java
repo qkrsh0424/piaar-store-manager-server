@@ -852,7 +852,7 @@ public class ErpOrderItemBusinessService {
      * TODO : 현재 세트상품과 세트상품이 아닌 데이터들을 구분해서 insert 쿼리를 날리는데 이렇게되면 insert쿼리가 두번이 나누어져서 던져지게됨. 세트상품을 먼저 분해해서 일반 옵션 엔터티로 만들어서 한번에 던지는게 낫지않을까?
      */
     @Transactional
-    public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos) {
+    public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos, Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
@@ -876,12 +876,13 @@ public class ErpOrderItemBusinessService {
         // 2. 세트상품 O
         List<ProductOptionEntity> parentOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities));
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities, memo));
         count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities));
         return count.get();
     }
 
-    public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities) {
+    public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities, String memo) {
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -894,7 +895,7 @@ public class ErpOrderItemBusinessService {
                     releaseEntity.setId(UUID.randomUUID());
                     releaseEntity.setErpOrderItemId(orderItemEntity.getId());
                     releaseEntity.setReleaseUnit(orderItemEntity.getUnit());
-                    releaseEntity.setMemo("");
+                    releaseEntity.setMemo(memo);
                     releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
                     releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
                     releaseEntity.setProductOptionCid(optionEntity.getCid());
