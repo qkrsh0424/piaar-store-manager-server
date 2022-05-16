@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDefDto;
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDto;
 import com.piaar_store_manager.server.domain.account_book.service.AccountBookService;
 import com.piaar_store_manager.server.domain.message.Message;
 
@@ -38,9 +38,6 @@ public class AccountBookApiController {
      * <b>GET : API URL => /api/v1/account-book/list</b>
      *
      * @param query : Map[accountBookType, bankType, startDate, endDate, currPage]
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
      * @see AccountBookService#searchList
      * @see AccountBookService#searchPagenation
      */
@@ -61,20 +58,17 @@ public class AccountBookApiController {
      * <p>
      * <b>POST : API URL => /api/v1/account-book/list</b>
      *
-     * @param accountBookDefDtos : List
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
-     * @see AccountBookDefDto
+     * @param accountBookDtos : List::AccountBookDto::
      * @see AccountBookService#createList
      */
+    @PermissionRole
     @PostMapping("/list")
-    public ResponseEntity<?> createList(@RequestBody List<AccountBookDefDto> accountBookDefDtos) {
+    public ResponseEntity<?> createList(@RequestBody List<AccountBookDto> accountBookDtos) {
         Message message = new Message();
 
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
-        accountBookService.createList(accountBookDefDtos);
+        accountBookService.createList(accountBookDtos);
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -87,9 +81,6 @@ public class AccountBookApiController {
      * <b>GET : API URL => /api/v1/account-book/sum/income</b>
      *
      * @param query : Map[accountBookType, bankType, startDate, endDate]
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
      * @see AccountBookService#getSumIncome
      */
     @GetMapping("/sum/income")
@@ -110,9 +101,6 @@ public class AccountBookApiController {
      * <b>GET : API URL => /api/v1/account-book/sum/expenditure</b>
      *
      * @param query : Map[accountBookType, bankType, startDate, endDate]
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
      * @see AccountBookService#getSumExpenditure
      */
     @GetMapping("/sum/expenditure")
@@ -133,9 +121,6 @@ public class AccountBookApiController {
      * <b>DELETE : API URL => /api/v1/account-book/one</b>
      *
      * @param id : UUID
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
      * @see AccountBookService#destroyOne
      */
     @PermissionRole
@@ -169,10 +154,11 @@ public class AccountBookApiController {
      * @see HttpStatus
      * @see AccountBookService#patchOne
      */
+    @PermissionRole
     @PatchMapping("/{accountBookId}")
-    public ResponseEntity<?> patchOne(@PathVariable(value = "accountBookId") UUID accountBookId, @RequestBody AccountBookDefDto accountBookDefDto) {
+    public ResponseEntity<?> patchOne(@PathVariable(value = "accountBookId") UUID accountBookId, @RequestBody AccountBookDto accountBookDto) {
         Message message = new Message();
-        accountBookService.patchOne(accountBookId, accountBookDefDto);
+        accountBookService.patchOne(accountBookId, accountBookDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         return new ResponseEntity<>(message, message.getStatus());

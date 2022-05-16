@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.account_book.repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
         "SELECT ab FROM AccountBookEntity ab\n"+
         "WHERE ab.accountBookType LIKE %:accountBookType% AND ab.regDate BETWEEN :startDate AND :endDate AND ab.deleted=0"
     )
-    List<AccountBookEntity> selectList(String accountBookType, Date startDate, Date endDate);
+    List<AccountBookEntity> selectList(String accountBookType, LocalDateTime startDate, LocalDateTime endDate);
 
     @Query(
         "SELECT ab AS accountBook, u AS user, COALESCE(et, ExpenditureTypeEntity) AS expenditureType FROM AccountBookEntity ab\n"+
@@ -30,7 +31,7 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
         "WHERE ab.accountBookType LIKE %:accountBookType% AND ab.bankType LIKE %:bankType% AND ab.regDate BETWEEN :startDate AND :endDate AND ab.deleted=0\n"+
         "ORDER BY ab.regDate DESC"
     )
-    List<AccountBookJoinProj> selectListJUserByCond(String accountBookType, String bankType, Date startDate, Date endDate, Pageable pageable);
+    List<AccountBookJoinProj> selectListJUserByCond(String accountBookType, String bankType, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
     @Query(
         "SELECT count(ab) FROM AccountBookEntity ab\n"+
@@ -38,13 +39,13 @@ public interface AccountBookRepository extends JpaRepository<AccountBookEntity, 
         "WHERE ab.accountBookType LIKE %:accountBookType% AND ab.bankType LIKE %:bankType% AND ab.regDate BETWEEN :startDate AND :endDate AND ab.deleted=0\n"+
         "ORDER BY ab.regDate DESC"
     )
-    Integer sizeJUserByCond(String accountBookType, String bankType, Date startDate, Date endDate);
+    Integer sizeJUserByCond(String accountBookType, String bankType, LocalDateTime startDate, LocalDateTime endDate);
  
     @Query(
         "SELECT COALESCE(sum(ab.money),0) AS sum, count(ab) AS itemSize FROM AccountBookEntity ab\n"+
         "WHERE ab.accountBookType LIKE %:accountBookType% AND ab.bankType LIKE %:bankType% AND (ab.regDate BETWEEN :startDate AND :endDate) AND ab.deleted=0"
     )
-    Map<String, Object> sumIncomeOrExpenditureCond(String accountBookType, String bankType, Date startDate, Date endDate);
+    Map<String, Object> sumIncomeOrExpenditureCond(String accountBookType, String bankType, LocalDateTime startDate, LocalDateTime endDate);
 
     Optional<AccountBookEntity> findById(UUID id);
 

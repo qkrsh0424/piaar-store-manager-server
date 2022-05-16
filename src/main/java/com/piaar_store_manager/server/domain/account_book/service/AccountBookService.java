@@ -1,21 +1,19 @@
 package com.piaar_store_manager.server.domain.account_book.service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDefDto;
-import com.piaar_store_manager.server.domain.account_book.dto.AccountBookJoinDto;
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDto;
 import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
 import com.piaar_store_manager.server.domain.account_book.proj.AccountBookJoinProj;
 import com.piaar_store_manager.server.domain.account_book.repository.AccountBookRepository;
 import com.piaar_store_manager.server.domain.pagenation.PagenationDto;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.handler.DateHandler;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -23,83 +21,28 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AccountBookService {
     private final Integer DEFAULT_ITEM_PER_PAGE = 30;
     private final AccountBookRepository accountBookRepository;
-
-    private final DateHandler dateHandler;
     private final UserService userService;
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * AccountBook 내용을 여러개 등록한다. 
-     * @param accountBookDefDtos
-     * @param userId
-     * @see AccountBookRepository
+     * AccountBook 내용을 여러개 등록한다.
+     * 
+     * @param accountBookDtos : List::AccountBookDto::
+     * @see AccountBookRepository#saveAll
      */
-    public void createList(List<AccountBookDefDto> accountBookDefDtos) {
-        List<AccountBookEntity> entities = convEntitiesByDtos(accountBookDefDtos);
+    public void createList(List<AccountBookDto> accountBookDtos) {
+        UUID USER_ID = userService.getUserId();
+        List<AccountBookEntity> entities = accountBookDtos.stream().map(dto -> {
+            dto.setUserId(USER_ID).setRegDate(CustomDateUtils.getCurrentDateTime()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+            return AccountBookEntity.toEntity(dto);
+        }).collect(Collectors.toList());
         accountBookRepository.saveAll(entities);
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * AccountBookDefDto => AccountBookEntity
-     * @param dto
-     * @param userId
-     * @return AccountBookEntity
-     */
-    private AccountBookEntity convEntityByDto(AccountBookDefDto dto) {
-        UUID USER_ID = userService.getUserId();
-
-        AccountBookEntity entity = new AccountBookEntity();
-        entity.setId(UUID.randomUUID());
-        entity.setUserId(USER_ID);
-        entity.setAccountBookType(dto.getAccountBookType());
-        entity.setBankType(dto.getBankType());
-        entity.setDesc(dto.getDesc());
-        entity.setMoney(dto.getMoney());
-        entity.setRegDate(dto.getRegDate());
-        entity.setCreatedAt(dateHandler.getCurrentDate());
-        entity.setUpdatedAt(dateHandler.getCurrentDate());
-        entity.setDeleted(0);
-        return entity;
-    }
-
-    /**
-     * <b>Convert Method</b>
-     * <p>
-     * List::AccountBookDefDto:: => List::AccountBookEntity::
-     * @param dtos
-     * @param userId
-     * @return List::AccountBookEntity::
-     */
-    private List<AccountBookEntity> convEntitiesByDtos(List<AccountBookDefDto> dtos) {
-        UUID USER_ID = userService.getUserId();
-
-        List<AccountBookEntity> entities = new ArrayList<>();
-        for (AccountBookDefDto dto : dtos) {
-            AccountBookEntity entity = new AccountBookEntity();
-            entity.setId(UUID.randomUUID());
-            entity.setUserId(USER_ID);
-            entity.setAccountBookType(dto.getAccountBookType());
-            entity.setBankType(dto.getBankType());
-            entity.setDesc(dto.getDesc());
-            entity.setMoney(dto.getMoney());
-            entity.setRegDate(dto.getRegDate());
-            entity.setCreatedAt(CustomDateUtils.getCurrentDate());
-            entity.setUpdatedAt(dateHandler.getCurrentDate());
-            entity.setDeleted(0);
-            entities.add(entity);
-        }
-        return entities;
     }
 
     /**
@@ -108,24 +51,23 @@ public class AccountBookService {
      * 등록된 입/지출 건들을 조건에 맞게 조회한다. 
      * 
      * @param query : Map[accountBookType, bankType, startDate, endDate, currPage]
-     * @return List::AccountBookJoinDto::
-     * @see AccountBookRepository
+     * @return List::AccountBookDto.JoinDto::
+     * @see AccountBookRepository#selectListJUserByCond
      */
-    public List<AccountBookJoinDto> searchList(Map<String, Object> query) {
+    public List<AccountBookDto.JoinDto> searchList(Map<String, Object> query) {
         String accountBookType = query.get("accountBookType") != null ? query.get("accountBookType").toString() : "";
         String bankType = query.get("bankType") != null ? query.get("bankType").toString() : "";
 
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
+        LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();   /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */
 
-        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString()) : startDateCalendar.getTime(); /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
-        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date(); /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */
-        
         Integer currPageParsed = query.get("currPage") != null ? Integer.parseInt(query.get("currPage").toString()) : 1;
         Integer currPage = (currPageParsed == null || (currPageParsed <1)) ? 0 : (currPageParsed - 1);
 
         Pageable pageable = PageRequest.of(currPage, DEFAULT_ITEM_PER_PAGE);
-        List<AccountBookJoinDto> dtos = convJUserDtosByProj(accountBookRepository.selectListJUserByCond(accountBookType, bankType, startDate, endDate, pageable));
+        List<AccountBookJoinProj> projs = accountBookRepository.selectListJUserByCond(accountBookType, bankType, startDate, endDate, pageable);
+        List<AccountBookDto.JoinDto> dtos = projs.stream().map(proj -> AccountBookDto.JoinDto.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -135,16 +77,16 @@ public class AccountBookService {
      * AccountBook 데이터의 페이지네이션 데이터를 얻는다.
      * @param query : Map[accountBookType, bankType, startDate, endDate, currPage]
      * @return PagenationDto
-     * @see AccountBookRepository
+     * @see AccountBookRepository#sizeJUserByCond
      */
     public PagenationDto searchPagenation(Map<String, Object> query) {
         String accountBookType = query.get("accountBookType") != null ? query.get("accountBookType").toString() : "";
         String bankType = query.get("bankType") != null ? query.get("bankType").toString() : "";
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
-        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
-                : startDateCalendar.getTime();
-        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();
+
         Integer currPageParsed = query.get("currPage") != null ? Integer.parseInt(query.get("currPage").toString()) : 1;
         
         Integer itemSize = accountBookRepository.sizeJUserByCond(accountBookType, bankType, startDate, endDate);
@@ -187,29 +129,12 @@ public class AccountBookService {
     }
 
     /**
-     * <b>Convert Method</b>
-     * <p>
-     * (AccountBook Join User) 프로젝션 리스트를 dto 리스트 형태로 변환
-     * List::AccountBookJUserProj:: => List::AccountBookJoinDto::
-     * @param projs
-     * @return List ::AccountBookJoinDto::
-     * 
-     */
-    private List<AccountBookJoinDto> convJUserDtosByProj(List<AccountBookJoinProj> projs) {
-        List<AccountBookJoinDto> dtos = new ArrayList<>();
-        for (AccountBookJoinProj proj : projs) {
-            dtos.add(new AccountBookJoinDto(proj.getAccountBook(), proj.getUser(), proj.getExpenditureType()));
-        }
-        return dtos;
-    }
-
-    /**
      * <b>DB Select Related Method</b>
      * <p>
      * accountBookType = "income" 인 데이터들의 money 값의 합을 구한다.
      * @param query : Map[accountBookType, bankType, startDate, endDate]
      * @return Map[sum, itemSize]
-     * @see AccountBookRepository
+     * @see AccountBookRepository#sumIncomeOrExpenditureCond
      */
     public Map<String, Object> getSumIncome(Map<String, Object> query) {
         // accountBookType 이 expenditure의 조건 조회의 경우 0을 리턴한다.
@@ -222,11 +147,10 @@ public class AccountBookService {
 
         String accountBookType = "income";
         String bankType = query.get("bankType") != null ? query.get("bankType").toString() : "";
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
-        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
-                : startDateCalendar.getTime();
-        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();
 
         return accountBookRepository.sumIncomeOrExpenditureCond(accountBookType, bankType, startDate, endDate);
     }
@@ -235,9 +159,10 @@ public class AccountBookService {
      * <b>DB Select Related Method</b>
      * <p>
      * accountBookType = "expenditure" 인 데이터들의 money 값의 합을 구한다.
+     * 
      * @param query : Map[accountBookType, bankType, startDate, endDate]
      * @return Map[sum, itemSize]
-     * @see AccountBookRepository
+     * @see AccountBookRepository#sumIncomeOrExpenditureCond
      */
     public Map<String, Object> getSumExpenditure(Map<String, Object> query) {
         // accountBookType 이 income 조건 조회의 경우 0을 리턴한다.
@@ -250,11 +175,10 @@ public class AccountBookService {
 
         String accountBookType = "expenditure";
         String bankType = query.get("bankType") != null ? query.get("bankType").toString() : "";
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
-        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
-                : startDateCalendar.getTime();
-        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();
 
         return accountBookRepository.sumIncomeOrExpenditureCond(accountBookType, bankType, startDate, endDate);
     }
@@ -263,8 +187,9 @@ public class AccountBookService {
      * <b>DB Select Related Method</b>
      * <p>
      * AccountBook id 값과 상응되는 데이터를 삭제한다.
-     * @param id
-     * @see AccountBookRepository
+     * 
+     * @param id : UUID
+     * @see AccountBookRepository#save
      */
     public void destroyOne(UUID id) {
         accountBookRepository.findById(id).ifPresent(r->{
@@ -277,36 +202,37 @@ public class AccountBookService {
      * <b>DB Update Related Method</b>
      * <p>
      * AccountBook id 값과 상응되는 데이터의 일부분을 업데이트한다.
-     * @param accountBookId
-     * @param accountBookDefDto
+     * @param accountBookId : UUID
+     * @param accountBookDto : AccountBookDto
+     * @see AccountBookRepository#save
      */
-    public void patchOne(UUID accountBookId, AccountBookDefDto accountBookDefDto) {
+    public void patchOne(UUID accountBookId, AccountBookDto accountBookDto) {
         accountBookRepository.findById(accountBookId).ifPresentOrElse(r->{
-            if(accountBookDefDto.getAccountBookType() != null){
-                r.setAccountBookType(accountBookDefDto.getAccountBookType());
+            if(accountBookDto.getAccountBookType() != null){
+                r.setAccountBookType(accountBookDto.getAccountBookType());
             }
-            if(accountBookDefDto.getBankType() != null){
-                r.setBankType(accountBookDefDto.getBankType());
+            if(accountBookDto.getBankType() != null){
+                r.setBankType(accountBookDto.getBankType());
             }
-            if(accountBookDefDto.getUserId() != null){
-                r.setUserId(accountBookDefDto.getUserId());
+            if(accountBookDto.getUserId() != null){
+                r.setUserId(accountBookDto.getUserId());
             }
-            if(accountBookDefDto.getDesc() != null){
-                r.setDesc(accountBookDefDto.getDesc());
+            if(accountBookDto.getDesc() != null){
+                r.setDesc(accountBookDto.getDesc());
             }
-            if(accountBookDefDto.getMoney() != null){
-                r.setMoney(accountBookDefDto.getMoney());
+            if(accountBookDto.getMoney() != null){
+                r.setMoney(accountBookDto.getMoney());
             }
-            if(accountBookDefDto.getExpenditureTypeId() != null){
-                r.setExpenditureTypeId(accountBookDefDto.getExpenditureTypeId());
+            if(accountBookDto.getExpenditureTypeId() != null){
+                r.setExpenditureTypeId(accountBookDto.getExpenditureTypeId());
             }
-            if(accountBookDefDto.getRegDate() != null){
-                r.setRegDate(accountBookDefDto.getRegDate());
+            if(accountBookDto.getRegDate() != null){
+                r.setRegDate(accountBookDto.getRegDate());
             }
-            if(accountBookDefDto.getCreatedAt() != null){
-                r.setCreatedAt(accountBookDefDto.getCreatedAt());
+            if(accountBookDto.getCreatedAt() != null){
+                r.setCreatedAt(accountBookDto.getCreatedAt());
             }
-            r.setUpdatedAt(dateHandler.getCurrentDate());
+            r.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
             accountBookRepository.save(r);
         }, null);
     }

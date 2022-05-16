@@ -1,6 +1,6 @@
 package com.piaar_store_manager.server.domain.account_book.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -10,12 +10,23 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDto;
+
 import org.hibernate.annotations.Type;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
-@Data
+@Getter @Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "account_book")
 public class AccountBookEntity {
     @Id
@@ -39,11 +50,29 @@ public class AccountBookEntity {
     @Column(name = "expenditure_type_id")
     private Integer expenditureTypeId;
     @Column(name = "reg_date")
-    private Date regDate;
+    private LocalDateTime regDate;
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
     @Column(name = "deleted")
     private Integer deleted;
+
+    public static AccountBookEntity toEntity(AccountBookDto dto) {
+        AccountBookEntity entity = AccountBookEntity.builder()
+            .id(dto.getId())
+            .userId(dto.getUserId())
+            .accountBookType(dto.getAccountBookType())
+            .bankType(dto.getBankType())
+            .desc(dto.getDesc())
+            .money(dto.getMoney())
+            .expenditureTypeId(dto.getExpenditureTypeId())
+            .regDate(dto.getRegDate())
+            .createdAt(dto.getCreatedAt())
+            .updatedAt(dto.getUpdatedAt())
+            .deleted(0)
+            .build();
+
+        return entity;
+    }
 }
