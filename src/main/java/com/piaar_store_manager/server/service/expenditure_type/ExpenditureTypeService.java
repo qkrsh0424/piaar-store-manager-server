@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.piaar_store_manager.server.model.account_book.entity.AccountBookEntity;
-import com.piaar_store_manager.server.model.account_book.repository.AccountBookRepository;
+import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
+import com.piaar_store_manager.server.domain.account_book.repository.AccountBookRepository;
 import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureTypeDto;
 import com.piaar_store_manager.server.model.expenditure_type.entity.ExpenditureTypeEntity;
 import com.piaar_store_manager.server.model.expenditure_type.repository.ExpenditureTypeRepository;

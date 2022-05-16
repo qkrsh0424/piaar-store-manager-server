@@ -1,11 +1,11 @@
-package com.piaar_store_manager.server.model.option_package.dto;
+package com.piaar_store_manager.server.domain.option_package.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Table;
 
-import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,6 +42,14 @@ public class OptionPackageDto {
     @Setter
     private UUID parentOptionId;
 
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * OptionPackageEntity => OptionPackageDto
+     *
+     * @param entity : OptionPackageEntity
+     * @return OptionPackageDto
+     */
     public static OptionPackageDto toDto(OptionPackageEntity entity) {
         OptionPackageDto dto = OptionPackageDto.builder()
             .id(entity.getId())

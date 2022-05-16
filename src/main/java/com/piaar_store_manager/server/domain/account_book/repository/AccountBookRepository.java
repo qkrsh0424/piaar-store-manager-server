@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.account_book.repository;
+package com.piaar_store_manager.server.domain.account_book.repository;
 
 import java.util.Date;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.account_book.entity.AccountBookEntity;
-import com.piaar_store_manager.server.model.account_book.proj.AccountBookJoinProj;
+import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
+import com.piaar_store_manager.server.domain.account_book.proj.AccountBookJoinProj;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

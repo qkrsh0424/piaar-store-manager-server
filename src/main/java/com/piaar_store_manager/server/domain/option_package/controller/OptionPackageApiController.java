@@ -1,10 +1,10 @@
-package com.piaar_store_manager.server.controller.api;
+package com.piaar_store_manager.server.domain.option_package.controller;
 
 import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.service.option_package.OptionPackageBusinessService;
+import com.piaar_store_manager.server.domain.option_package.service.OptionPackageBusinessService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,14 +23,12 @@ public class OptionPackageApiController {
     private final OptionPackageBusinessService optionPackageBusinessService;
 
     /**
-     * Search one api for optionPackage.
+     * Search one api for option package.
      * <p>
      * <b>GET : API URL => /api/v1/option-package/parent-option/{parentOptionId}</b>
      *
      * @param parentOptionId : UUID
-     * @return ResponseEntity(message, HttpStatus)
-     * @see Message
-     * @see HttpStatus
+     * @see OptionPackageBusinessService#searchListByParentOptionId
      */
     @GetMapping("/parent-option/{parentOptionId}")
     public ResponseEntity<?> searchListByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId) {

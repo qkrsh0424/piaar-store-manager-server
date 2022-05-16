@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.option_package.entity;
+package com.piaar_store_manager.server.domain.option_package.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
-import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
+import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -69,6 +69,15 @@ public class OptionPackageEntity {
     @Column(name = "parent_option_id")
     private UUID parentOptionId;
 
+
+    /**
+     * <b>Convert Method</b>
+     * <p>
+     * OptionPackageDto => OptionPackageEntity
+     *
+     * @param dto : OptionPackageDto
+     * @return OptionPackageEntity
+     */
     public static OptionPackageEntity toEntity(OptionPackageDto dto) {
         OptionPackageEntity entity = OptionPackageEntity.builder()
             .id(dto.getId())

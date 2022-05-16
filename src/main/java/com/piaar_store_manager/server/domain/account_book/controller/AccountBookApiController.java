@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.controller.api;
+package com.piaar_store_manager.server.domain.account_book.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDefDto;
+import com.piaar_store_manager.server.domain.account_book.service.AccountBookService;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
-import com.piaar_store_manager.server.service.account_book.AccountBookService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequiredLogin
 public class AccountBookApiController {
-
     private final AccountBookService accountBookService;
 
     /**

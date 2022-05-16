@@ -1,11 +1,11 @@
 package com.piaar_store_manager.server.domain.product.dto;
 
+import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
-import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
 
 import lombok.*;
 import lombok.experimental.Accessors;

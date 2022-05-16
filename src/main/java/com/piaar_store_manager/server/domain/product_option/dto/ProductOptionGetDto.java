@@ -12,12 +12,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
-import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
 
 @Data
 @Accessors(chain = true)

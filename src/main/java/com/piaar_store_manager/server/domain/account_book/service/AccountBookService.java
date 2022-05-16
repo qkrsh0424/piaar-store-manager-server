@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.service.account_book;
+package com.piaar_store_manager.server.domain.account_book.service;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,22 +8,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookDefDto;
+import com.piaar_store_manager.server.domain.account_book.dto.AccountBookJoinDto;
+import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
+import com.piaar_store_manager.server.domain.account_book.proj.AccountBookJoinProj;
+import com.piaar_store_manager.server.domain.account_book.repository.AccountBookRepository;
 import com.piaar_store_manager.server.domain.pagenation.PagenationDto;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.account_book.dto.AccountBookDefDto;
-import com.piaar_store_manager.server.model.account_book.dto.AccountBookJoinDto;
-import com.piaar_store_manager.server.model.account_book.entity.AccountBookEntity;
-import com.piaar_store_manager.server.model.account_book.proj.AccountBookJoinProj;
-import com.piaar_store_manager.server.model.account_book.repository.AccountBookRepository;
-import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureTypeDto;
-import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +33,6 @@ public class AccountBookService {
     private final AccountBookRepository accountBookRepository;
 
     private final DateHandler dateHandler;
-
-    private final ExpenditureTypeService expendtureTypeService;
     private final UserService userService;
 
     /**
@@ -99,7 +94,7 @@ public class AccountBookService {
             entity.setDesc(dto.getDesc());
             entity.setMoney(dto.getMoney());
             entity.setRegDate(dto.getRegDate());
-            entity.setCreatedAt(dateHandler.getCurrentDate());
+            entity.setCreatedAt(CustomDateUtils.getCurrentDate());
             entity.setUpdatedAt(dateHandler.getCurrentDate());
             entity.setDeleted(0);
             entities.add(entity);

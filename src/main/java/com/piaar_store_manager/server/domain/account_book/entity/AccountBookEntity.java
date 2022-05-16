@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.account_book.entity;
+package com.piaar_store_manager.server.domain.account_book.entity;
 
 import java.util.Date;
 import java.util.UUID;

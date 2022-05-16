@@ -20,11 +20,10 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class ExcelTranslatorDownloadHeaderDetailDto {
-    @Type(type = "jsonb")
     private List<DetailDto> details;
 
     /**
-     * 다운로드 헤더에 들어갈 detail
+     * 다운로드 헤더에 들어갈 detail 객체
      */
     @Getter @Setter
     @ToString

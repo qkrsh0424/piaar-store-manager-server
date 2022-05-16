@@ -3,8 +3,6 @@ package com.piaar_store_manager.server.domain.excel_translator_item.dto;
 import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.annotations.Type;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +18,6 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class ExcelDataDetailDto {
-    @Type(type = "jsonb")
     List<UploadedDetailDto> details;
 
     /**

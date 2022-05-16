@@ -1,11 +1,11 @@
-package com.piaar_store_manager.server.service.option_package;
+package com.piaar_store_manager.server.domain.option_package.service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.model.option_package.dto.OptionPackageDto;
-import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
+import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 
 import org.springframework.stereotype.Service;
 
@@ -18,13 +18,11 @@ public class OptionPackageBusinessService {
 
     /**
      * <b>DB Select Related Method</b>
-     * <p>
-     * Option id 값과 상응되는 데이터를 조회한다.
-     *
+     * parentOptionId에 대응하는 option package를 모두 조회한다.
+     * 
      * @param parentOptionId : UUID
      * @return List::OptionPackageDto::
-     * @see optionPackageService#searchOneByParentOptionId
-     * @see OptionPackageDto#toDto
+     * @see OptionPackageService#searchListByParentOptionId
      */
     public List<OptionPackageDto> searchListByParentOptionId(UUID parentOptionId) {
         List<OptionPackageEntity> entities = optionPackageService.searchListByParentOptionId(parentOptionId);
