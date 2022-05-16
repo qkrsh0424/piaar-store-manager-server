@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.controller.api;
+package com.piaar_store_manager.server.domain.excel_translator_header.controller;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -6,19 +6,19 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.service.ExcelTranslatorHeaderBusinessService;
+import com.piaar_store_manager.server.domain.excel_translator_item.dto.DownloadExcelDataGetDto;
+import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.excel_translator_data.dto.DownloadExcelDataGetDto;
-import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadedDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
-import com.piaar_store_manager.server.service.excel_translator.ExcelTranslatorHeaderBusinessService;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,30 +45,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequiredLogin
 public class ExcelTranslatorHeaderApiController {
-
     private final ExcelTranslatorHeaderBusinessService excelTranslatorHeaderBusinessService;
 
     /**
-     * Create one api for excel translator header.
-     */
-    @PostMapping("/one")
-    public ResponseEntity<?> createExcelTranslatorHeaderTitle(@RequestBody ExcelTranslatorHeaderGetDto dto) {
-        Message message = new Message();
-
-        excelTranslatorHeaderBusinessService.createTitle(dto);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
      * Search list api for excel translator header.
-     * 
-     * @see ExcelTranslatorHeaderBusinessService#searchList
+     * <p>
+     * <b>GET : API URL => /api/v1/excel-translator/list</b>
      */
     @GetMapping("/list")
-    @PermissionRole
     public ResponseEntity<?> searchExcelTranslatorHeader() {
         Message message = new Message();
 
@@ -79,11 +64,29 @@ public class ExcelTranslatorHeaderApiController {
     }
 
     /**
+     * Create one api for excel translator header.
+     * <p>
+     * <b>POST : API URL => /api/v1/excel-translator/one</b>
+     */
+    @PostMapping("/one")
+    @PermissionRole
+    public ResponseEntity<?> createExcelTranslatorHeaderTitle(@RequestBody ExcelTranslatorHeaderGetDto dto) {
+        Message message = new Message();
+
+        excelTranslatorHeaderBusinessService.createTitle(dto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
      * Change one api for excel translator header.
-     * 
-     * @see ExcelTranslatorHeaderBusinessService#changeOne
+     * <p>
+     * <b>PUT : API URL => /api/v1/excel-translator/one</b>
      */
     @PutMapping("/one")
+    @PermissionRole
     public ResponseEntity<?> changeExcelTranslatorHeader(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
 
@@ -95,24 +98,27 @@ public class ExcelTranslatorHeaderApiController {
     }
 
     /**
-     * Delete one api for excel translator header.
-     * 
-     * @query query : Map::String, Object::
-     * @see ExcelTranslatorHeaderBusinessService#deleteOne
+     * Destroy( Delete or Remove ) one api for excel translator.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/excel-translator/one</b>
      */
-    @DeleteMapping("/one")
-    public ResponseEntity<?> deleteExcelTranslatorHeader(@RequestParam Map<String, Object> query) {
+    @DeleteMapping("/one/{excelTranslatorId}")
+    @PermissionRole
+    public ResponseEntity<?> deleteExcelTranslator(@PathVariable(value = "excelTranslatorId") UUID excelTranslatorId) {
         Message message = new Message();
 
-        excelTranslatorHeaderBusinessService.deleteOne(query);
+        excelTranslatorHeaderBusinessService.deleteOne(excelTranslatorId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+
     /**
      * Upload a free-form excel file.
+     * <p>
+     * <b>POST : API URL => /api/v1/excel-translator/upload</b>
      * 
      * @param file : MultipartFile
      * @param dto : ExcelTranslatorHeaderGetDto
@@ -135,6 +141,14 @@ public class ExcelTranslatorHeaderApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Upload a download header excel.
+     * <p>
+     * <b>POST : API URL => /api/v1/excel-translator/upload/download-header</b>
+     * 
+     * @param file : MultipartFile
+     * @see ExcelTranslatorHeaderBusinessService#uploadDownloadHeaderExcelFile
+     */
     @PostMapping("/upload/download-header")
     public ResponseEntity<?> uploadDownloadHeaderExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
@@ -148,32 +162,34 @@ public class ExcelTranslatorHeaderApiController {
 
     /**
      * Change one api for upload detail of excel translator header.
+     * <p>
+     * <b>PUT : API URL => /api/v1/excel-translator/header/upload/one</b>
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderBusinessService#updateUploadHeaderDetailOfExcelTranslator
      */
     @PutMapping("/header/upload/one")
+    @PermissionRole
     public ResponseEntity<?> updateUploadHeaderDetailOfExcelTranslator(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
 
-        try {
-            excelTranslatorHeaderBusinessService.updateUploadHeaderDetailOfExcelTranslator(dto);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (NullPointerException e) {
-            throw new CustomExcelFileUploadException("올바르지 않은 값이 존재합니다. 다시 등록해주세요.");
-        }
+        excelTranslatorHeaderBusinessService.updateUploadHeaderDetailOfExcelTranslator(dto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
     /**
-     * Change one api for download detail of excel translator header.
+     * Change one api for down detail of excel translator header.
+     * <p>
+     * <b>PUT : API URL => /api/v1/excel-translator/header/download/one</b>
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderBusinessService#updateDownloadHeaderDetailOfExcelTranslator
      */
     @PutMapping("/header/download/one")
+    @PermissionRole
     public ResponseEntity<?> updateDownloadHeaderDetailOfExcelTranslator(@RequestBody ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
 
@@ -185,7 +201,9 @@ public class ExcelTranslatorHeaderApiController {
     }
 
     /**
-     * Download excel file.
+     * Download customized excel file.
+     * <p>
+     * <b>POST : API URL => /api/v1/excel-translator/download</b>
      * 
      * @param response : HttpServletResponse
      * @param dtos : List::DownloadExcelDataGetDto::
@@ -215,7 +233,7 @@ public class ExcelTranslatorHeaderApiController {
                 cell = row.createCell(i);
                 
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
-                UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
+                ExcelDataDetailDto.UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
                 try{
                     if(detailDto.getCellType() == null || detailDto.getCellType().isBlank()) {
                         cell.setCellValue("");
@@ -249,13 +267,15 @@ public class ExcelTranslatorHeaderApiController {
     }
 
     /**
-     * Download excel file.
+     * Download the upload header form.
+     * <p>
+     * <b>POST : API URL => /api/v1/excel-translator/header/upload/download</b>
      * 
      * @param response : HttpServletResponse
-     * @param dtos : List::DownloadExcelDataGetDto::
+     * @param dtos : List::UploadedDetailDto::
      */
     @PostMapping("/header/upload/download")
-    public void downloadUploadedDetails(HttpServletResponse response, @RequestBody List<UploadedDetailDto> dtos) {
+    public void downloadUploadedDetails(HttpServletResponse response, @RequestBody List<ExcelDataDetailDto.UploadedDetailDto> dtos) {
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx

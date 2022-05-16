@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.excel_translator_data.dto;
+package com.piaar_store_manager.server.domain.excel_translator_item.dto;
 
 import java.util.UUID;
 
@@ -15,5 +15,5 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UploadExcelDataGetDto {
     private UUID id;
-    private UploadExcelDataDetailDto uploadedData = new UploadExcelDataDetailDto();
+    private ExcelDataDetailDto uploadedData;
 }

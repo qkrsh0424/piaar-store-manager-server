@@ -1,16 +1,19 @@
-package com.piaar_store_manager.server.model.excel_translator_header.dto;
+package com.piaar_store_manager.server.domain.excel_translator_header.dto;
 
 import java.util.UUID;
 
-import com.piaar_store_manager.server.model.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
+import com.piaar_store_manager.server.domain.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@Data
+@Getter @Setter
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,8 +23,8 @@ public class ExcelTranslatorHeaderGetDto {
     private UUID id;
     private String uploadHeaderTitle;
     private String downloadHeaderTitle;
-    private ExcelTranslatorUploadHeaderDetailDto uploadHeaderDetail = new ExcelTranslatorUploadHeaderDetailDto();
-    private ExcelTranslatorDownloadHeaderDetailDto downloadHeaderDetail = new ExcelTranslatorDownloadHeaderDetailDto();
+    private ExcelTranslatorUploadHeaderDetailDto uploadHeaderDetail;
+    private ExcelTranslatorDownloadHeaderDetailDto downloadHeaderDetail;
     private Integer rowStartNumber;
 
     public static ExcelTranslatorHeaderGetDto toDto(ExcelTranslatorHeaderEntity entity) {

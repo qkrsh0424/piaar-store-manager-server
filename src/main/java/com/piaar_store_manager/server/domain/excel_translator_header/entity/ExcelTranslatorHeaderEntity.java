@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.excel_translator_header.entity;
+package com.piaar_store_manager.server.domain.excel_translator_header.entity;
 
 import java.util.UUID;
 
@@ -9,9 +9,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorUploadHeaderDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorUploadHeaderDetailDto;
 import com.vladmihalcea.hibernate.type.json.JsonStringType;
 
 import org.hibernate.annotations.Type;
@@ -51,11 +51,11 @@ public class ExcelTranslatorHeaderEntity {
 
     @Type(type = "json")
     @Column(name = "upload_header_detail", columnDefinition = "json")
-    private ExcelTranslatorUploadHeaderDetailDto uploadHeaderDetail = new ExcelTranslatorUploadHeaderDetailDto();
+    private ExcelTranslatorUploadHeaderDetailDto uploadHeaderDetail;
 
     @Type(type = "json")
     @Column(name = "download_header_detail", columnDefinition = "json")
-    private ExcelTranslatorDownloadHeaderDetailDto downloadHeaderDetail = new ExcelTranslatorDownloadHeaderDetailDto();
+    private ExcelTranslatorDownloadHeaderDetailDto downloadHeaderDetail;
 
     @Column(name = "row_start_number")
     private Integer rowStartNumber;

@@ -1,22 +1,17 @@
-package com.piaar_store_manager.server.service.excel_translator;
+package com.piaar_store_manager.server.domain.excel_translator_header.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadExcelDataDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadExcelDataGetDto;
-import com.piaar_store_manager.server.model.excel_translator_data.dto.UploadedDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.DownloadDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
-import com.piaar_store_manager.server.model.excel_translator_header.dto.UploadDetailDto;
-import com.piaar_store_manager.server.model.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
-import com.piaar_store_manager.server.model.excel_translator_header.repository.ExcelTranslatorHeaderRepository;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorUploadHeaderDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
+import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_item.dto.UploadExcelDataGetDto;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -25,92 +20,53 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-@Service
-public class ExcelTranslatorHeaderBusinessService {
-    private ExcelTranslatorHeaderService excelTranslatorHeaderService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public ExcelTranslatorHeaderBusinessService(
-        ExcelTranslatorHeaderService excelTranslatorHeaderService
-    ) {
-        this.excelTranslatorHeaderService = excelTranslatorHeaderService;
-    }
+@Service
+@RequiredArgsConstructor
+public class ExcelTranslatorHeaderBusinessService {
+    private final ExcelTranslatorHeaderService excelTranslatorHeaderService;
 
     /**
      * <b>DB Insert Related Method</b>
-     * 엑셀 변환기를 생성해 타이틀 및 데이터 시작행을 저장한다.
+     * <p>
+     * 엑셀 변환 양식의 타이틀 및 데이터 시작행을 저장한다.
      * 
-     * 
-     * @param dto : ExcelTranslatorHeaderGetDto
-     * @return ExcelTranslatorHeaderGetDto
-     * @see ExcelTranslatorHeaderEntity#toEntity
-     * @see ExcelTranslatorHeaderService#saveOne
-     * @see ExcelTranslatorHeaderGetDto#toDto
+     * @see ExcelTranslatorHeaderService#saveAndModify
      */
-    public ExcelTranslatorHeaderGetDto createTitle(ExcelTranslatorHeaderGetDto dto) {
-        ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.saveOne(ExcelTranslatorHeaderEntity.toEntity(dto));
-        ExcelTranslatorHeaderGetDto savedDto = ExcelTranslatorHeaderGetDto.toDto(entity);
-        return savedDto;
+    public void createTitle(ExcelTranslatorHeaderGetDto dto) {
+        excelTranslatorHeaderService.saveAndModify(ExcelTranslatorHeaderEntity.toEntity(dto));
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * 엑셀 변환기 헤더 데이터를 조회한다.
-     * 
-     * @return List::ExcelTranslatorHeaderGetDto::
-     * @see ExcelTranslatorHeaderService#searchList
-     * @see ExcelTranslatorHeaderGetDto#toDto
-     */
     public List<ExcelTranslatorHeaderGetDto> searchList() {
         List<ExcelTranslatorHeaderEntity> entities = excelTranslatorHeaderService.searchList();
         List<ExcelTranslatorHeaderGetDto> dtos = entities.stream().map(r -> ExcelTranslatorHeaderGetDto.toDto(r)).collect(Collectors.toList());
         return dtos;
     }
 
-    /**
-     * <b>DB Update Related Method</b>
-     * 생성된 엑셀 변환기의 타이틀 및 데이터 시작행을 수정한다.
-     * 
-     * @param dto : ExcelTranslatorHeaderGetDto
-     * @see ExcelTranslatorHeaderService#searchOne
-     * @see excelTranslatorHeaderService#saveOne
-     */
     public void changeOne(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
-        // entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
-        //     .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setUploadHeaderDetail(dto.getUploadHeaderDetail())
-        //     .setDownloadHeaderDetail(dto.getDownloadHeaderDetail()).setRowStartNumber(dto.getRowStartNumber());
-
         entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
                 .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
 
-        excelTranslatorHeaderService.saveOne(entity);
+        excelTranslatorHeaderService.saveAndModify(entity);
     }
 
-    /**
-     * <b>DB Delete Related Method</b>
-     * headerId에 대응하는 엑셀 변환기 데이터를 삭제한다.
-     * 
-     * @param dto : ExcelTranslatorHeaderGetDto
-     * @see ExcelTranslatorHeaderRepository#findById
-     * @see ExcelTranslatorHeaderRepository#save
-     */
-    public void deleteOne(Map<String, Object> query) {
-        UUID headerId = UUID.fromString(query.get("headerId").toString());
-        excelTranslatorHeaderService.destroyOne(headerId);
+    public void deleteOne(UUID excelTranslatorId) {
+        excelTranslatorHeaderService.destroyOne(excelTranslatorId);
     }
 
     /**
      * <b>Data Processing Related Method</b>
-     * 업로드된 엑셀 파일을 읽는다.
+     * 업로드된 엑셀 파일을 읽어 List::UploadExcelDataGetDto::형태로 추출한다.
      * 
      * @param file : MultipartFile
      * @param dto : ExcelTranslatorHeaderGetDto
      * @return List::UploadExcelDataGetDto::
+     * @see ExcelTranslatorHeaderBusinessService#getUploadedExcelForm
      */
     public List<UploadExcelDataGetDto> uploadExcelFile(MultipartFile file, ExcelTranslatorHeaderGetDto dto) {
         Workbook workbook = null;
@@ -127,7 +83,7 @@ public class ExcelTranslatorHeaderBusinessService {
 
     /**
      * <b>Data Processing Related Method</b>
-     * 업로드된 엑셀 파일을 데이터 시작 행부터 읽어 Dto로 반환한다.
+     * 업로드된 엑셀 파일을 데이터 시작 행부터 읽어 List::UploadExcelDataGetDto::로 반환한다.
      * 
      * @param worksheet : Sheet
      * @param dto : ExcelTranslatorHeaderGetDto
@@ -135,7 +91,7 @@ public class ExcelTranslatorHeaderBusinessService {
      */
     private List<UploadExcelDataGetDto> getUploadedExcelForm(Sheet worksheet, ExcelTranslatorHeaderGetDto dto) {
         List<UploadExcelDataGetDto> dtos = new ArrayList<>();
-        List<UploadDetailDto> uploadDetailDtos = dto.getUploadHeaderDetail().getDetails();
+        List<ExcelTranslatorUploadHeaderDetailDto.DetailDto> uploadDetailDtos = dto.getUploadHeaderDetail().getDetails();
 
         Row headerRow = worksheet.getRow(dto.getRowStartNumber()-1);
         // 저장된 양식이 존재하는데 지정양식과 다른 엑셀이 업로드된 경우
@@ -146,7 +102,7 @@ public class ExcelTranslatorHeaderBusinessService {
         // 저장된 데이터 시작행부터 엑셀을 읽는다.
         for(int i = dto.getRowStartNumber()-1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
-            List<UploadedDetailDto> uploadedDetailDtos = new ArrayList<>();
+            List<ExcelDataDetailDto.UploadedDetailDto> uploadedDetailDtos = new ArrayList<>();
 
             for(int j = 0; j < row.getLastCellNum(); j++) {
                 Cell cell = row.getCell(j);
@@ -158,22 +114,29 @@ public class ExcelTranslatorHeaderBusinessService {
                     cellObj = cell.getStringCellValue();
                 } else if (cell.getCellType().equals(CellType.NUMERIC)) {
                     if (DateUtil.isCellDateFormatted(cell)) {
-                        cellObj = DateHandler.getUtcDate(cell.getDateCellValue());
+                        cellObj = cell.getDateCellValue();
                     } else {
                         cellObj = cell.getNumericCellValue();
                     }
                 }
-
-                UploadedDetailDto detailDto = UploadedDetailDto.builder().id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();  
+                ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
+                        .id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();
                 uploadedDetailDtos.add(detailDto);
             }
-            UploadExcelDataDetailDto uploadedData = UploadExcelDataDetailDto.builder().details(uploadedDetailDtos).build();
+            ExcelDataDetailDto uploadedData = ExcelDataDetailDto.builder().details(uploadedDetailDtos).build();
             UploadExcelDataGetDto dataDto = UploadExcelDataGetDto.builder().id(UUID.randomUUID()).uploadedData(uploadedData).build();
             dtos.add(dataDto);
         }
         return dtos;
     }
 
+    /**
+     * <b>Data Processing Related Method</b>
+     * 업로드된 엑셀 파일을 첫번째 행(헤더 데이터)만 읽어 UploadExcelDataGetDto로 반환한다. (다운로드 헤더 양식 업로드 시 사용)
+     * 
+     * @param file : MultipartFile
+     * @return UploadExcelDataGetDto
+     */
     public UploadExcelDataGetDto uploadDownloadHeaderExcelFile(MultipartFile file) {
         Workbook workbook = null;
         try{
@@ -185,7 +148,7 @@ public class ExcelTranslatorHeaderBusinessService {
         Sheet sheet = workbook.getSheetAt(0);
         Row headerRow = sheet.getRow(0);
 
-        List<UploadedDetailDto> detailDtos = new ArrayList<>();
+        List<ExcelDataDetailDto.UploadedDetailDto> detailDtos = new ArrayList<>();
         for(int j = 0; j < headerRow.getLastCellNum(); j++) {
             Cell cell = headerRow.getCell(j);
             Object cellObj = new Object();
@@ -195,23 +158,22 @@ public class ExcelTranslatorHeaderBusinessService {
             } else {
                 cellObj = cell.getStringCellValue();
             }
-
-            UploadedDetailDto detailDto = UploadedDetailDto.builder().id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();  
+            ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
+                    .id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();
             detailDtos.add(detailDto);
         }
-        UploadExcelDataDetailDto uploadedData = UploadExcelDataDetailDto.builder().details(detailDtos).build();
+        ExcelDataDetailDto uploadedData = ExcelDataDetailDto.builder().details(detailDtos).build();
         UploadExcelDataGetDto dataDto = UploadExcelDataGetDto.builder().id(UUID.randomUUID()).uploadedData(uploadedData).build();
-
         return dataDto;
     }
 
     /**
      * <b>DB Update Related Method</b>
-     * 엑셀 변환기 헤더 데이터의 업로드 헤더 상세를 업데이트한다.
+     * 엑셀 변환기 헤더 데이터의 업로드 헤더 양식을 업데이트한다.
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderService#searchOne
-     * @see ExcelTranslatorHeaderService#saveOne
+     * @see ExcelTranslatorHeaderService#saveAndModify
      */
     public void updateUploadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
@@ -219,26 +181,25 @@ public class ExcelTranslatorHeaderBusinessService {
 
         // 업로드 헤더가 변경된다면 다운로드 헤더를 초기화
         ExcelTranslatorDownloadHeaderDetailDto downloadDetail = new ExcelTranslatorDownloadHeaderDetailDto();
-        List<DownloadDetailDto> details = new ArrayList<>();
+        List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = new ArrayList<>();
         downloadDetail.setDetails(details);
         entity.setDownloadHeaderDetail(downloadDetail);
 
-        excelTranslatorHeaderService.saveOne(entity);
+        excelTranslatorHeaderService.saveAndModify(entity);
     }
 
     /**
      * <b>DB Update Related Method</b>
-     * 엑셀 변환기 헤더 데이터의 다운로드 헤더 상세를 업데이트한다.
+     * 엑셀 변환기 헤더 데이터의 다운로드 헤더 양식을 업데이트한다.
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderService#searchOne
-     * @see ExcelTranslatorHeaderService#saveOne
+     * @see ExcelTranslatorHeaderService#saveAndModify
      */
     public void updateDownloadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setDownloadHeaderDetail(dto.getDownloadHeaderDetail());
-        
-        excelTranslatorHeaderService.saveOne(entity);
+        excelTranslatorHeaderService.saveAndModify(entity);
     }
 }
 
