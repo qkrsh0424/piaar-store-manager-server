@@ -3,19 +3,17 @@ package com.piaar_store_manager.server.domain.erp_order_item.vo;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -216,60 +214,50 @@ public class ErpOrderItemVo {
         Integer PIAAR_ERP_ORDER_ITEM_SIZE = 34;
         Integer PIAAR_ERP_ORDER_MEMO_START_INDEX = 24;
 
-        List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
-                "피아르 고유번호",
-                "상품명",
-                "옵션정보",
-                "수량",
-                "수취인명",
-                "전화번호1",
-                "전화번호2",
-                "주소",
-                "판매채널",
-                "판매채널 주문번호1",
-                "판매채널 주문번호2",
-                "판매채널 상품코드",
-                "판매채널 옵션코드",
-                "우편번호",
-                "택배사",
-                "배송방식",
-                "배송메세지",
-                "운송장번호",
-                "판매금액",
-                "배송비",
-                "바코드",
-                "피아르 상품코드",
-                "피아르 옵션코드",
-                "출고 옵션코드",
-                "관리메모1",
-                "관리메모2",
-                "관리메모3",
-                "관리메모4",
-                "관리메모5",
-                "관리메모6",
-                "관리메모7",
-                "관리메모8",
-                "관리메모9",
-                "관리메모10"
-        );
+        List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
+
+        // List<String> PIAAR_ERP_ORDER_HEADER_NAME_LIST = Arrays.asList(
+        //         "피아르 고유번호",
+        //         "상품명",
+        //         "옵션정보",
+        //         "수량",
+        //         "수취인명",
+        //         "전화번호1",
+        //         "전화번호2",
+        //         "주소",
+        //         "판매채널",
+        //         "판매채널 주문번호1",
+        //         "판매채널 주문번호2",
+        //         "판매채널 상품코드",
+        //         "판매채널 옵션코드",
+        //         "우편번호",
+        //         "택배사",
+        //         "배송방식",
+        //         "배송메세지",
+        //         "운송장번호",
+        //         "판매금액",
+        //         "배송비",
+        //         "바코드",
+        //         "피아르 상품코드",
+        //         "피아르 옵션코드",
+        //         "출고 옵션코드",
+        //         "관리메모1",
+        //         "관리메모2",
+        //         "관리메모3",
+        //         "관리메모4",
+        //         "관리메모5",
+        //         "관리메모6",
+        //         "관리메모7",
+        //         "관리메모8",
+        //         "관리메모9",
+        //         "관리메모10"
+        // );
 
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
-
-        Row firstRow = worksheet.getRow(0);
-        // 피아르 엑셀 양식 검사
-        for (int i = 0; i < PIAAR_ERP_ORDER_ITEM_SIZE; i++) {
-            Cell cell = firstRow.getCell(i);
-            String headerName = cell != null ? cell.getStringCellValue() : null;
-            // 지정된 양식이 아니라면
-            if (!PIAAR_ERP_ORDER_HEADER_NAME_LIST.get(i).equals(headerName)) {
-                throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
-            }
-        }
-
+        
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
-            if (row == null)
-                break;
+            if (row == null) break;
 
             Object cellValue = new Object();
             List<String> customManagementMemo = new ArrayList<>();
@@ -283,10 +271,10 @@ public class ErpOrderItemVo {
                 } else if (cell.getCellType().equals(CellType.NUMERIC)) {
                     if (DateUtil.isCellDateFormatted(cell)) {
                         Instant instant = Instant.ofEpochMilli(cell.getDateCellValue().getTime());
-                        LocalDateTime date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+                        LocalDateTime localDateTime = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+
                         // yyyy-MM-dd'T'HH:mm:ss -> yyyy-MM-dd HH:mm:ss로 변경
-                        String newDate = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                        cellValue = newDate;
+                        cellValue = CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(localDateTime);
                     } else {
                         cellValue = cell.getNumericCellValue();
                     }
@@ -305,6 +293,14 @@ public class ErpOrderItemVo {
 
             // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
             String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());
+
+            // 피아르 양식 필수값 검사
+            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
+                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
+                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
+                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                }
+            }            
 
             ErpOrderItemVo excelVo = ErpOrderItemVo.builder()
                     .uniqueCode(null)

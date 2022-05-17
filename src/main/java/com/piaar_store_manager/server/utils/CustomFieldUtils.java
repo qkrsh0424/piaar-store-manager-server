@@ -44,6 +44,37 @@ public class CustomFieldUtils {
         return field;
     }
 
+    public static <T> T getFieldByIndex(Object obj, int idx) {
+        Objects.requireNonNull(obj);
+
+        try {
+            Field field = null;
+            for(int i = 0; i < getAllFields(obj).size(); i++) {
+                if(i == idx) {
+                    field = getAllFields(obj).get(i);
+                    break;
+                }
+            }
+            if(field != null) {
+                field.setAccessible(true);
+            }
+            return (T) field.get(obj);
+        } catch (IllegalAccessException e) {
+            return null;
+        }
+    }
+
+    public static void setFieldValueByIndex(Object obj, int idx, Object value) {
+        Objects.requireNonNull(obj);
+
+        try {
+            Field field = getFieldByIndex(obj, idx);
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static <T> T getFieldValueWithSuper(Object obj, String fieldName) {
         Objects.requireNonNull(obj);
 

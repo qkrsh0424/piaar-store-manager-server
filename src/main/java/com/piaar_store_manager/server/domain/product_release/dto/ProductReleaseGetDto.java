@@ -13,7 +13,10 @@ import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
@@ -59,7 +62,8 @@ public class ProductReleaseGetDto {
     /**
      * release, release와 Many To One Join(m2oj) 연관관계에 놓여있는 product, category, user, option으로 구성된 객체
      */
-    @Data
+    @Getter @Setter
+    @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor
@@ -93,7 +97,8 @@ public class ProductReleaseGetDto {
     /**
      * releaes, releaes 데이터에 대응되는 option, product를 포함한 객체
      */
-    @Data
+    @Getter @Setter
+    @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor
