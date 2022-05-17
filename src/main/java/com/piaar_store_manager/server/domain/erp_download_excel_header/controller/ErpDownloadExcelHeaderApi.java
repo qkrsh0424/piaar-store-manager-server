@@ -125,55 +125,58 @@ public class ErpDownloadExcelHeaderApi {
      */
     @PostMapping("/{id}/download-order-items/action-download")
     public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-        ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
-        List<String> details = headerDto.getHeaderDetail().getDetails().stream().map(r -> r.getCustomCellName()).collect(Collectors.toList());
-        List<ErpOrderItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, erpDownloadOrderItemDtos);
+        // ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
+        // // TODO :: 다르게 작성하자
+        // List<String> details = headerDto.getHeaderDetail().getDetails().stream().map(r -> r.getCustomCellName()).collect(Collectors.toList());
+        // List<ErpOrderItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, erpDownloadOrderItemDtos);
 
-        // 엑셀 생성
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet1");
-        Row row = null;
-        Cell cell = null;
-        int rowNum = 0;
+        // System.out.println(vos);
+        // System.out.println(headerDto);
+        // // 엑셀 생성
+        // Workbook workbook = new XSSFWorkbook();
+        // Sheet sheet = workbook.createSheet("Sheet1");
+        // Row row = null;
+        // Cell cell = null;
+        // int rowNum = 0;
 
-        row = sheet.createRow(rowNum++);
-        for (int i = 0; i < details.size(); i++) {
-            cell = row.createCell(i);
-            cell.setCellValue(details.get(i));
-        }
+        // row = sheet.createRow(rowNum++);
+        // for (int i = 0; i < details.size(); i++) {
+        //     cell = row.createCell(i);
+        //     cell.setCellValue(details.get(i));
+        // }
 
         // matchedColumnName 데이터만 헤더로 설정
-        for (int i = 0; i < vos.size(); i++) {
-            row = sheet.createRow(rowNum++);
-            for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
-                String cellValue = "";
-                if (headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName().equals("freightCode")) {
-                    cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-                } else {
-                    if(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()).getClass().equals(LocalDateTime.class)) {
-                        cellValue = CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()));
-                    }else {
-                        cellValue = CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName());
-                    }
-                }
-                cell = row.createCell(j);
-                cell.setCellValue(cellValue);
-            }
-        }
+        // for (int i = 0; i < vos.size(); i++) {
+        //     row = sheet.createRow(rowNum++);
+        //     for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
+        //         String cellValue = "";
+        //         if (headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName().equals("freightCode")) {
+        //             cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+        //         } else {
+        //             if(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()).getClass().equals(LocalDateTime.class)) {
+        //                 cellValue = CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName()));
+        //             }else {
+        //                 cellValue = CustomFieldUtils.getFieldValue(vos.get(i), headerDto.getHeaderDetail().getDetails().get(j).getMatchedColumnName());
+        //             }
+        //         }
+        //         cell = row.createCell(j);
+        //         cell.setCellValue(cellValue);
+        //     }
+        // }
 
-        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
-            sheet.autoSizeColumn(i);
-        }
+        // for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+        //     sheet.autoSizeColumn(i);
+        // }
 
-        response.setContentType("ms-vnd/excel");
-        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+        // response.setContentType("ms-vnd/excel");
+        // response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
 
-        try {
-            workbook.write(response.getOutputStream());
-            workbook.close();
-        } catch (IOException e) {
-            throw new IllegalArgumentException();
-        }
+        // try {
+        //     workbook.write(response.getOutputStream());
+        //     workbook.close();
+        // } catch (IOException e) {
+        //     throw new IllegalArgumentException();
+        // }
     }
 
     @PostMapping("/upload-excel-sample/action-download")
