@@ -5,8 +5,8 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
 import com.piaar_store_manager.server.domain.account_book.proj.AccountBookJoinProj;
+import com.piaar_store_manager.server.domain.expenditure_type.dto.ExpenditureTypeDto;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
-import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureTypeDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

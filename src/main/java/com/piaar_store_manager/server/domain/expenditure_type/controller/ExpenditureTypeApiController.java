@@ -1,10 +1,10 @@
-package com.piaar_store_manager.server.controller.api;
+package com.piaar_store_manager.server.domain.expenditure_type.controller;
 
 import java.util.Map;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.expenditure_type.service.ExpenditureTypeService;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.service.expenditure_type.ExpenditureTypeService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

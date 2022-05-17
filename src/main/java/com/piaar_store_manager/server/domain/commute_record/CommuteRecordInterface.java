@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.commute_record;
+package com.piaar_store_manager.server.domain.commute_record;
 
 public interface CommuteRecordInterface {
     public static String STATUS_NORMAL = "NORMAL";

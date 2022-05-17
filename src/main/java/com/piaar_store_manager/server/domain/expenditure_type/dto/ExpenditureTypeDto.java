@@ -1,6 +1,6 @@
-package com.piaar_store_manager.server.model.expenditure_type.dto;
+package com.piaar_store_manager.server.domain.expenditure_type.dto;
 
-import com.piaar_store_manager.server.model.expenditure_type.entity.ExpenditureTypeEntity;
+import com.piaar_store_manager.server.domain.expenditure_type.entity.ExpenditureTypeEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

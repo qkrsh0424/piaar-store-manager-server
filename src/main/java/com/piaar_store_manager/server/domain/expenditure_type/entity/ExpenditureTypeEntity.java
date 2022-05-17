@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.model.expenditure_type.entity;
+package com.piaar_store_manager.server.domain.expenditure_type.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

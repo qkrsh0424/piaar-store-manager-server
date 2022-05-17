@@ -1,10 +1,12 @@
-package com.piaar_store_manager.server.model.commute_record.entity;
+package com.piaar_store_manager.server.domain.commute_record.entity;
 
-import com.piaar_store_manager.server.model.commute_record.dto.CommuteRecordGetDto;
 import lombok.*;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+
+import com.piaar_store_manager.server.domain.commute_record.dto.CommuteRecordGetDto;
+
 import java.util.Date;
 import java.util.UUID;
 

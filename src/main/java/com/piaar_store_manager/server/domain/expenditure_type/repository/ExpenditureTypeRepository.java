@@ -1,6 +1,6 @@
-package com.piaar_store_manager.server.model.expenditure_type.repository;
+package com.piaar_store_manager.server.domain.expenditure_type.repository;
 
-import com.piaar_store_manager.server.model.expenditure_type.entity.ExpenditureTypeEntity;
+import com.piaar_store_manager.server.domain.expenditure_type.entity.ExpenditureTypeEntity;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

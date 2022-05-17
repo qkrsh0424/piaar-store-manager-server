@@ -1,7 +1,5 @@
-package com.piaar_store_manager.server.service.commute_record;
+package com.piaar_store_manager.server.domain.commute_record.service;
 
-import com.piaar_store_manager.server.model.commute_record.entity.CommuteRecordEntity;
-import com.piaar_store_manager.server.model.commute_record.repository.CommuteRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +7,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.piaar_store_manager.server.domain.commute_record.entity.CommuteRecordEntity;
+import com.piaar_store_manager.server.domain.commute_record.repository.CommuteRecordRepository;
 
 @Service
 public class CommuteRecordService {

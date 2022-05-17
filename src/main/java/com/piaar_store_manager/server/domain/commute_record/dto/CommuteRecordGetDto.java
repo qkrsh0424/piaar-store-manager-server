@@ -1,10 +1,11 @@
-package com.piaar_store_manager.server.model.commute_record.dto;
+package com.piaar_store_manager.server.domain.commute_record.dto;
 
-import com.piaar_store_manager.server.model.commute_record.entity.CommuteRecordEntity;
 import lombok.*;
 
 import java.util.Date;
 import java.util.UUID;
+
+import com.piaar_store_manager.server.domain.commute_record.entity.CommuteRecordEntity;
 
 @Getter
 @Setter

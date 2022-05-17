@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.service.expenditure_type;
+package com.piaar_store_manager.server.domain.expenditure_type.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,19 +9,18 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.account_book.entity.AccountBookEntity;
 import com.piaar_store_manager.server.domain.account_book.repository.AccountBookRepository;
-import com.piaar_store_manager.server.model.expenditure_type.dto.ExpenditureTypeDto;
-import com.piaar_store_manager.server.model.expenditure_type.entity.ExpenditureTypeEntity;
-import com.piaar_store_manager.server.model.expenditure_type.repository.ExpenditureTypeRepository;
+import com.piaar_store_manager.server.domain.expenditure_type.dto.ExpenditureTypeDto;
+import com.piaar_store_manager.server.domain.expenditure_type.entity.ExpenditureTypeEntity;
+import com.piaar_store_manager.server.domain.expenditure_type.repository.ExpenditureTypeRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class ExpenditureTypeService {
-    @Autowired
-    ExpenditureTypeRepository expenditureTypeRepository;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
+@Service
+@RequiredArgsConstructor
+public class ExpenditureTypeService {
+    ExpenditureTypeRepository expenditureTypeRepository;
     AccountBookRepository accountBookRepository;
 
     public List<ExpenditureTypeDto> searchList(){

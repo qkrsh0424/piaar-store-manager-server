@@ -1,10 +1,10 @@
-package com.piaar_store_manager.server.controller.api;
+package com.piaar_store_manager.server.domain.commute_record.controller;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.commute_record.service.CommuteRecordBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.service.commute_record.CommuteRecordBusinessService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
