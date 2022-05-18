@@ -284,6 +284,14 @@ public class ErpOrderItemVo {
                 customManagementMemo.add(cellValue.toString());
             }
 
+            // 피아르 양식 필수값 검사
+            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
+                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
+                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
+                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                }
+            }
+
             // price, deliveryCharge - 엑셀 타입 string, number 허용
             String priceStr = (row.getCell(18) == null) ? "0" : (row.getCell(18).getCellType().equals(CellType.NUMERIC) ?
                     Integer.toString((int) row.getCell(18).getNumericCellValue()) : row.getCell(18).getStringCellValue());
@@ -292,15 +300,7 @@ public class ErpOrderItemVo {
                     Integer.toString((int) row.getCell(19).getNumericCellValue()) : row.getCell(19).getStringCellValue());
 
             // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
-            String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());
-
-            // 피아르 양식 필수값 검사
-            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
-                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
-                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
-                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
-                }
-            }            
+            String releaseOptionCode = (row.getCell(23) != null) ? row.getCell(23).getStringCellValue() : (row.getCell(22) == null ? "" : row.getCell(22).getStringCellValue());          
 
             ErpOrderItemVo excelVo = ErpOrderItemVo.builder()
                     .uniqueCode(null)

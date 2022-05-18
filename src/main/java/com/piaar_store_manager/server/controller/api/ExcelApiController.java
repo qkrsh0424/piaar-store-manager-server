@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.model.order_confirm.dto.OrderConfirmGetDto;
-import com.piaar_store_manager.server.model.waybill.WaybillAssembledDto;
-import com.piaar_store_manager.server.model.waybill.WaybillGetDto;
-import com.piaar_store_manager.server.model.waybill.WaybillOptionInfo;
-import com.piaar_store_manager.server.service.order_confirm.OrderConfirmService;
-import com.piaar_store_manager.server.service.waybill.WaybillService;
+import com.piaar_store_manager.server.domain.order_confirm.dto.OrderConfirmGetDto;
+import com.piaar_store_manager.server.domain.order_confirm.service.OrderConfirmService;
+import com.piaar_store_manager.server.domain.waybill.dto.WaybillAssembledDto;
+import com.piaar_store_manager.server.domain.waybill.dto.WaybillGetDto;
+import com.piaar_store_manager.server.domain.waybill.dto.WaybillOptionInfo;
+import com.piaar_store_manager.server.domain.waybill.service.WaybillService;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
