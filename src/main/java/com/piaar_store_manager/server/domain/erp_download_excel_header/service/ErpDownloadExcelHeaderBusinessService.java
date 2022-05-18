@@ -231,19 +231,17 @@ public class ErpDownloadExcelHeaderBusinessService {
      * 1. headerDto에 작성된 데이터들만 erpDownloadOrderItemDtos에서 추출해 ErpDownloadItemVo의 cellValue로 지정한다
      * 
      */
-    public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(UUID id, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+    public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-
-        // 선택된 병합 헤더데이터 조회
-        ErpDownloadExcelHeaderDto headerDto = this.searchErpDownloadExcelHeader(id);
 
         int currentMergeItemIndex = 0;
         List<ErpDownloadItemVo> downloadItemVos = new ArrayList<>();
         for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
             List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
 
+            // optionName -> releaseOptionCode로 변경
             dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
                     .thenComparing(ErpOrderItemDto::getReceiverContact1)
                     .thenComparing(ErpOrderItemDto::getDestination)
@@ -265,10 +263,11 @@ public class ErpDownloadExcelHeaderBusinessService {
                     for (int z = 0; z < detailDto.getViewDetails().size(); z++) {
                         String matchedColumnName = detailDto.getViewDetails().get(z).getMatchedColumnName();
 
-                        if(CustomFieldUtils.getFieldValue(originDto, matchedColumnName).getClass().equals(LocalDateTime.class)) {
-                            appendFieldValue += CustomDateUtils.getLocalDateTimeToDownloadFormat(CustomFieldUtils.getFieldValue(originDto, matchedColumnName));
+                        Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                        if(obj.getClass().equals(LocalDateTime.class)) {
+                            appendFieldValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime)obj);
                         }else{
-                            appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedColumnName).toString();
+                            appendFieldValue += obj.toString();
                         }
 
                         if (z < detailDto.getViewDetails().size() - 1) {
@@ -281,6 +280,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                 downloadItemVos.add(downloadItemVo);
             }
 
+            // 합배송 처리
             Set<String> deliverySet = new HashSet<>();
             for (int j = 0; j < dtos.size(); j++) {
                 StringBuilder sb = new StringBuilder();
@@ -290,8 +290,7 @@ public class ErpDownloadExcelHeaderBusinessService {
 
                 String resultStr = sb.toString();
 
-                // 중복데이터
-                // 수량은 무조건 mergeYn이 y으로 설정해야 한다.
+                // 중복데이터 처리
                 if (!deliverySet.add(resultStr)) {
                     ErpDownloadItemVo prevVo = downloadItemVos.get(currentMergeItemIndex - 1);
                     ErpDownloadItemVo currentVo = downloadItemVos.get(currentMergeItemIndex);
@@ -309,49 +308,6 @@ public class ErpDownloadExcelHeaderBusinessService {
                 }
             }
         }
-
-        // 합배송 데이터를 처리한다
-        // int currentMergeItemIndex = 0;
-        // for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
-        //     List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
-
-        //     // OptionName -> ReleaseOptionCode로 변경
-        //     dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
-        //             .thenComparing(ErpOrderItemDto::getReceiverContact1)
-        //             .thenComparing(ErpOrderItemDto::getDestination)
-        //             .thenComparing(ErpOrderItemDto::getProdName)
-        //             // .thenComparing(ErpOrderItemDto::getOptionName));
-        //             .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
-
-        //     Set<String> deliverySet = new HashSet<>();
-        //     for (int j = 0; j < dtos.size(); j++) {
-        //         StringBuilder sb = new StringBuilder();
-        //         sb.append(dtos.get(j).getReceiver());
-        //         sb.append(dtos.get(j).getReceiverContact1());
-        //         sb.append(dtos.get(j).getDestination());
-
-        //         String resultStr = sb.toString();
-
-        //         // 중복데이터
-        //         // 수량은 무조건 mergeYn이 y으로 설정해야 한다.
-        //         if (!deliverySet.add(resultStr)) {
-        //             ErpDownloadItemVo prevVo = downloadItemVos.get(currentMergeItemIndex - 1);
-        //             ErpDownloadItemVo currentVo = downloadItemVos.get(currentMergeItemIndex);
-
-        //             for(int k = 0; k < headerDto.getHeaderDetail().getDetails().size(); k++) {
-        //                 if(headerDto.getHeaderDetail().getDetails().get(k).getMergeYn().equals("y")) {
-        //                     String result = prevVo.getCellValue().get(k) + headerDto.getHeaderDetail().getDetails().get(k).getMergeSplitter() + currentVo.getCellValue().get(k);
-        //                     downloadItemVos.get(currentMergeItemIndex-1).getCellValue().set(k, result);
-        //                 }
-        //             }
-        //             // 중복데이터 제거
-        //             downloadItemVos.remove(currentMergeItemIndex);
-        //         } else {
-        //             currentMergeItemIndex++;
-        //         }
-
-        //     }
-        // }
         return downloadItemVos;
     }
 

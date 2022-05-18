@@ -124,7 +124,7 @@ public class ErpDownloadExcelHeaderApi {
     public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
         List<String> details = headerDto.getHeaderDetail().getDetails().stream().map(r -> r.getCustomCellName()).collect(Collectors.toList());
-        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, erpDownloadOrderItemDtos);
+        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, headerDto, erpDownloadOrderItemDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();
@@ -143,14 +143,17 @@ public class ErpDownloadExcelHeaderApi {
             row = sheet.createRow(rowNum++);
             for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
                 String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
+                
                 String cellValue = "";
-                if (fieldType.equals("운송코드")) {
-                    cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-                } else if (fieldType.equals("고정값")){
-                    cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
-                }
-                else {
-                    cellValue = vos.get(i).getCellValue().get(j).toString();
+                switch(fieldType) {
+                    case "운송코드":
+                        cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+                        break;
+                    case "고정값":
+                        cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
+                        break;
+                    default:
+                        cellValue = vos.get(i).getCellValue().get(j).toString();
                 }
                 cell = row.createCell(j);
                 cell.setCellValue(cellValue);
