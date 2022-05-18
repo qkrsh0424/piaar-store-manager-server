@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,7 +18,7 @@ import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDo
 import com.piaar_store_manager.server.domain.erp_download_excel_header.entity.ErpDownloadExcelHeaderEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
-import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
+import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpDownloadItemVo;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
@@ -227,82 +227,104 @@ public class ErpDownloadExcelHeaderBusinessService {
     /**
      * TEST 1
      * downloadByErpDownloadExcelHeader
+     * 
+     * 1. headerDto에 작성된 데이터들만 erpDownloadOrderItemDtos에서 추출해 ErpDownloadItemVo의 cellValue로 지정한다
+     * 
      */
-    // public List<ErpOrderItemVo> downloadByErpDownloadExcelHeader(UUID id, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-    //     // access check
-    //     userService.userLoginCheck();
-    //     userService.userManagerRoleCheck();
+    public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(UUID id, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
 
-    //     // 선택된 병합 헤더데이터 조회
-    //     ErpDownloadExcelHeaderDto headerDto = this.searchErpDownloadExcelHeader(id);
+        // 선택된 병합 헤더데이터 조회
+        ErpDownloadExcelHeaderDto headerDto = this.searchErpDownloadExcelHeader(id);
 
-    //     List<ErpOrderItemVo> mergeItemVos = new ArrayList<>();
-    //     for (int k = 0; k < erpDownloadOrderItemDtos.size(); k++) {
-    //         // downloadDto의 k번쨰 collection. collection은 수령인 데이터 중복인 경우
-    //         List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(k).getCollections();
-    //         List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
+        List<ErpDownloadItemVo> downloadItemVos = new ArrayList<>();
+        for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
+            List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
 
-    //         itemVos.sort(Comparator.comparing(ErpOrderItemVo::getReceiver)
-    //                 .thenComparing(ErpOrderItemVo::getReceiverContact1)
-    //                 .thenComparing(ErpOrderItemVo::getDestination)
-    //                 .thenComparing(ErpOrderItemVo::getProdName)
-    //                 .thenComparing(ErpOrderItemVo::getOptionName));
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
+                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
+                    .thenComparing(ErpOrderItemDto::getDestination)
+                    .thenComparing(ErpOrderItemDto::getProdName)
+                    // .thenComparing(ErpOrderItemDto::getOptionName));
+                    .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
 
-    //         // 구분자로 데이터들 병합
-    //         for (int i = 0; i < itemVos.size() && i < dtos.size(); i++) {
-    //             ErpOrderItemVo currentVo = itemVos.get(i);
-    //             ErpOrderItemDto originDto = dtos.get(i);
+            // 다운로드 데이터 개수만큼 반복
+            for (int j = 0; j < dtos.size(); j++) {
+                ErpOrderItemDto originDto = dtos.get(j);
 
-    //             String appendFieldValue = "";
-    //             for(int j = 0; j < headerDto.getHeaderDetail().getDetails().get(i).getViewDetails().size(); j++) {
-    //                 String matchedColumnName = headerDto.getHeaderDetail().getDetails().get(i).getViewDetails().get(j).getMatchedColumnName();
-    //                 appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedColumnName).toString();
+                List<Object> cellValueList = new ArrayList<>();
+                // 헤더에 설정된 다운로드 view 헤더만큼 반복
+                for (int k = 0; k < headerDto.getHeaderDetail().getDetails().size(); k++) {
+                    DetailDto detailDto = headerDto.getHeaderDetail().getDetails().get(k);
 
-    //                 if(j < headerDto.getHeaderDetail().getDetails().get(i).getViewDetails().size()-1) {
-    //                     appendFieldValue += headerDto.getHeaderDetail().getDetails().get(i).getValueSplitter().toString();
-    //                 }
-    //             }
-    //             CustomFieldUtils.setFieldValueByIndex(currentVo, , appendFieldValue);
-    //         }
-    //         // List<Map<UUID, String>>
-    //         // 합배송 처리
-    //         Set<String> deliverySet = new HashSet<>();
-    //         for (int i = 0; i < itemVos.size(); i++) {
-    //             StringBuilder sb = new StringBuilder();
-    //             sb.append(itemVos.get(i).getReceiver());
-    //             sb.append(itemVos.get(i).getReceiverContact1());
-    //             sb.append(itemVos.get(i).getDestination());
+                    String appendFieldValue = "";
+                    // 다운로드 view 헤더에서 viewDetails의 개수만큼 반복해 필드값을 update한다
+                    for (int z = 0; z < detailDto.getViewDetails().size(); z++) {
+                        String matchedColumnName = detailDto.getViewDetails().get(z).getMatchedColumnName();
 
-    //             String resultStr = sb.toString();
+                        if(CustomFieldUtils.getFieldValue(originDto, matchedColumnName).getClass().equals(LocalDateTime.class)) {
+                            appendFieldValue += CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(CustomFieldUtils.getFieldValue(originDto, matchedColumnName));
+                        }else{
+                            appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedColumnName).toString();
+                        }
 
-    //             mergeItemVos.add(itemVos.get(i));
-    //             int currentMergeItemIndex = mergeItemVos.size() - 1;
+                        if (z < detailDto.getViewDetails().size() - 1) {
+                            appendFieldValue += detailDto.getValueSplitter().toString();
+                        }
+                    }
+                    cellValueList.add(appendFieldValue);
+                }
+                ErpDownloadItemVo downloadItemVo = ErpDownloadItemVo.builder().cellValue(cellValueList).build();
+                downloadItemVos.add(downloadItemVo);
+            }
+        }
 
-    //             // 중복데이터(상품 + 옵션)
-    //             if (!deliverySet.add(resultStr)) {
-    //                 ErpOrderItemVo currentVo = mergeItemVos.get(currentMergeItemIndex);
-    //                 ErpOrderItemVo prevVo = mergeItemVos.get(currentMergeItemIndex - 1);
+        // 합배송 데이터를 처리한다
+        int currentMergeItemIndex = 0;
+        for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
+            List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
 
-    //                 for(int j = 0; j < headerDto.getHeaderDetail().getDetails().get(i).getViewDetails().size(); j++) {
-    //                     String matchedColumnName = headerDto.getHeaderDetail().getDetails().get(i).getViewDetails().get(j).getMatchedColumnName();
-    //                     String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, matchedColumnName) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, matchedColumnName);
-    //                     String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, matchedColumnName) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, matchedColumnName);
-    //                     CustomFieldUtils.setFieldValue(prevVo, matchedColumnName, 
-    //                         prevFieldValue + headerDto.getHeaderDetail().getDetails().get(j).getMergeSplitter() + currentFieldValue);
-    //                 }
+            // OptionName -> ReleaseOptionCode로 변경
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
+                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
+                    .thenComparing(ErpOrderItemDto::getDestination)
+                    .thenComparing(ErpOrderItemDto::getProdName)
+                    // .thenComparing(ErpOrderItemDto::getOptionName));
+                    .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
 
-    //                 // 중복데이터 제거
-    //                 mergeItemVos.remove(currentMergeItemIndex);
-    //             }
+            Set<String> deliverySet = new HashSet<>();
+            for (int j = 0; j < dtos.size(); j++) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(dtos.get(j).getReceiver());
+                sb.append(dtos.get(j).getReceiverContact1());
+                sb.append(dtos.get(j).getDestination());
 
-    //             // 3. fixedValue가 지정된 column들은 fixedValue값으로 데이터를 덮어씌운다
-    //             if(headerDto.getHeaderDetail().getDetails().get(i).getFieldType().equals("고정값")) {
-    //                 CustomFieldUtils.setField(mergeItemVos.get(mergeItemVos.size() - 1), , headerDto.getHeaderDetail().getDetails().get(i).getFixedValue());
-    //             }
-    //         }
-    //     }
-    //     return mergeItemVos;
-    // }
+                String resultStr = sb.toString();
+
+                // 중복데이터
+                // 수량은 무조건 mergeYn이 y으로 설정해야 한다.
+                if (!deliverySet.add(resultStr)) {
+                    ErpDownloadItemVo prevVo = downloadItemVos.get(currentMergeItemIndex - 1);
+                    ErpDownloadItemVo currentVo = downloadItemVos.get(currentMergeItemIndex);
+
+                    for(int k = 0; k < headerDto.getHeaderDetail().getDetails().size(); k++) {
+                        if(headerDto.getHeaderDetail().getDetails().get(k).getMergeYn().equals("y")) {
+                            String result = prevVo.getCellValue().get(k) + headerDto.getHeaderDetail().getDetails().get(k).getMergeSplitter() + currentVo.getCellValue().get(k);
+                            downloadItemVos.get(currentMergeItemIndex-1).getCellValue().set(k, result);
+                        }
+                    }
+                    // 중복데이터 제거
+                    downloadItemVos.remove(currentMergeItemIndex);
+                } else {
+                    currentMergeItemIndex++;
+                }
+
+            }
+        }
+        return downloadItemVos;
+    }
 
     /**
      * <b>DB Select Related Method</b>
