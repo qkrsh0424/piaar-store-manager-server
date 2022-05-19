@@ -1,6 +1,6 @@
 package com.piaar_store_manager.server.domain.order_registration.naver.dto;
 
-import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
+import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemHansanExcelFormDto;
 
 import lombok.Builder;
 import lombok.Data;

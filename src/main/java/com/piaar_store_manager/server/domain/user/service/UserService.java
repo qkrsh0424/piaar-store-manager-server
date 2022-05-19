@@ -11,7 +11,7 @@ import com.piaar_store_manager.server.domain.user.entity.UserEntity;
 import com.piaar_store_manager.server.domain.user.repository.UserRepository;
 import com.piaar_store_manager.server.exception.CustomAccessDeniedException;
 import com.piaar_store_manager.server.exception.CustomInvalidUserException;
-import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
