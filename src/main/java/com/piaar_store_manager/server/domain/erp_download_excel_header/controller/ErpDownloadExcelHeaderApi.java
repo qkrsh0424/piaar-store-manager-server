@@ -121,66 +121,67 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#searchErpDownloadExcelHeader
      * @see ErpDownloadExcelHeaderBusinessService#downloadByErpDownloadExcelHeader
      */
-//    @PostMapping("/{id}/download-order-items/action-download")
-//    public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-//        ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
-//
-//        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, headerDto, erpDownloadOrderItemDtos);
-//
-//        // 엑셀 생성
-//        Workbook workbook = new XSSFWorkbook();
-//        Sheet sheet = workbook.createSheet("Sheet1");
-//        Row row = null;
-//        Cell cell = null;
-//        int rowNum = 0;
-//
-//        row = sheet.createRow(rowNum++);
-//        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
-//            cell = row.createCell(i);
-//            cell.setCellValue(headerDto.getHeaderDetail().getDetails().get(i).getCustomCellName());
-//        }
-//
-//        for(int i = 0; i < vos.size(); i++) {
-//            row = sheet.createRow(rowNum++);
-//            for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
-//                String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
-//
-//                String cellValue = "";
-//                switch(fieldType) {
-//                    case "운송코드":
-//                        cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-//                        break;
-//                    case "고정값":
-//                        cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
-//                        break;
-//                    default:
-//                        cellValue = vos.get(i).getCellValue().get(j).toString();
-//                }
-//                cell = row.createCell(j);
-//                cell.setCellValue(cellValue);
-//            }
-//        }
-//
-//        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
-//            sheet.autoSizeColumn(i);
-//        }
-//
-//        response.setContentType("ms-vnd/excel");
-//        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
-//
-//        try {
-//            workbook.write(response.getOutputStream());
-//            workbook.close();
-//        } catch (IOException e) {
-//            throw new IllegalArgumentException();
-//        }
-//    }
+    @PostMapping("/{id}/download-order-items/action-download")
+    public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
+
+        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, headerDto, erpDownloadOrderItemDtos);
+
+        // 엑셀 생성
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Sheet1");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        row = sheet.createRow(rowNum++);
+        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+            cell = row.createCell(i);
+            cell.setCellValue(headerDto.getHeaderDetail().getDetails().get(i).getCustomCellName());
+        }
+
+        for(int i = 0; i < vos.size(); i++) {
+            row = sheet.createRow(rowNum++);
+            for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
+                String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
+
+                String cellValue = "";
+                switch(fieldType) {
+                    case "운송코드":
+                        cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+                        break;
+                    case "고정값":
+                        cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
+                        break;
+                    default:
+                        cellValue = vos.get(i).getCellValue().get(j).toString();
+                }
+                cell = row.createCell(j);
+                cell.setCellValue(cellValue);
+            }
+        }
+
+        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        try {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+    }
 
     /*
     TEST 2
+    downloadForDownloadOrderItems OR downloadForDownloadOrderItems2 둘중 하나 주석후 사용
      */
     @PostMapping("/{id}/download-order-items/action-download")
-    public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+    public void downloadForDownloadOrderItems2(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
         List<List<String>> matrix = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader2(id, headerDto, erpDownloadOrderItemDtos);
 
