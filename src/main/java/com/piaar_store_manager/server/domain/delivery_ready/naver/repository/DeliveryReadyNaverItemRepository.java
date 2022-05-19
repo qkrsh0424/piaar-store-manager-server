@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.repository;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +55,7 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")
-    List<DeliveryReadyNaverItemViewProj> findSelectedReleased(Date date1, Date date2);
+    List<DeliveryReadyNaverItemViewProj> findSelectedReleased(LocalDateTime date1, LocalDateTime date2);
 
     /**
      * 옵션 정보를 전체 조회한다.

@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -16,13 +17,16 @@ import org.hibernate.annotations.Type;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Entity
 @Builder
-@Data
+@Getter @Setter
+@ToString
 @Table(name = "delivery_ready_naver_item")
 @Accessors(chain = true)
 @NoArgsConstructor
@@ -57,7 +61,7 @@ public class DeliveryReadyNaverItemEntity {
     private String receiver; // 수취인명(10)
 
     @Column(name = "payment_date")
-    private Date paymentDate; // 결제일(14)
+    private LocalDateTime paymentDate; // 결제일(14)
 
     @Column(name = "prod_number")
     private String prodNumber; // 상품번호(15)
@@ -75,10 +79,10 @@ public class DeliveryReadyNaverItemEntity {
     private Integer unit; // 수량(20)
 
     @Column(name = "order_confirmation_date")
-    private Date orderConfirmationDate; // 발주확인일(27)
+    private LocalDateTime orderConfirmationDate; // 발주확인일(27)
 
     @Column(name = "shipment_due_date")
-    private Date shipmentDueDate; // 발송기한(28)
+    private LocalDateTime shipmentDueDate; // 발송기한(28)
 
     @Column(name = "shipment_cost_bundle_number")
     private String shipmentCostBundleNumber; // 배송비 묶음번호(32)
@@ -114,7 +118,7 @@ public class DeliveryReadyNaverItemEntity {
     private String releaseArea; // 출고지(46)
 
     @Column(name = "order_date_time")
-    private Date orderDateTime; // 주문일시(56)
+    private LocalDateTime orderDateTime; // 주문일시(56)
 
     @Column(name = "release_option_code")
     private String releaseOptionCode;
@@ -153,10 +157,10 @@ public class DeliveryReadyNaverItemEntity {
     private Boolean released; // 출고여부
 
     @Column(name = "released_at")
-    private Date releasedAt;
+    private LocalDateTime releasedAt;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "release_completed")
     private Boolean releaseCompleted; // 재고반영 여부

@@ -1,21 +1,26 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain=true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain=true)
 public class DeliveryReadyNaverItemDto {
     private Integer cid;
     private UUID id;
@@ -25,14 +30,14 @@ public class DeliveryReadyNaverItemDto {
     private String buyer;       // 구매자명(8)
     private String buyerId;     // 구매자ID(9)
     private String receiver;        // 수취인명(10)
-    private Date paymentDate;     // 결제일(14)
+    private LocalDateTime paymentDate;     // 결제일(14)
     private String prodNumber;        // 상품번호(15)
     private String prodName;        // 상품명(16)
     private String optionInfo;        // 옵션정보(18)
     private String optionManagementCode;        // 옵션관리코드(19)
     private Integer unit;        // 수량(20)
-    private Date orderConfirmationDate;        // 발주확인일(27)
-    private Date shipmentDueDate;        // 발송기한(28)
+    private LocalDateTime orderConfirmationDate;        // 발주확인일(27)
+    private LocalDateTime shipmentDueDate;        // 발송기한(28)
     private String shipmentCostBundleNumber;        // 배송비 묶음번호(32)
     private String sellerProdCode;        // 판매자 상품코드(37)
     private String sellerInnerCode1;        // 판매자 내부코드1(38)
@@ -44,7 +49,7 @@ public class DeliveryReadyNaverItemDto {
     private String zipCode;        // 우편번호(44)
     private String deliveryMessage;        // 배송메세지(45)
     private String releaseArea;        // 출고지(46)
-    private Date orderDateTime;        // 주문일시(56)
+    private LocalDateTime orderDateTime;        // 주문일시(56)
     private String releaseOptionCode;       // 출고 옵션코드
 
     // 커스텀 메모
@@ -60,8 +65,8 @@ public class DeliveryReadyNaverItemDto {
     private String piaarMemo10;
 
     private Boolean released;   // 출고여부
-    private Date releasedAt;    // 출고일시
-    private Date createdAt;     // 업로드 일시
+    private LocalDateTime releasedAt;    // 출고일시
+    private LocalDateTime createdAt;     // 업로드 일시
     private Boolean releaseCompleted;       // 재고반영 여부
     private Integer deliveryReadyFileCid;       // 파일 cid
 
@@ -122,5 +127,44 @@ public class DeliveryReadyNaverItemDto {
             .build();
 
         return itemDto;
+    }
+
+    /**
+     * delivery ready naver item, 엑셀 다운로드 및 view 결과로 필요한 데이터를 포함하는 객체
+     */
+    @Getter @Setter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ViewReqAndRes {
+        DeliveryReadyNaverItemDto deliveryReadyItem;
+        private String prodManufacturingCode;
+        private String prodManagementName;
+        private String optionDefaultName;
+        private String optionManagementName;
+        private Integer optionStockUnit;
+        private String optionMemo;  // viewResDto에만 있는 항목
+        private String sender;
+        private String senderContact1;
+        private String optionNosUniqueCode;
+        private String releaseMemo;
+        private String receiveMemo;
+
+        public static ViewReqAndRes toDto(DeliveryReadyNaverItemViewProj itemViewProj) {
+            ViewReqAndRes dto = ViewReqAndRes.builder()
+                .deliveryReadyItem(DeliveryReadyNaverItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
+                .prodManufacturingCode(itemViewProj.getProdManufacturingCode())
+                .prodManagementName(itemViewProj.getProdManagementName())
+                .optionDefaultName(itemViewProj.getOptionDefaultName())
+                .optionManagementName(itemViewProj.getOptionManagementName())
+                .optionStockUnit(itemViewProj.getOptionStockUnit())
+                .optionMemo(itemViewProj.getOptionMemo())
+                .optionNosUniqueCode(itemViewProj.getOptionNosUniqueCode())
+                .build();
+
+            return dto;
+        }
     }
 }

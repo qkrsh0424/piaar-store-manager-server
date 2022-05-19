@@ -1,6 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +20,9 @@ public class DeliveryReadyNaverItemExcelFormDto {
     private String optionManagementName;    // 피아르 옵션관리명2
     private String unit;        // 수량
     private String optionStockUnit;        // 재고수량
-    private Date paymentDate;     // 결제일
-    private Date orderConfirmationDate;        // 발주확인일
-    private Date shipmentDueDate;        // 발송기한
+    private LocalDateTime paymentDate;     // 결제일
+    private LocalDateTime orderConfirmationDate;        // 발주확인일
+    private LocalDateTime shipmentDueDate;        // 발송기한
     private String shipmentCostBundleNumber;        // 배송비 묶음번호
     private String prodNumber;        // 상품번호
     private String sellerProdCode;        // 판매자 상품코드
@@ -35,9 +35,9 @@ public class DeliveryReadyNaverItemExcelFormDto {
     private String destination;        // 배송지
     private String buyerContact;        // 구매자연락처
     private String deliveryMessage;        // 배송메세지
-    private Date orderDateTime;        // 주문일시
+    private LocalDateTime orderDateTime;        // 주문일시
     private Boolean released;   // 출고여부
-    private Date releasedAt;    // 출고일시
+    private LocalDateTime releasedAt;    // 출고일시
 
     /**
      * <b>Convert Method</b>

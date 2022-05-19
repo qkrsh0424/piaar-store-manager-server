@@ -17,12 +17,12 @@ public interface DeliveryReadyItemOptionInfoProj {
      * @return DeliveryReadyItemOptionInfoResDto
      */
     public static DeliveryReadyItemOptionInfoResDto toResDto(DeliveryReadyItemOptionInfoProj proj) {
-        DeliveryReadyItemOptionInfoResDto dto = new DeliveryReadyItemOptionInfoResDto();
-
-        dto.setOptionCode(proj.getOptionCode())
-            .setOptionDefaultName(proj.getOptionDefaultName())
-            .setOptionManagementName(proj.getOptionManagementName())
-            .setProdDefaultName(proj.getProdDefaultName());
+        DeliveryReadyItemOptionInfoResDto dto = DeliveryReadyItemOptionInfoResDto.builder()
+            .optionCode(proj.getOptionCode())
+            .optionDefaultName(proj.getOptionDefaultName())
+            .optionManagementName(proj.getOptionManagementName())
+            .prodDefaultName(proj.getProdDefaultName())
+            .build();
 
         return dto;
     }

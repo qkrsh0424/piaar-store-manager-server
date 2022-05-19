@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready_file.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -51,7 +52,7 @@ public class DeliveryReadyFileEntity {
     private String fileExtension;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Type(type = "uuid-char")
     @Column(name = "created_by")

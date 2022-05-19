@@ -1,7 +1,8 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.service;
 
-import java.io.IOException;
 import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -13,17 +14,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.piaar_store_manager.server.config.aws.AwsS3Configuration;
+import com.piaar_store_manager.server.domain.aws.s3.dto.AwsS3ReqDto;
+import com.piaar_store_manager.server.domain.aws.s3.service.AwsS3Service;
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemLotteExcelFormDto;
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemOptionInfoResDto;
@@ -70,24 +65,11 @@ public class DeliveryReadyNaverBusinessService {
     private final ProductOptionService productOptionService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
-
-    // AWS S3
-    private AmazonS3 s3Client;
-
-    @Value("${cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
-    @Value("${cloud.aws.region.static}")
-    private String region;
+    private final AwsS3Configuration awsS3Configuration;
+    private final AwsS3Service awsS3Service;
     
     @Value("${file.upload-dir}")
     String fileLocation;
-    
-    @Value("${cloud.aws.s3.bucket}")
-    public String bucket;
 
     /**
      * <b>Upload Excel File</b>
@@ -110,7 +92,7 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>Convert Method</b>
      * <p>
-     * 선택된 엑셀파일(네이버 배송준비 엑셀)의 데이터들을 Dto로 변환한다.
+     * 업로드된 엑셀파일(네이버 배송준비 엑셀)의 데이터를 Dto로 변환한다.
      * 
      * @param worksheet : Sheet
      * @return List::DeliveryReadyNaverItemDto::
@@ -127,14 +109,17 @@ public class DeliveryReadyNaverBusinessService {
                     .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
                     .buyerId(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
                     .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
-                    .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
+                    // .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
+                    .paymentDate(row.getCell(14) != null ? row.getCell(14).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
                     .prodNumber(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
                     .prodName(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                     .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
                     .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue() : "")
                     .unit((int) row.getCell(20).getNumericCellValue())
-                    .orderConfirmationDate(row.getCell(27) != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
-                    .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
+                    // .orderConfirmationDate(row.getCell(27) != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
+                    // .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
+                    .orderConfirmationDate(row.getCell(27) != null ? row.getCell(27).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                    .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
                     .shipmentCostBundleNumber(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
                     .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
                     .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
@@ -146,7 +131,8 @@ public class DeliveryReadyNaverBusinessService {
                     .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                     .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                     .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                    .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
+                    .orderDateTime(row.getCell(56) != null ? row.getCell(56).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                    // .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
                     .piaarMemo1(row.getCell(67) != null ? row.getCell(67).getStringCellValue() : "")
                     .piaarMemo2(row.getCell(68) != null ? row.getCell(68).getStringCellValue() : "")
                     .piaarMemo3(row.getCell(69) != null ? row.getCell(69).getStringCellValue() : "")
@@ -161,75 +147,50 @@ public class DeliveryReadyNaverBusinessService {
 
             dtos.add(dto);
         }
-
         return dtos;
     }
 
     /**
-     * <b>S3 Upload Setting Related Method</b>
+     * <b>S3 Upload Related Method</b>
      * <p>
-     * AWS S3 설정 메소드.
-     *
-     * @param accessKey : String
-     * @param secretKey : String
-     */
-    @PostConstruct
-    public void setS3Client() {
-        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
-
-        s3Client = AmazonS3ClientBuilder.standard()
-                .withCredentials(new AWSStaticCredentialsProvider(credentials))
-                .withRegion(this.region)
-                .build();
-    }
-
-    /**
-     * <b>S3 Upload & DB Insert Related Method</b>
-     * <p>
-     * 업로드된 엑셀파일을 S3 및 DB에 저장한다.
+     * 업로드된 엑셀파일을 S3 저장하고, 파일과 데이터를 DB에 저장한다.
      *
      * @param file : MultipartFile
-     * @param userId : UUID
-     * @throws IllegalStateException
-     * @see DeliveryReadyNaverBusinessService#createDeliveryReadyExcelFile
-     * @see DeliveryReadyNaverBusinessService#createDeliveryExcelItem
+     * @see DeliveryReadyNaverBusinessService#createFile
+     * @see DeliveryReadyNaverBusinessService#createItem
      */
     @Transactional
     public void storeDeliveryReadyExcelFile(MultipartFile file) {
         String fileName = file.getOriginalFilename();
         String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
-        String uploadPath = bucket + "/naver-order";
+        String uploadPath = awsS3Configuration.getS3().get("bucket") + "/naver-order";
 
-        ObjectMetadata objMeta = new ObjectMetadata();
-        objMeta.setContentLength(file.getSize());
-
-        try{
-            // AWS S3 업로드
-            s3Client.putObject(new PutObjectRequest(uploadPath, newFileName, file.getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
-        } catch (IOException e) {
-            throw new IllegalStateException();
-        }
+        AwsS3ReqDto reqDto = AwsS3ReqDto.builder()
+            .uploadPath(uploadPath)
+            .fileName(fileName)
+            .file(file)
+            .build();
+        awsS3Service.putObject(reqDto);
 
         // 파일 저장
-        DeliveryReadyFileDto fileDto = this.createDeliveryReadyExcelFile(uploadPath, newFileName, (int)file.getSize());
+        DeliveryReadyFileDto fileDto = this.createFile(uploadPath, newFileName, (int)file.getSize());
         // 데이터 저장
-        this.createDeliveryReadyExcelItem(file, fileDto);
+        this.createItem(file, fileDto);
     }
     
     /**
-     * <b>Create FileDto Method</b>
+     * <b>Create Related Method</b>
      * <p>
-     * 파일 
+     * 업로드된 배송준비 엑셀 파일의 정보를 DeliveryReadyFileDto로 생성하고 저장한다. 
      *
      * @param filePath : String
      * @param fileName : String
      * @param fileSize : Integer
-     * @param userId : UUID
-     * @see DeliveryReadyNaverService#createFile
+     * @see DeliveryReadyNaverService#saveAndModifyForFile
      * @see DeliveryReadyFileDto#toDto
      * @return DeliveryReadyFileDto
      */
-    public DeliveryReadyFileDto createDeliveryReadyExcelFile(String filePath, String fileName, Integer fileSize) {
+    public DeliveryReadyFileDto createFile(String filePath, String fileName, Integer fileSize) {
         UUID userId = userService.getUserId();
         // File data 생성 및 저장
         DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
@@ -238,12 +199,12 @@ public class DeliveryReadyNaverBusinessService {
             .fileName(fileName)
             .fileSize(fileSize)
             .fileExtension(FilenameUtils.getExtension(fileName))
-            .createdAt(DateHandler.getCurrentDate2())
+            .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(userId)
             .deleted(false)
             .build();
 
-        DeliveryReadyFileEntity entity = deliveryReadyNaverService.createFile(DeliveryReadyFileEntity.toEntity(fileDto));
+        DeliveryReadyFileEntity entity = deliveryReadyNaverService.saveAndGetForFile(DeliveryReadyFileEntity.toEntity(fileDto));
         DeliveryReadyFileDto dto = DeliveryReadyFileDto.toDto(entity);
         return dto;
     }
@@ -251,16 +212,14 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>Create Excel Workbook Method</b>
      * <p>
-     * 배송준비 엑셀 파일 데이터들의 정보를 저장한다.
+     * 업로드된 배송준비 엑셀 파일의 데이터를 모두 저장한다.
      *
      * @param file : MultipartFile
      * @param fileDto : DeliveryReadyFileDto
-     * @throws IllegalArgumentException
      * @see DeliveryReadyNaverBusinessService#getDeliveryReadyNaverExcelItem
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverService#createItemList
+     * @see DeliveryReadyNaverService#saveAndModifyForItemList
      */
-    public void createDeliveryReadyExcelItem(MultipartFile file, DeliveryReadyFileDto fileDto) {
+    public void createItem(MultipartFile file, DeliveryReadyFileDto fileDto) {
         Integer SHEET_INDEX = 0;
         Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
@@ -272,13 +231,13 @@ public class DeliveryReadyNaverBusinessService {
                 .thenComparing(DeliveryReadyNaverItemDto::getReceiver));
 
         List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> DeliveryReadyNaverItemEntity.toEntity(dto)).collect(Collectors.toList());
-        deliveryReadyNaverService.createItemList(entities);
+        deliveryReadyNaverService.saveAndModifyForItemList(entities);
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * 배송준비 엑셀 파일 데이터들의 중복을 제거하여 DB에 저장한다.
+     * 배송준비 엑셀 파일 데이터들의 중복되는 데이터를 제거하여 DB에 저장한다.
      *
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
@@ -293,6 +252,11 @@ public class DeliveryReadyNaverBusinessService {
         for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
+            // 상품주문번호가 중복된다면 다음 데이터로 넘어간다
+            if(!storedProdOrderNumber.add(row.getCell(0).getStringCellValue())){
+                continue;
+            }
+
             DeliveryReadyNaverItemDto dto = DeliveryReadyNaverItemDto.builder()
                 .id(UUID.randomUUID())
                 .prodOrderNumber(row.getCell(0).getStringCellValue())
@@ -301,14 +265,17 @@ public class DeliveryReadyNaverBusinessService {
                 .buyer(row.getCell(8) != null ? row.getCell(8).getStringCellValue() : "")
                 .buyerId(row.getCell(9) != null ? row.getCell(9).getStringCellValue() : "")
                 .receiver(row.getCell(10) != null ? row.getCell(10).getStringCellValue() : "")
-                .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
+                .paymentDate(row.getCell(14) != null ? row.getCell(14).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                // .paymentDate(row.getCell(14) != null ? DateHandler.getUtcDate(row.getCell(14).getDateCellValue()) : new Date())
                 .prodNumber(row.getCell(15) != null ? row.getCell(15).getStringCellValue() : "")
                 .prodName(row.getCell(16) != null ? row.getCell(16).getStringCellValue() : "")
                 .optionInfo(row.getCell(18) != null ? row.getCell(18).getStringCellValue() : "")
                 .optionManagementCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
                 .unit((int) row.getCell(20).getNumericCellValue())
-                .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
-                .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
+                .orderConfirmationDate(row.getCell(27) != null ? row.getCell(27).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                // .orderConfirmationDate(row.getCell(27).getDateCellValue() != null ? DateHandler.getUtcDate(row.getCell(27).getDateCellValue()) : new Date())
+                .shipmentDueDate(row.getCell(28) != null ? row.getCell(28).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                // .shipmentDueDate(row.getCell(28) != null ? DateHandler.getUtcDate(row.getCell(28).getDateCellValue()) : new Date())
                 .shipmentCostBundleNumber(row.getCell(32) != null ? row.getCell(32).getStringCellValue() : "")
                 .sellerProdCode(row.getCell(37) != null ? row.getCell(37).getStringCellValue() : "")
                 .sellerInnerCode1(row.getCell(38) != null ? row.getCell(38).getStringCellValue() : "")
@@ -320,7 +287,8 @@ public class DeliveryReadyNaverBusinessService {
                 .zipCode(row.getCell(44) != null ? row.getCell(44).getStringCellValue() : "")
                 .deliveryMessage(row.getCell(45) != null ? row.getCell(45).getStringCellValue() : "")
                 .releaseArea(row.getCell(46) != null ? row.getCell(46).getStringCellValue() : "")
-                .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
+                .orderDateTime(row.getCell(56) != null ? row.getCell(56).getLocalDateTimeCellValue() : CustomDateUtils.getCurrentDateTime())
+                // .orderDateTime(row.getCell(56) != null ? DateHandler.getUtcDate(row.getCell(56).getDateCellValue()) : new Date())
                 .releaseOptionCode(row.getCell(19) != null ? row.getCell(19).getStringCellValue().strip() : "")
                 .piaarMemo1(row.getCell(67) != null ? row.getCell(67).getStringCellValue() : "")
                 .piaarMemo2(row.getCell(68) != null ? row.getCell(68).getStringCellValue() : "")
@@ -338,10 +306,7 @@ public class DeliveryReadyNaverBusinessService {
                 .deliveryReadyFileCid(fileDto.getCid())
                 .build();
 
-            // 상품주문번호가 중복되지 않는다면 데이터를 생성한다.
-            if(storedProdOrderNumber.add(dto.getProdOrderNumber())){
-                dtos.add(dto);
-            }
+            dtos.add(dto);
         }
         return dtos;
     }
@@ -350,14 +315,15 @@ public class DeliveryReadyNaverBusinessService {
      * <b>DB Select Related Method</b>
      * <p>
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
+     * 조회된 데이터로 옵션재고수량을 재설정한다.
      *
      * @return List::DeliveryReadyNaverItemViewResDto::
      * @see DeliveryReadyNaverService#findSelectedUnreleased
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
-    public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewUnreleasedData() {
+    public List<DeliveryReadyNaverItemDto.ViewReqAndRes> getDeliveryReadyViewUnreleasedData() {
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedUnreleased();
-        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
+        List<DeliveryReadyNaverItemDto.ViewReqAndRes> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
 
@@ -372,15 +338,18 @@ public class DeliveryReadyNaverBusinessService {
      * @see DeliveryReadyNaverService#findSelectedReleased
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
-    public List<DeliveryReadyNaverItemViewResDto> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
-        Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
-                : startDateCalendar.getTime();
-        Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+    public List<DeliveryReadyNaverItemDto.ViewReqAndRes> getDeliveryReadyViewReleased(Map<String, Object> query) throws ParseException {
+        // Calendar startDateCalendar = Calendar.getInstance();
+        // startDateCalendar.set(Calendar.YEAR, 1970);
+        // Date startDate = query.get("startDate") != null ? new Date(query.get("startDate").toString())
+        //         : startDateCalendar.getTime();
+        // Date endDate = query.get("endDate") != null ? new Date(query.get("endDate").toString()) : new Date();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
+        LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();   /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */
         
         List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
-        List<DeliveryReadyNaverItemViewResDto> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
+        List<DeliveryReadyNaverItemDto.ViewReqAndRes> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
 
@@ -394,19 +363,19 @@ public class DeliveryReadyNaverBusinessService {
      * @see ProductOptionService#searchListByProductListOptionCode
      * @see DeliveryReadyNaverItemViewResDto#toResDtos
      */
-    public List<DeliveryReadyNaverItemViewResDto> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
+    public List<DeliveryReadyNaverItemDto.ViewReqAndRes> changeOptionStockUnit(List<DeliveryReadyNaverItemViewProj> itemViewProj) {
         List<String> optionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByOptionCodes(optionCodes);
-        List<DeliveryReadyNaverItemViewResDto>  itemViewResDto = new ArrayList<>();
+        List<DeliveryReadyNaverItemDto.ViewReqAndRes>  itemViewResDto = new ArrayList<>();
 
         if(optionGetDtos.isEmpty()) {
-            itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemViewResDto.toResDto(proj)).collect(Collectors.toList());
+            itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemDto.ViewReqAndRes.toDto(proj)).collect(Collectors.toList());
             return itemViewResDto;
         }
 
         // 옵션 재고수량을 StockSumUnit(총 입고 수량 - 총 출고 수량)으로 변경
         itemViewResDto = itemViewProj.stream().map(proj -> {
-            DeliveryReadyNaverItemViewResDto resDto = DeliveryReadyNaverItemViewResDto.toResDto(proj);
+            DeliveryReadyNaverItemDto.ViewReqAndRes resDto = DeliveryReadyNaverItemDto.ViewReqAndRes.toDto(proj);
 
             // 출고 옵션코드를 생성하기 전의 데이터들은 getReleaseOptionCode가 null이다.
             if(proj.getDeliveryReadyItem().getReleaseOptionCode() == null) return resDto;
@@ -461,7 +430,7 @@ public class DeliveryReadyNaverBusinessService {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
         entity.setReleased(false).setReleasedAt(null);
 
-        deliveryReadyNaverService.createItem(entity);
+        deliveryReadyNaverService.saveAndModifyForItem(entity);
     }
 
     /**
@@ -478,7 +447,7 @@ public class DeliveryReadyNaverBusinessService {
             return DeliveryReadyNaverItemEntity.toEntity(dto);
         }).collect(Collectors.toList());
 
-        deliveryReadyNaverService.createItemList(entities);
+        deliveryReadyNaverService.saveAndModifyForItemList(entities);
     }
 
     /**
@@ -511,7 +480,7 @@ public class DeliveryReadyNaverBusinessService {
         entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
             .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
-        deliveryReadyNaverService.createItem(entity);
+        deliveryReadyNaverService.saveAndModifyForItem(entity);
     }
 
     /**
@@ -531,7 +500,7 @@ public class DeliveryReadyNaverBusinessService {
         entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
             .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
 
-        deliveryReadyNaverService.createItem(entity);
+        deliveryReadyNaverService.saveAndModifyForItem(entity);
         
         // 같은 상품의 옵션을 모두 변경
         this.updateChangedOption(entity);
@@ -550,7 +519,7 @@ public class DeliveryReadyNaverBusinessService {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchDeliveryReadyItem(dto.getCid());
         entity.setReleaseOptionCode(dto.getReleaseOptionCode() != null ? dto.getReleaseOptionCode() : "");
 
-        deliveryReadyNaverService.createItem(entity);
+        deliveryReadyNaverService.saveAndModifyForItem(entity);
     }
 
     /**
@@ -565,7 +534,7 @@ public class DeliveryReadyNaverBusinessService {
     public void updateChangedOption(DeliveryReadyNaverItemEntity entity) {
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.findByItems(entity);
         entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()).setReleaseOptionCode(entity.getReleaseOptionCode()); });
-        deliveryReadyNaverService.createItemList(entities);
+        deliveryReadyNaverService.saveAndModifyForItemList(entities);
     }
 
     /**
@@ -758,7 +727,7 @@ public class DeliveryReadyNaverBusinessService {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchDeliveryReadyItemList(itemCids);
         entities.stream().forEach(entity -> entity.setReleaseCompleted(true));
-        deliveryReadyNaverService.createItemList(entities);
+        deliveryReadyNaverService.saveAndModifyForItemList(entities);
     }
 
     /**
@@ -775,21 +744,8 @@ public class DeliveryReadyNaverBusinessService {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchDeliveryReadyItemList(itemCids);
         entities.stream().forEach(entity -> entity.setReleaseCompleted(reflected));
-        deliveryReadyNaverService.createItemList(entities);
+        deliveryReadyNaverService.saveAndModifyForItemList(entities);
     }
-
-    // /**
-    //  * <b>DB Select Related Method</b>
-    //  * <p>
-    //  * 옵션관리 코드와 대응하는 상품옵션의 cid값을 조회한다.
-    //  *
-    //  * @param dto : DeliveryReadyCoupangItemViewDto
-    //  * @return Integer
-    //  * @see ProductOptionService#findOptionCidByCode
-    //  */
-    // public Integer getOptionCid(DeliveryReadyNaverItemViewDto dto) {
-    //     return productOptionService.findOptionCidByCode(dto.getOptionManagementName());
-    // }
 
     /**
      * <b>DB Select Related Method</b>

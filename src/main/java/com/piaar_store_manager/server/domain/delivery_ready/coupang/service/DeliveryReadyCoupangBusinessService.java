@@ -237,7 +237,7 @@ public class DeliveryReadyCoupangBusinessService {
             .fileName(fileName)
             .fileSize(fileSize)
             .fileExtension(FilenameUtils.getExtension(fileName))
-            .createdAt(DateHandler.getCurrentDate2())
+            .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
             .deleted(false)
             .build();
@@ -331,7 +331,7 @@ public class DeliveryReadyCoupangBusinessService {
                 .piaarMemo9(row.getCell(48) != null ? row.getCell(48).getStringCellValue() : "")
                 .piaarMemo10(row.getCell(49) != null ? row.getCell(49).getStringCellValue() : "")
                 .released(false)
-                .createdAt(fileDto.getCreatedAt())
+                .createdAt(DateHandler.getCurrentDate())
                 .releaseCompleted(false)
                 .deliveryReadyFileCid(fileDto.getCid())
                 .build();

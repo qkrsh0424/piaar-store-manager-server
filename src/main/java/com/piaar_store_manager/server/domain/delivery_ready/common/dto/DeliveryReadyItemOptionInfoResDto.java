@@ -1,9 +1,15 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Accessors(chain = true)
 public class DeliveryReadyItemOptionInfoResDto {
     String optionCode;

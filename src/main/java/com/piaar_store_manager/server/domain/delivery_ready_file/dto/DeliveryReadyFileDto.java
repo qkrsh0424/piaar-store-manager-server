@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready_file.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,7 +24,7 @@ public class DeliveryReadyFileDto {
     private String fileName;
     private Integer fileSize;
     private String fileExtension;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
     private Boolean deleted;
 

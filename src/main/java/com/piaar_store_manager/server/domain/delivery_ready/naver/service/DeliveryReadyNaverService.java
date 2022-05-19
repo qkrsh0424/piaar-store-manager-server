@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +36,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyFileEntity
      * @see DeliveryReadyFileRepository#save
      */
-    public DeliveryReadyFileEntity createFile(DeliveryReadyFileEntity fileEntity) {
+    public DeliveryReadyFileEntity saveAndGetForFile(DeliveryReadyFileEntity fileEntity) {
         return deliveryReadyFileRepository.save(fileEntity);
     }
 
@@ -48,7 +49,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyNaverItemEntity
      * @see DeliveryReadyNaverItemRepository#save
      */
-    public DeliveryReadyNaverItemEntity createItem(DeliveryReadyNaverItemEntity entity) {
+    public DeliveryReadyNaverItemEntity saveAndModifyForItem(DeliveryReadyNaverItemEntity entity) {
         return deliveryReadyNaverItemRepository.save(entity);
     }
 
@@ -61,7 +62,7 @@ public class DeliveryReadyNaverService {
      * @return List::DeliveryReadyNaverItemEntity::
      * @see DeliveryReadyNaverItemRepository#saveAll
      */
-    public List<DeliveryReadyNaverItemEntity> createItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
+    public List<DeliveryReadyNaverItemEntity> saveAndModifyForItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
         return deliveryReadyNaverItemRepository.saveAll(itemEntities);
     }
 
@@ -99,7 +100,7 @@ public class DeliveryReadyNaverService {
      * @return List::DeliveryReadyNaverItemViewProj::
      * @see DeliveryReadyNaverItemRepository#findSelectedReleased
      */
-    public List<DeliveryReadyNaverItemViewProj> findSelectedReleased(Date startDate, Date endDate) {
+    public List<DeliveryReadyNaverItemViewProj> findSelectedReleased(LocalDateTime startDate, LocalDateTime endDate) {
         return deliveryReadyNaverItemRepository.findSelectedReleased(startDate, endDate);
     }
  
