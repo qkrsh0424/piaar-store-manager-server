@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_order_item.vo;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,3 +19,4 @@ import lombok.ToString;
 public class ErpDownloadItemVo {
     private List<Object> cellValue;
 }
+

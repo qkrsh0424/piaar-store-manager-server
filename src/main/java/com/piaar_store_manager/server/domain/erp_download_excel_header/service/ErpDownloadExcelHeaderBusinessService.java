@@ -1,16 +1,12 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.service;
 
+import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.DetailDto;
@@ -46,10 +42,10 @@ public class ErpDownloadExcelHeaderBusinessService {
         UUID USER_ID = userService.getUserId();
         ErpDownloadExcelHeaderEntity headerEntity = ErpDownloadExcelHeaderEntity.toEntity(headerDto);
         headerEntity
-            .setId(UUID.randomUUID())
-            .setCreatedAt(CustomDateUtils.getCurrentDateTime())
-            .setCreatedBy(USER_ID)
-            .setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+                .setId(UUID.randomUUID())
+                .setCreatedAt(CustomDateUtils.getCurrentDateTime())
+                .setCreatedBy(USER_ID)
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
         erpDownloadExcelHeaderService.saveAndModify(headerEntity);
     }
@@ -99,7 +95,7 @@ public class ErpDownloadExcelHeaderBusinessService {
      * <b>DB Delete Related Method</b>
      * <p>
      * id 값에 대응하는 엑셀 데이터를 삭제한다.
-     * 
+     *
      * @param id : UUID
      * @ErpDownloadExcelHeaderService#delete
      */
@@ -117,7 +113,7 @@ public class ErpDownloadExcelHeaderBusinessService {
      * 병합 여부와 splitter로 구분해 나타낼 컬럼들을 확인해 데이터를 나열한다
      * 동일 수령인정보라면 구분자(|&&|)로 표시해 병합한다
      * 고정값 여부를 체크해서 데이터를 고정값으로 채워넣는다
-     * 
+     *
      * @param id : UUID
      * @param erpDownloadOrderItemDtos : List::ErpDownloadOrderItemDto::
      * @return List::ErpOrderItemVo::
@@ -227,9 +223,8 @@ public class ErpDownloadExcelHeaderBusinessService {
     /**
      * TEST 1
      * downloadByErpDownloadExcelHeader
-     * 
+     * <p>
      * 1. headerDto에 작성된 데이터들만 erpDownloadOrderItemDtos에서 추출해 ErpDownloadItemVo의 cellValue로 지정한다
-     * 
      */
     public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         // access check
@@ -264,9 +259,9 @@ public class ErpDownloadExcelHeaderBusinessService {
                         String matchedColumnName = detailDto.getViewDetails().get(z).getMatchedColumnName();
 
                         Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
-                        if(obj.getClass().equals(LocalDateTime.class)) {
-                            appendFieldValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime)obj);
-                        }else{
+                        if (obj.getClass().equals(LocalDateTime.class)) {
+                            appendFieldValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
+                        } else {
                             appendFieldValue += obj.toString();
                         }
 
@@ -295,10 +290,10 @@ public class ErpDownloadExcelHeaderBusinessService {
                     ErpDownloadItemVo prevVo = downloadItemVos.get(currentMergeItemIndex - 1);
                     ErpDownloadItemVo currentVo = downloadItemVos.get(currentMergeItemIndex);
 
-                    for(int k = 0; k < headerDto.getHeaderDetail().getDetails().size(); k++) {
-                        if(headerDto.getHeaderDetail().getDetails().get(k).getMergeYn().equals("y")) {
+                    for (int k = 0; k < headerDto.getHeaderDetail().getDetails().size(); k++) {
+                        if (headerDto.getHeaderDetail().getDetails().get(k).getMergeYn().equals("y")) {
                             String result = prevVo.getCellValue().get(k) + headerDto.getHeaderDetail().getDetails().get(k).getMergeSplitter() + currentVo.getCellValue().get(k);
-                            downloadItemVos.get(currentMergeItemIndex-1).getCellValue().set(k, result);
+                            downloadItemVos.get(currentMergeItemIndex - 1).getCellValue().set(k, result);
                         }
                     }
                     // 중복데이터 제거
@@ -311,11 +306,126 @@ public class ErpDownloadExcelHeaderBusinessService {
         return downloadItemVos;
     }
 
+    /*
+    TEST 2
+     */
+    public List<List<String>> downloadByErpDownloadExcelHeader2(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
+        List<List<String>> matrix = new ArrayList<>();
+        List<String> columns = new ArrayList<>();
+
+        int DETAILS_SIZE = headerDto.getHeaderDetail().getDetails().size();
+
+        for (int i = 0; i < DETAILS_SIZE; i++) {
+            DetailDto detail = headerDto.getHeaderDetail().getDetails().get(i);
+            String column = detail.getCustomCellName();
+            columns.add(column);
+        }
+
+        matrix.add(columns);
+
+        for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
+            List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
+            int ERP_ORDER_ITEM_DTOS_SIZE = dtos.size();
+
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
+                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
+                    .thenComparing(ErpOrderItemDto::getDestination)
+                    .thenComparing(ErpOrderItemDto::getProdName)
+                    .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
+
+
+            List<String> columsValue = new ArrayList<>();
+
+            for (int j = 0; j < DETAILS_SIZE; j++) {
+                DetailDto detail = headerDto.getHeaderDetail().getDetails().get(j);
+                List<ViewDetailDto> viewDetails = detail.getViewDetails();
+                String appendValue = "";
+
+                if (detail.getFieldType().equals("운송코드")) {
+                    appendValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+                    columsValue.add(appendValue);
+                    continue;
+                }
+
+                if (detail.getFieldType().equals("고정값")) {
+                    if (detail.getMergeYn().equals("n")) {
+                        appendValue = detail.getFixedValue();
+                        break;
+                    }
+
+                    if (detail.getMergeYn().equals("y")) {
+                        for (int k = 0; k < ERP_ORDER_ITEM_DTOS_SIZE; k++) {
+                            appendValue += detail.getFixedValue();
+
+                            if (k < ERP_ORDER_ITEM_DTOS_SIZE - 1) {
+                                appendValue += detail.getMergeSplitter();
+                            }
+                        }
+                    }
+                }
+
+                if (detail.getFieldType().equals("일반")) {
+                    if (detail.getMergeYn().equals("n")) {
+                        ErpOrderItemDto originDto = dtos.get(0);
+
+                        for (int z = 0; z < viewDetails.size(); z++) {
+                            String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
+
+                            Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                            if (obj.getClass().equals(LocalDateTime.class)) {
+                                appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
+                            } else {
+                                appendValue += obj.toString();
+                            }
+
+                            if (z < viewDetails.size() - 1) {
+                                appendValue += detail.getValueSplitter();
+                            }
+                        }
+                    }
+
+                    if (detail.getMergeYn().equals("y")) {
+                        for (int k = 0; k < ERP_ORDER_ITEM_DTOS_SIZE; k++) {
+                            ErpOrderItemDto originDto = dtos.get(k);
+
+                            for (int z = 0; z < viewDetails.size(); z++) {
+                                String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
+
+                                Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                                if (obj.getClass().equals(LocalDateTime.class)) {
+                                    appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
+                                } else {
+                                    appendValue += obj.toString();
+                                }
+
+                                if (z < viewDetails.size() - 1) {
+                                    appendValue += detail.getValueSplitter();
+                                }
+                            }
+
+                            if (k < ERP_ORDER_ITEM_DTOS_SIZE - 1) {
+                                appendValue += detail.getMergeSplitter();
+                            }
+                        }
+                    }
+                }
+
+                columsValue.add(appendValue);
+            }
+            matrix.add(columsValue);
+        }
+        return matrix;
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>
      * secondMergeHeaderId에 대응하는 erp download excel header를 조회한다.
-     * 
+     *
      * @param secondMergeHeaderId : UUID
      * @return ErpDownloadExcelHeaderDto
      * @see ErpDownloadExcelHeaderService#searchOne
