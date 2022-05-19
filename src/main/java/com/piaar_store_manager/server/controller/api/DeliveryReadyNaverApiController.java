@@ -14,7 +14,6 @@ import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemHansanExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemLotteExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.dto.DeliveryReadyItemTailoExcelFormDto;
@@ -60,7 +59,7 @@ public class DeliveryReadyNaverApiController {
      *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
-     * @throws FileUploadException
+     * @throws CustomExcelFileUploadException
      * @throws NullPointerException
      * @throws IllegalStateException
      * @throws IllegalArgumentException
@@ -76,7 +75,7 @@ public class DeliveryReadyNaverApiController {
 
         // file extension check.
         if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         try {
@@ -101,7 +100,7 @@ public class DeliveryReadyNaverApiController {
      *
      * @param file
      * @return ResponseEntity(message, HttpStatus)
-     * @throws FileUploadException
+     * @throws CustomExcelFileUploadException
      * @see Message
      * @see HttpStatus
      * @see CustomExcelUtils#isExcelFile
@@ -114,7 +113,7 @@ public class DeliveryReadyNaverApiController {
 
         // file extension check.
         if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         deliveryReadyNaverBusinessService.storeDeliveryReadyExcelFile(file);

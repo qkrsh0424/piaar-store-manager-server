@@ -7,13 +7,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationHansanExcelFormDto;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationNaverFormDto;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.domain.order_registration.naver.service.OrderRegistrationNaverBusinessService;
-import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
-import com.piaar_store_manager.server.exception.FileUploadException;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -45,16 +43,9 @@ public class OrderRegistrationNaverApiController {
      * <b>POST : API URL => /api/v1/order-registration/naver/upload/hansan</b>
      *
      * @param file
-     * @return ResponseEntity(message, HttpStatus)
-     * @throws FileUploadException
-     * @throws NullPointerException
-     * @throws IllegalStateException
-     * @throws IllegalArgumentException
-     * @see Message
-     * @see HttpStatus
+     * @throws CustomExcelFileUploadException
      * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadHansanExcelFile
-     * @see UserService#isUserLogin
      */
     @PostMapping("/upload/hansan")
     public ResponseEntity<?> uploadHansanExcelFile(@RequestParam("file") MultipartFile file) {
@@ -62,7 +53,7 @@ public class OrderRegistrationNaverApiController {
 
         // file extension check.
         if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         try {
@@ -81,15 +72,13 @@ public class OrderRegistrationNaverApiController {
     }
 
     /**
-     * Download data for order registration.
+     * Download excel for order registration.
      * <p>
      * <b>POST : API URL => /api/v1/order-registration/naver/download/hansan</b>
      *
      * @param response : HttpServletResponse
-     * @param viewDtos : List::DeliveryReadyItemHansanExcelFormDto::
-     * @throws IOException
-     * @see Message
-     * @see HttpStatus
+     * @param hansanDto : List::OrderRegistrationHansanExcelFormDto::
+     * @throws IllegalArgumentException
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByHansanFormDto
      */
     @PostMapping("/download/hansan")
@@ -147,17 +136,10 @@ public class OrderRegistrationNaverApiController {
      * <p>
      * <b>POST : API URL => /api/v1/order-registration/naver/upload/tailo</b>
      *
-     * @param file
-     * @return ResponseEntity(message, HttpStatus)
-     * @throws FileUploadException
-     * @throws NullPointerException
-     * @throws IllegalStateException
-     * @throws IllegalArgumentException
-     * @see Message
-     * @see HttpStatus
+     * @param file : MultipartFile
+     * @throws CustomExcelFileUploadException
      * @see CustomExcelUtils#isExcelFile
      * @see OrderRegistrationNaverBusinessService#uploadTailoExcelFile
-     * @see UserService#isUserLogin
      */
     @PostMapping("/upload/tailo")
     public ResponseEntity<?> uploadTailoExcelFile(@RequestParam("file") MultipartFile file) {
@@ -165,7 +147,7 @@ public class OrderRegistrationNaverApiController {
 
         // file extension check.
         if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         try {
@@ -184,22 +166,20 @@ public class OrderRegistrationNaverApiController {
     }
 
     /**
-     * Download data for order registration.
+     * Download excel for order registration.
      * <p>
      * <b>POST : API URL => /api/v1/order-registration/naver/download/tailo</b>
      *
      * @param response : HttpServletResponse
-     * @param viewDtos : List::DeliveryReadyItemHansanExcelFormDto::
-     * @throws IOException
-     * @see Message
-     * @see HttpStatus
+     * @param tailoDtos : List::OrderRegistrationTailoExcelFormDto::
+     * @throws IllegalArgumentException
      * @see OrderRegistrationNaverBusinessService#changeNaverFormDtoByTailoFormDto
      */
     @PostMapping("/download/tailo")
-    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDto) {
+    public void downloadTailoOrderRegistrationNaverExcel(HttpServletResponse response, @RequestBody List<OrderRegistrationTailoExcelFormDto> tailoDtos) {
 
         // 테일로 엑셀 dto를 네이버 대량등록 양식으로 변환
-        List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByTailoFormDto(tailoDto);
+        List<OrderRegistrationNaverFormDto> dtos = orderRegistrationNaverBusinessService.changeNaverFormDtoByTailoFormDto(tailoDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx

@@ -15,7 +15,6 @@ import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
-import com.piaar_store_manager.server.exception.FileUploadException;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
 import com.piaar_store_manager.server.model.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
@@ -76,7 +75,7 @@ public class DeliveryReadyCoupangApiController {
 
         // file extension check.
         if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         try {
@@ -116,8 +115,8 @@ public class DeliveryReadyCoupangApiController {
         Message message = new Message();
 
         // file extension check.
-        if (CustomExcelUtils.isExcelFile(file)) {
-            throw new FileUploadException("This is not an excel file.");
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
         deliveryReadyCoupangBusinessService.storeDeliveryReadyExcelFile(file);

@@ -27,7 +27,6 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,27 +50,6 @@ public class ErpOrderItemBusinessService {
     private final ProductReleaseService productReleaseService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
-
-    // Excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
-
-    /**
-     * <b>Extension Check</b>
-     * <p>
-     *
-     * @param file : MultipartFile
-     */
-    public void isExcelFile(MultipartFile file) {
-        // access check
-        userService.userLoginCheck();
-
-        String extension = FilenameUtils.getExtension(Objects.requireNonNull(file.getOriginalFilename()).toLowerCase());
-
-        if (EXTENSIONS_EXCEL.contains(extension)) {
-            return;
-        }
-        throw new CustomExcelFileUploadException("This is not an excel file.");
-    }
 
     /**
      * <b>Upload Excel File</b>

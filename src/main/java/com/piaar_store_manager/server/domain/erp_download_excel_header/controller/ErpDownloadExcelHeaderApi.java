@@ -124,8 +124,7 @@ public class ErpDownloadExcelHeaderApi {
     @PostMapping("/{id}/download-order-items/action-download")
     public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
-
-        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, headerDto, erpDownloadOrderItemDtos);
+        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(headerDto, erpDownloadOrderItemDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();
@@ -135,14 +134,15 @@ public class ErpDownloadExcelHeaderApi {
         int rowNum = 0;
 
         row = sheet.createRow(rowNum++);
-        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+        int HEADER_COLUMN_SIZE = headerDto.getHeaderDetail().getDetails().size();
+        for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
             cell = row.createCell(i);
             cell.setCellValue(headerDto.getHeaderDetail().getDetails().get(i).getCustomCellName());
         }
 
         for(int i = 0; i < vos.size(); i++) {
             row = sheet.createRow(rowNum++);
-            for (int j = 0; j < headerDto.getHeaderDetail().getDetails().size(); j++) {
+            for (int j = 0; j < HEADER_COLUMN_SIZE; j++) {
                 String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
 
                 String cellValue = "";
@@ -161,7 +161,7 @@ public class ErpDownloadExcelHeaderApi {
             }
         }
 
-        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+        for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
             sheet.autoSizeColumn(i);
         }
 
