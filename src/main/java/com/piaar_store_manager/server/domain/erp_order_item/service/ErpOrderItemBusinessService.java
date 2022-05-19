@@ -13,6 +13,8 @@ import com.piaar_store_manager.server.domain.erp_second_merge_header.entity.ErpS
 import com.piaar_store_manager.server.domain.erp_second_merge_header.service.ErpSecondMergeHeaderService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
+import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
@@ -20,14 +22,11 @@ import com.piaar_store_manager.server.domain.product_release.entity.ProductRelea
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
-import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -51,27 +50,6 @@ public class ErpOrderItemBusinessService {
     private final ProductReleaseService productReleaseService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
-
-    // Excel file extension.
-    private final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
-
-    /**
-     * <b>Extension Check</b>
-     * <p>
-     *
-     * @param file : MultipartFile
-     */
-    public void isExcelFile(MultipartFile file) {
-        // access check
-        userService.userLoginCheck();
-
-        String extension = FilenameUtils.getExtension(Objects.requireNonNull(file.getOriginalFilename()).toLowerCase());
-
-        if (EXTENSIONS_EXCEL.contains(extension)) {
-            return;
-        }
-        throw new CustomExcelFileUploadException("This is not an excel file.");
-    }
 
     /**
      * <b>Upload Excel File</b>
@@ -317,7 +295,7 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setSalesYn(dto.getSalesYn()).setSalesAt(dto.getSalesAt());
+                entity.setSalesYn(dto.getSalesYn()).setSalesAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -346,7 +324,7 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(dto.getReleaseAt());
+                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -852,7 +830,7 @@ public class ErpOrderItemBusinessService {
      * TODO : 현재 세트상품과 세트상품이 아닌 데이터들을 구분해서 insert 쿼리를 날리는데 이렇게되면 insert쿼리가 두번이 나누어져서 던져지게됨. 세트상품을 먼저 분해해서 일반 옵션 엔터티로 만들어서 한번에 던지는게 낫지않을까?
      */
     @Transactional
-    public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos) {
+    public Integer actionReflectStock(List<ErpOrderItemDto> itemDtos, Map<String, Object> params) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
@@ -876,12 +854,13 @@ public class ErpOrderItemBusinessService {
         // 2. 세트상품 O
         List<ProductOptionEntity> parentOptionEntities = productOptionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities));
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities, memo));
         count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities));
         return count.get();
     }
 
-    public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities) {
+    public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities, String memo) {
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -894,7 +873,7 @@ public class ErpOrderItemBusinessService {
                     releaseEntity.setId(UUID.randomUUID());
                     releaseEntity.setErpOrderItemId(orderItemEntity.getId());
                     releaseEntity.setReleaseUnit(orderItemEntity.getUnit());
-                    releaseEntity.setMemo("");
+                    releaseEntity.setMemo(memo);
                     releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
                     releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
                     releaseEntity.setProductOptionCid(optionEntity.getCid());

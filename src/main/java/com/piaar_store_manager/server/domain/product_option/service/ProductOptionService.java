@@ -42,6 +42,7 @@ public class ProductOptionService {
      * <p>
      * productOptionCid에 대응하는 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
      *
+     * @param productOptionCid : Integer
      * @return ProductOptionProj
      * @see ProductOptionRepository#searchOneM2OJ
      */

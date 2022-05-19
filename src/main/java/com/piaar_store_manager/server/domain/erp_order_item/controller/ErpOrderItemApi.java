@@ -12,6 +12,8 @@ import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,7 +44,7 @@ public class ErpOrderItemApi {
      *
      * @param file : MultipartFile
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#isExcelFile
+     * @see CustomExcelUtils#isExcelFile
      * @see ErpOrderItemBusinessService#uploadErpOrderExcel
      */
     @PostMapping("/excel/upload")
@@ -50,7 +52,9 @@ public class ErpOrderItemApi {
         Message message = new Message();
 
         // file extension check.
-        erpOrderItemBusinessService.isExcelFile(file);
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
 
         message.setData(erpOrderItemBusinessService.uploadErpOrderExcel(file));
         message.setStatus(HttpStatus.OK);

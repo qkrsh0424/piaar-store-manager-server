@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.piaar_store_manager.server.domain.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.dto.SalesAnalysisItemDto;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.model.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 
 import org.springframework.stereotype.Service;
 

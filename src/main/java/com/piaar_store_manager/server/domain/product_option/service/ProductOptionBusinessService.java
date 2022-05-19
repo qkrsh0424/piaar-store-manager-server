@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
@@ -20,10 +22,9 @@ import com.piaar_store_manager.server.domain.product_release.entity.ProductRelea
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.handler.DateHandler;
-import com.piaar_store_manager.server.model.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.service.option_package.OptionPackageService;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
+import com.piaar_store_manager.server.utils.DateHandler;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,7 +128,7 @@ public class ProductOptionBusinessService {
      * release(출고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
      * receive(입고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
      * 입출고 데이터를 이용해 ProductOptionGetDto.JoinReceiveAndRelease 생성한다.
-     * TODO :: refactor전에 사용하던 api. 제거해야 함.
+     * TODO :: refactor전에 사용하던 api. 제거해야하는 메서드
      *
      * @return ProductOptionGetDto.JoinReceiveAndRelease
      * @see ProductReleaseService#searchListM2OJ
@@ -300,10 +301,10 @@ public class ProductOptionBusinessService {
             productOptionEntity.setPackageYn("n");
         }
 
-        // 등록된 옵션패키지 모두 제거
+        // 해당 옵션에 등록된 옵션패키지 전체 제거
         optionPackageService.deleteBatchByParentOptionId(productOptionEntity.getId());
 
-        // 현재 등록된 옵션패키지로 package 세팅
+        // 현재 넘어온 옵션패키지 데이터로 패지지 세팅
         List<OptionPackageEntity> newOptionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
             r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID).setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
             return OptionPackageEntity.toEntity(r);
