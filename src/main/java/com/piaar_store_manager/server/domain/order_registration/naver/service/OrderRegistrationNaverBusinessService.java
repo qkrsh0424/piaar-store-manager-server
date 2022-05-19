@@ -3,9 +3,9 @@ package com.piaar_store_manager.server.domain.order_registration.naver.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationHansanExcelFormDto;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationNaverFormDto;
-import com.piaar_store_manager.server.model.order_registration.naver.OrderRegistrationTailoExcelFormDto;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationHansanExcelFormDto;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationNaverFormDto;
+import com.piaar_store_manager.server.domain.order_registration.naver.dto.OrderRegistrationTailoExcelFormDto;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import org.apache.poi.ss.usermodel.Row;
@@ -20,7 +20,7 @@ public class OrderRegistrationNaverBusinessService {
     /**
      * <b>Data Processing Related Method</b>
      * <p>
-     * 업로드된 한산 발주서 양식에서 필요한 데이터만 추출해 dto를 생성한다.
+     * 업로드된 한산 발주서 양식에서 필요한 데이터만 추출해 OrderRegistrationHansanExcelFormDto를 생성한다.
      *
      * @param file : MultipartFile
      * @return List::OrderRegistrationHansanExcelFormDto::
@@ -113,7 +113,6 @@ public class OrderRegistrationNaverBusinessService {
      * @return List::OrderRegistrationTailoExcelFormDto::
      */
     public List<OrderRegistrationTailoExcelFormDto> uploadTailoExcelFile(MultipartFile file) {
-    
         Integer SHEET_INDEX = 0;
         Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);

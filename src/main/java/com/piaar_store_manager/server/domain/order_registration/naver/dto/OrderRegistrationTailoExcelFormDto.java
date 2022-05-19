@@ -20,6 +20,6 @@ public class OrderRegistrationTailoExcelFormDto {
     private String deliveryService; // 택배사
     private String transportNumber; // 송장번호
     
-    private String managementMemo1; // 관리메모1 -> 삭제
-    private String managementMemo2;   // 관리메모2 -> 삭제
+    // private String managementMemo1; // 관리메모1 -> 삭제
+    // private String managementMemo2;   // 관리메모2 -> 삭제
 }

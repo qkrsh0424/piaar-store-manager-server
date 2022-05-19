@@ -161,7 +161,6 @@ public class UserService {
     }
 
     public void userManagerRoleCheck() {
-        System.out.println(this.isManager());
         if (!this.isManager()) {
             throw new CustomAccessDeniedException("접근 권한이 없습니다.");
         }

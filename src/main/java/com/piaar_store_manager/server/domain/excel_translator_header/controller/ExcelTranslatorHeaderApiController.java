@@ -19,6 +19,7 @@ import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelData
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.handler.DateHandler;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -128,6 +129,11 @@ public class ExcelTranslatorHeaderApiController {
     public ResponseEntity<?> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestPart ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
 
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
+        
         try{
             message.setData(excelTranslatorHeaderBusinessService.uploadExcelFile(file, dto));
             message.setStatus(HttpStatus.OK);
@@ -153,6 +159,11 @@ public class ExcelTranslatorHeaderApiController {
     public ResponseEntity<?> uploadDownloadHeaderExcelFile(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
+        
         message.setData(excelTranslatorHeaderBusinessService.uploadDownloadHeaderExcelFile(file));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
@@ -235,7 +246,7 @@ public class ExcelTranslatorHeaderApiController {
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 ExcelDataDetailDto.UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
                 try{
-                    if(detailDto.getCellType() == null || detailDto.getCellType().isBlank()) {
+                    if(detailDto == null || detailDto.getCellType().isBlank()) {
                         cell.setCellValue("");
                     }else if(detailDto.getCellType().equals("String")) {
                         cell.setCellValue(detailDto.getColData().toString());

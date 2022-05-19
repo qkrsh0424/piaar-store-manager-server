@@ -111,11 +111,11 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
         + "WHERE drci.optionManagementCode = po.code AND (drci.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyCoupangSalesUnit,\n"
         + "(SELECT CASE WHEN SUM(eoi.unit) IS NULL THEN 0 ELSE SUM(eoi.unit) END\n"
         + "FROM ErpOrderItemEntity eoi\n"
-        + "WHERE eoi.optionCode = po.code) AS erpSalesUnit\n"
+        + "WHERE eoi.optionCode = po.code AND (eoi.createdAt BETWEEN :date1 AND :date2)) AS erpSalesUnit\n"
         + "FROM ProductOptionEntity po\n"
         + "JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"
-        + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC"
+        + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC, erpSalesUnit DESC"
     )
     List<SalesAnalysisItemProj> findSalesAnalysisItem(Date date1, Date date2);
 
