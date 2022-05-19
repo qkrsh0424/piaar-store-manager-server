@@ -119,13 +119,12 @@ public class ErpDownloadExcelHeaderApi {
      * @param id                       : UUID
      * @param erpDownloadOrderItemDtos : List::ErpDownloadOrderItemDto:;
      * @see ErpDownloadExcelHeaderBusinessService#searchErpDownloadExcelHeader
-     * @see ErpDownloadExcelHeaderBusinessService#downloadByErpDownloadExcelHeader
      */
     @PostMapping("/{id}/download-order-items/action-download")
     public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
 
-        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(id, headerDto, erpDownloadOrderItemDtos);
+        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(headerDto, erpDownloadOrderItemDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();
