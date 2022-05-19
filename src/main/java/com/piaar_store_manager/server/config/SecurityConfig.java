@@ -3,8 +3,8 @@ package com.piaar_store_manager.server.config;
 import com.piaar_store_manager.server.config.auth.JwtAuthenticationFilter;
 import com.piaar_store_manager.server.config.auth.JwtAuthorizationFilter;
 import com.piaar_store_manager.server.config.auth.JwtLogoutSuccessHandler;
-import com.piaar_store_manager.server.domain.refresh_token.repository.RefreshTokenRepository;
 import com.piaar_store_manager.server.domain.user.repository.UserRepository;
+import com.piaar_store_manager.server.model.refresh_token.repository.RefreshTokenRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

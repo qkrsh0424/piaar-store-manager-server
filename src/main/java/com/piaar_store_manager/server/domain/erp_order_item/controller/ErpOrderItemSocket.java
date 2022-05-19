@@ -18,7 +18,6 @@ import com.piaar_store_manager.server.domain.message.Message;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @Validated
 @RestController
@@ -107,10 +106,10 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/stock/action-reflect")
-    public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos, @RequestParam Map<String, Object> params){
+    public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos){
         Message message = new Message();
 
-        Integer count = erpOrderItemBusinessService.actionReflectStock(itemDtos, params);
+        Integer count = erpOrderItemBusinessService.actionReflectStock(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setMemo(count + " 건의 옵션 상품에 재고 반영 되었습니다.");

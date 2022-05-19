@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class CustomExcelUtils {
     private static final List<String> EXTENSIONS_EXCEL = Arrays.asList("xlsx", "xls");
@@ -16,11 +15,12 @@ public class CustomExcelUtils {
     public static final int NUMERIC_TO_INT = 1;
 
     public static boolean isExcelFile(MultipartFile file) {
-        String extension = FilenameUtils.getExtension(Objects.requireNonNull(file.getOriginalFilename()).toLowerCase());
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename().toLowerCase());
 
         if (EXTENSIONS_EXCEL.contains(extension)) {
             return true;
         }
+
         return false;
     }
 

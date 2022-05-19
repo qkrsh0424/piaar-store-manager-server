@@ -1,29 +1,29 @@
 package com.piaar_store_manager.server.service.product_receive; 
 
-// import java.util.ArrayList;
-// import java.util.List;
-// import java.util.Optional;
-// import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
-// import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-// import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
-// import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
-// // import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveJoinResDto;
-// import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
-// import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
-// import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+// import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveJoinResDto;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 
-// import org.junit.jupiter.api.Assertions;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.boot.test.context.SpringBootTest;
-// import org.springframework.test.context.junit.jupiter.SpringExtension;
-// import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
-// @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-// @ExtendWith(SpringExtension.class)
-// @Transactional
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ExtendWith(SpringExtension.class)
+@Transactional
 public class ProductReceiveServiceTest {
     
     // @Autowired

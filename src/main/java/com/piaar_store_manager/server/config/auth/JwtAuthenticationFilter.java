@@ -12,10 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.domain.refresh_token.entity.RefreshTokenEntity;
-import com.piaar_store_manager.server.domain.refresh_token.repository.RefreshTokenRepository;
 import com.piaar_store_manager.server.domain.user.entity.UserEntity;
 import com.piaar_store_manager.server.domain.user.repository.UserRepository;
+import com.piaar_store_manager.server.model.refresh_token.entity.RefreshTokenEntity;
+import com.piaar_store_manager.server.model.refresh_token.repository.RefreshTokenRepository;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

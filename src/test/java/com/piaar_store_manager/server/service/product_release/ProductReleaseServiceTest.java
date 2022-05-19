@@ -14,7 +14,7 @@ import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseG
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.utils.DateHandler;
+import com.piaar_store_manager.server.handler.DateHandler;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
