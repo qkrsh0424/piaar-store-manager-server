@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.service;
 
+import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
@@ -188,6 +189,121 @@ public class ErpDownloadExcelHeaderBusinessService {
             }
         }
         return downloadItemVos;
+    }
+
+    /*
+    TEST 2
+     */
+    public List<List<String>> downloadByErpDownloadExcelHeader2(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        // access check
+        userService.userLoginCheck();
+        userService.userManagerRoleCheck();
+
+        List<List<String>> matrix = new ArrayList<>();
+        List<String> columns = new ArrayList<>();
+
+        int DETAILS_SIZE = headerDto.getHeaderDetail().getDetails().size();
+
+        for (int i = 0; i < DETAILS_SIZE; i++) {
+            DetailDto detail = headerDto.getHeaderDetail().getDetails().get(i);
+            String column = detail.getCustomCellName();
+            columns.add(column);
+        }
+
+        matrix.add(columns);
+
+        for (int i = 0; i < erpDownloadOrderItemDtos.size(); i++) {
+            List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
+            int ERP_ORDER_ITEM_DTOS_SIZE = dtos.size();
+
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
+                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
+                    .thenComparing(ErpOrderItemDto::getDestination)
+                    .thenComparing(ErpOrderItemDto::getProdName)
+                    .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
+
+
+            List<String> columsValue = new ArrayList<>();
+
+            for (int j = 0; j < DETAILS_SIZE; j++) {
+                DetailDto detail = headerDto.getHeaderDetail().getDetails().get(j);
+                List<ViewDetailDto> viewDetails = detail.getViewDetails();
+                String appendValue = "";
+
+                if (detail.getFieldType().equals("운송코드")) {
+                    appendValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+                    columsValue.add(appendValue);
+                    continue;
+                }
+
+                if (detail.getFieldType().equals("고정값")) {
+                    if (detail.getMergeYn().equals("n")) {
+                        appendValue = detail.getFixedValue();
+                        break;
+                    }
+
+                    if (detail.getMergeYn().equals("y")) {
+                        for (int k = 0; k < ERP_ORDER_ITEM_DTOS_SIZE; k++) {
+                            appendValue += detail.getFixedValue();
+
+                            if (k < ERP_ORDER_ITEM_DTOS_SIZE - 1) {
+                                appendValue += detail.getMergeSplitter();
+                            }
+                        }
+                    }
+                }
+
+                if (detail.getFieldType().equals("일반")) {
+                    if (detail.getMergeYn().equals("n")) {
+                        ErpOrderItemDto originDto = dtos.get(0);
+
+                        for (int z = 0; z < viewDetails.size(); z++) {
+                            String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
+
+                            Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                            if (obj.getClass().equals(LocalDateTime.class)) {
+                                appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
+                            } else {
+                                appendValue += obj.toString();
+                            }
+
+                            if (z < viewDetails.size() - 1) {
+                                appendValue += detail.getValueSplitter();
+                            }
+                        }
+                    }
+
+                    if (detail.getMergeYn().equals("y")) {
+                        for (int k = 0; k < ERP_ORDER_ITEM_DTOS_SIZE; k++) {
+                            ErpOrderItemDto originDto = dtos.get(k);
+
+                            for (int z = 0; z < viewDetails.size(); z++) {
+                                String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
+
+                                Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                                if (obj.getClass().equals(LocalDateTime.class)) {
+                                    appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
+                                } else {
+                                    appendValue += obj.toString();
+                                }
+
+                                if (z < viewDetails.size() - 1) {
+                                    appendValue += detail.getValueSplitter();
+                                }
+                            }
+
+                            if (k < ERP_ORDER_ITEM_DTOS_SIZE - 1) {
+                                appendValue += detail.getMergeSplitter();
+                            }
+                        }
+                    }
+                }
+
+                columsValue.add(appendValue);
+            }
+            matrix.add(columsValue);
+        }
+        return matrix;
     }
 
     /**

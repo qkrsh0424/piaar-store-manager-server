@@ -175,6 +175,45 @@ public class ErpDownloadExcelHeaderApi {
         }
     }
 
+    /*
+    TEST 2
+    downloadForDownloadOrderItems OR downloadForDownloadOrderItems2 둘중 하나 주석후 사용
+     */
+    @PostMapping("/{id}/download-order-items/action-download")
+    public void downloadForDownloadOrderItems2(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+        ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
+        List<List<String>> matrix = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader2(id, headerDto, erpDownloadOrderItemDtos);
+
+        // 엑셀 생성
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Sheet1");
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        for (int i = 0; i < matrix.size(); i++) {
+            row = sheet.createRow(rowNum++);
+            for (int j = 0; j < matrix.get(i).size(); j++) {
+                cell = row.createCell(j);
+                cell.setCellValue(matrix.get(i).get(j));
+            }
+        }
+
+        for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        try {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
+    }
+
     @PostMapping("/upload-excel-sample/action-download")
     public void downloadSample(HttpServletResponse response) {
         List<Object> dataList = StaticErpItemDataUtils.getUploadHeaderExcelSample();
