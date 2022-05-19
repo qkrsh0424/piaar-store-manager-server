@@ -216,12 +216,8 @@ public class ErpDownloadExcelHeaderBusinessService {
             List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
             int ERP_ORDER_ITEM_DTOS_SIZE = dtos.size();
 
-            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
-                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
-                    .thenComparing(ErpOrderItemDto::getDestination)
-                    .thenComparing(ErpOrderItemDto::getProdName)
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getProdName)
                     .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
-
 
             List<String> columsValue = new ArrayList<>();
 
@@ -232,14 +228,11 @@ public class ErpDownloadExcelHeaderBusinessService {
 
                 if (detail.getFieldType().equals("운송코드")) {
                     appendValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-                    columsValue.add(appendValue);
-                    continue;
                 }
 
                 if (detail.getFieldType().equals("고정값")) {
                     if (detail.getMergeYn().equals("n")) {
                         appendValue = detail.getFixedValue();
-                        break;
                     }
 
                     if (detail.getMergeYn().equals("y")) {
@@ -298,7 +291,6 @@ public class ErpDownloadExcelHeaderBusinessService {
                         }
                     }
                 }
-
                 columsValue.add(appendValue);
             }
             matrix.add(columsValue);

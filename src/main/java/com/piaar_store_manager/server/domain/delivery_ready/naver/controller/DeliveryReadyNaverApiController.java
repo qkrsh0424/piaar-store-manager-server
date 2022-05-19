@@ -17,7 +17,6 @@ import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemExcelFormDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.service.DeliveryReadyNaverBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
@@ -135,10 +134,10 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @GetMapping("/view/unreleased")
-    public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
+    public ResponseEntity<?> getUnreleasedItemList() {
         Message message = new Message();
 
-        message.setData(deliveryReadyNaverBusinessService.getDeliveryReadyViewUnreleasedData());
+        message.setData(deliveryReadyNaverBusinessService.getUnreleasedItemList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -159,10 +158,10 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @GetMapping("/view/released")
-    public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
+    public ResponseEntity<?> getReleasedItemList(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
 
-        message.setData(deliveryReadyNaverBusinessService.getDeliveryReadyViewReleased(query));
+        message.setData(deliveryReadyNaverBusinessService.getReleasedItemList(query));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -178,15 +177,15 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#deleteOneDeliveryReadyViewData
+     * @see DeliveryReadyNaverBusinessService#deleteOneOfItem
      */
     @PermissionRole
     @DeleteMapping("/view/delete/one/{itemCid}")
-    public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
+    public ResponseEntity<?> deleteOneOfItem(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.deleteOneDeliveryReadyViewData(itemCid);
+            deliveryReadyNaverBusinessService.deleteOneOfItem(itemCid);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -208,11 +207,11 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PostMapping("/view/delete/batch")
-    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
+    public ResponseEntity<?> deleteListOfItem(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.deleteListDeliveryReadyViewData(deliveryReadyNaverItemDtos);
+            deliveryReadyNaverBusinessService.deleteListOfItem(deliveryReadyNaverItemDtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -233,15 +232,15 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateReleasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateListToUnrelease
      */
     @PermissionRole
     @PutMapping("/view/update/one")
-    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
+    public ResponseEntity<?> updateItemToUnrelease(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyNaverItemDto);
+            deliveryReadyNaverBusinessService.updateItemToUnrelease(deliveryReadyNaverItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -261,15 +260,15 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateListToUnreleasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateItemListToUnrelease
      */
     @PermissionRole
     @PutMapping("/view/update/list/unrelease")
-    public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
+    public ResponseEntity<?> updateItemListToUnrelease(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyNaverItemDtos);
+            deliveryReadyNaverBusinessService.updateItemListToUnrelease(deliveryReadyNaverItemDtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -286,7 +285,7 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/update/list/release</b>
      *
-     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -294,11 +293,11 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/release")
-    public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+    public ResponseEntity<?> updateListToRelase(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+            deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -318,14 +317,14 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#searchDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyNaverBusinessService#searchOptionInfoOfItem
      */
     @PermissionRole
     @GetMapping("/view/search/list/option-info")
-    public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
+    public ResponseEntity<?> searchOptionInfoOfItem() {
         Message message = new Message();
 
-        message.setData(deliveryReadyNaverBusinessService.searchDeliveryReadyItemOptionInfo());
+        message.setData(deliveryReadyNaverBusinessService.searchOptionInfoOfItem());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -340,15 +339,15 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyNaverBusinessService#updateOptionInfoOfItem
      */
     @PermissionRole
     @PutMapping("/view/update/option")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
+    public ResponseEntity<?> updateOptionInfoOfItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyNaverItemDto);
+            deliveryReadyNaverBusinessService.updateOptionInfoOfItem(deliveryReadyNaverItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -369,7 +368,7 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemsOptionInfo
+     * @see DeliveryReadyNaverBusinessService#updateAllOptionInfoOfItem
      */
     @PermissionRole
     @PutMapping("/view/update/options")
@@ -377,7 +376,7 @@ public class DeliveryReadyNaverApiController {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyNaverItemDto);
+            deliveryReadyNaverBusinessService.updateAllOptionInfoOfItem(deliveryReadyNaverItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -397,15 +396,15 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateDeliveryReadyItemReleaseOptionInfo
+     * @see DeliveryReadyNaverBusinessService#updateReleaseOptionInfoOfItem
      */
     @PermissionRole
     @PutMapping("/view/update/release-option")
-    public ResponseEntity<?> updateDeliveryReadyItemReleaseOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
+    public ResponseEntity<?> updateReleaseOptionInfoOfItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateDeliveryReadyItemReleaseOptionInfo(deliveryReadyNaverItemDto);
+            deliveryReadyNaverBusinessService.updateReleaseOptionInfoOfItem(deliveryReadyNaverItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -423,14 +422,14 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/stock-unit</b>
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      */
     @PermissionRole
     @PutMapping("/view/stock-unit")
-    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
+    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
         Message message = new Message();
 
         try {
@@ -452,14 +451,14 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/naver/view/stock-unit/cancel</b>
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
+     * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
      */
     @PermissionRole
     @PutMapping("/view/stock-unit/cancel")
-    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemViewDto> dtos) {
+    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
         Message message = new Message();
 
         try {
@@ -481,14 +480,14 @@ public class DeliveryReadyNaverApiController {
      * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/hansan</b>
      *
      * @param response : HttpServletResponse
-     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @throws IOException
      * @see Message
      * @see HttpStatus
      */
     @PermissionRole
     @PostMapping("/view/download/hansan")
-    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         // 중복데이터 처리
         List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeDeliveryReadyItemToHansan(viewDtos);
 
@@ -605,7 +604,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
     }
 
     /**
@@ -613,7 +612,7 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/tailo</b>
      *
-     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @throws IOException
      * @see Message
      * @see HttpStatus
@@ -621,10 +620,10 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PostMapping("/view/download/tailo")
-    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyNaverItemViewDto viewDto : viewDtos) {
+        for (DeliveryReadyNaverItemDto.ViewReqAndRes viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
 
@@ -756,7 +755,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
     }
 
     /**
@@ -764,14 +763,14 @@ public class DeliveryReadyNaverApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/naver/view/download/lotte</b>
      *
-     * @param viewDtos : List::DeliveryReadyNaverItemViewDto::
+     * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @throws IOException
      * @see Message
      * @see HttpStatus
      */
     @PermissionRole
     @PostMapping("/view/download/lotte")
-    public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+    public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         // 중복데이터 처리
         List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeDeliveryReadyItemToLotte(viewDtos);
 
@@ -885,15 +884,15 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
     }
 
     @PermissionRole
     @PostMapping("/view/download/excel")
-    public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemViewDto> viewDtos) {
+    public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyNaverItemExcelFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyNaverItemViewDto viewDto : viewDtos) {
+        for (DeliveryReadyNaverItemDto.ViewReqAndRes viewDto : viewDtos) {
             dtos.add(DeliveryReadyNaverItemExcelFormDto.toNaverFormDto(viewDto));
         }
 

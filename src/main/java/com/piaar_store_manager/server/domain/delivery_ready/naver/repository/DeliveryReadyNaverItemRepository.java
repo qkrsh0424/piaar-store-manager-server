@@ -85,7 +85,7 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
      */
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE delivery_ready_naver_item AS dri SET dri.released=true, dri.released_at=:currentDate WHERE cid IN :itemCids", nativeQuery = true)
-    int updateReleasedAtByCid(List<Integer> itemCids, Date currentDate);
+    int updateReleasedInfoByCid(List<Integer> itemCids, LocalDateTime currentDate);
 
     /**
      * 배송준비 데이터 cid값들에 대응하는 데이터를 전체 조회한다.

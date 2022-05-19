@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
 import lombok.Builder;
@@ -43,7 +44,8 @@ public class DeliveryReadyItemHansanExcelFormDto {
      * @param viewDto : DeliveryReadyNaverItemViewDto
      * @return DeliveryReadyItemHansanExcelFormDto
      */
-    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    // public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())

@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
 import lombok.Builder;
@@ -39,7 +40,8 @@ public class DeliveryReadyItemLotteExcelFormDto {
      * @param viewDto : DeliveryReadyNaverItemViewDto
      * @return DeliveryReadyItemLotteExcelFormDto
      */
-    public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+     public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
+    //  public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
             .receiver(viewDto.getDeliveryReadyItem().getReceiver())
             .zipCode(viewDto.getDeliveryReadyItem().getZipCode())

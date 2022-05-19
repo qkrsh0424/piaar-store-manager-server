@@ -15,6 +15,7 @@ import com.piaar_store_manager.server.domain.delivery_ready.naver.proj.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 import com.piaar_store_manager.server.domain.delivery_ready_file.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.domain.delivery_ready_file.repository.DeliveryReadyFileRepository;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyFileEntity
      * @see DeliveryReadyFileRepository#save
      */
-    public DeliveryReadyFileEntity saveAndGetForFile(DeliveryReadyFileEntity fileEntity) {
+    public DeliveryReadyFileEntity saveAndGetOfFile(DeliveryReadyFileEntity fileEntity) {
         return deliveryReadyFileRepository.save(fileEntity);
     }
 
@@ -49,7 +50,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyNaverItemEntity
      * @see DeliveryReadyNaverItemRepository#save
      */
-    public DeliveryReadyNaverItemEntity saveAndModifyForItem(DeliveryReadyNaverItemEntity entity) {
+    public DeliveryReadyNaverItemEntity saveAndModifyOfItem(DeliveryReadyNaverItemEntity entity) {
         return deliveryReadyNaverItemRepository.save(entity);
     }
 
@@ -62,7 +63,7 @@ public class DeliveryReadyNaverService {
      * @return List::DeliveryReadyNaverItemEntity::
      * @see DeliveryReadyNaverItemRepository#saveAll
      */
-    public List<DeliveryReadyNaverItemEntity> saveAndModifyForItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
+    public List<DeliveryReadyNaverItemEntity> saveAndModifyOfItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
         return deliveryReadyNaverItemRepository.saveAll(itemEntities);
     }
 
@@ -74,7 +75,7 @@ public class DeliveryReadyNaverService {
      * @return Set::String
      * @see DeliveryReadyNaverItemRepository#findAllProdOrderNumber
      */
-    public Set<String> findAllProdOrderNubmer() {
+    public Set<String> findAllProdOrderNumber() {
         return deliveryReadyNaverItemRepository.findAllProdOrderNumber();
     }
 
@@ -113,7 +114,7 @@ public class DeliveryReadyNaverService {
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#delete
      */
-    public void deleteOneDeliveryReadyViewData(Integer itemCid) {
+    public void deleteOneOfItem(Integer itemCid) {
         deliveryReadyNaverItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyNaverItemRepository.delete(item);
         });
@@ -127,7 +128,7 @@ public class DeliveryReadyNaverService {
      * @param idList : List::UUID::
      * @see DeliveryReadyNaverItemRepository#deleteBatchById
      */
-    public void deleteListDeliveryReadyViewData(List<UUID> idList) {
+    public void deleteListOfItem(List<UUID> idList) {
         deliveryReadyNaverItemRepository.deleteBatchById(idList);
     }
 
@@ -139,7 +140,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyNaverItemEntity
      * @see DeliveryReadyNaverItemRepository#findById
      */
-    public DeliveryReadyNaverItemEntity searchDeliveryReadyItem(Integer itemCid) {
+    public DeliveryReadyNaverItemEntity searchOneOfItem(Integer itemCid) {
         Optional<DeliveryReadyNaverItemEntity> itemEntityOpt = deliveryReadyNaverItemRepository.findById(itemCid);
 
         if (itemEntityOpt.isPresent()) {
@@ -196,8 +197,8 @@ public class DeliveryReadyNaverService {
      * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
      */
     @Transactional
-    public void updateReleasedAtByCid(List<Integer> itemCids) {
-        deliveryReadyNaverItemRepository.updateReleasedAtByCid(itemCids, DateHandler.getCurrentDate2());
+    public void updateReleasedInfoByCid(List<Integer> itemCids) {
+        deliveryReadyNaverItemRepository.updateReleasedInfoByCid(itemCids, CustomDateUtils.getCurrentDateTime());
     }
 
 }

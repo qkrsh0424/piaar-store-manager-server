@@ -47,7 +47,8 @@ public class DeliveryReadyNaverItemExcelFormDto {
      * @param viewDto : DeliveryReadyNaverItemViewDto
      * @return DeliveryReadyNaverItemExcelFormDto
      */
-    public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
+    // public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemViewDto viewDto) {
         DeliveryReadyNaverItemExcelFormDto formDto = DeliveryReadyNaverItemExcelFormDto.builder()
                 .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())

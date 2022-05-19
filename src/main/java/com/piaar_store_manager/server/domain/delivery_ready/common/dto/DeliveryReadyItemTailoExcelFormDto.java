@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -45,7 +45,8 @@ public class DeliveryReadyItemTailoExcelFormDto {
      * @param viewDto : DeliveryReadyNaverItemViewDto
      * @return DeliveryReadyItemTailoExcelFormDto
      */
-    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    // public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode((viewDto.getOptionNosUniqueCode() != null && !viewDto.getOptionNosUniqueCode().trim().isEmpty()) ? viewDto.getOptionNosUniqueCode() : "*지정바람")
                 .salesProdName((viewDto.getProdManagementName() != null && !viewDto.getProdManagementName().trim().isEmpty()) ? viewDto.getProdManagementName() + "|" + viewDto.getOptionManagementName() : "*지정바람")
