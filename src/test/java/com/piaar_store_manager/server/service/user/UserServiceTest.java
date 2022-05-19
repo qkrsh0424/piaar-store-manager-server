@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.service.user;
 
-import com.piaar_store_manager.server.model.user.dto.SignupReqDto;
+import com.piaar_store_manager.server.domain.user.dto.SignupReqDto;
+import com.piaar_store_manager.server.domain.user.service.UserService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,11 +19,11 @@ public class UserServiceTest {
 
     @Test
     public void createOneTest(){
-        SignupReqDto signupReqDto = new SignupReqDto();
-        signupReqDto.setUsername("*");
-        signupReqDto.setPassword("*123!@");
-        signupReqDto.setName("*");
+        // SignupReqDto signupReqDto = new SignupReqDto();
+        // signupReqDto.setUsername("*");
+        // signupReqDto.setPassword("*123!@");
+        // signupReqDto.setName("*");
 
-        userService.createOne(signupReqDto);
+        // userService.createOne(signupReqDto);
     }
 }
