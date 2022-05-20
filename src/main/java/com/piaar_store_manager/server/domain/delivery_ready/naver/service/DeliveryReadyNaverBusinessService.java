@@ -1,6 +1,5 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.service;
 
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -22,7 +21,6 @@ import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemOptionInfoResDto;
 import com.piaar_store_manager.server.domain.delivery_ready.common.proj.DeliveryReadyItemOptionInfoProj;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.proj.DeliveryReadyNaverItemViewProj;
 import com.piaar_store_manager.server.domain.delivery_ready_file.dto.DeliveryReadyFileDto;
@@ -74,14 +72,14 @@ public class DeliveryReadyNaverBusinessService {
      * 
      * @param file : MultipartFile
      * @return List::DeliveryReadyNaverItemDto::
-     * @see CustomExcelUtils#createWorkBook
-     * @see DeliveryReadyNaverBusinessService#getDeliveryReadyExcelForm
+     * @see CustomExcelUtils#getWorkbook
+     * @see DeliveryReadyNaverBusinessService#getExcelItemList
      */
     public List<DeliveryReadyNaverItemDto> uploadDeliveryReadyExcelFile(MultipartFile file){
         Integer SHEET_INDEX = 0;
         Workbook workbook = CustomExcelUtils.getWorkbook(file);
         Sheet sheet = workbook.getSheetAt(SHEET_INDEX);
-        List<DeliveryReadyNaverItemDto> dtos = this.getDeliveryReadyExcelForm(sheet);
+        List<DeliveryReadyNaverItemDto> dtos = this.getExcelItemList(sheet);
         return dtos;
     }
 
@@ -93,10 +91,11 @@ public class DeliveryReadyNaverBusinessService {
      * @param worksheet : Sheet
      * @return List::DeliveryReadyNaverItemDto::
      */
-    private List<DeliveryReadyNaverItemDto> getDeliveryReadyExcelForm(Sheet worksheet) {
+    private List<DeliveryReadyNaverItemDto> getExcelItemList(Sheet worksheet) {
         List<DeliveryReadyNaverItemDto> dtos = new ArrayList<>();
+        Integer NAVER_DATA_START_INDEX = 2;
 
-        for (int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for (int i = NAVER_DATA_START_INDEX; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
             DeliveryReadyNaverItemDto dto = DeliveryReadyNaverItemDto.builder().id(UUID.randomUUID())
@@ -157,6 +156,7 @@ public class DeliveryReadyNaverBusinessService {
         String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
         String uploadPath = awsS3Configuration.getS3().get("bucket") + "/naver-order";
 
+        // aws s3 저장
         AwsS3ReqDto reqDto = AwsS3ReqDto.builder()
             .uploadPath(uploadPath)
             .fileName(fileName)
@@ -178,9 +178,8 @@ public class DeliveryReadyNaverBusinessService {
      * @param filePath : String
      * @param fileName : String
      * @param fileSize : Integer
-     * @see DeliveryReadyNaverService#saveAndModifyForFile
-     * @see DeliveryReadyFileDto#toDto
      * @return DeliveryReadyFileDto
+     * @see DeliveryReadyNaverService#saveAndGetOfFile
      */
     public DeliveryReadyFileDto createFile(String filePath, String fileName, Integer fileSize) {
         UUID userId = userService.getUserId();
@@ -208,8 +207,8 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param file : MultipartFile
      * @param fileDto : DeliveryReadyFileDto
-     * @see DeliveryReadyNaverBusinessService#getDeliveryReadyNaverExcelItem
-     * @see DeliveryReadyNaverService#saveAndModifyForItemList
+     * @see DeliveryReadyNaverBusinessService#getExcelItemList
+     * @see DeliveryReadyNaverService#saveAndModifyOfItemList
      */
     public void createItem(MultipartFile file, DeliveryReadyFileDto fileDto) {
         Integer SHEET_INDEX = 0;
@@ -237,15 +236,17 @@ public class DeliveryReadyNaverBusinessService {
      */
     private List<DeliveryReadyNaverItemDto> getExcelItemList(Sheet worksheet, DeliveryReadyFileDto fileDto) {
         List<DeliveryReadyNaverItemDto> dtos = new ArrayList<>();
+        Integer NAVER_DATA_START_INDEX = 2;
 
         // 상품주문번호를 모두 가져온다.
         Set<String> storedProdOrderNumber = deliveryReadyNaverService.findAllProdOrderNumber();
 
-        for(int i = 2; i < worksheet.getPhysicalNumberOfRows(); i++) {
+        for(int i = NAVER_DATA_START_INDEX; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
 
             // 상품주문번호가 중복된다면 다음 데이터로 넘어간다
-            if(!storedProdOrderNumber.add(row.getCell(0).getStringCellValue())){
+            String prodOrderNumber = row.getCell(0).getStringCellValue();
+            if(!storedProdOrderNumber.add(prodOrderNumber)){
                 continue;
             }
 
@@ -306,11 +307,11 @@ public class DeliveryReadyNaverBusinessService {
      * 조회된 데이터의 출고옵션코드를 확인해 옵션재고수량을 설정한다.
      *
      * @return List::DeliveryReadyNaverItemDto.ViewReqAndRes::
-     * @see DeliveryReadyNaverService#findSelectedUnreleased
+     * @see DeliveryReadyNaverService#findUnreleasedItemList
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
     public List<DeliveryReadyNaverItemDto.ViewReqAndRes> getUnreleasedItemList() {
-        List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedUnreleased();
+        List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findUnreleasedItemList();
         List<DeliveryReadyNaverItemDto.ViewReqAndRes> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
@@ -318,20 +319,19 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * DeliveryReadyItem 중 선택된 기간의 출 데이터를 조회한다.
+     * DeliveryReadyItem 중 선택된 기간의 출고 데이터를 조회한다.
      *
      * @param query : Map[startDate, endDate]
      * @return List::DeliveryReadyNaverItemDto.ViewReqAndRes::
-     * @throws ParseException
-     * @see DeliveryReadyNaverService#findSelectedReleased
+     * @see DeliveryReadyNaverService#findReleasedItemList
      * @see DeliveryReadyNaverBusinessService#changeOptionStockUnit
      */
-    public List<DeliveryReadyNaverItemDto.ViewReqAndRes> getReleasedItemList(Map<String, Object> query) throws ParseException {
+    public List<DeliveryReadyNaverItemDto.ViewReqAndRes> getReleasedItemList(Map<String, Object> query) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = query.get("startDate") != null ? LocalDateTime.parse(query.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
         LocalDateTime endDate = query.get("endDate") != null ? LocalDateTime.parse(query.get("endDate").toString(), formatter) : LocalDateTime.now();   /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */
         
-        List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findSelectedReleased(startDate, endDate);
+        List<DeliveryReadyNaverItemViewProj> itemViewProj = deliveryReadyNaverService.findReleasedItemList(startDate, endDate);
         List<DeliveryReadyNaverItemDto.ViewReqAndRes> itemViewResDto = this.changeOptionStockUnit(itemViewProj);
         return itemViewResDto;
     }
@@ -350,6 +350,7 @@ public class DeliveryReadyNaverBusinessService {
         List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByOptionCodes(optionCodes);
         List<DeliveryReadyNaverItemDto.ViewReqAndRes>  itemViewResDto = new ArrayList<>();
 
+        // 등록된 옵션관리코드가 없다면 옵션 재고수량을 설정하지 않고 바로 리턴
         if(optionGetDtos.isEmpty()) {
             itemViewResDto = itemViewProj.stream().map(proj -> DeliveryReadyNaverItemDto.ViewReqAndRes.toDto(proj)).collect(Collectors.toList());
             return itemViewResDto;
@@ -362,7 +363,7 @@ public class DeliveryReadyNaverBusinessService {
             // 출고 옵션코드를 생성하기 전의 데이터들은 getReleaseOptionCode가 null이다.
             if(proj.getDeliveryReadyItem().getReleaseOptionCode() == null) return resDto;
 
-            // 옵션 코드와 동일한 상품의 재고수량을 변경한다
+            // 출고 옵션 코드와 동일한 옵션의 재고수량을 변경한다
             optionGetDtos.stream().forEach(option -> {
                 if(proj.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
                     resDto.setOptionStockUnit(option.getStockSumUnit());
@@ -370,7 +371,6 @@ public class DeliveryReadyNaverBusinessService {
             });
             return resDto;
         }).collect(Collectors.toList());
-        
         return itemViewResDto;
     }
 
@@ -394,6 +394,7 @@ public class DeliveryReadyNaverBusinessService {
      * @param dtos : List::DeliveryReadyNaverItemDto::
      * @see DeliveryReadyNaverService#deleteListOfItem
      */
+    @Transactional
     public void deleteListOfItem(List<DeliveryReadyNaverItemDto> dtos) {
         List<UUID> idList = dtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         deliveryReadyNaverService.deleteListOfItem(idList);
@@ -431,7 +432,7 @@ public class DeliveryReadyNaverBusinessService {
 
         deliveryReadyNaverService.saveAndModifyOfItemList(entities);
     }
-
+    
     /**
      * <b>DB Select Related Method</b>
      * <p>
@@ -449,7 +450,7 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * dto cid에 대응하는 데이터, 이와 동일한 옵션관리코드를 가진 상품들을 일괄 수정한다.
+     * dto cid에 대응하는 데이터의 옵션관리코드를 수정한다.
      * 옵션관리코드 변경 시 출고옵션코드도 함께 변경한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
@@ -491,7 +492,7 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * dto cid에 대응하는 데이터, 이와 동일한 출고옵션코드를 가진 상품들을 수정한다.
+     * dto cid에 대응하는 데이터의 출고옵션코드를 수정한다.
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchOneOfItem
@@ -502,19 +503,6 @@ public class DeliveryReadyNaverBusinessService {
         entity.setReleaseOptionCode(dto.getReleaseOptionCode() != null ? dto.getReleaseOptionCode() : "");
 
         deliveryReadyNaverService.saveAndModifyOfItem(entity);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * 데이터 다운로드 시 출고 정보(released, releasedAt) 값을 설정한다.
-     *
-     * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
-     * @see DeliveryReadyNaverService#updateReleasedInfoByCid
-     */
-    public void updateItemListToRelease(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
-        List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
-        deliveryReadyNaverService.updateReleasedInfoByCid(itemCids);
     }
 
     /**
@@ -530,19 +518,27 @@ public class DeliveryReadyNaverBusinessService {
     public void updateListReleaseCompleted(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos, boolean reflected) {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchDeliveryReadyItemList(itemCids);
-        entities.stream().forEach(entity -> entity.setReleaseCompleted(reflected));
+        entities.stream().forEach(entity -> {
+            entity.setReleaseCompleted(reflected);
+            if(reflected) {
+                entity.setReleasedAt(CustomDateUtils.getCurrentDateTime());
+            } else {
+                entity.setReleasedAt(null);
+            }
+        });
         deliveryReadyNaverService.saveAndModifyOfItemList(entities);
     }
-
+    
     /**
      * <b>Data Processing Related Method</b>
      * <p>
-     * DeliveryReadyItem 다운로드 시 중복데이터(주문번호 + 받는사람 + 상품명(피아르 출고상품명) + 상품상세(피아르 출고옵션명)) 처리 및 셀 색상을 지정한다.
+     * [네이버 배송준비 -> 한산 발주서] 다운로드
+     * 다운로드 시 중복데이터(주문번호 + 받는사람 + 상품명(피아르 출고상품명) + 상품상세(피아르 출고옵션명)) 처리 및 셀 색상을 지정한다.
      *
-     * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
+     * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return List::DeliveryReadyItemHansanExcelFormDto::
      */
-    public List<DeliveryReadyItemHansanExcelFormDto> changeDeliveryReadyItemToHansan(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
+    public List<DeliveryReadyItemHansanExcelFormDto> changeItemToHansan(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
         List<DeliveryReadyItemHansanExcelFormDto> excelFormDtos = new ArrayList<>();
 
         // 받는사람 > 주문번호 > 상품명 > 상품상세 정렬
@@ -593,12 +589,13 @@ public class DeliveryReadyNaverBusinessService {
     /**
      * <b>Data Processing Related Method</b>
      * <p>
-     * DeliveryReadyItem 다운로드 시 중복데이터(받는사람 + 주소 + 상품명 + 상품상세), (받는사람 + 연락처 + 주소) 처리 및 셀 색상을 지정한다.
+     * [네이버 배송준비 -> 롯데 발주서] 다운로드
+     * 다운로드 시 중복데이터(받는사람 + 주소 + 상품명 + 상품상세), (받는사람 + 연락처 + 주소) 처리 및 셀 색상을 지정한다.
      *
      * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return List::DeliveryReadyItemLotteExcelFormDto::
      */
-    public List<DeliveryReadyItemLotteExcelFormDto> changeDeliveryReadyItemToLotte(List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
+    public List<DeliveryReadyItemLotteExcelFormDto> changeItemToLotte(List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyItemLotteExcelFormDto> dtos = viewDtos.stream().map(dto -> DeliveryReadyItemLotteExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
         List<DeliveryReadyItemLotteExcelFormDto> excelFormDtos = new ArrayList<>();
 
@@ -692,11 +689,10 @@ public class DeliveryReadyNaverBusinessService {
      * 기본 옵션 상품과 세트 구성 상품을 분리하여 재고반영 처리한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
-     * @param userId : UUID
      * @see DeliveryReadyNaveBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyNaveBusinessService#getOptionByCode
-     * @see ProductReleaseGetDto#toDto
-     * @see productReleaseBusinessService#createPLList
+     * @see DeliveryReadyNaveBusinessService#reflectStockUnit
+     * @see DeliveryReadyNaveBusinessService#reflectStockUnitOfPackageOption
      */
     @Transactional
     public void releaseListStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
@@ -706,11 +702,10 @@ public class DeliveryReadyNaverBusinessService {
         
         // 출고 옵션데이터 추출
         List<ProductOptionEntity> optionEntities = this.getOptionByCode(unreleasedDtos);
-        // 1. 세트상품 X
-        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        // 2. 세트상품 O
-        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
         
+        // 세트상품 재고반영
+        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
         this.reflectStockUnit(unreleasedDtos, originOptionEntities);
 
         if(parentOptionEntities.size() > 0) {
@@ -718,6 +713,16 @@ public class DeliveryReadyNaverBusinessService {
         }
     }
 
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Reflect the stock unit of product options.</b>
+     * <p>
+     * 기본 옵션 상품의 출고(재고 반영) 데이터를 생성한다.
+     * 
+     * @param unreleasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
+     * @param originOptionEntities : List::ProductOptionEntity::
+     * @see ProductReceiveService#saveListAndModify
+     */
     public void reflectStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -744,6 +749,17 @@ public class DeliveryReadyNaverBusinessService {
         productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Reflect the stock unit of product options.</b>
+     * <p>
+     * 세트 옵션 상품의 출고(재고 반영) 데이터를 생성한다.
+     * 
+     * @param unreleasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
+     * @param parentOptionEntities : List::ProductOptionEntity::
+     * @see OptionPackageService#searchListByParentOptionIdList
+     * @see ProductReceiveService#saveListAndModify
+     */
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
@@ -786,11 +802,10 @@ public class DeliveryReadyNaverBusinessService {
      * 기본 옵션 상품과 세트 구성 상품을 분리하여 재고반영 취소 처리한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
-     * @param userId : UUID
      * @see DeliveryReadyNaverBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyNaverBusinessService#getOptionByCode
-     * @see ProductReceiveGetDto#toDto
-     * @see productReceiveBusinessService#createPRList
+     * @see DeliveryReadyNaverBusinessService#cancelReflectedStockUnit
+     * @see DeliveryReadyNaverBusinessService#cancelReflectedStockUnitOfPackageOption
      */
     @Transactional
     public void cancelReleaseListStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
@@ -800,9 +815,9 @@ public class DeliveryReadyNaverBusinessService {
 
         // 옵션데이터 추출
         List<ProductOptionEntity> optionEntities = this.getOptionByCode(releasedDtos);
-        // 1. 세트상품 X
+        
+        // 세트상품 재고반영 취소
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        // 2. 세트상품 O
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
         this.cancelReflectedStockUnit(releasedDtos, originOptionEntities);
@@ -812,13 +827,22 @@ public class DeliveryReadyNaverBusinessService {
         }
     }
 
-    public void cancelReflectedStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Cancel the stock unit reflection of product options.</b>
+     * <p>
+     * 기본 옵션 상품의 입고(재고 반영 취소) 데이터를 생성한다.
+     * 
+     * @param releasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
+     * @param originOptionEntities : List::ProductOptionEntity::
+     * @see ProductReceiveService#saveListAndModify
+     */
+    public void cancelReflectedStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
-        // 1. 세트상품이 아닌 애들 재고반영
         List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
         // 출고 취소데이터 설정 및 생성
-        unreleasedDtos.forEach(dto -> {
+        releasedDtos.forEach(dto -> {
             originOptionEntities.forEach(option -> {
                 if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(option.getCode())) {
                     ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
@@ -837,7 +861,18 @@ public class DeliveryReadyNaverBusinessService {
         productReceiveService.saveListAndModify(productReceiveEntities);
     }
 
-    public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
+    /**
+     * <b>Update data for delivery ready.</b>
+     * <b>Cancel the stock unit reflection of product options.</b>
+     * <p>
+     * 세트 옵션 상품의 입고(재고 반영 취소) 데이터를 생성한다.
+     * 
+     * @param releasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
+     * @param parentOptionEntities : List::ProductOptionEntity::
+     * @see OptionPackageService#searchListByParentOptionIdList
+     * @see ProductReceiveService#saveListAndModify
+     */
+    public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
         // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
@@ -846,7 +881,7 @@ public class DeliveryReadyNaverBusinessService {
         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
 
         List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-        unreleasedDtos.forEach(dto -> {
+        releasedDtos.forEach(dto -> {
             parentOptionEntities.forEach(parentOption -> {
                 if (dto.getDeliveryReadyItem().getReleaseOptionCode().equals(parentOption.getCode())) {
                     optionPackageEntities.forEach(option -> {

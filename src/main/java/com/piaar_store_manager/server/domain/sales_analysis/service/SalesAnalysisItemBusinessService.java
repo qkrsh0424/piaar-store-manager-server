@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.domain.sales_analysis.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,13 +28,10 @@ public class SalesAnalysisItemBusinessService {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
-        
-        Calendar startDateCalendar = Calendar.getInstance();
-        startDateCalendar.set(Calendar.YEAR, 1970);
-        Date startDate = params.get("startDate") != null ? new Date(params.get("startDate").toString())
-                : startDateCalendar.getTime();
 
-        Date endDate = params.get("endDate") != null ? new Date(params.get("endDate").toString()) : new Date();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = params.get("startDate") != null ? LocalDateTime.parse(params.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
+        LocalDateTime endDate = params.get("endDate") != null ? LocalDateTime.parse(params.get("endDate").toString(), formatter) : LocalDateTime.now();   /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */
 
         List<SalesAnalysisItemProj> salesItemList = itemRepository.findSalesAnalysisItem(startDate, endDate);
         List<SalesAnalysisItemDto> salesItemDtos = salesItemList.stream().map(proj -> SalesAnalysisItemDto.toDto(proj)).collect(Collectors.toList());

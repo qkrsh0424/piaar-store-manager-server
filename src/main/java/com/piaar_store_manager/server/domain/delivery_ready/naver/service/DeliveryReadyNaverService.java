@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,8 +14,8 @@ import com.piaar_store_manager.server.domain.delivery_ready.naver.proj.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 import com.piaar_store_manager.server.domain.delivery_ready_file.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.domain.delivery_ready_file.repository.DeliveryReadyFileRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
-import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.stereotype.Service;
 
@@ -85,10 +84,10 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
      * @return List::DeliveryReadyNaverItemViewProj::
-     * @see DeliveryReadyNaverItemRepository#findSelectedUnreleased
+     * @see DeliveryReadyNaverItemRepository#findUnreleasedItemList
      */
-    public List<DeliveryReadyNaverItemViewProj> findSelectedUnreleased() {
-        return deliveryReadyNaverItemRepository.findSelectedUnreleased();
+    public List<DeliveryReadyNaverItemViewProj> findUnreleasedItemList() {
+        return deliveryReadyNaverItemRepository.findUnreleasedItemList();
     }
 
     /**
@@ -99,10 +98,10 @@ public class DeliveryReadyNaverService {
      * @param startDate : Date
      * @param endDate : Date
      * @return List::DeliveryReadyNaverItemViewProj::
-     * @see DeliveryReadyNaverItemRepository#findSelectedReleased
+     * @see DeliveryReadyNaverItemRepository#findReleasedItemList
      */
-    public List<DeliveryReadyNaverItemViewProj> findSelectedReleased(LocalDateTime startDate, LocalDateTime endDate) {
-        return deliveryReadyNaverItemRepository.findSelectedReleased(startDate, endDate);
+    public List<DeliveryReadyNaverItemViewProj> findReleasedItemList(LocalDateTime startDate, LocalDateTime endDate) {
+        return deliveryReadyNaverItemRepository.findReleasedItemList(startDate, endDate);
     }
  
     /**
@@ -146,7 +145,7 @@ public class DeliveryReadyNaverService {
         if (itemEntityOpt.isPresent()) {
             return itemEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -192,9 +191,8 @@ public class DeliveryReadyNaverService {
      * <p>
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
+     * @param itemCids : List::Integer::
+     * @see DeliveryReadyNaverItemRepository#updateReleasedInfoByCid
      */
     @Transactional
     public void updateReleasedInfoByCid(List<Integer> itemCids) {

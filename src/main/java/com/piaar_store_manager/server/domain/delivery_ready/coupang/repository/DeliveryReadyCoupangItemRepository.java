@@ -1,6 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.coupang.repository;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -34,11 +34,10 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      * @return List::DeliveryReadyCoupangItemViewProj::
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyCoupangItemEntity dri\n"
-        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE dri.released=false")
-    List<DeliveryReadyCoupangItemViewProj> findSelectedUnreleased();
+    List<DeliveryReadyCoupangItemViewProj> findUnreleasedItemList();
 
     /**
      * 배송준비 엑셀 데이터 중 특정 기간 동안의 출고 데이터를 조회한다.
@@ -49,11 +48,10 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      * @param date2 : Date
      */
     @Query("SELECT dri AS deliveryReadyItem, po.defaultName AS optionDefaultName, po.managementName AS optionManagementName, po.stockUnit AS optionStockUnit, po.nosUniqueCode AS optionNosUniqueCode, po.memo AS optionMemo, p.managementName AS prodManagementName, p.manufacturingCode AS prodManufacturingCode FROM DeliveryReadyCoupangItemEntity dri\n"
-        // + "LEFT JOIN ProductOptionEntity po ON dri.optionManagementCode = po.code\n"
         + "LEFT JOIN ProductOptionEntity po ON dri.releaseOptionCode = po.code\n"
         + "LEFT JOIN ProductEntity p ON po.productCid = p.cid\n"
         + "WHERE (dri.releasedAt BETWEEN :date1 AND :date2) AND dri.released=true")
-    List<DeliveryReadyCoupangItemViewProj> findSelectedReleased(Date date1, Date date2);
+    List<DeliveryReadyCoupangItemViewProj> findReleasedItemList(LocalDateTime date1, LocalDateTime date2);
 
     /**
      * 옵션 정보를 전체 조회한다.
@@ -83,7 +81,7 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      */
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE delivery_ready_coupang_item AS dri SET dri.released=true, dri.released_at=:currentDate WHERE cid IN :itemCids", nativeQuery = true)
-    int updateReleasedAtByCid(List<Integer> itemCids, Date currentDate);
+    int updateReleasedInfoByCid(List<Integer> itemCids, LocalDateTime currentDate);
 
     /**
      * 배송준비 데이터 cid값들에 대응하는 데이터를 전체 조회한다.

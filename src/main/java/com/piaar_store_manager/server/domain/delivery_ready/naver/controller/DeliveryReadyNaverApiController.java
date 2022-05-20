@@ -293,11 +293,11 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/release")
-    public ResponseEntity<?> updateListToRelase(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
+    public ResponseEntity<?> updateListReleaseCompleted(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
+            deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -372,7 +372,7 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/options")
-    public ResponseEntity<?> updateDeliveryReadyItemsOptionInfo(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
+    public ResponseEntity<?> updateAllOptionInfoOfItem(@RequestBody DeliveryReadyNaverItemDto deliveryReadyNaverItemDto) {
         Message message = new Message();
 
         try {
@@ -489,7 +489,7 @@ public class DeliveryReadyNaverApiController {
     @PostMapping("/view/download/hansan")
     public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeDeliveryReadyItemToHansan(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeItemToHansan(viewDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -604,7 +604,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
+        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     /**
@@ -755,7 +755,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
+        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     /**
@@ -772,7 +772,7 @@ public class DeliveryReadyNaverApiController {
     @PostMapping("/view/download/lotte")
     public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         // 중복데이터 처리
-        List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeDeliveryReadyItemToLotte(viewDtos);
+        List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyNaverBusinessService.changeItemToLotte(viewDtos);
 
         // 수취인명 > 주소 > 상품명
         Comparator<DeliveryReadyItemLotteExcelFormDto> comparing = Comparator
@@ -884,7 +884,7 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateItemListToRelease(viewDtos);
+        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     @PermissionRole

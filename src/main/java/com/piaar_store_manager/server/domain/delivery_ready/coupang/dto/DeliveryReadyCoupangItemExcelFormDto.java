@@ -1,6 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.coupang.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import lombok.Builder;
 import lombok.Data;
@@ -30,10 +30,10 @@ public class DeliveryReadyCoupangItemExcelFormDto {
     private String destination;        // 수취인 주소
     private String buyerContact;        // 구매자전화번호
     private String deliveryMessage;        // 배송메세지
-    private Date shipmentDueDate;         // 주문시 출고예정일
-    private Date orderDateTime;        // 주문일
+    private LocalDateTime shipmentDueDate;         // 주문시 출고예정일
+    private LocalDateTime orderDateTime;        // 주문일
     private Boolean released;   // 출고여부
-    private Date releasedAt;    // 출고일시
+    private LocalDateTime releasedAt;    // 출고일시
 
     /**
      * <b>Convert Method</b>
@@ -43,7 +43,7 @@ public class DeliveryReadyCoupangItemExcelFormDto {
      * @param viewDto : DeliveryReadyCoupangItemViewDto
      * @return DeliveryReadyCoupangItemExcelFormDto
      */
-    public static DeliveryReadyCoupangItemExcelFormDto toCoupangFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
+    public static DeliveryReadyCoupangItemExcelFormDto toCoupangFormDto(DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto) {
 
         DeliveryReadyCoupangItemExcelFormDto formDto = DeliveryReadyCoupangItemExcelFormDto.builder()
                 .shipmentCostBundleNumber(viewDto.getDeliveryReadyItem().getShipmentCostBundleNumber())

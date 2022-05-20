@@ -17,7 +17,7 @@ import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
-import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto.ViewReqAndRes;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.service.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -140,10 +140,10 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @GetMapping("/view/unreleased")
-    public ResponseEntity<?> getDeliveryReadyViewUnreleasedData() {
+    public ResponseEntity<?> getUnreleasedItemList() {
         Message message = new Message();
 
-        message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewUnreleasedData());
+        message.setData(deliveryReadyCoupangBusinessService.getUnreleasedItemList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -166,10 +166,10 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @GetMapping("/view/released")
-    public ResponseEntity<?> getDeliveryReadyViewReleased(@RequestParam Map<String, Object> query) throws ParseException {
+    public ResponseEntity<?> getReleasedItemList(@RequestParam Map<String, Object> query) throws ParseException {
         Message message = new Message();
 
-        message.setData(deliveryReadyCoupangBusinessService.getDeliveryReadyViewReleased(query));
+        message.setData(deliveryReadyCoupangBusinessService.getReleasedItemList(query));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -191,11 +191,11 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @DeleteMapping("/view/delete/one/{itemCid}")
-    public ResponseEntity<?> deleteOneDeliveryReadyViewData(@PathVariable(value = "itemCid") Integer itemCid) {
+    public ResponseEntity<?> deleteOneOfItem(@PathVariable(value = "itemCid") Integer itemCid) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.deleteOneDeliveryReadyViewData(itemCid);
+            deliveryReadyCoupangBusinessService.deleteOneOfItem(itemCid);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -222,11 +222,11 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PostMapping("/view/delete/batch")
-    public ResponseEntity<?> deleteListDeliveryReadyViewData(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
+    public ResponseEntity<?> deleteListOfItem(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.deleteListDeliveryReadyViewData(deliveryReadyCoupangItemDtos);
+            deliveryReadyCoupangBusinessService.deleteListOfItem(deliveryReadyCoupangItemDtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -253,11 +253,11 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/one")
-    public ResponseEntity<?> updateReleasedDeliveryReadyItem(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
+    public ResponseEntity<?> updateItemToUnrelease(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateReleasedDeliveryReadyItem(deliveryReadyCoupangItemDto);
+            deliveryReadyCoupangBusinessService.updateItemToUnrelease(deliveryReadyCoupangItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -284,11 +284,11 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/unrelease")
-    public ResponseEntity<?> updateListToUnreleasedDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
+    public ResponseEntity<?> updateItemListToUnrelease(@RequestBody List<DeliveryReadyCoupangItemDto> deliveryReadyCoupangItemDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateListToUnreleasedDeliveryReadyItem(deliveryReadyCoupangItemDtos);
+            deliveryReadyCoupangBusinessService.updateItemListToUnrelease(deliveryReadyCoupangItemDtos);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -305,7 +305,7 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/update/list/release</b>
      *
-     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -315,11 +315,11 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/release")
-    public ResponseEntity<?> updateListToReleaseDeliveryReadyItem(@RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+    public ResponseEntity<?> updateListReleaseCompleted(@RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+            deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -345,10 +345,10 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @GetMapping("/view/search/list/option-info")
-    public ResponseEntity<?> searchDeliveryReadyItemOptionInfo() {
+    public ResponseEntity<?> searchOptionInfoOfItem() {
         Message message = new Message();
 
-        message.setData(deliveryReadyCoupangBusinessService.searchDeliveryReadyItemOptionInfo());
+        message.setData(deliveryReadyCoupangBusinessService.searchOptionInfoOfItem());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -364,17 +364,17 @@ public class DeliveryReadyCoupangApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#updateDeliveryReadyItemOptionInfo
+     * @see DeliveryReadyCoupangBusinessService#updateOptionInfoOfItem
      * @see UserService#isManager
      * @see UserService#userDenyCheck
      */
     @PermissionRole
     @PutMapping("/view/update/option")
-    public ResponseEntity<?> updateDeliveryReadyItemOptionInfo(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
+    public ResponseEntity<?> updateOptionInfoOfItem(@RequestBody DeliveryReadyCoupangItemDto deliveryReadyCoupangItemDto) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemOptionInfo(deliveryReadyCoupangItemDto);
+            deliveryReadyCoupangBusinessService.updateOptionInfoOfItem(deliveryReadyCoupangItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -405,7 +405,7 @@ public class DeliveryReadyCoupangApiController {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemsOptionInfo(deliveryReadyCoupangItemDto);
+            deliveryReadyCoupangBusinessService.updateAllOptionInfoOfItem(deliveryReadyCoupangItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -436,7 +436,7 @@ public class DeliveryReadyCoupangApiController {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateDeliveryReadyItemReleaseOptionInfo(deliveryReadyCoupangItemDto);
+            deliveryReadyCoupangBusinessService.updateReleaseOptionInfoOfItem(deliveryReadyCoupangItemDto);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -454,7 +454,7 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/stock-unit</b>
      *
-     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -465,7 +465,7 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/stock-unit")
-    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
+    public ResponseEntity<?> releaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> dtos) {
         Message message = new Message();
 
         try {
@@ -487,7 +487,7 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/delivery-ready/coupang/view/stock-unit/cancel</b>
      *
-     * @param dtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param dtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
@@ -498,7 +498,7 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/stock-unit/cancel")
-    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemViewDto> dtos) {
+    public ResponseEntity<?> cancelReleaseListStockUnit(@RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> dtos) {
         Message message = new Message();
 
         try {
@@ -519,7 +519,7 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/hansan</b>
      *
-     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyCoupangBusinessService#changeDeliveryReadyItemToHansan
@@ -527,10 +527,10 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PostMapping("/view/download/hansan")
-    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+    public void downloadHansanExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
 
         // 중복데이터 처리
-        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItemToHansan(viewDtos);
+        List<DeliveryReadyItemHansanExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeItemToHansan(viewDtos);
 
         // 엑셀 생성
         Workbook workbook = new XSSFWorkbook();     // .xlsx
@@ -646,7 +646,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     /**
@@ -654,17 +654,17 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/tailo</b>
      *
-     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
      */
     @PermissionRole
     @PostMapping("/view/download/tailo")
-    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+    public void downloadTailoExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyItemTailoExcelFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+        for (DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto : viewDtos) {
             dtos.add(DeliveryReadyItemTailoExcelFormDto.toTailoFormDto(viewDto));
         }
 
@@ -796,7 +796,7 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     /**
@@ -804,16 +804,16 @@ public class DeliveryReadyCoupangApiController {
      * <p>
      * <b>POST : API URL => /api/v1/delivery-ready/coupang/view/download/lotte</b>
      *
-     * @param viewDtos : List::DeliveryReadyCoupangItemViewDto::
+     * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @throws IOException
      * @see Message
      * @see HttpStatus
      */
     @PermissionRole
     @PostMapping("/view/download/lotte")
-    public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+    public void downloadLotteExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         // 중복데이터 처리
-        List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeDeliveryReadyItemToLotte(viewDtos);
+        List<DeliveryReadyItemLotteExcelFormDto> dtos = deliveryReadyCoupangBusinessService.changeItemToLotte(viewDtos);
 
         // 수취인명 > 주소 > 상품명
         Comparator<DeliveryReadyItemLotteExcelFormDto> comparing = Comparator
@@ -925,15 +925,15 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListToReleaseDeliveryReadyItem(viewDtos);
+        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
     }
 
     @PermissionRole
     @PostMapping("/view/download/excel")
-    public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemViewDto> viewDtos) {
+    public void downloadExcelFile(HttpServletResponse response, @RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyCoupangItemExcelFormDto> dtos = new ArrayList<>();
 
-        for (DeliveryReadyCoupangItemViewDto viewDto : viewDtos) {
+        for (DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto : viewDtos) {
             dtos.add(DeliveryReadyCoupangItemExcelFormDto.toCoupangFormDto(viewDto));
         }
 

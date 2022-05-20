@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.coupang.service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +16,7 @@ import com.piaar_store_manager.server.domain.delivery_ready.coupang.repository.D
 import com.piaar_store_manager.server.domain.delivery_ready_file.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.domain.delivery_ready_file.repository.DeliveryReadyFileRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.stereotype.Service;
@@ -36,7 +38,7 @@ public class DeliveryReadyCoupangService {
      * @return DeliveryReadyFileEntity
      * @see DeliveryReadyFileRepository#save
      */
-    public DeliveryReadyFileEntity createFile(DeliveryReadyFileEntity fileEntity) {
+    public DeliveryReadyFileEntity saveAndGetOfFile(DeliveryReadyFileEntity fileEntity) {
         return deliveryReadyFileRepository.save(fileEntity);
     }
     
@@ -49,7 +51,7 @@ public class DeliveryReadyCoupangService {
      * @return DeliveryReadyCoupangItemEntity
      * @see DeliveryReadyCoupangItemRepository#save
      */
-    public DeliveryReadyCoupangItemEntity createItem(DeliveryReadyCoupangItemEntity fileEntity) {
+    public DeliveryReadyCoupangItemEntity saveAndModifyOfItem(DeliveryReadyCoupangItemEntity fileEntity) {
         return deliveryReadyCoupangItemRepository.save(fileEntity);
     }
 
@@ -62,7 +64,7 @@ public class DeliveryReadyCoupangService {
      * @return List::DeliveryReadyCoupangItemEntity::
      * @see DeliveryReadyCoupangItemRepository#saveAll
      */
-    public List<DeliveryReadyCoupangItemEntity> createItemList(List<DeliveryReadyCoupangItemEntity> itemEntities) {
+    public List<DeliveryReadyCoupangItemEntity> saveAndModifyOfItemList(List<DeliveryReadyCoupangItemEntity> itemEntities) {
         return deliveryReadyCoupangItemRepository.saveAll(itemEntities);
     }
 
@@ -84,10 +86,10 @@ public class DeliveryReadyCoupangService {
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
      * @return List::DeliveryReadyCoupangItemViewProj::
-     * @see DeliveryReadyCoupangItemRepository#findSelectedUnreleased
+     * @see DeliveryReadyCoupangItemRepository#findUnreleasedItemList
      */
-    public List<DeliveryReadyCoupangItemViewProj> findSelectedUnreleased() {
-        return deliveryReadyCoupangItemRepository.findSelectedUnreleased();
+    public List<DeliveryReadyCoupangItemViewProj> findUnreleasedItemList() {
+        return deliveryReadyCoupangItemRepository.findUnreleasedItemList();
     }
 
     /**
@@ -98,10 +100,10 @@ public class DeliveryReadyCoupangService {
      * @param startDate : Date
      * @param endDate : Date
      * @return List::DeliveryReadyCoupangItemViewProj::
-     * @see DeliveryReadyCoupangItemRepository#findSelectedReleased
+     * @see DeliveryReadyCoupangItemRepository#findReleasedItemList
      */
-    public List<DeliveryReadyCoupangItemViewProj> findSelectedReleased(Date startDate, Date endDate) {
-        return deliveryReadyCoupangItemRepository.findSelectedReleased(startDate, endDate);
+    public List<DeliveryReadyCoupangItemViewProj> findReleasedItemList(LocalDateTime startDate, LocalDateTime endDate) {
+        return deliveryReadyCoupangItemRepository.findReleasedItemList(startDate, endDate);
     }
 
     /**
@@ -113,7 +115,7 @@ public class DeliveryReadyCoupangService {
      * @see DeliveryReadCoupangItemRepository#findById
      * @see DeliveryReadyCoupangItemRepository#delete
      */
-    public void deleteOneDeliveryReadyViewData(Integer itemCid) {
+    public void deleteOneOfItem(Integer itemCid) {
         deliveryReadyCoupangItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyCoupangItemRepository.delete(item);
         });
@@ -127,7 +129,7 @@ public class DeliveryReadyCoupangService {
      * @param idList : List::UUID::
      * @see DeliveryReadyCoupangItemRepository#deleteBatchById
      */
-    public void deleteListDeliveryReadyViewData(List<UUID> idList) {
+    public void deleteListOfItem(List<UUID> idList) {
         deliveryReadyCoupangItemRepository.deleteBatchById(idList);
     }
 
@@ -139,7 +141,7 @@ public class DeliveryReadyCoupangService {
      * @return DeliveryReadyCoupangItemEntity
      * @see DeliveryReadyCoupangItemRepository#findById
      */
-    public DeliveryReadyCoupangItemEntity searchDeliveryReadyItem(Integer itemCid) {
+    public DeliveryReadyCoupangItemEntity searchOneOfItem(Integer itemCid) {
         Optional<DeliveryReadyCoupangItemEntity> itemEntityOpt = deliveryReadyCoupangItemRepository.findById(itemCid);
 
         if (itemEntityOpt.isPresent()) {
@@ -196,7 +198,7 @@ public class DeliveryReadyCoupangService {
      * @see DeliveryReadyCoupangItemRepository#updateReleasedAtByCid
      */
     @Transactional
-    public void updateReleasedAtByCid(List<Integer> itemCids) {
-        deliveryReadyCoupangItemRepository.updateReleasedAtByCid(itemCids, DateHandler.getCurrentDate2());
+    public void updateReleasedInfoByCid(List<Integer> itemCids) {
+        deliveryReadyCoupangItemRepository.updateReleasedInfoByCid(itemCids, CustomDateUtils.getCurrentDateTime());
     }
 }

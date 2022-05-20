@@ -1,8 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
-import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -35,13 +34,12 @@ public class DeliveryReadyItemLotteExcelFormDto {
     /**
      * <b>Convert Method</b>
      * <p>
-     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemLotteExcelFormDto
+     * DeliveryReadyNaverItemDto.ViewReqAndRes => DeliveryReadyItemLotteExcelFormDto
      * 
-     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @param viewDto : DeliveryReadyNaverItemDto.ViewReqAndRes
      * @return DeliveryReadyItemLotteExcelFormDto
      */
      public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
-    //  public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
             .receiver(viewDto.getDeliveryReadyItem().getReceiver())
             .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
@@ -74,7 +72,7 @@ public class DeliveryReadyItemLotteExcelFormDto {
      * @param viewDto : DeliveryReadyCoupangItemViewDto
      * @return DeliveryReadyItemLotteExcelFormDto
      */
-    public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
+    public static DeliveryReadyItemLotteExcelFormDto toFormDto(DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemLotteExcelFormDto formDto = DeliveryReadyItemLotteExcelFormDto.builder()
             .receiver(viewDto.getDeliveryReadyItem().getReceiver())
             .zipCode(viewDto.getDeliveryReadyItem().getZipCode())

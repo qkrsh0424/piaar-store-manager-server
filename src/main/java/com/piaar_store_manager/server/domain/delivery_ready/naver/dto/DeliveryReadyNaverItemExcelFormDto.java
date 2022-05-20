@@ -42,13 +42,12 @@ public class DeliveryReadyNaverItemExcelFormDto {
     /**
      * <b>Convert Method</b>
      * <p>
-     * DeliveryReadyNaverItemViewDto => DeliveryReadyNaverItemExcelFormDto
+     * DeliveryReadyNaverItemDto.ViewReqAndRes => DeliveryReadyNaverItemExcelFormDto
      * 
-     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @param viewDto : DeliveryReadyNaverItemDto.ViewReqAndRes
      * @return DeliveryReadyNaverItemExcelFormDto
      */
     public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
-    // public static DeliveryReadyNaverItemExcelFormDto toNaverFormDto(DeliveryReadyNaverItemViewDto viewDto) {
         DeliveryReadyNaverItemExcelFormDto formDto = DeliveryReadyNaverItemExcelFormDto.builder()
                 .prodOrderNumber(viewDto.getDeliveryReadyItem().getProdOrderNumber())
                 .orderNumber(viewDto.getDeliveryReadyItem().getOrderNumber())
