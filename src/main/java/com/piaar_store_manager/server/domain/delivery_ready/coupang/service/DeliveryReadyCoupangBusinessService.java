@@ -441,14 +441,20 @@ public class DeliveryReadyCoupangBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * dtos의 itemId에 대응하는 모든 출고 데이터를 미출고 데이터로 변경한다.
+     * dtos의 itemId에 대응하는 데이터의 출고 여부를 변경한다.
      *
      * @param dtos : List::DeliveryReadyCoupangItemDto::
+     * @param released : boolean
      * @see DeliveryReadyCoupangService#saveAndModifyOfItemList
      */
-    public void updateItemListToUnrelease(List<DeliveryReadyCoupangItemDto> dtos) {
+    public void updateListReleased(List<DeliveryReadyCoupangItemDto> dtos, boolean released) {
         List<DeliveryReadyCoupangItemEntity> entities = dtos.stream().map(dto -> {
-            dto.setReleased(false).setReleasedAt(null);
+            dto.setReleased(released);
+            if(released) {
+                dto.setReleasedAt(CustomDateUtils.getCurrentDateTime());
+            } else {
+                dto.setReleasedAt(null);
+            }
             return DeliveryReadyCoupangItemEntity.toEntity(dto);
         }).collect(Collectors.toList());
 
@@ -540,14 +546,7 @@ public class DeliveryReadyCoupangBusinessService {
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> dtos, boolean reflected) {
         List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
         List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchDeliveryReadyItemList(itemCids);
-        entities.stream().forEach(entity -> {
-            entity.setReleaseCompleted(reflected);
-            if(reflected) {
-                entity.setReleasedAt(CustomDateUtils.getCurrentDateTime());
-            } else {
-                entity.setReleasedAt(null);
-            }
-        });
+        entities.stream().forEach(entity -> entity.setReleaseCompleted(reflected));
         deliveryReadyCoupangService.saveAndModifyOfItemList(entities);
     }
 
@@ -619,6 +618,7 @@ public class DeliveryReadyCoupangBusinessService {
     public List<DeliveryReadyItemLotteExcelFormDto> changeItemToLotte(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         List<DeliveryReadyItemLotteExcelFormDto> dtos = viewDtos.stream().map(dto -> DeliveryReadyItemLotteExcelFormDto.toFormDto(dto)).collect(Collectors.toList());
         List<DeliveryReadyItemLotteExcelFormDto> excelFormDtos = new ArrayList<>();
+        List<DeliveryReadyItemLotteExcelFormDto> resultList = new ArrayList<>();
 
         // 받는사람 > 주소 > 상품명 > 상품상세 정렬
         dtos.sort(Comparator.comparing(DeliveryReadyItemLotteExcelFormDto::getReceiver)
@@ -661,29 +661,29 @@ public class DeliveryReadyCoupangBusinessService {
             receiverSb.append(excelFormDtos.get(i).getDestination());
             
             String receiverStr = receiverSb.toString();
-            int prevOrderIdx = excelFormDtos.size() - 1;     // 추가되는 데이터 리스트의 마지막 index
+            int prevOrderIdx = resultList.size() - 1;     // 추가되는 데이터 리스트의 마지막 index
 
             // 받는사람 + 연락처 + 주소 + 상품상세 : 중복이 아니면서
             // 받는사람 + 연락처 + 주소 : 중복인 경우
             if (!optionSet.add(receiverStr)) {
-                DeliveryReadyItemLotteExcelFormDto prevProd = excelFormDtos.get(prevOrderIdx);
+                DeliveryReadyItemLotteExcelFormDto prevProd = resultList.get(prevOrderIdx);
                 DeliveryReadyItemLotteExcelFormDto currentProd = excelFormDtos.get(i);
 
                 // 상품명이 동일한 경우, 중복처리 되었을 때 바로 이전의 상품명과 동일한 경우.
                 if(prevProd.getProdName1().equals(currentProd.getProdName1()) || prevProdName.equals(currentProd.getProdName1())){
                     prevProdName = "";
-                    excelFormDtos.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + "[" + currentProd.getOptionInfo1() + "-" + currentProd.getUnit() + "]");
+                    resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + "[" + currentProd.getOptionInfo1() + "-" + currentProd.getUnit() + "]");
                 }else{      // 상품명이 동일하지 않은 경우
                     prevProdName = currentProd.getProdName1();
-                    excelFormDtos.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
+                    resultList.get(prevOrderIdx).setAllProdInfo(prevProd.getAllProdInfo() + " | " + currentProd.getAllProdInfo());
                 }
-                excelFormDtos.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
+                resultList.get(prevOrderIdx).setAllProdOrderNumber(prevProd.getAllProdOrderNumber() + "/" + currentProd.getAllProdOrderNumber());    // 총 상품번호 수정
             } else {
                 prevProdName = "";
-                excelFormDtos.add(excelFormDtos.get(i));
+                resultList.add(excelFormDtos.get(i));
             }
         }
-        return excelFormDtos;
+        return resultList;
     }
 
     /**

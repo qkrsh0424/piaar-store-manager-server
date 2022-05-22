@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,7 +18,6 @@ import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.common.dto.DeliveryReadyItemTailoExcelFormDto;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemExcelFormDto;
-import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto.ViewReqAndRes;
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.service.DeliveryReadyCoupangBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -288,7 +288,7 @@ public class DeliveryReadyCoupangApiController {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateItemListToUnrelease(deliveryReadyCoupangItemDtos);
+            deliveryReadyCoupangBusinessService.updateListReleased(deliveryReadyCoupangItemDtos, false);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -315,11 +315,12 @@ public class DeliveryReadyCoupangApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/release")
-    public ResponseEntity<?> updateListReleaseCompleted(@RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
+    public ResponseEntity<?> updateListReleased(@RequestBody List<DeliveryReadyCoupangItemDto.ViewReqAndRes> viewDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
+            List<DeliveryReadyCoupangItemDto> dtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+            deliveryReadyCoupangBusinessService.updateListReleased(dtos, true);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -523,7 +524,7 @@ public class DeliveryReadyCoupangApiController {
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyCoupangBusinessService#changeDeliveryReadyItemToHansan
-     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListReleased
      */
     @PermissionRole
     @PostMapping("/view/download/hansan")
@@ -644,9 +645,10 @@ public class DeliveryReadyCoupangApiController {
         } catch (IOException e) {
             throw new IllegalArgumentException();
         }
-
+        
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyCoupangItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyCoupangBusinessService.updateListReleased(itemDtos, true);
     }
 
     /**
@@ -657,7 +659,7 @@ public class DeliveryReadyCoupangApiController {
      * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyCoupangBusinessService#updateListToReleaseDeliveryReadyItem
+     * @see DeliveryReadyCoupangBusinessService#updateListReleased
      */
     @PermissionRole
     @PostMapping("/view/download/tailo")
@@ -796,7 +798,8 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyCoupangItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyCoupangBusinessService.updateListReleased(itemDtos, true);
     }
 
     /**
@@ -806,8 +809,7 @@ public class DeliveryReadyCoupangApiController {
      *
      * @param viewDtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @throws IOException
-     * @see Message
-     * @see HttpStatus
+     * @see DeliveryReadyCoupangBusinessService#updateListReleased
      */
     @PermissionRole
     @PostMapping("/view/download/lotte")
@@ -925,7 +927,8 @@ public class DeliveryReadyCoupangApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyCoupangBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyCoupangItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyCoupangBusinessService.updateListReleased(itemDtos, true);
     }
 
     @PermissionRole

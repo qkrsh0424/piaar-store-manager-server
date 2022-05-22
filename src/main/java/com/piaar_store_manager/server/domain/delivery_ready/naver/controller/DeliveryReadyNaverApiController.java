@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -264,11 +265,11 @@ public class DeliveryReadyNaverApiController {
      */
     @PermissionRole
     @PutMapping("/view/update/list/unrelease")
-    public ResponseEntity<?> updateItemListToUnrelease(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
+    public ResponseEntity<?> updateListToUnreleased(@RequestBody List<DeliveryReadyNaverItemDto> deliveryReadyNaverItemDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateItemListToUnrelease(deliveryReadyNaverItemDtos);
+            deliveryReadyNaverBusinessService.updateListReleased(deliveryReadyNaverItemDtos, false);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -289,15 +290,16 @@ public class DeliveryReadyNaverApiController {
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus
-     * @see DeliveryReadyNaverBusinessService#updateListToReleaseDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateListReleased
      */
     @PermissionRole
     @PutMapping("/view/update/list/release")
-    public ResponseEntity<?> updateListReleaseCompleted(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
+    public ResponseEntity<?> updateListToReleased(@RequestBody List<DeliveryReadyNaverItemDto.ViewReqAndRes> viewDtos) {
         Message message = new Message();
 
         try {
-            deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
+            List<DeliveryReadyNaverItemDto> dtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+            deliveryReadyNaverBusinessService.updateListReleased(dtos, true);
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (NullPointerException e) {
@@ -482,8 +484,7 @@ public class DeliveryReadyNaverApiController {
      * @param response : HttpServletResponse
      * @param viewDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @throws IOException
-     * @see Message
-     * @see HttpStatus
+     * @see DeliveryReadyNaverBusinessService#updateListReleased
      */
     @PermissionRole
     @PostMapping("/view/download/hansan")
@@ -604,7 +605,8 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyNaverItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyNaverBusinessService.updateListReleased(itemDtos, true);
     }
 
     /**
@@ -617,6 +619,7 @@ public class DeliveryReadyNaverApiController {
      * @see Message
      * @see HttpStatus
      * @see DeliveryReadyNaverBusinessService#releasedDeliveryReadyItem
+     * @see DeliveryReadyNaverBusinessService#updateListReleased
      */
     @PermissionRole
     @PostMapping("/view/download/tailo")
@@ -755,7 +758,8 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyNaverItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyNaverBusinessService.updateListReleased(itemDtos, true);
     }
 
     /**
@@ -884,7 +888,8 @@ public class DeliveryReadyNaverApiController {
         }
 
         // released, released_at 설정
-        deliveryReadyNaverBusinessService.updateListReleaseCompleted(viewDtos, true);
+        List<DeliveryReadyNaverItemDto> itemDtos = viewDtos.stream().map(r -> r.getDeliveryReadyItem()).collect(Collectors.toList());
+        deliveryReadyNaverBusinessService.updateListReleased(itemDtos, true);
     }
 
     @PermissionRole
