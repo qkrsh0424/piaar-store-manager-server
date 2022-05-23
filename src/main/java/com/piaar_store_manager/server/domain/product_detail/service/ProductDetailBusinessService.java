@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.domain.product_detail.entity.ProductDetailEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.utils.DateHandler;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -53,9 +53,9 @@ public class ProductDetailBusinessService {
         Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / CBM_CONVERT_VALUE;
         
         productDetailGetDto.setDetailCbm(detailCbmValue)
-            .setCreatedAt(DateHandler.getCurrentDate2())
+            .setCreatedAt(CustomDateUtils.getCurrentDateTime())
             .setCreatedBy(USER_ID)
-            .setUpdatedAt(DateHandler.getCurrentDate2())
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
             .setUpdatedBy(USER_ID);
 
         productDetailService.saveAndModify(ProductDetailEntity.toEntity(productDetailGetDto));
@@ -84,7 +84,7 @@ public class ProductDetailBusinessService {
                         .setDetailQuantity(dto.getDetailQuantity())
                         .setDetailWeight(dto.getDetailWeight())
                         .setDetailCbm(detailCbmValue)
-                        .setUpdatedAt(DateHandler.getCurrentDate2())
+                        .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                         .setUpdatedBy(USER_ID)
                         .setProductOptionCid(dto.getProductOptionCid());
 
@@ -112,7 +112,7 @@ public class ProductDetailBusinessService {
         if (dto.getDetailWeight() != null) {
             productDetailEntity.setDetailWeight(dto.getDetailWeight());
         }
-        productDetailEntity.setDetailCbm(detailCbmValue).setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+        productDetailEntity.setDetailCbm(detailCbmValue).setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         productDetailService.saveAndModify(productDetailEntity);
     }

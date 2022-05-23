@@ -10,6 +10,7 @@ import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 import lombok.*;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -41,9 +42,9 @@ public class ProductGetDto {
     private Integer defaultWeight;
     private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
     private UUID updatedBy;
     private Integer productCategoryCid;
 

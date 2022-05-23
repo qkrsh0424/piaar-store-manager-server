@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.product_detail.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -29,9 +30,9 @@ public class ProductDetailGetDto {
     private Integer detailQuantity;
     private Integer detailWeight;
     private Float detailCbm;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
     private UUID updatedBy;
     private Integer productOptionCid;
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -41,9 +42,9 @@ public class ProductOptionGetDto {
     private String color;
     private String unitCny;
     private String unitKrw;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private UUID createdBy;
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
     private UUID updatedBy;
     private Integer productCid;
     private UUID productId;
