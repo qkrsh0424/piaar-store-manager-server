@@ -179,10 +179,11 @@ public class ErpDownloadExcelHeaderApi {
      */
     @PostMapping("/{id}/download-order-items/action-download")
     public void downloadForDownloadOrderItems2(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
         List<List<String>> matrix = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader2(id, headerDto, erpDownloadOrderItemDtos);
 
-        // 엑셀 생성
+//         엑셀 생성
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Sheet1");
         Row row = null;
@@ -238,11 +239,11 @@ public class ErpDownloadExcelHeaderApi {
         for (int i = 0; i < dataList.size(); i++) {
             cell = row.createCell(i);
             cell.setCellValue((String) dataList.get(i));
-            if(i == 0){
+            if (i == 0) {
                 cell.setCellStyle(blankStyle);
             }
 
-            if(i == 1 || i == 2 || i == 3 || i == 4 || i == 5 || i == 7){
+            if (i == 1 || i == 2 || i == 3 || i == 4 || i == 5 || i == 7) {
                 cell.setCellStyle(requiredStyle);
             }
         }

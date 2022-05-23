@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,7 +58,8 @@ public class ErpOrderItemJdbcImpl implements ErpOrderItemCustomJdbc {
                 ps.setObject(3, entity.getUniqueCode());
                 ps.setString(4, entity.getProdName());
                 ps.setString(5, entity.getOptionName());
-                ps.setInt(6, entity.getUnit());
+//                ps.setInt(6, entity.getUnit() == null ? 0 : entity.getUnit());
+                ps.setObject(6, entity.getUnit() == null ? 0 : entity.getUnit(), Types.INTEGER);
                 ps.setString(7, entity.getReceiver());
                 ps.setString(8, entity.getReceiverContact1());
                 ps.setString(9, entity.getReceiverContact2());
@@ -72,8 +74,10 @@ public class ErpOrderItemJdbcImpl implements ErpOrderItemCustomJdbc {
                 ps.setString(18, entity.getTransportType());
                 ps.setString(19, entity.getDeliveryMessage());
                 ps.setString(20, entity.getWaybillNumber());
-                ps.setInt(21, entity.getPrice());
-                ps.setInt(22, entity.getDeliveryCharge());
+//                ps.setInt(21, entity.getPrice() == null ? 0 : entity.getPrice());
+//                ps.setInt(22, entity.getDeliveryCharge() == null ? 0 : entity.getDeliveryCharge());
+                ps.setObject(21, entity.getPrice() == null ? 0 : entity.getPrice(), Types.INTEGER);
+                ps.setObject(22, entity.getDeliveryCharge() == null ? 0 : entity.getDeliveryCharge(), Types.INTEGER);
                 ps.setString(23, entity.getBarcode());
                 ps.setString(24, entity.getProdCode());
                 ps.setString(25, entity.getOptionCode());
