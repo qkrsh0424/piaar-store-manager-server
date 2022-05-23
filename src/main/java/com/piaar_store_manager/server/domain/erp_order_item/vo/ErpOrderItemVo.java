@@ -292,11 +292,14 @@ public class ErpOrderItemVo {
                 }
             }
 
-            // price, deliveryCharge - 엑셀 타입 string, number 허용
-            String priceStr = (row.getCell(18) == null) ? "0" : (row.getCell(18).getCellType().equals(CellType.NUMERIC) ?
+            // unit, price, deliveryCharge - 엑셀 타입 string, number 허용
+            String unitStr = (row.getCell(3) == null || String.valueOf(row.getCell(3)).isEmpty()) ? "0" : (row.getCell(3).getCellType().equals(CellType.NUMERIC) ?
+                    Integer.toString((int) row.getCell(3).getNumericCellValue()) : row.getCell(3).getStringCellValue());
+
+            String priceStr = (row.getCell(18) == null || String.valueOf(row.getCell(18)).isEmpty()) ? "0" : (row.getCell(18).getCellType().equals(CellType.NUMERIC) ?
                     Integer.toString((int) row.getCell(18).getNumericCellValue()) : row.getCell(18).getStringCellValue());
 
-            String deliveryChargeStr = (row.getCell(19) == null) ? "0" : (row.getCell(19).getCellType().equals(CellType.NUMERIC) ?
+            String deliveryChargeStr = (row.getCell(19) == null || String.valueOf(row.getCell(19)).isEmpty()) ? "0" : (row.getCell(19).getCellType().equals(CellType.NUMERIC) ?
                     Integer.toString((int) row.getCell(19).getNumericCellValue()) : row.getCell(19).getStringCellValue());
 
             // '출고 옵션코드' 값이 입력되지 않았다면 '피아르 옵션코드'로 대체한다
@@ -306,7 +309,8 @@ public class ErpOrderItemVo {
                     .uniqueCode(null)
                     .prodName(row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "")
                     .optionName(row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "")
-                    .unit(row.getCell(3) != null ? Integer.toString((int) row.getCell(3).getNumericCellValue()) : "")
+//                    .unit(row.getCell(3) != null ? Integer.toString((int) row.getCell(3).getNumericCellValue()) : "")
+                    .unit(unitStr)
                     .receiver(row.getCell(4) != null ? row.getCell(4).getStringCellValue() : "")
                     .receiverContact1(row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "")
                     .receiverContact2(row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "")

@@ -1,21 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.service;
 
-import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.DetailDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDownloadExcelHeaderDto;
+import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.entity.ErpDownloadExcelHeaderEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
@@ -23,6 +10,15 @@ import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpDownloadItemVo
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -216,10 +212,7 @@ public class ErpDownloadExcelHeaderBusinessService {
             List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
             int ERP_ORDER_ITEM_DTOS_SIZE = dtos.size();
 
-            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
-                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
-                    .thenComparing(ErpOrderItemDto::getDestination)
-                    .thenComparing(ErpOrderItemDto::getProdName)
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getProdName)
                     .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
 
 
@@ -232,14 +225,11 @@ public class ErpDownloadExcelHeaderBusinessService {
 
                 if (detail.getFieldType().equals("운송코드")) {
                     appendValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-                    columsValue.add(appendValue);
-                    continue;
                 }
 
                 if (detail.getFieldType().equals("고정값")) {
                     if (detail.getMergeYn().equals("n")) {
                         appendValue = detail.getFixedValue();
-                        break;
                     }
 
                     if (detail.getMergeYn().equals("y")) {
