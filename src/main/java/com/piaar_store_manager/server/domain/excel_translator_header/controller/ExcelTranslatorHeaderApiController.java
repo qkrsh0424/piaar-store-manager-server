@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -148,13 +149,14 @@ public class ExcelTranslatorHeaderApiController {
     /**
      * Upload a download header excel.
      * <p>
-     * <b>POST : API URL => /api/v1/excel-translator/upload/download-header</b>
+     * <b>POST : API URL => /api/v1/excel-translator/upload/header</b>
      * 
      * @param file : MultipartFile
-     * @see ExcelTranslatorHeaderBusinessService#uploadDownloadHeaderExcelFile
+     * @param params : Map[rowStartNumber]
+     * @see ExcelTranslatorHeaderBusinessService#uploadHeaderExcelFile
      */
-    @PostMapping("/upload/download-header")
-    public ResponseEntity<?> uploadDownloadHeaderExcelFile(@RequestParam("file") MultipartFile file) {
+    @PostMapping("/upload/header")
+    public ResponseEntity<?> uploadHeaderExcelFile(@RequestParam Map<String, Object> params, @RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
         // file extension check.
@@ -162,7 +164,7 @@ public class ExcelTranslatorHeaderApiController {
             throw new CustomExcelFileUploadException("This is not an excel file.");
         }
         
-        message.setData(excelTranslatorHeaderBusinessService.uploadDownloadHeaderExcelFile(file));
+        message.setData(excelTranslatorHeaderBusinessService.uploadHeaderExcelFile(params, file));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
