@@ -152,14 +152,13 @@ public class DeliveryReadyNaverBusinessService {
      */
     @Transactional
     public void storeDeliveryReadyExcelFile(MultipartFile file) {
-        String fileName = file.getOriginalFilename();
-        String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + fileName;
+        String newFileName = "[NAVER_delivery_ready]" + UUID.randomUUID().toString().replaceAll("-", "") + file.getOriginalFilename();
         String uploadPath = awsS3Configuration.getS3().get("bucket") + "/naver-order";
 
         // aws s3 저장
         AwsS3ReqDto reqDto = AwsS3ReqDto.builder()
             .uploadPath(uploadPath)
-            .fileName(fileName)
+            .fileName(newFileName)
             .file(file)
             .build();
         awsS3Service.putObject(reqDto);
