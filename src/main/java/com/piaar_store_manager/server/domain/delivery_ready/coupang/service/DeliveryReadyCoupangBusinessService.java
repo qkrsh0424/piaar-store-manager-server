@@ -219,7 +219,7 @@ public class DeliveryReadyCoupangBusinessService {
     /**
      * <b>Create Excel Workbook Method</b>
      * <p>
-     * 배송준비 엑셀 파일 데이터들의 정보를 저장한다.
+     * 업로드된 배송준비 엑셀 파일 데이터들의 정보를 저장한다.
      *
      * @param file : MultipartFile
      * @param fileDto : DeliveryReadyFileDto
@@ -249,6 +249,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
      * @return List::DeliveryReadyCoupangItemDto::
+     * @see DeliveryReadyCoupangService#findAllProdOrderNumber
      */
     private List<DeliveryReadyCoupangItemDto> getExcelItemList(Sheet worksheet, DeliveryReadyFileDto fileDto) throws ParseException {
         List<DeliveryReadyCoupangItemDto> dtos = new ArrayList<>();
@@ -365,6 +366,7 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param itemViewProj : List::DeliveryReadyCoupangItemViewProj::
      * @return List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
+     * @see ProductOptionService#searchListByOptionCodes
      */
     public List<DeliveryReadyCoupangItemDto.ViewReqAndRes> changeOptionStockUnit(List<DeliveryReadyCoupangItemViewProj> itemViewProj) {
         List<String> optionCodes = itemViewProj.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
@@ -429,11 +431,10 @@ public class DeliveryReadyCoupangBusinessService {
      * @see DeliveryReadyCoupangService#searchOneOfItem
      * @see DeliveryReadyCoupangService#saveAndModifyOfItem
      */
+    @Transactional
     public void updateItemToUnrelease(DeliveryReadyCoupangItemDto dto) {
         DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchOneOfItem(dto.getCid());
         entity.setReleased(false).setReleasedAt(null);
-
-        deliveryReadyCoupangService.saveAndModifyOfItem(entity);
     }
 
     /**
@@ -443,20 +444,21 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dtos : List::DeliveryReadyCoupangItemDto::
      * @param released : boolean
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItemList
+     * @see DeliveryReadyCoupangService#searchListById
      */
+    @Transactional
     public void updateListReleased(List<DeliveryReadyCoupangItemDto> dtos, boolean released) {
-        List<DeliveryReadyCoupangItemEntity> entities = dtos.stream().map(dto -> {
-            dto.setReleased(released);
-            if(released) {
-                dto.setReleasedAt(CustomDateUtils.getCurrentDateTime());
-            } else {
-                dto.setReleasedAt(null);
-            }
-            return DeliveryReadyCoupangItemEntity.toEntity(dto);
-        }).collect(Collectors.toList());
+        List<UUID> idList = dtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchListById(idList);
 
-        deliveryReadyCoupangService.saveAndModifyOfItemList(entities);
+        entities.forEach(entity -> {
+            entity.setReleased(released);
+            if(released) {
+                entity.setReleasedAt(CustomDateUtils.getCurrentDateTime());
+            } else {
+                entity.setReleasedAt(null);
+            }
+        });
     }
 
     /**
@@ -481,14 +483,26 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dto : DeliveryReadyCoupangItemDto
      * @see DeliveryReadyCoupangService#searchOneOfItem
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItem
      */
+    @Transactional
     public void updateOptionInfoOfItem(DeliveryReadyCoupangItemDto dto) {
         DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchOneOfItem(dto.getCid());
         entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
             .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+    }
 
-        deliveryReadyCoupangService.saveAndModifyOfItem(entity);
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * dto cid에 대응하는 데이터의 출고옵션코드를 수정한다.
+     *
+     * @param dto : DeliveryReadyCoupangItemDto
+     * @see DeliveryReadyCoupangService#searchOneOfItem
+     */
+    @Transactional
+    public void updateReleaseOptionInfoOfItem(DeliveryReadyCoupangItemDto dto) {
+        DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchOneOfItem(dto.getCid());
+        entity.setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getReleaseOptionCode() : "");
     }
 
     /**
@@ -499,36 +513,17 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dto : DeliveryReadyCoupangItemDto
      * @see DeliveryReadyCoupangService#searchOneOfItem
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItem
      * @see DeliveryReadyCoupangService#findByItems
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItemList
      */
+    @Transactional
     public void updateAllOptionInfoOfItem(DeliveryReadyCoupangItemDto dto) {
         DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchOneOfItem(dto.getCid());
         String optionManagementCode = dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "";
         entity.setOptionManagementCode(optionManagementCode).setReleaseOptionCode(optionManagementCode);
-        deliveryReadyCoupangService.saveAndModifyOfItem(entity);
 
-        // 같은 상품의 옵션을 모두 변경
+        // 현재 변경된 상품과 같은 옵션데이터를 가진 모든 item의 옵션관리코드 변경
         List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.findByItems(entity);
         entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()).setReleaseOptionCode(entity.getReleaseOptionCode()); });
-        deliveryReadyCoupangService.saveAndModifyOfItemList(entities);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * dto cid에 대응하는 데이터의 출고옵션코드를 수정한다.
-     *
-     * @param dto : DeliveryReadyCoupangItemDto
-     * @see DeliveryReadyCoupangService#searchOneOfItem
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItem
-     */
-    public void updateReleaseOptionInfoOfItem(DeliveryReadyCoupangItemDto dto) {
-        DeliveryReadyCoupangItemEntity entity = deliveryReadyCoupangService.searchOneOfItem(dto.getCid());
-        entity.setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getReleaseOptionCode() : "");
-
-        deliveryReadyCoupangService.saveAndModifyOfItem(entity);
     }
 
     /**
@@ -538,14 +533,13 @@ public class DeliveryReadyCoupangBusinessService {
      *
      * @param dtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @param reflected : boolean
-     * @see DeliveryReadyCoupangService#searchDeliveryReadyItemList
-     * @see DeliveryReadyCoupangService#saveAndModifyOfItemList
+     * @see DeliveryReadyCoupangService#searchListById
      */
+    @Transactional
     public void updateListReleaseCompleted(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> dtos, boolean reflected) {
-        List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
-        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchDeliveryReadyItemList(itemCids);
+        List<UUID> idList = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getId()).collect(Collectors.toList());
+        List<DeliveryReadyCoupangItemEntity> entities = deliveryReadyCoupangService.searchListById(idList);
         entities.stream().forEach(entity -> entity.setReleaseCompleted(reflected));
-        deliveryReadyCoupangService.saveAndModifyOfItemList(entities);
     }
 
     /**

@@ -157,8 +157,8 @@ public class DeliveryReadyCoupangService {
      * @return List::DeliveryReadyCoupangItemEntity::
      * @see DeliveryReadyCoupangItemRepository#selectAllByCids
      */
-    public List<DeliveryReadyCoupangItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
-        return deliveryReadyCoupangItemRepository.selectAllByCids(itemCids);
+    public List<DeliveryReadyCoupangItemEntity> searchListById(List<UUID> idList) {
+        return deliveryReadyCoupangItemRepository.selectAllByIdList(idList);
     }
 
     /**

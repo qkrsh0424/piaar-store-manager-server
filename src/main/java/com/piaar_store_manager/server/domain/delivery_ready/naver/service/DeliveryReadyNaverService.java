@@ -157,8 +157,8 @@ public class DeliveryReadyNaverService {
      * @return List::DeliveryReadyNaverItemEntity::
      * @see DeliveryReadyNaverItemRepository#selectAllByCids
      */
-    public List<DeliveryReadyNaverItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
-        return deliveryReadyNaverItemRepository.selectAllByCids(itemCids);
+    public List<DeliveryReadyNaverItemEntity> searchListById(List<UUID> idList) {
+        return deliveryReadyNaverItemRepository.selectAllByIdList(idList);
     }
 
     /**
