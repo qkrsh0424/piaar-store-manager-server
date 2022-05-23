@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.product_detail.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -57,14 +58,14 @@ public class ProductDetailEntity {
     private Float detailCbm;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Type(type = "uuid-char")
     @Column(name = "created_by")
     private UUID createdBy;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Type(type = "uuid-char")
     @Column(name = "updated_by")

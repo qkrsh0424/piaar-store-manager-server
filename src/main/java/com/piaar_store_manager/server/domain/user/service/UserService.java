@@ -11,7 +11,7 @@ import com.piaar_store_manager.server.domain.user.entity.UserEntity;
 import com.piaar_store_manager.server.domain.user.repository.UserRepository;
 import com.piaar_store_manager.server.exception.CustomAccessDeniedException;
 import com.piaar_store_manager.server.exception.CustomInvalidUserException;
-import com.piaar_store_manager.server.utils.DateHandler;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,8 +54,8 @@ public class UserService {
         userEntity.setName(signupReqDto.getName());
         userEntity.setRoles("ROLE_USER");
         userEntity.setAllowedAccessCount(DEFAULT_ALLOWED_ACCESS_COUNT);
-        userEntity.setUpdatedAt(DateHandler.getCurrentDate());
-        userEntity.setCreatedAt(DateHandler.getCurrentDate());
+        userEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+        userEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
 
         log.info("UserService : createOne : print(userEntity) => {}.", userEntity);
         userRepository.save(userEntity);

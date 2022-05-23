@@ -215,7 +215,6 @@ public class ErpDownloadExcelHeaderBusinessService {
             dtos.sort(Comparator.comparing(ErpOrderItemDto::getProdName)
                     .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
 
-
             List<String> columsValue = new ArrayList<>();
 
             for (int j = 0; j < DETAILS_SIZE; j++) {
@@ -288,7 +287,6 @@ public class ErpDownloadExcelHeaderBusinessService {
                         }
                     }
                 }
-
                 columsValue.add(appendValue);
             }
             matrix.add(columsValue);

@@ -13,6 +13,7 @@ import javax.persistence.*;
 
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -113,7 +114,7 @@ public class ProductEntity {
 
     @Setter
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Setter
     @Type(type = "uuid-char")
@@ -122,7 +123,7 @@ public class ProductEntity {
 
     @Setter
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Setter
     @Type(type = "uuid-char")

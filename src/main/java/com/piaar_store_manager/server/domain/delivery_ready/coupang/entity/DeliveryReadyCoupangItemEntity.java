@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.coupang.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -72,7 +73,7 @@ public class DeliveryReadyCoupangItemEntity {
     private Integer unit;        // 수량(22)
 
     @Column(name = "shipment_due_date")
-    private Date shipmentDueDate;        // 주문시 출고예정일(7)
+    private LocalDateTime shipmentDueDate;        // 주문시 출고예정일(7)
 
     @Column(name = "shipment_cost_bundle_number")
     private String shipmentCostBundleNumber;        // 묶음배송번호(1)
@@ -93,7 +94,7 @@ public class DeliveryReadyCoupangItemEntity {
     private String deliveryMessage;        // 배송메세지(30)
 
     @Column(name = "order_date_time")
-    private Date orderDateTime;        // 주문일(9)
+    private LocalDateTime orderDateTime;        // 주문일(9)
 
     @Column(name = "release_option_code")
     private String releaseOptionCode;
@@ -132,10 +133,10 @@ public class DeliveryReadyCoupangItemEntity {
     private Boolean released;   // 출고여부
 
     @Column(name = "released_at")
-    private Date releasedAt;
+    private LocalDateTime releasedAt;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "release_completed")
     private Boolean releaseCompleted;   // 재고반영 여부

@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
-import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -38,12 +38,12 @@ public class DeliveryReadyItemHansanExcelFormDto {
     /**
      * <b>Convert Method</b>
      * <p>
-     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemHansanExcelFormDto
+     * DeliveryReadyNaverItemDto.ViewReqAndRes => DeliveryReadyItemHansanExcelFormDto
      * 
-     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @param viewDto : DeliveryReadyNaverItemDto.ViewReqAndRes
      * @return DeliveryReadyItemHansanExcelFormDto
      */
-    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
@@ -76,7 +76,7 @@ public class DeliveryReadyItemHansanExcelFormDto {
      * @param viewDto : DeliveryReadyCoupangItemViewDto
      * @return DeliveryReadyItemHansanExcelFormDto
      */
-    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
+    public static DeliveryReadyItemHansanExcelFormDto toFormDto(DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemHansanExcelFormDto formDto = DeliveryReadyItemHansanExcelFormDto.builder()
                 .receiver(viewDto.getDeliveryReadyItem().getReceiver())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())

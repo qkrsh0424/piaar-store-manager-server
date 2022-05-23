@@ -1,11 +1,9 @@
 package com.piaar_store_manager.server.domain.excel_translator_header.controller;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,8 +16,8 @@ import com.piaar_store_manager.server.domain.excel_translator_item.dto.DownloadE
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
-import com.piaar_store_manager.server.utils.DateHandler;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -230,9 +228,6 @@ public class ExcelTranslatorHeaderApiController {
         int rowNum = 0;
 
         row = sheet.createRow(rowNum++);
-        // 날짜 변환 형식 지정
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.KOREA);
-        SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy.MM.dd HH:mm:ss", Locale.KOREA);
 
         for(int i = 0; i < dtos.size(); i++) {
             for(int j = 0; j < dtos.get(i).getTranslatedData().getDetails().size(); j++) {
@@ -242,22 +237,20 @@ public class ExcelTranslatorHeaderApiController {
                     row = sheet.createRow(j);
                 }
                 cell = row.createCell(i);
-                
+
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 ExcelDataDetailDto.UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
-                try{
-                    if(detailDto == null || detailDto.getCellType().isBlank()) {
-                        cell.setCellValue("");
-                    }else if(detailDto.getCellType().equals("String")) {
-                        cell.setCellValue(detailDto.getColData().toString());
-                    }else if(detailDto.getCellType().equals("Date")) {
-                        Date data = format.parse(detailDto.getColData().toString());
-                        cell.setCellValue(outputFormat.format(DateHandler.getKstDate(data)));
-                    }else if(detailDto.getCellType().equals("Double")) {
-                        cell.setCellValue((int)detailDto.getColData());
-                    }
-                } catch(ParseException e) {
-                    throw new CustomExcelFileUploadException("데이터 변환에 오류가 생겼습니다. 다시 시도해주세요.");
+
+                if (detailDto == null || detailDto.getCellType().isBlank()) {
+                    cell.setCellValue("");
+                } else if (detailDto.getCellType().equals("String")) {
+                    cell.setCellValue(detailDto.getColData().toString());
+                } else if (detailDto.getCellType().equals("Date")) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                    LocalDateTime date = LocalDateTime.parse(detailDto.getColData().toString(), formatter);
+                    cell.setCellValue(CustomDateUtils.getLocalDateTimeToDownloadFormat(date));
+                } else if (detailDto.getCellType().equals("Double")) {
+                    cell.setCellValue((int) detailDto.getColData());
                 }
             }
         }
@@ -283,7 +276,7 @@ public class ExcelTranslatorHeaderApiController {
      * <b>POST : API URL => /api/v1/excel-translator/header/upload/download</b>
      * 
      * @param response : HttpServletResponse
-     * @param dtos : List::UploadedDetailDto::
+     * @param dtos : List::ExcelDataDetailDto.UploadedDetailDto::
      */
     @PostMapping("/header/upload/download")
     public void downloadUploadedDetails(HttpServletResponse response, @RequestBody List<ExcelDataDetailDto.UploadedDetailDto> dtos) {

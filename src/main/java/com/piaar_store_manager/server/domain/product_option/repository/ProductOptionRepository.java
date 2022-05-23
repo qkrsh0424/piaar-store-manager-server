@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.product_option.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -7,6 +8,7 @@ import javax.persistence.Tuple;
 
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -104,4 +106,29 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "WHERE po.cid IN :cids"
     )
     List<ProductOptionEntity> findAllByCids(List<Integer> cids);
+
+    /**
+     * 상품의 정보들을 모두 추출한다.
+     * 네이버, 쿠팡, 피아르의 발주된 상품 수량을 조회한다.
+     * 
+     * @param date1 : LocalDateTime
+     * @param date2 : LocalDateTime
+     * @return List::SalesAnalysisItemProj::
+     */
+    @Query("SELECT pc AS productCategory, p AS product, po AS productOption,\n"
+        + "(SELECT CASE WHEN SUM(drni.unit) IS NULL THEN 0 ELSE SUM(drni.unit) END\n"
+        + "FROM DeliveryReadyNaverItemEntity drni\n"
+        + "WHERE drni.optionManagementCode = po.code AND (drni.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyNaverSalesUnit,\n"
+        + "(SELECT CASE WHEN SUM(drci.unit) IS NULL THEN 0 ELSE SUM(drci.unit) END\n"
+        + "FROM DeliveryReadyCoupangItemEntity drci\n"
+        + "WHERE drci.optionManagementCode = po.code AND (drci.createdAt BETWEEN :date1 AND :date2)) AS deliveryReadyCoupangSalesUnit,\n"
+        + "(SELECT CASE WHEN SUM(eoi.unit) IS NULL THEN 0 ELSE SUM(eoi.unit) END\n"
+        + "FROM ErpOrderItemEntity eoi\n"
+        + "WHERE eoi.optionCode = po.code AND (eoi.createdAt BETWEEN :date1 AND :date2)) AS erpSalesUnit\n"
+        + "FROM ProductOptionEntity po\n"
+        + "JOIN ProductEntity p ON po.productCid = p.cid\n"
+        + "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"
+        + "ORDER BY deliveryReadyNaverSalesUnit DESC, deliveryReadyCoupangSalesUnit DESC, erpSalesUnit DESC"
+    )
+    List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime date1, LocalDateTime date2);
 }

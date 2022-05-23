@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.domain.delivery_ready.common.dto;
 
-import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemViewDto;
-import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemViewDto;
+import com.piaar_store_manager.server.domain.delivery_ready.coupang.dto.DeliveryReadyCoupangItemDto;
+import com.piaar_store_manager.server.domain.delivery_ready.naver.dto.DeliveryReadyNaverItemDto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -40,12 +40,12 @@ public class DeliveryReadyItemTailoExcelFormDto {
     /**
      * <b>Convert Method</b>
      * <p>
-     * DeliveryReadyNaverItemViewDto => DeliveryReadyItemTailoExcelFormDto
+     * DeliveryReadyNaverItemDto.ViewReqAndRes => DeliveryReadyItemTailoExcelFormDto
      * 
-     * @param viewDto : DeliveryReadyNaverItemViewDto
+     * @param viewDto : DeliveryReadyNaverItemDto.ViewReqAndRes
      * @return DeliveryReadyItemTailoExcelFormDto
      */
-    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemViewDto viewDto) {
+    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyNaverItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode((viewDto.getOptionNosUniqueCode() != null && !viewDto.getOptionNosUniqueCode().trim().isEmpty()) ? viewDto.getOptionNosUniqueCode() : "*지정바람")
                 .salesProdName((viewDto.getProdManagementName() != null && !viewDto.getProdManagementName().trim().isEmpty()) ? viewDto.getProdManagementName() + "|" + viewDto.getOptionManagementName() : "*지정바람")
@@ -76,7 +76,7 @@ public class DeliveryReadyItemTailoExcelFormDto {
      * @param viewDto : DeliveryReadyCoupangItemViewDto
      * @return DeliveryReadyItemTailoExcelFormDto
      */
-    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyCoupangItemViewDto viewDto) {
+    public static DeliveryReadyItemTailoExcelFormDto toTailoFormDto(DeliveryReadyCoupangItemDto.ViewReqAndRes viewDto) {
         DeliveryReadyItemTailoExcelFormDto formDto = DeliveryReadyItemTailoExcelFormDto.builder()
                 .prodUniqueCode((viewDto.getOptionNosUniqueCode() != null && !viewDto.getOptionNosUniqueCode().trim().isEmpty()) ? viewDto.getOptionNosUniqueCode() : "*지정바람")
                 .salesProdName((viewDto.getProdManagementName() != null && !viewDto.getProdManagementName().trim().isEmpty()) ? viewDto.getProdManagementName() + "|" + viewDto.getOptionManagementName() : "*지정 바람")

@@ -12,14 +12,12 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDownloadExcelHeaderDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.service.ErpDownloadExcelHeaderBusinessService;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
-import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpDownloadItemVo;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 
@@ -120,68 +118,60 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#searchErpDownloadExcelHeader
      * @see ErpDownloadExcelHeaderBusinessService#downloadByErpDownloadExcelHeader
      */
-//    @PostMapping("/{id}/download-order-items/action-download")
-//    public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-//        List<ErpDownloadOrderItemDto> clone = List.copyOf(erpDownloadOrderItemDtos);
-//        for (int i = 0; i < 500; i++) {
-//            erpDownloadOrderItemDtos.addAll(clone);
-//        }
-//
-//        ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
-//        Long startTime = System.currentTimeMillis();
-//        List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(headerDto, erpDownloadOrderItemDtos);
-//        Long endTime = System.currentTimeMillis();
-//        System.out.println("time gap : " + (endTime - startTime));
+    // @PostMapping("/{id}/download-order-items/action-download")
+    // public void downloadForDownloadOrderItems(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
+    //     ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
+    //     List<ErpDownloadItemVo> vos = erpDownloadExcelHeaderBusinessService.downloadByErpDownloadExcelHeader(headerDto, erpDownloadOrderItemDtos);
 
-        // 엑셀 생성
-//        Workbook workbook = new XSSFWorkbook();
-//        Sheet sheet = workbook.createSheet("Sheet1");
-//        Row row = null;
-//        Cell cell = null;
-//        int rowNum = 0;
-//
-//        row = sheet.createRow(rowNum++);
-//        int HEADER_COLUMN_SIZE = headerDto.getHeaderDetail().getDetails().size();
-//        for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
-//            cell = row.createCell(i);
-//            cell.setCellValue(headerDto.getHeaderDetail().getDetails().get(i).getCustomCellName());
-//        }
-//
-//        for (int i = 0; i < vos.size(); i++) {
-//            row = sheet.createRow(rowNum++);
-//            for (int j = 0; j < HEADER_COLUMN_SIZE; j++) {
-//                String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
-//
-//                String cellValue = "";
-//                switch (fieldType) {
-//                    case "운송코드":
-//                        cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-//                        break;
-//                    case "고정값":
-//                        cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
-//                        break;
-//                    default:
-//                        cellValue = vos.get(i).getCellValue().get(j).toString();
-//                }
-//                cell = row.createCell(j);
-//                cell.setCellValue(cellValue);
-//            }
-//        }
-//
-//        for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
-//            sheet.autoSizeColumn(i);
-//        }
-//
-//        response.setContentType("ms-vnd/excel");
-//        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
-//
-//        try {
-//            workbook.write(response.getOutputStream());
-//            workbook.close();
-//        } catch (IOException e) {
-//            throw new IllegalArgumentException();
-//        }
-//    }
+    //     // 엑셀 생성
+    //     Workbook workbook = new XSSFWorkbook();
+    //     Sheet sheet = workbook.createSheet("Sheet1");
+    //     Row row = null;
+    //     Cell cell = null;
+    //     int rowNum = 0;
+
+    //     row = sheet.createRow(rowNum++);
+    //     int HEADER_COLUMN_SIZE = headerDto.getHeaderDetail().getDetails().size();
+    //     for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
+    //         cell = row.createCell(i);
+    //         cell.setCellValue(headerDto.getHeaderDetail().getDetails().get(i).getCustomCellName());
+    //     }
+
+    //     for(int i = 0; i < vos.size(); i++) {
+    //         row = sheet.createRow(rowNum++);
+    //         for (int j = 0; j < HEADER_COLUMN_SIZE; j++) {
+    //             String fieldType = headerDto.getHeaderDetail().getDetails().get(j).getFieldType();
+                
+    //             String cellValue = "";
+    //             switch(fieldType) {
+    //                 case "운송코드":
+    //                     cellValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
+    //                     break;
+    //                 case "고정값":
+    //                     cellValue = headerDto.getHeaderDetail().getDetails().get(j).getFixedValue();
+    //                     break;
+    //                 default:
+    //                     cellValue = vos.get(i).getCellValue().get(j).toString();
+    //             }
+    //             cell = row.createCell(j);
+    //             cell.setCellValue(cellValue);
+    //         }
+    //     }
+
+    //     for (int i = 0; i < HEADER_COLUMN_SIZE; i++) {
+    //         sheet.autoSizeColumn(i);
+    //     }
+
+    //     response.setContentType("ms-vnd/excel");
+    //     response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+    //     try {
+    //         workbook.write(response.getOutputStream());
+    //         workbook.close();
+    //     } catch (IOException e) {
+    //         throw new IllegalArgumentException();
+    //     }
+    // }
 
     /*
     TEST 2
