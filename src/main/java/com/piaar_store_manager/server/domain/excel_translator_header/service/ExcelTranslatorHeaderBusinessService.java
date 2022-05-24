@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.DetailDto;
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorUploadHeaderDetailDto;
@@ -51,12 +50,10 @@ public class ExcelTranslatorHeaderBusinessService {
         return dtos;
     }
 
+    @Transactional
     public void changeOne(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
-        entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
-                .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
-
-        excelTranslatorHeaderService.saveAndModify(entity);
+        entity.setUploadHeaderTitle(dto.getUploadHeaderTitle()).setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
     }
 
     public void deleteOne(UUID excelTranslatorId) {
@@ -178,8 +175,8 @@ public class ExcelTranslatorHeaderBusinessService {
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderService#searchOne
-     * @see ExcelTranslatorHeaderService#saveAndModify
      */
+    @Transactional
     public void updateUploadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setUploadHeaderDetail(dto.getUploadHeaderDetail());
@@ -189,8 +186,6 @@ public class ExcelTranslatorHeaderBusinessService {
         List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = new ArrayList<>();
         downloadDetail.setDetails(details);
         entity.setDownloadHeaderDetail(downloadDetail);
-
-        excelTranslatorHeaderService.saveAndModify(entity);
     }
 
     /**
@@ -201,10 +196,10 @@ public class ExcelTranslatorHeaderBusinessService {
      * @see ExcelTranslatorHeaderService#searchOne
      * @see ExcelTranslatorHeaderService#saveAndModify
      */
+    @Transactional
     public void updateDownloadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setDownloadHeaderDetail(dto.getDownloadHeaderDetail());
-        excelTranslatorHeaderService.saveAndModify(entity);
     }
 }
 

@@ -704,6 +704,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @param dtos : List::DeliveryReadyCoupangItemDto.ViewReqAndRes::
      * @see DeliveryReadyCoupangBusinessService#updateListReleaseCompleted
      * @see DeliveryReadyCoupangBusinessService#getOptionByCode
+     * @see DeliveryReadyCoupangBusinessService#reflectStockUnit
      * @see DeliveryReadyCoupangBusinessService#reflectStockUnitOfPackageOption
      */
     @Transactional
@@ -735,6 +736,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @param originOptionEntities : List::ProductOptionEntity::
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnit(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -772,6 +774,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
@@ -849,6 +852,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @param originOptionEntities : List::ProductOptionEntity::
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnit(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -885,6 +889,7 @@ public class DeliveryReadyCoupangBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyCoupangItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 

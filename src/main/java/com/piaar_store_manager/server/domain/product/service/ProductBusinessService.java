@@ -151,6 +151,7 @@ public class ProductBusinessService {
         return productFJDtos;
     }
 
+    @Transactional
     public void createOne(ProductGetDto productGetDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -158,9 +159,9 @@ public class ProductBusinessService {
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity entity = ProductEntity.toEntity(productGetDto);
-        productService.saveAndModify(entity);
     }
 
+    @Transactional
     public void createList(List<ProductGetDto> productGetDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -293,6 +294,7 @@ public class ProductBusinessService {
         });
     }
 
+    @Transactional
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -359,6 +361,5 @@ public class ProductBusinessService {
             productEntity.setProductCategoryCid(productDto.getProductCategoryCid());
         }
         productEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
-        productService.saveAndModify(productEntity);
     }
 }

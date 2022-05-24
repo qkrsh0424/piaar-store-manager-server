@@ -663,7 +663,7 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dto : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return List::ProductOptionEntity::
-     * @see ProductOptionService#findAllByCode
+     * @see ProductOptionService#searchListByOptionCodes
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
         List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
@@ -712,8 +712,9 @@ public class DeliveryReadyNaverBusinessService {
      * 
      * @param unreleasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @param originOptionEntities : List::ProductOptionEntity::
-     * @see ProductReceiveService#saveListAndModify
+     * @see ProductReleaseService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -751,6 +752,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
@@ -828,6 +830,7 @@ public class DeliveryReadyNaverBusinessService {
      * @param originOptionEntities : List::ProductOptionEntity::
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -863,6 +866,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
