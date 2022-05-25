@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.transaction.Transactional;
+
 import com.piaar_store_manager.server.domain.product_detail.dto.ProductDetailGetDto;
 import com.piaar_store_manager.server.domain.product_detail.entity.ProductDetailEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -48,17 +50,27 @@ public class ProductDetailBusinessService {
      * 단일 product detail등록.
      * 입력된 가로, 세로, 높이 값으로 cbm을 구한다.
      */
+    @Transactional
     public void createOne(ProductDetailGetDto productDetailGetDto) {
         UUID USER_ID = userService.getUserId();
         Float detailCbmValue = ((float)(productDetailGetDto.getDetailWidth() * productDetailGetDto.getDetailLength() * productDetailGetDto.getDetailHeight())) / CBM_CONVERT_VALUE;
         
-        productDetailGetDto.setDetailCbm(detailCbmValue)
-            .setCreatedAt(CustomDateUtils.getCurrentDateTime())
-            .setCreatedBy(USER_ID)
-            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
-            .setUpdatedBy(USER_ID);
+        ProductDetailEntity entity = ProductDetailEntity.builder()
+            .id(productDetailGetDto.getId())
+            .detailWidth(productDetailGetDto.getDetailWidth())
+            .detailLength(productDetailGetDto.getDetailLength())
+            .detailHeight(productDetailGetDto.getDetailHeight())
+            .detailQuantity(productDetailGetDto.getDetailQuantity())
+            .detailWeight(productDetailGetDto.getDetailWeight())
+            .detailCbm(detailCbmValue)
+            .createdAt(CustomDateUtils.getCurrentDateTime())
+            .createdBy(USER_ID)
+            .updatedAt(CustomDateUtils.getCurrentDateTime())
+            .updatedBy(USER_ID)
+            .productOptionCid(productDetailGetDto.getProductOptionCid())
+            .build();
 
-        productDetailService.saveAndModify(ProductDetailEntity.toEntity(productDetailGetDto));
+        productDetailService.saveAndModify(entity);
     }
 
     public void destroyOne(Integer detailCid) {
@@ -71,6 +83,7 @@ public class ProductDetailBusinessService {
      * 단일 product detail 수정.
      * 수정된 가로, 세로, 높이 값으로 cbm을 구한다.
      */
+    @Transactional
     public void changeOne(ProductDetailGetDto dto) {
         UUID USER_ID = userService.getUserId();
         Float detailCbmValue = ((float)(dto.getDetailWidth() * dto.getDetailLength() * dto.getDetailHeight())) / CBM_CONVERT_VALUE;
@@ -87,10 +100,9 @@ public class ProductDetailBusinessService {
                         .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                         .setUpdatedBy(USER_ID)
                         .setProductOptionCid(dto.getProductOptionCid());
-
-        productDetailService.saveAndModify(entity);
     }
 
+    @Transactional
     public void patchOne(ProductDetailGetDto dto) {
         UUID USER_ID = userService.getUserId();
 
@@ -113,7 +125,5 @@ public class ProductDetailBusinessService {
             productDetailEntity.setDetailWeight(dto.getDetailWeight());
         }
         productDetailEntity.setDetailCbm(detailCbmValue).setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
-
-        productDetailService.saveAndModify(productDetailEntity);
     }
 }

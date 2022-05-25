@@ -155,10 +155,10 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyNaverItemEntity cid에 대응하는 데이터를 모두 조회한다.
      *
      * @return List::DeliveryReadyNaverItemEntity::
-     * @see DeliveryReadyNaverItemRepository#selectAllByCids
+     * @see DeliveryReadyNaverItemRepository#selectAllByIdList
      */
-    public List<DeliveryReadyNaverItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
-        return deliveryReadyNaverItemRepository.selectAllByCids(itemCids);
+    public List<DeliveryReadyNaverItemEntity> searchListById(List<UUID> idList) {
+        return deliveryReadyNaverItemRepository.selectAllByIdList(idList);
     }
 
     /**

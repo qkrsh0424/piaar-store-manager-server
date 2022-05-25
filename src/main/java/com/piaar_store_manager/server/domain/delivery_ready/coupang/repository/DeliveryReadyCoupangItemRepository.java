@@ -87,9 +87,9 @@ public interface DeliveryReadyCoupangItemRepository extends JpaRepository<Delive
      */
     @Query(
         "SELECT dri FROM DeliveryReadyCoupangItemEntity dri\n" +
-        "WHERE dri.cid IN :itemCids"
+        "WHERE dri.id IN :idList"
     )
-    List<DeliveryReadyCoupangItemEntity> selectAllByCids(List<Integer> itemCids);
+    List<DeliveryReadyCoupangItemEntity> selectAllByIdList(List<UUID> idList);
 
     /**
      * 대량 삭제

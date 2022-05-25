@@ -182,6 +182,7 @@ public class DeliveryReadyNaverBusinessService {
      */
     public DeliveryReadyFileDto createFile(String filePath, String fileName, Integer fileSize) {
         UUID userId = userService.getUserId();
+        
         // File data 생성 및 저장
         DeliveryReadyFileDto fileDto = DeliveryReadyFileDto.builder()
             .id(UUID.randomUUID())
@@ -231,6 +232,7 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param worksheet : Sheet
      * @param fileDto : DeliveryReadyFileDto
+     * @return List::DeliveryReadyNaverItemDto::
      * @see DeliveryReadyNaverService#findAllProdOrderNumber
      */
     private List<DeliveryReadyNaverItemDto> getExcelItemList(Sheet worksheet, DeliveryReadyFileDto fileDto) {
@@ -406,13 +408,11 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchOneOfItem
-     * @see DeliveryReadyNaverService#saveAndModifyOfItem
      */
+    @Transactional
     public void updateItemToUnrelease(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchOneOfItem(dto.getCid());
         entity.setReleased(false).setReleasedAt(null);
-
-        deliveryReadyNaverService.saveAndModifyOfItem(entity);
     }
 
     /**
@@ -421,20 +421,21 @@ public class DeliveryReadyNaverBusinessService {
      * dtos의 itemId에 대응하는 모든 출고 데이터를 미출고 데이터로 변경한다.
      *
      * @param dtos : List::DeliveryReadyNaverItemDto::
-     * @see DeliveryReadyNaverService#saveAndModifyOfItemList
+     * @see DeliveryReadyNaverService#searchListById
      */
+    @Transactional
     public void updateListReleased(List<DeliveryReadyNaverItemDto> dtos, boolean released) {
-        List<DeliveryReadyNaverItemEntity> entities = dtos.stream().map(dto -> {
-            dto.setReleased(released);
+        List<UUID> idList = dtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchListById(idList);
+        
+        entities.forEach(entity -> {
+            entity.setReleased(released);
             if(released) {
-                dto.setReleasedAt(CustomDateUtils.getCurrentDateTime());
+                entity.setReleasedAt(CustomDateUtils.getCurrentDateTime());
             }else {
-                dto.setReleasedAt(null);
+                entity.setReleasedAt(null);
             }
-            return DeliveryReadyNaverItemEntity.toEntity(dto);
-        }).collect(Collectors.toList());
-
-        deliveryReadyNaverService.saveAndModifyOfItemList(entities);
+        });
     }
     
     /**
@@ -459,14 +460,26 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchOneOfItem
-     * @see DeliveryReadyNaverService#saveAndModifyOfItem
      */
+    @Transactional
     public void updateOptionInfoOfItem(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchOneOfItem(dto.getCid());
         entity.setOptionManagementCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "")
             .setReleaseOptionCode(dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "");
+    }
 
-        deliveryReadyNaverService.saveAndModifyOfItem(entity);
+    /**
+     * <b>DB Update Related Method</b>
+     * <p>
+     * dto cid에 대응하는 데이터의 출고옵션코드를 수정한다.
+     *
+     * @param dto : DeliveryReadyNaverItemDto
+     * @see DeliveryReadyNaverService#searchOneOfItem
+     */
+    @Transactional
+    public void updateReleaseOptionInfoOfItem(DeliveryReadyNaverItemDto dto) {
+        DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchOneOfItem(dto.getCid());
+        entity.setReleaseOptionCode(dto.getReleaseOptionCode() != null ? dto.getReleaseOptionCode() : "");
     }
 
     /**
@@ -477,36 +490,17 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dto : DeliveryReadyNaverItemDto
      * @see DeliveryReadyNaverService#searchOneOfItem
-     * @see DeliveryReadyNaverService#saveAndModifyOfItem
      * @see DeliveryReadyNaverService#findByItems
-     * @see DeliveryReadyNaverService#saveAndModifyOfItemList
      */
+    @Transactional
     public void updateAllOptionInfoOfItem(DeliveryReadyNaverItemDto dto) {
         DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchOneOfItem(dto.getCid());
         String optionManagementCode = dto.getOptionManagementCode() != null ? dto.getOptionManagementCode() : "";
         entity.setOptionManagementCode(optionManagementCode).setReleaseOptionCode(optionManagementCode);
-        deliveryReadyNaverService.saveAndModifyOfItem(entity);
         
         // 현재 변경된 상품과 같은 옵션데이터를 가진 모든 item의 옵션관리코드 변경
         List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.findByItems(entity);
         entities.stream().forEach(r -> { r.setOptionManagementCode(entity.getOptionManagementCode()).setReleaseOptionCode(entity.getReleaseOptionCode()); });
-        deliveryReadyNaverService.saveAndModifyOfItemList(entities);
-    }
-
-    /**
-     * <b>DB Update Related Method</b>
-     * <p>
-     * dto cid에 대응하는 데이터의 출고옵션코드를 수정한다.
-     *
-     * @param dto : DeliveryReadyNaverItemDto
-     * @see DeliveryReadyNaverService#searchOneOfItem
-     * @see DeliveryReadyNaverService#saveAndModifyOfItem
-     */
-    public void updateReleaseOptionInfoOfItem(DeliveryReadyNaverItemDto dto) {
-        DeliveryReadyNaverItemEntity entity = deliveryReadyNaverService.searchOneOfItem(dto.getCid());
-        entity.setReleaseOptionCode(dto.getReleaseOptionCode() != null ? dto.getReleaseOptionCode() : "");
-
-        deliveryReadyNaverService.saveAndModifyOfItem(entity);
     }
 
     /**
@@ -516,14 +510,13 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @param reflected : boolean
-     * @see DeliveryReadyNaverService#searchDeliveryReadyItemList
-     * @see DeliveryReadyNaverService#saveAndModifyOfItemList
+     * @see DeliveryReadyNaverService#searchListById
      */
+    @Transactional
     public void updateListReleaseCompleted(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos, boolean reflected) {
-        List<Integer> itemCids = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getCid()).collect(Collectors.toList());
-        List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchDeliveryReadyItemList(itemCids);
+        List<UUID> idList = dtos.stream().map(dto -> dto.getDeliveryReadyItem().getId()).collect(Collectors.toList());
+        List<DeliveryReadyNaverItemEntity> entities = deliveryReadyNaverService.searchListById(idList);
         entities.stream().forEach(entity -> entity.setReleaseCompleted(reflected));
-        deliveryReadyNaverService.saveAndModifyOfItemList(entities);
     }
     
     /**
@@ -670,7 +663,7 @@ public class DeliveryReadyNaverBusinessService {
      *
      * @param dto : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @return List::ProductOptionEntity::
-     * @see ProductOptionService#findAllByCode
+     * @see ProductOptionService#searchListByOptionCodes
      */
     public List<ProductOptionEntity> getOptionByCode(List<DeliveryReadyNaverItemDto.ViewReqAndRes> dtos) {
         List<String> managementCodes = dtos.stream().map(r -> r.getDeliveryReadyItem().getReleaseOptionCode()).collect(Collectors.toList());
@@ -719,8 +712,9 @@ public class DeliveryReadyNaverBusinessService {
      * 
      * @param unreleasedDtos : List::DeliveryReadyNaverItemDto.ViewReqAndRes::
      * @param originOptionEntities : List::ProductOptionEntity::
-     * @see ProductReceiveService#saveListAndModify
+     * @see ProductReleaseService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -758,6 +752,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void reflectStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> unreleasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 
@@ -835,6 +830,7 @@ public class DeliveryReadyNaverBusinessService {
      * @param originOptionEntities : List::ProductOptionEntity::
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnit(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         
@@ -870,6 +866,7 @@ public class DeliveryReadyNaverBusinessService {
      * @see OptionPackageService#searchListByParentOptionIdList
      * @see ProductReceiveService#saveListAndModify
      */
+    @Transactional
     public void cancelReflectedStockUnitOfPackageOption(List<DeliveryReadyNaverItemDto.ViewReqAndRes> releasedDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
 

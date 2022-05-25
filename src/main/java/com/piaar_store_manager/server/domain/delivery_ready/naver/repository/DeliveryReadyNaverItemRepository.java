@@ -87,9 +87,9 @@ public interface DeliveryReadyNaverItemRepository extends JpaRepository<Delivery
      */
     @Query(
         "SELECT dri FROM DeliveryReadyNaverItemEntity dri\n" +
-        "WHERE dri.cid IN :itemCids"
+        "WHERE dri.id IN :idList"
     )
-    List<DeliveryReadyNaverItemEntity> selectAllByCids(List<Integer> itemCids);
+    List<DeliveryReadyNaverItemEntity> selectAllByIdList(List<UUID> idList);
 
     /**
      * 대량 삭제

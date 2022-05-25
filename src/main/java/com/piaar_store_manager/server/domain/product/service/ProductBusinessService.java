@@ -63,7 +63,7 @@ public class ProductBusinessService {
      *
      * @param productCid : Integer
      * @see ProductService#searchOneM2OJ
-     * @see ProductOptionService#searchListByProduct
+     * @see ProductOptionService#searchListByProductCid
      */
     public ProductGetDto.FullJoin searchOneFJ(Integer productCid) {
         ProductProj productProj = productService.searchOneM2OJ(productCid);
@@ -151,6 +151,7 @@ public class ProductBusinessService {
         return productFJDtos;
     }
 
+    @Transactional
     public void createOne(ProductGetDto productGetDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -158,9 +159,9 @@ public class ProductBusinessService {
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity entity = ProductEntity.toEntity(productGetDto);
-        productService.saveAndModify(entity);
     }
 
+    @Transactional
     public void createList(List<ProductGetDto> productGetDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -181,7 +182,7 @@ public class ProductBusinessService {
      * 해당 option에 포함된 option package를 함께 등록한다.
      *
      * @see ProductService#saveAndGet
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#saveListAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
@@ -293,6 +294,7 @@ public class ProductBusinessService {
         });
     }
 
+    @Transactional
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -359,6 +361,5 @@ public class ProductBusinessService {
             productEntity.setProductCategoryCid(productDto.getProductCategoryCid());
         }
         productEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
-        productService.saveAndModify(productEntity);
     }
 }

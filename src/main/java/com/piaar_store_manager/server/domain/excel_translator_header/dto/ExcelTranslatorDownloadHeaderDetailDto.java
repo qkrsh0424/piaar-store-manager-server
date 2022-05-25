@@ -3,8 +3,6 @@ package com.piaar_store_manager.server.domain.excel_translator_header.dto;
 import java.util.List;
 import java.util.UUID;
 
-import org.hibernate.annotations.Type;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

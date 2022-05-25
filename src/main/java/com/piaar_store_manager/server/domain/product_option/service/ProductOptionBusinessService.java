@@ -196,8 +196,8 @@ public class ProductOptionBusinessService {
      * 단일 option 등록, 해당 option에 포함된 package을 함께 등록한다.
      * 이때 package의 size에 따라 packageYn을 세팅한다.
      *
-     * @see ProductService#saveAndGet
-     * @see ProductOptionService#createList
+     * @param reqDto : ProductOptionGetDto.CreateReq
+     * @see ProductOptionService#saveAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
@@ -264,7 +264,7 @@ public class ProductOptionBusinessService {
      * 1. 해당 option에 등록된 package 모두 제거
      * 2. 현재 수정되는 데이터로 package 세팅
      *
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#searchOne
      * @see OptionPackageService#deleteBatchByParentOptionId
      * @see OptionPackageService#saveListAndModify
      */

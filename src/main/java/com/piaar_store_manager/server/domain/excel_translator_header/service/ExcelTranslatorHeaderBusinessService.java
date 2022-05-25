@@ -3,8 +3,11 @@ package com.piaar_store_manager.server.domain.excel_translator_header.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
@@ -47,12 +50,10 @@ public class ExcelTranslatorHeaderBusinessService {
         return dtos;
     }
 
+    @Transactional
     public void changeOne(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
-        entity.setId(dto.getId()).setUploadHeaderTitle(dto.getUploadHeaderTitle())
-                .setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
-
-        excelTranslatorHeaderService.saveAndModify(entity);
+        entity.setUploadHeaderTitle(dto.getUploadHeaderTitle()).setDownloadHeaderTitle(dto.getDownloadHeaderTitle()).setRowStartNumber(dto.getRowStartNumber());
     }
 
     public void deleteOne(UUID excelTranslatorId) {
@@ -132,12 +133,12 @@ public class ExcelTranslatorHeaderBusinessService {
 
     /**
      * <b>Data Processing Related Method</b>
-     * 업로드된 엑셀 파일을 첫번째 행(헤더 데이터)만 읽어 UploadExcelDataGetDto로 반환한다. (다운로드 헤더 양식 업로드 시 사용)
+     * 업로드된 엑셀 파일을 첫번째 행(헤더 데이터)만 읽어 UploadExcelDataGetDto로 반환한다. (헤더 양식 업로드 시 사용)
      * 
      * @param file : MultipartFile
      * @return UploadExcelDataGetDto
      */
-    public UploadExcelDataGetDto uploadDownloadHeaderExcelFile(MultipartFile file) {
+    public UploadExcelDataGetDto uploadHeaderExcelFile(Map<String, Object> params, MultipartFile file) {
         Workbook workbook = null;
         try{
             workbook = WorkbookFactory.create(file.getInputStream());
@@ -146,13 +147,14 @@ public class ExcelTranslatorHeaderBusinessService {
         }
 
         Sheet sheet = workbook.getSheetAt(0);
-        Row headerRow = sheet.getRow(0);
+        Integer rowStartNumber = params.get("rowStartNumber") != null ? Integer.parseInt(params.get("rowStartNumber").toString()) : 0;
+        Row headerRow = sheet.getRow(rowStartNumber-1);
 
         List<ExcelDataDetailDto.UploadedDetailDto> detailDtos = new ArrayList<>();
         for(int j = 0; j < headerRow.getLastCellNum(); j++) {
             Cell cell = headerRow.getCell(j);
             Object cellObj = new Object();
-
+            
             if(cell == null || cell.getCellType().equals(CellType.BLANK)) {
                 cellObj = "";
             } else {
@@ -173,8 +175,8 @@ public class ExcelTranslatorHeaderBusinessService {
      * 
      * @param dto : ExcelTranslatorHeaderGetDto
      * @see ExcelTranslatorHeaderService#searchOne
-     * @see ExcelTranslatorHeaderService#saveAndModify
      */
+    @Transactional
     public void updateUploadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setUploadHeaderDetail(dto.getUploadHeaderDetail());
@@ -184,8 +186,6 @@ public class ExcelTranslatorHeaderBusinessService {
         List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = new ArrayList<>();
         downloadDetail.setDetails(details);
         entity.setDownloadHeaderDetail(downloadDetail);
-
-        excelTranslatorHeaderService.saveAndModify(entity);
     }
 
     /**
@@ -196,10 +196,10 @@ public class ExcelTranslatorHeaderBusinessService {
      * @see ExcelTranslatorHeaderService#searchOne
      * @see ExcelTranslatorHeaderService#saveAndModify
      */
+    @Transactional
     public void updateDownloadHeaderDetailOfExcelTranslator(ExcelTranslatorHeaderGetDto dto) {
         ExcelTranslatorHeaderEntity entity = excelTranslatorHeaderService.searchOne(dto.getId());
         entity.setDownloadHeaderDetail(dto.getDownloadHeaderDetail());
-        excelTranslatorHeaderService.saveAndModify(entity);
     }
 }
 

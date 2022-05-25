@@ -112,7 +112,7 @@ public class ProductReleaseBusinessService {
                     .createdBy(USER_ID)
                     .productOptionCid(productReleaseGetDto.getCid())
                     .build();
-            productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));
+             productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));
         } else {
             // 2) 실행
             List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
@@ -142,7 +142,7 @@ public class ProductReleaseBusinessService {
      * 1) - option의 packageYn이 n인 상품은 release 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 release 데이터 생성.
      *
-     * @param productReleaseGetDto : List::ProductReleaseGetDto::
+     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
      * @see ProductReleaseService#saveAndModify
      */
     @Transactional
@@ -150,6 +150,7 @@ public class ProductReleaseBusinessService {
         UUID USER_ID = userService.getUserId();
         List<Integer> optionCids = productReleaseGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
+        // 패키지 옵션 분류
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
@@ -212,7 +213,6 @@ public class ProductReleaseBusinessService {
     public void changeOne(ProductReleaseGetDto releaseDto) {
         ProductReleaseEntity entity = productReleaseService.searchOne(releaseDto.getCid());
         entity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
-        productReleaseService.saveAndModify(entity);
     }
 
     @Transactional
@@ -220,6 +220,7 @@ public class ProductReleaseBusinessService {
         releaseDtos.stream().forEach(r -> this.changeOne(r));
     }
 
+    @Transactional
     public void patchOne(ProductReleaseGetDto releaseDto) {
         ProductReleaseEntity releaseEntity = productReleaseService.searchOne(releaseDto.getCid());
 
@@ -229,6 +230,5 @@ public class ProductReleaseBusinessService {
         if (releaseDto.getMemo() != null) {
             releaseEntity.setMemo(releaseDto.getMemo());
         }
-        productReleaseService.saveAndModify(releaseEntity);
     }
 }

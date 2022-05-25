@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.product_detail.entity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -17,17 +16,20 @@ import org.hibernate.annotations.Type;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Entity
-@Data
+@Getter @Setter
 @Table(name = "product_detail")
 @Builder
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class ProductDetailEntity {
 
     @Id
