@@ -118,7 +118,7 @@ public class ProductOptionService {
      * optionCodes에 대응되는 option 데이터를 모두 조회한다.
      * 조회된 option의 release(출고)와 receive(입고) 데이터로 옵션의 재고수량을 구한다.
      *
-     * @param productCids : List::Integer::
+     * @param optionCodes : List::String::
      * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#selectListByCodes
      * @see ProductOptionService#searchStockUnit

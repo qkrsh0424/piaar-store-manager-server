@@ -19,12 +19,19 @@ public class AwsS3Service {
     private final AwsS3Configuration awsS3Configuration;
     private AmazonS3 s3Client;
 
+    /**
+     * <b>AWS S3에 파일을 업로드한다.</b>
+     * <p>
+     *
+     * @param reqDto : AwsS3ReqDto
+     * @see AwsS3Configuration#getS3Client
+     */
     public void putObject(AwsS3ReqDto reqDto) {
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(reqDto.getFile().getSize());
 
         try{
-            // AWS S3 업로드
+            // S3 업로드
             s3Client = awsS3Configuration.getS3Client();
             s3Client.putObject(new PutObjectRequest(reqDto.getUploadPath(), reqDto.getFileName(), reqDto.getFile().getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
         } catch (IOException e) {

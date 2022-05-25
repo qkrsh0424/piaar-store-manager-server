@@ -63,7 +63,7 @@ public class ProductBusinessService {
      *
      * @param productCid : Integer
      * @see ProductService#searchOneM2OJ
-     * @see ProductOptionService#searchListByProduct
+     * @see ProductOptionService#searchListByProductCid
      */
     public ProductGetDto.FullJoin searchOneFJ(Integer productCid) {
         ProductProj productProj = productService.searchOneM2OJ(productCid);
@@ -182,7 +182,7 @@ public class ProductBusinessService {
      * 해당 option에 포함된 option package를 함께 등록한다.
      *
      * @see ProductService#saveAndGet
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#saveListAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional

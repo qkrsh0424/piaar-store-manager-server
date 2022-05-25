@@ -28,7 +28,7 @@ public class SalesAnalysisItemBusinessService {
      * startDate, endDate 날짜 사이의 판매랭킹 데이터를 모두 조회한다.
      * 네이버, 쿠팡, 피아르 erp의 판매수량을 모두 더해 전체판매수량 값 세팅.
      * 
-     * @param params : Map::String, Object::
+     * @param params : Map[startDate, endDate]
      * @return List::SalesAnalysisItemDto::
      */
     public List<SalesAnalysisItemDto> searchAll(Map<String, Object> params) {

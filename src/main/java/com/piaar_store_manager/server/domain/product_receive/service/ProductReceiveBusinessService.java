@@ -142,7 +142,7 @@ public class ProductReceiveBusinessService {
      * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
      *
-     * @param productReceiveGetDto : List::ProductReceiveGetDto::
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @see ProductReceiveService#saveAndModify
      */
     @Transactional

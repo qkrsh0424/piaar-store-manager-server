@@ -142,7 +142,7 @@ public class ProductReleaseBusinessService {
      * 1) - option의 packageYn이 n인 상품은 release 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 release 데이터 생성.
      *
-     * @param productReleaseGetDto : List::ProductReleaseGetDto::
+     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
      * @see ProductReleaseService#saveAndModify
      */
     @Transactional
