@@ -8,8 +8,11 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,6 +68,9 @@ public class ErpOrderItemDto {
     @Size(max = 200)
     private String destination; // 주소 / 필수값
 
+    @Size(max = 200)
+    private String destinationDetail;
+
     @Size(max = 40)
     private String salesChannel; // 판매채널
 
@@ -112,6 +118,9 @@ public class ErpOrderItemDto {
 
     @Size(max = 20)
     private String releaseOptionCode;   // 출고 옵션코드
+
+    @JsonDeserialize(using = CustomDateUtils.JsonLocalDateTimeBasicDeserializer.class)
+    private LocalDateTime channelOrderDate;
 
     @Size(max = 200)
     private String managementMemo1; // 관리메모1

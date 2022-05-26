@@ -60,7 +60,7 @@ public class ErpOrderItemBusinessService {
      * @return List::ErpOrderItemVo::
      */
 //    RE-OK
-    public List<ErpOrderItemVo> uploadErpOrderExcel(MultipartFile file) {
+    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcel(MultipartFile file) {
         // access check
         userService.userLoginCheck();
         userService.userManagerRoleCheck();
@@ -74,7 +74,7 @@ public class ErpOrderItemBusinessService {
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<ErpOrderItemVo> vos;
+        List<ErpOrderItemVo.ExcelVo> vos;
         try {
             vos = ErpOrderItemVo.excelSheetToVos(sheet);
         } catch (NullPointerException e) {
@@ -376,6 +376,7 @@ public class ErpOrderItemBusinessService {
                 .setUnit(dto.getUnit()).setReceiver(dto.getReceiver()).setReceiverContact1(dto.getReceiverContact1())
                 .setReceiverContact2(dto.getReceiverContact2())
                 .setDestination(dto.getDestination())
+                .setDestinationDetail(dto.getDestinationDetail())
                 .setSalesChannel(dto.getSalesChannel())
                 .setOrderNumber1(dto.getOrderNumber1())
                 .setOrderNumber2(dto.getOrderNumber2())
@@ -392,6 +393,7 @@ public class ErpOrderItemBusinessService {
                 .setProdCode(dto.getProdCode())
                 .setOptionCode(dto.getOptionCode())
                 .setReleaseOptionCode(dto.getReleaseOptionCode())
+                .setChannelOrderDate(dto.getChannelOrderDate())
                 .setManagementMemo1(dto.getManagementMemo1())
                 .setManagementMemo2(dto.getManagementMemo2())
                 .setManagementMemo3(dto.getManagementMemo3())

@@ -6,6 +6,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -63,6 +65,7 @@ public class CustomExcelUtils {
 
     /**
      * CellValue를 Object 타입으로 리턴한다.
+     *
      * @param cell
      * @param numericType 타입이 numeric일 경우 int로 변환해서 내보낼지 double로 변환해서 내보낼지 결정한다.
      * @return Object : cellValue
@@ -74,10 +77,14 @@ public class CustomExcelUtils {
             case _NONE:
                 return "";
             case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
+                }
                 if (numericType == NUMERIC_TO_DOUBLE) {
                     return cell.getNumericCellValue();
                 }
-                if(numericType == NUMERIC_TO_INT){
+                if (numericType == NUMERIC_TO_INT) {
                     int result = (int) cell.getNumericCellValue();
                     return result;
                 }
@@ -93,6 +100,62 @@ public class CustomExcelUtils {
                 return cell.getErrorCellValue();
             default:
                 return "";
+        }
+    }
+
+    public static Object getCellValueObject(Cell cell) {
+        CellType cellType = cell.getCellType();
+
+        switch (cellType) {
+            case _NONE:
+                return "";
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
+                }
+
+                int result = (int) cell.getNumericCellValue();
+                return result;
+            case STRING:
+                return cell.getStringCellValue();
+            case FORMULA:
+                return cell.getCellFormula();
+            case BLANK:
+                return "";
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case ERROR:
+                return cell.getErrorCellValue();
+            default:
+                return "";
+        }
+    }
+
+    public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
+        CellType cellType = cell.getCellType();
+
+        switch (cellType) {
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
+                }
+
+                int result = (int) cell.getNumericCellValue();
+                return result;
+            case STRING:
+                return cell.getStringCellValue();
+            case FORMULA:
+                return cell.getCellFormula();
+            case BOOLEAN:
+                return cell.getBooleanCellValue();
+            case ERROR:
+                return cell.getErrorCellValue();
+            case BLANK:
+            case _NONE:
+            default:
+                return defaultValue;
         }
     }
 }

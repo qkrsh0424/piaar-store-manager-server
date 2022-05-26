@@ -250,7 +250,7 @@ public class ExcelTranslatorHeaderApiController {
                 } else if (detailDto.getCellType().equals("Date")) {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
                     LocalDateTime date = LocalDateTime.parse(detailDto.getColData().toString(), formatter);
-                    cell.setCellValue(CustomDateUtils.getLocalDateTimeToDownloadFormat(date));
+                    cell.setCellValue(CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(date));
                 } else if (detailDto.getCellType().equals("Double")) {
                     cell.setCellValue((int) detailDto.getColData());
                 }
