@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -69,6 +70,17 @@ public class CustomDateUtils {
         return CustomDateUtils.toUtc(time, ZoneId.of("Asia/Seoul"));
     }
 
+    public static boolean isValidDate(String inDate, String pattern) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+        dateFormat.setLenient(false);
+        try {
+            dateFormat.parse(inDate.trim());
+        } catch (ParseException pe) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * <p>@JsonDeserialize(using = CustomDateUtils.JsonLocalDateTimeBasicDeserializer.class)</p>
      * <p>private LocalDateTime example</p>
@@ -80,14 +92,33 @@ public class CustomDateUtils {
         public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
             String dateStr = p.getText();
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            try {
-                LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
-                LocalDateTime dateTimeUTC = CustomDateUtils.toUtc(dateTime);
-                return dateTimeUTC;
-            } catch (DateTimeParseException e) {
-                return null;
+            /*
+            요청 데이터가 UTC의 경우
+             */
+            if (CustomDateUtils.isValidDate(dateStr, "yyyy-MM-dd'T'HH:mm:ss'Z'")) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                    return LocalDateTime.parse(dateStr, formatter);
+                }catch (DateTimeParseException e){
+                    return null;
+                }
             }
+
+            /*
+            요청 데이터가 String일 경우 UTC로 변환 후 받아온다. (요청 데이터는 Asia/seoul 시간으로 간주한다.)
+             */
+            if (CustomDateUtils.isValidDate(dateStr, "yyyy-MM-dd HH:mm:ss")) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
+                    LocalDateTime dateTimeUTC = CustomDateUtils.toUtc(dateTime);
+                    return dateTimeUTC;
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+
+            return null;
         }
     }
 }

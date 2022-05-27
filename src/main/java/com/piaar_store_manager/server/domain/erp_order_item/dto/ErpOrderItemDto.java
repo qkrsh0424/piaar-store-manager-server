@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 
 @Builder
 @Getter
@@ -124,34 +125,34 @@ public class ErpOrderItemDto {
 
     @Size(max = 200)
     private String managementMemo1; // 관리메모1
-    
+
     @Size(max = 200)
     private String managementMemo2; // 관리메모2
-    
+
     @Size(max = 200)
     private String managementMemo3; // 관리메모3
-    
+
     @Size(max = 200)
     private String managementMemo4; // 관리메모4
-    
+
     @Size(max = 200)
     private String managementMemo5; // 관리메모5
-    
+
     @Size(max = 200)
     private String managementMemo6; // 관리메모6
-    
+
     @Size(max = 200)
     private String managementMemo7; // 관리메모7
-    
+
     @Size(max = 200)
     private String managementMemo8; // 관리메모8
-    
+
     @Size(max = 200)
     private String managementMemo9; // 관리메모9
-    
+
     @Size(max = 200)
     private String managementMemo10; // 관리메모10
-    
+
     @Size(max = 200)
     private String freightCode; // 운송코드
 

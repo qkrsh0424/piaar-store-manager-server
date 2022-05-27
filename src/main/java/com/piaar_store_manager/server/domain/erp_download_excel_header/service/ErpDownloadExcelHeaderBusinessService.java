@@ -248,7 +248,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                         for (int z = 0; z < viewDetails.size(); z++) {
                             String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
 
-                            Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                            Object obj = CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) : "";
                             if (obj.getClass().equals(LocalDateTime.class)) {
                                 appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
                             } else {
@@ -268,7 +268,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                             for (int z = 0; z < viewDetails.size(); z++) {
                                 String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
 
-                                Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                                Object obj = CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) : "";
                                 if (obj.getClass().equals(LocalDateTime.class)) {
                                     appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
                                 } else {

@@ -295,7 +295,17 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setSalesYn(dto.getSalesYn()).setSalesAt(CustomDateUtils.getCurrentDateTime());
+
+                if (dto.getSalesYn().equals("n")) {
+                    entity.setSalesYn("n");
+                    entity.setSalesAt(null);
+                    entity.setReleaseYn("n");
+                    entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setSalesYn("y");
+                entity.setSalesAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -324,7 +334,15 @@ public class ErpOrderItemBusinessService {
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setReleaseYn(dto.getReleaseYn()).setReleaseAt(CustomDateUtils.getCurrentDateTime());
+
+                if (dto.getReleaseYn().equals("n")) {
+                    entity.setReleaseYn("n");
+                    entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setReleaseYn("y");
+                entity.setReleaseAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -462,16 +480,14 @@ public class ErpOrderItemBusinessService {
     }
 
     /**
-     * @Deprecated
-     * <b>Data Processing Related Method</b>
+     * @param firstMergeHeaderId : UUID
+     * @param dtos               : List::ErpOrderItemDto::
+     * @return List::ErpOrderItemVo::
+     * @Deprecated <b>Data Processing Related Method</b>
      * <p>
      * 수령인 > 수령인 전화번호 > 주소 > 상품명 > 옵션명 순으로 정렬해서
      * 동일 수령인정보 + 같은 상품과 옵션이라면 수량을 더한다
      * 병합 데이터의 나열 여부와 고정값 여부를 체크해서 데이터를 변환한다
-     *
-     * @param firstMergeHeaderId : UUID
-     * @param dtos               : List::ErpOrderItemDto::
-     * @return List::ErpOrderItemVo::
      * @see ErpOrderItemBusinessService#searchErpFirstMergeHeader
      * @see CustomFieldUtils#getFieldValue
      * @see CustomFieldUtils#setFieldValue
@@ -552,13 +568,11 @@ public class ErpOrderItemBusinessService {
     }
 
     /**
-     * @Deprecated
-     * <b>Data Select Related Method</b>
-     * <p>
-     * firstMergeHeaderId에 대응하는 1차 병합헤더 데이터를 조회한다.
-     *
      * @param firstMergeHeaderId : UUID
      * @return ErpFirstMergeHeaderDto
+     * @Deprecated <b>Data Select Related Method</b>
+     * <p>
+     * firstMergeHeaderId에 대응하는 1차 병합헤더 데이터를 조회한다.
      * @see ErpFirstMergeHeaderService#searchOne
      * @see ErpFirstMergeHeaderDto#toDto
      */
@@ -568,16 +582,14 @@ public class ErpOrderItemBusinessService {
     }
 
     /**
-     * @Deprecated
-     * <b>Data Processing Related Method</b>
+     * @param secondMergeHeaderId : UUID
+     * @param dtos                : List::ErpOrderItemDto::
+     * @return List::ErpOrderItemVo::
+     * @Deprecated <b>Data Processing Related Method</b>
      * <p>
      * 병합 여부와 splitter로 구분해 나타낼 컬럼들을 확인해 데이터를 나열한다
      * 동일 수령인정보라면 구분자(|&&|)로 표시해 병합한다
      * 고정값 여부를 체크해서 데이터를 고정값으로 채워넣는다
-     *
-     * @param secondMergeHeaderId : UUID
-     * @param dtos                : List::ErpOrderItemDto::
-     * @return List::ErpOrderItemVo::
      * @see ErpOrderItemBusinessService#searchErpSecondMergeHeader
      * @see CustomFieldUtils#getFieldValue
      * @see CustomFieldUtils#setFieldValue
@@ -682,8 +694,8 @@ public class ErpOrderItemBusinessService {
      * 운송장 업로드 엑셀 파일을 읽어들이고 해당 엑셀 파일을 DTO로 변환해서 리턴해준다.
      * <p>Last Modifier : Austin Park 22.4.22</p>
      *
-     * @since 1.1
      * @see ErpOrderItemBusinessService#changeBatchForWaybill
+     * @since 1.1
      */
     @Transactional(readOnly = true)
     public List<WaybillExcelFormDto> readWaybillExcelFile(MultipartFile file) {
@@ -770,8 +782,8 @@ public class ErpOrderItemBusinessService {
      * <p>Last Modifier : Austin Park 22.4.22</p>
      *
      * @return 운송장 관련 데이터가 정상적으로 적용된 데이터의 수
-     * @since 1.1
      * @see ErpOrderItemBusinessService#readWaybillExcelFile
+     * @since 1.1
      */
     @Transactional
     public int changeBatchForWaybill(List<ErpOrderItemDto> erpOrderItemDtos, List<WaybillExcelFormDto> waybillExcelFormDtos) {
@@ -828,7 +840,7 @@ public class ErpOrderItemBusinessService {
 
     /**
      * 선택된 데이터들의 재고를 반영한다.
-     *
+     * <p>
      * TODO : 현재 세트상품과 세트상품이 아닌 데이터들을 구분해서 insert 쿼리를 날리는데 이렇게되면 insert쿼리가 두번이 나누어져서 던져지게됨. 세트상품을 먼저 분해해서 일반 옵션 엔터티로 만들어서 한번에 던지는게 낫지않을까?
      */
     @Transactional
@@ -931,6 +943,7 @@ public class ErpOrderItemBusinessService {
 
     /**
      * 선택된 데이터들중 이미 재고가 반영된 데이터들을 대상으로 재고 반영을 취소시킨다.
+     *
      * @param itemDtos
      * @return
      */
