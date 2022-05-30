@@ -46,6 +46,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOrigins(
                         "http://localhost:3000",
+                        "http://localhost:5000",
                         "http://www.piaar.co.kr",
                         "https://www.piaar.co.kr",
                         "http://dev.www.piaar.co.kr",

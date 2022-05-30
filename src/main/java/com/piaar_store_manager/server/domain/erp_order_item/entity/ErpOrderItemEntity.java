@@ -77,6 +77,10 @@ public class ErpOrderItemEntity {
     private String destination; // 주소 / 필수값
 
     @Setter
+    @Column(name = "destination_detail")
+    private String destinationDetail;
+
+    @Setter
     @Column(name = "sales_channel")
     private String salesChannel; // 판매채널
 
@@ -139,6 +143,10 @@ public class ErpOrderItemEntity {
     @Setter
     @Column(name = "release_option_code")
     private String releaseOptionCode; // 출고 옵션코드
+
+    @Setter
+    @Column(name = "channel_order_date")
+    private LocalDateTime channelOrderDate;
 
     @Setter
     @Column(name = "management_memo1")
@@ -222,6 +230,7 @@ public class ErpOrderItemEntity {
                 .receiverContact1(dto.getReceiverContact1())
                 .receiverContact2(dto.getReceiverContact2())
                 .destination(dto.getDestination())
+                .destinationDetail(dto.getDestinationDetail())
                 .salesChannel(dto.getSalesChannel())
                 .orderNumber1(dto.getOrderNumber1())
                 .orderNumber2(dto.getOrderNumber2())
@@ -238,6 +247,7 @@ public class ErpOrderItemEntity {
                 .prodCode(dto.getProdCode())
                 .optionCode(dto.getOptionCode())
                 .releaseOptionCode(dto.getReleaseOptionCode())
+                .channelOrderDate(dto.getChannelOrderDate())
                 .managementMemo1(dto.getManagementMemo1())
                 .managementMemo2(dto.getManagementMemo2())
                 .managementMemo3(dto.getManagementMemo3())
