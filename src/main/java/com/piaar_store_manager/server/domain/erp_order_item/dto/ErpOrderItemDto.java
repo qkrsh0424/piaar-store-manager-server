@@ -111,7 +111,7 @@ public class ErpOrderItemDto {
     @Size(max = 100)
     private String barcode; // 바코드
 
-    @Size(max = 20)
+    @Size(max = 50, message = "[피아르 상품코드] 크기가 0 에서 20 사이여야 합니다.")
     private String prodCode; // 피아르 상품코드
 
     @Size(max = 20)

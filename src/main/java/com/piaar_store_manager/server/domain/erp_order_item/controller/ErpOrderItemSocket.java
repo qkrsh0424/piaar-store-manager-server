@@ -41,7 +41,6 @@ public class ErpOrderItemSocket {
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
-        System.out.println(itemDtos);
         erpOrderItemBusinessService.createBatch(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");

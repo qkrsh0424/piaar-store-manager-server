@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
+import javax.validation.ConstraintViolationException;
+
 @ControllerAdvice
 @Slf4j
 public class GlobalCustomExceptionHandler {
@@ -79,6 +81,18 @@ public class GlobalCustomExceptionHandler {
      */
     @ExceptionHandler({ CustomNotMatchedParamsException.class })
     public ResponseEntity<?> NotMatchedParamsExceptionHandler(CustomNotMatchedParamsException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.BAD_REQUEST);
+        message.setMessage("not_match_params");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @ExceptionHandler({ ConstraintViolationException.class })
+    public ResponseEntity<?> ConstraintViolationExceptionHandler(ConstraintViolationException e) {
         log.error("ERROR STACKTRACE => {}", e.getStackTrace());
 
         Message message = new Message();
