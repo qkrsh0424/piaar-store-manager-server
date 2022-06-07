@@ -272,7 +272,7 @@ public class ErpOrderItemVo {
     public static void setOptionStockUnitForList(List<ErpOrderItemVo> erpOrderItemVos, List<ProductOptionEntity> optionEntities) {
         erpOrderItemVos.forEach(erpOrderItemVo -> {
             optionEntities.forEach(optionEntity ->{
-                if(!erpOrderItemVo.getOptionCode().isEmpty() && erpOrderItemVo.getOptionCode().equals(optionEntity.getCode())){
+                if(!erpOrderItemVo.getReleaseOptionCode().isEmpty() && erpOrderItemVo.getReleaseOptionCode().equals(optionEntity.getCode())){
                     erpOrderItemVo.setOptionStockUnit(optionEntity.getStockSumUnit().toString());
                     return;
                 }

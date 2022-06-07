@@ -141,11 +141,10 @@ public class CustomExcelUtils {
                     LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
                     return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
                 }
-
                 int result = (int) cell.getNumericCellValue();
                 return result;
             case STRING:
-                return cell.getStringCellValue();
+                return cell.getStringCellValue().strip();   // 앞뒤 공백제거. (유니코드의 공백들을 모두 제거 ex) space, tab 등)
             case FORMULA:
                 return cell.getCellFormula();
             case BOOLEAN:

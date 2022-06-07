@@ -102,11 +102,13 @@ public class ErpOrderItemDto {
     @Size(max = 36)
     private String waybillNumber;   // 운송장번호
 
-    @PositiveOrZero
-    private Integer price;  // 판매금액
+    // @PositiveOrZero
+    @Size(max = 20)
+    private String price;  // 판매금액
 
-    @PositiveOrZero
-    private Integer deliveryCharge;  // 배송비
+    // @PositiveOrZero
+    @Size(max = 20)
+    private String deliveryCharge;  // 배송비
 
     @Size(max = 100)
     private String barcode; // 바코드
