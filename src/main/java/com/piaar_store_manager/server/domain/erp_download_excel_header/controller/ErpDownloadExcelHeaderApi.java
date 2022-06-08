@@ -186,6 +186,9 @@ public class ErpDownloadExcelHeaderApi {
 //         엑셀 생성
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Sheet1");
+        CellStyle cs = workbook.createCellStyle();
+        cs.setWrapText(true);
+        cs.setVerticalAlignment(VerticalAlignment.CENTER);
         Row row = null;
         Cell cell = null;
         int rowNum = 0;
@@ -194,12 +197,14 @@ public class ErpDownloadExcelHeaderApi {
             row = sheet.createRow(rowNum++);
             for (int j = 0; j < matrix.get(i).size(); j++) {
                 cell = row.createCell(j);
+                cell.setCellStyle(cs);
                 cell.setCellValue(matrix.get(i).get(j));
             }
         }
 
         for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
             sheet.autoSizeColumn(i);
+            sheet.setColumnWidth(i, (sheet.getColumnWidth(i))+(short)1024);
         }
 
         response.setContentType("ms-vnd/excel");
