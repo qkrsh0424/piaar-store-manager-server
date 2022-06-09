@@ -252,7 +252,13 @@ public class ExcelTranslatorHeaderApiController {
                     LocalDateTime date = LocalDateTime.parse(detailDto.getColData().toString(), formatter);
                     cell.setCellValue(CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(date));
                 } else if (detailDto.getCellType().equals("Double")) {
-                    cell.setCellValue((int) detailDto.getColData());
+                    if(detailDto.getColData().getClass().equals(Long.class)) {
+                        cell.setCellValue((long) detailDto.getColData());
+                    }else if(detailDto.getColData().getClass().equals(Double.class)) {
+                        cell.setCellValue((double) detailDto.getColData());
+                    }else {
+                        cell.setCellValue((int) detailDto.getColData());
+                    }
                 }
             }
         }
