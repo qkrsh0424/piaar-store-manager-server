@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
@@ -73,6 +74,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#createBatch
      */
     @PostMapping("/batch")
+    @PermissionRole
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -170,6 +172,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForSalesYn
      */
     @PatchMapping("/batch/sales-yn")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForSalesYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -190,6 +193,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForReleaseYn
      */
     @PatchMapping("/batch/release-yn")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -210,6 +214,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#deleteBatch
      */
     @PostMapping("/batch-delete")
+    @PermissionRole
     public ResponseEntity<?> deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -230,6 +235,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
         Message message = new Message();
 
@@ -250,6 +256,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForAllOptionCode
      */
     @PatchMapping("/batch/option-code/all")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForAllOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -270,6 +277,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForReleaseOptionCode
      */
     @PatchMapping("/batch/release-option-code")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -291,6 +299,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#getFirstMergeItem
      */
     @PostMapping("/erp-first-merge-headers/{firstMergeHeaderId}/action-merge")
+    @PermissionRole
     public ResponseEntity<?> getFirstMergeItem(@PathVariable(value = "firstMergeHeaderId") UUID firstMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -312,6 +321,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#getSecondMergeItem
      */
     @PostMapping("/erp-second-merge-headers/{secondMergeHeaderId}/action-merge")
+    @PermissionRole
     public ResponseEntity<?> getSecondMergeItem(@PathVariable(value = "secondMergeHeaderId") UUID secondMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -323,6 +333,7 @@ public class ErpOrderItemApi {
     }
 
     @PatchMapping(value = "/batch/waybill")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForWaybill(
             @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
     ) {

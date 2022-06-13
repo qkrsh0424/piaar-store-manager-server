@@ -1,6 +1,5 @@
 package com.piaar_store_manager.server.domain.erp_order_item.controller;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.message.Message;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +37,7 @@ public class ErpOrderItemSocket {
     }
 
     @PostMapping("/batch")
+    @PermissionRole
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -52,6 +52,7 @@ public class ErpOrderItemSocket {
     }
 
     @PutMapping("")
+    @PermissionRole
     public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
         Message message = new Message();
 
@@ -63,6 +64,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/option-code/all")
+    @PermissionRole
     public void changeBatchForAllOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -74,6 +76,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/release-option-code")
+    @PermissionRole
     public void changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -85,6 +88,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/sales-yn")
+    @PermissionRole
     public void changeBatchForSalesYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -96,6 +100,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/release-yn")
+    @PermissionRole
     public void changeBatchForReleaseYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -107,6 +112,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/stock/action-reflect")
+    @PermissionRole
     public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos, @RequestParam Map<String, Object> params){
         Message message = new Message();
 
@@ -120,6 +126,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping("/batch/stock/action-cancel")
+    @PermissionRole
     public ResponseEntity<?> actionCancelStock(@RequestBody List<ErpOrderItemDto> itemDtos){
         Message message = new Message();
 
@@ -133,6 +140,7 @@ public class ErpOrderItemSocket {
     }
 
     @PostMapping("/batch-delete")
+    @PermissionRole
     public void deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -144,6 +152,7 @@ public class ErpOrderItemSocket {
     }
 
     @PatchMapping(value = "/batch/waybill")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForWaybill(
             @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
     ) {

@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_release_ready_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.dto.ErpReleaseReadyHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_ready_header.service.ErpReleaseReadyHeaderBusinessService;
@@ -34,6 +35,7 @@ public class ErpReleaseReadyHeaderApi {
      * @see ErpReleaseReadyHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpReleaseReadyHeaderDto headerDto) {
         Message message = new Message();
 
@@ -73,6 +75,7 @@ public class ErpReleaseReadyHeaderApi {
      * @see ErpReleaseReadyHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpReleaseReadyHeaderDto headerDto) {
         Message message = new Message();
 

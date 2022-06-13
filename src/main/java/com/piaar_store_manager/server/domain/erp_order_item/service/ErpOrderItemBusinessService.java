@@ -163,6 +163,9 @@ public class ErpOrderItemBusinessService {
         return itemVos;
     }
 
+    /**
+    판매채널 옵션코드 항목에 입력된 값을 대체옵션관리코드를 확인해 업데이트한다.
+     */
     public void updateOptionCodeBySubOptionCode(List<ErpOrderItemVo.ExcelVo> vos) {
         // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다.
         // 있으면 super_option_code를 optionCode에 대입.

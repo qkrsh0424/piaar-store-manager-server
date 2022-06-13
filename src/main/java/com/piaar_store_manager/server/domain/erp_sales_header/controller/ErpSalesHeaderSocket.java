@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_sales_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.service.ErpSalesHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
@@ -47,6 +48,7 @@ public class ErpSalesHeaderSocket {
      * @see ErpSalesHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public void updateOne(@RequestBody ErpSalesHeaderDto headerDto) {
         Message message = new Message();
 

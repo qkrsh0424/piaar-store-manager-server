@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeaderDto;
 import com.piaar_store_manager.server.domain.erp_order_header.service.ErpOrderHeaderBusinessService;
@@ -37,6 +38,7 @@ public class ErpOrderHeaderApi {
      * @see ErpOrderHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpOrderHeaderDto headerDto) {
         Message message = new Message();
 
@@ -76,6 +78,7 @@ public class ErpOrderHeaderApi {
      * @see ErpOrderHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpOrderHeaderDto headerDto) {
         Message message = new Message();
 

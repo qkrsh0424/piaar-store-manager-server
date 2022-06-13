@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,6 +39,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpDownloadExcelHeaderDto headerDto) {
         Message message = new Message();
 
@@ -77,6 +79,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpDownloadExcelHeaderDto headerDto) {
         Message message = new Message();
 
@@ -97,6 +100,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#deleteOne
      */
     @DeleteMapping("/{id}")
+    @PermissionRole
     public ResponseEntity<?> deleteOne(@PathVariable(value = "id") UUID id) {
         Message message = new Message();
 
@@ -178,6 +182,7 @@ public class ErpDownloadExcelHeaderApi {
     downloadForDownloadOrderItems OR downloadForDownloadOrderItems2 둘중 하나 주석후 사용
      */
     @PostMapping("/{id}/download-order-items/action-download")
+    @PermissionRole
     public void downloadForDownloadOrderItems2(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
 
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
@@ -219,6 +224,7 @@ public class ErpDownloadExcelHeaderApi {
     }
 
     @PostMapping("/upload-excel-sample/action-download")
+    @PermissionRole
     public void downloadSample(HttpServletResponse response) {
         List<Object> dataList = StaticErpItemDataUtils.getUploadHeaderExcelSample();
 
@@ -269,6 +275,7 @@ public class ErpDownloadExcelHeaderApi {
     }
 
     @PostMapping("/waybill-excel-sample/action-download")
+    @PermissionRole
     public void downloadWaybillExcelSample(HttpServletResponse response) {
 
         Workbook workbook = new XSSFWorkbook();
