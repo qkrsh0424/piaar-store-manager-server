@@ -20,8 +20,12 @@ import com.piaar_store_manager.server.domain.product_option.entity.ProductOption
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDto;
+import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
+import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
@@ -49,6 +53,7 @@ public class ErpOrderItemBusinessService {
     private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
     private final ProductReleaseService productReleaseService;
     private final OptionPackageService optionPackageService;
+    private final SubOptionCodeService subOptionCodeService;
     private final UserService userService;
 
     /**
@@ -76,7 +81,7 @@ public class ErpOrderItemBusinessService {
 
         List<ErpOrderItemVo.ExcelVo> vos;
         try {
-            vos = ErpOrderItemVo.excelSheetToVos(sheet);
+            vos = this.excelSheetToVos(sheet);
         } catch (NullPointerException e) {
             throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
         } catch (IllegalStateException e) {
@@ -85,7 +90,96 @@ public class ErpOrderItemBusinessService {
             throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
         }
 
+        // subOptionCode의 superOptionCode값을 추출해 ProductOptionCode 항목에 대입.
+        this.updateOptionCodeBySubOptionCode(vos);
         return vos;
+    }
+
+    // ErpOrderItemVo에서 가져옴. -> 대체코드 서비스를 방문해야 하기 때문
+    public List<ErpOrderItemVo.ExcelVo> excelSheetToVos(Sheet worksheet) {
+        List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
+
+        List<ErpOrderItemVo.ExcelVo> itemVos = new ArrayList<>();
+
+        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+            Row row = worksheet.getRow(i);
+            if (row == null) break;
+
+            // 피아르 양식 필수값 검사
+            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
+                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
+                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
+                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                }
+            }
+
+            ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                    .uniqueCode(null)
+                    .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
+                    .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))
+                    .unit(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0))
+                    .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), ""))
+                    .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), ""))
+                    .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), ""))
+                    .destination(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(7), ""))
+                    .destinationDetail(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(8), ""))
+                    .salesChannel(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(9), ""))
+                    .orderNumber1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(10), ""))
+                    .orderNumber2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(11), ""))
+                    .channelProdCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(12), ""))
+                    .channelOptionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), ""))
+                    .zipCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(14), ""))
+                    .courier(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(15), ""))
+                    .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), ""))
+                    .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), ""))
+                    .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), ""))
+                    .price(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0))
+                    .deliveryCharge(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0))
+                    .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), ""))
+                    .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), ""))
+                    .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), ""))
+                    .releaseOptionCode(
+                            CustomExcelUtils.getCellValueObjectWithDefaultValue(
+                                    row.getCell(24),
+                                    CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "")
+                            )
+                    )
+                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(25), ""))
+                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), ""))
+                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), ""))
+                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), ""))
+                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), ""))
+                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), ""))
+                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), ""))
+                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), ""))
+                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), ""))
+                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), ""))
+                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), ""))
+                    .freightCode(null)
+                    .build();
+
+            itemVos.add(excelVo);
+        }
+        return itemVos;
+    }
+
+    public void updateOptionCodeBySubOptionCode(List<ErpOrderItemVo.ExcelVo> vos) {
+        // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다.
+        // 있으면 super_option_code를 optionCode에 대입.
+        List<SubOptionCodeEntity> subOptionEntities = subOptionCodeService.findAll();
+        List<SubOptionCodeDto> subOptionCodeDtos = subOptionEntities.stream().map(entity -> SubOptionCodeDto.toDto(entity)).collect(Collectors.toList());
+
+        // vos를 전체돌면서 getOptionCode값이 ""이면
+        // channelOptionCode를 확인한다.
+       vos.forEach(vo -> {
+            if(vo.getOptionCode().equals("")) {
+                subOptionCodeDtos.forEach(subOptionCode -> {
+                    if(!vo.getChannelOptionCode().equals("") && vo.getChannelOptionCode().equals(subOptionCode.getSubOptionCode())) {
+                        vo.setOptionCode(subOptionCode.getProductOptionCode());
+                    }
+                });
+            }
+        });
     }
 
     @Transactional
@@ -180,7 +274,6 @@ public class ErpOrderItemBusinessService {
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
         // 옵션재고수량 추가 및 vos 변환
-
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 

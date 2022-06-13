@@ -420,70 +420,86 @@ public class ErpOrderItemVo {
 //        return itemVos;
 //    }
 
-    public static List<ErpOrderItemVo.ExcelVo> excelSheetToVos(Sheet worksheet) {
-        List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
+    // public static Object getOptionCodeByRow(Row row) {
+    //     Object optionCode = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "");
 
-        List<ErpOrderItemVo.ExcelVo> itemVos = new ArrayList<>();
+    //     // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다.
+    //     // 있으면 super_option_code를 optionCode에 대입.
+        
 
-        for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
-            Row row = worksheet.getRow(i);
-            if (row == null) break;
+    //     if(optionCode.equals("")) {
+    //         optionCode = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), "");
+    //     }
 
-            // 피아르 양식 필수값 검사
-            for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
-                Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
-                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
-                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
-                }
-            }
+    //     return optionCode;
+    // }
 
-            ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
-                    .uniqueCode(null)
-                    .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
-                    .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))
-                    .unit(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0))
-                    .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), ""))
-                    .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), ""))
-                    .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), ""))
-                    .destination(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(7), ""))
-                    .destinationDetail(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(8), ""))
-                    .salesChannel(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(9), ""))
-                    .orderNumber1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(10), ""))
-                    .orderNumber2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(11), ""))
-                    .channelProdCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(12), ""))
-                    .channelOptionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), ""))
-                    .zipCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(14), ""))
-                    .courier(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(15), ""))
-                    .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), ""))
-                    .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), ""))
-                    .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), ""))
-                    .price(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0))
-                    .deliveryCharge(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0))
-                    .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), ""))
-                    .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), ""))
-                    .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), ""))
-                    .releaseOptionCode(
-                            CustomExcelUtils.getCellValueObjectWithDefaultValue(
-                                    row.getCell(24),
-                                    CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "")
-                            )
-                    )
-                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(25), ""))
-                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), ""))
-                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), ""))
-                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), ""))
-                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), ""))
-                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), ""))
-                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), ""))
-                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), ""))
-                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), ""))
-                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), ""))
-                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), ""))
-                    .freightCode(null)
-                    .build();
+    // public static List<ErpOrderItemVo.ExcelVo> excelSheetToVos(Sheet worksheet) {
+    //     List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
 
-            itemVos.add(excelVo);
-        }
-        return itemVos;
-    }
+    //     List<ErpOrderItemVo.ExcelVo> itemVos = new ArrayList<>();
+
+    //     for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
+    //         Row row = worksheet.getRow(i);
+    //         if (row == null) break;
+
+    //         // 피아르 양식 필수값 검사
+    //         for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
+    //             Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
+    //             if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
+    //                 throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+    //             }
+    //         }
+
+    //         Object optionCode = getOptionCodeByRow(row);
+
+    //         ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+    //                 .uniqueCode(null)
+    //                 .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
+    //                 .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))
+    //                 .unit(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0))
+    //                 .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), ""))
+    //                 .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), ""))
+    //                 .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), ""))
+    //                 .destination(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(7), ""))
+    //                 .destinationDetail(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(8), ""))
+    //                 .salesChannel(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(9), ""))
+    //                 .orderNumber1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(10), ""))
+    //                 .orderNumber2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(11), ""))
+    //                 .channelProdCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(12), ""))
+    //                 .channelOptionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), ""))
+    //                 .zipCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(14), ""))
+    //                 .courier(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(15), ""))
+    //                 .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), ""))
+    //                 .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), ""))
+    //                 .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), ""))
+    //                 .price(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0))
+    //                 .deliveryCharge(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0))
+    //                 .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), ""))
+    //                 .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), ""))
+    //                 .optionCode(optionCode)
+    //                 .releaseOptionCode(
+    //                         CustomExcelUtils.getCellValueObjectWithDefaultValue(
+    //                                 row.getCell(24),
+    //                                 optionCode
+    //                         )
+    //                 )
+    //                 .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(25), ""))
+    //                 .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), ""))
+    //                 .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), ""))
+    //                 .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), ""))
+    //                 .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), ""))
+    //                 .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), ""))
+    //                 .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), ""))
+    //                 .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), ""))
+    //                 .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), ""))
+    //                 .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), ""))
+    //                 .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), ""))
+    //                 .freightCode(null)
+    //                 .build();
+
+    //         itemVos.add(excelVo);
+    //     }
+    //     return itemVos;
+    // }
 }
