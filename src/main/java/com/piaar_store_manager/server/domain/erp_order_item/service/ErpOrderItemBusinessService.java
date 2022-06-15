@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -113,11 +114,26 @@ public class ErpOrderItemBusinessService {
                 }
             }
 
+            // 수량, 금액, 배송비 항목값을 Integer로 변환한다
+            Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0);
+            Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0);
+            Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0);
+
+            if(!unitObj.getClass().equals(Integer.class)) {
+                unitObj = CustomExcelUtils.convertObjectValueToIntegerValue(unitObj);
+            }
+            if(!priceObj.getClass().equals(Integer.class)){
+                priceObj = CustomExcelUtils.convertObjectValueToIntegerValue(priceObj);
+            }
+            if(!deliveryChargeObj.getClass().equals(Integer.class)) {
+                deliveryChargeObj = CustomExcelUtils.convertObjectValueToIntegerValue(deliveryChargeObj);
+            }
+
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
                     .uniqueCode(null)
                     .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
                     .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))
-                    .unit(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0))
+                    .unit(unitObj)
                     .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), ""))
                     .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), ""))
                     .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), ""))
@@ -133,8 +149,8 @@ public class ErpOrderItemBusinessService {
                     .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), ""))
                     .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), ""))
                     .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), ""))
-                    .price(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0))
-                    .deliveryCharge(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0))
+                    .price(priceObj)
+                    .deliveryCharge(deliveryChargeObj)
                     .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), ""))
                     .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), ""))
                     .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), ""))
@@ -167,17 +183,17 @@ public class ErpOrderItemBusinessService {
     판매채널 옵션코드 항목에 입력된 값을 대체옵션관리코드를 확인해 업데이트한다.
      */
     public void updateOptionCodeBySubOptionCode(List<ErpOrderItemVo.ExcelVo> vos) {
-        // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다.
-        // 있으면 super_option_code를 optionCode에 대입.
+        // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다
+        // 있으면 super_option_code를 optionCode에 대입
         List<SubOptionCodeEntity> subOptionEntities = subOptionCodeService.findAll();
         List<SubOptionCodeDto> subOptionCodeDtos = subOptionEntities.stream().map(entity -> SubOptionCodeDto.toDto(entity)).collect(Collectors.toList());
 
-        // vos를 전체돌면서 getOptionCode값이 ""이면
-        // channelOptionCode를 확인한다.
+        // vos를 전체돌면서 channelOptionCode를 확인해 optionCode를 업데이트한다
        vos.forEach(vo -> {
             if(vo.getOptionCode().equals("")) {
                 subOptionCodeDtos.forEach(subOptionCode -> {
-                    if(!vo.getChannelOptionCode().equals("") && vo.getChannelOptionCode().equals(subOptionCode.getSubOptionCode())) {
+                    Object channelOptionCode = vo.getChannelOptionCode();
+                    if(channelOptionCode != null && !channelOptionCode.equals("") && channelOptionCode.equals(subOptionCode.getSubOptionCode())) {
                         vo.setOptionCode(subOptionCode.getProductOptionCode());
                     }
                 });
@@ -194,6 +210,9 @@ public class ErpOrderItemBusinessService {
         UUID USER_ID = userService.getUserId();
         List<ErpOrderItemDto> newOrderItemDtos = this.itemDuplicationCheck(orderItemDtos);
 
+        // String 타입의 데이터들의 앞뒤 공백을 제거한다
+        this.convertToStripedDto(newOrderItemDtos);
+        
         List<ErpOrderItemEntity> orderItemEntities = newOrderItemDtos.stream()
                 .map(r -> {
                     r.setId(UUID.randomUUID())
@@ -210,6 +229,19 @@ public class ErpOrderItemBusinessService {
                 }).collect(Collectors.toList());
 
         erpOrderItemService.bulkInsert(orderItemEntities);
+    }
+
+    // String 타입의 데이터들의 앞뒤 공백을 제거한다
+    public void convertToStripedDto(List<ErpOrderItemDto> dtos) {
+        dtos.forEach(orderItemDto -> {
+            List<String> fieldsName = CustomFieldUtils.getAllFieldNames(orderItemDto);
+            for(String fieldName : fieldsName) {
+                Object obj = CustomFieldUtils.getFieldValue(orderItemDto, fieldName);
+                if(obj != null && obj.getClass().equals(String.class)) {
+                    CustomFieldUtils.setFieldValue(orderItemDto, fieldName, obj.toString().strip());
+                }
+            }
+        });
     }
 
     /*
@@ -858,6 +890,7 @@ public class ErpOrderItemBusinessService {
                 cellValue 가져오기
                  */
                 cellValue = CustomExcelUtils.getCellValueObject(cell, CustomExcelUtils.NUMERIC_TO_INT);
+//                cellValue = CustomExcelUtils.getCellValueObject2(cell);
                 /*
                 cellValue dto에 매핑시키기
                  */

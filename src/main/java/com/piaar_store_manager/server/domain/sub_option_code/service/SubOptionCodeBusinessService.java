@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDto;
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.utils.CustomDataFormatUtils;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -32,12 +32,16 @@ public class SubOptionCodeBusinessService {
 
     public void createOne(SubOptionCodeDto dto) {
         UUID USER_ID = userService.getUserId();
-        String subOptionCode = CustomDataFormatUtils.removeBlank(dto.getSubOptionCode());
-        subOptionCodeService.duplicationCodeCheck(subOptionCode);
+        if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
+            throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
+        }
+
+        // 중복체크
+        subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
             .id(dto.getId())
-            .subOptionCode(subOptionCode)
+            .subOptionCode(dto.getSubOptionCode())
             .memo(dto.getMemo())
             .productOptionId(dto.getProductOptionId())
             .productOptionCode(dto.getProductOptionCode())
@@ -51,10 +55,14 @@ public class SubOptionCodeBusinessService {
 
     public void updateOne(SubOptionCodeDto dto) {
         SubOptionCodeEntity entity = subOptionCodeService.searchOne(dto.getId());
-        String subOptionCode = CustomDataFormatUtils.removeBlank(dto.getSubOptionCode());
-        subOptionCodeService.duplicationCodeCheck(subOptionCode);
+        if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
+            throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
+        }
+
+        // 중복체크
+        subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
         
-        entity.setSubOptionCode(subOptionCode).setMemo(dto.getMemo()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+        entity.setSubOptionCode(dto.getSubOptionCode()).setMemo(dto.getMemo()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
         subOptionCodeService.saveAndModify(entity);
     }

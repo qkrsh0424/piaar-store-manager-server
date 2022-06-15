@@ -243,22 +243,10 @@ public class ExcelTranslatorHeaderApiController {
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 ExcelDataDetailDto.UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
 
-                if (detailDto == null || detailDto.getCellType().isBlank()) {
+                if(detailDto == null) {
                     cell.setCellValue("");
-                } else if (detailDto.getCellType().equals("String")) {
-                    cell.setCellValue(detailDto.getColData().toString());
-                } else if (detailDto.getCellType().equals("Date")) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                    LocalDateTime date = LocalDateTime.parse(detailDto.getColData().toString(), formatter);
-                    cell.setCellValue(CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(date));
-                } else if (detailDto.getCellType().equals("Double")) {
-                    if(detailDto.getColData().getClass().equals(Long.class)) {
-                        cell.setCellValue((long) detailDto.getColData());
-                    }else if(detailDto.getColData().getClass().equals(Double.class)) {
-                        cell.setCellValue((double) detailDto.getColData());
-                    }else {
-                        cell.setCellValue((int) detailDto.getColData());
-                    }
+                }else{
+                    CustomExcelUtils.setCellValueFromTypeAndCellData(cell, detailDto.getCellType(), detailDto.getColData());
                 }
             }
         }

@@ -122,11 +122,11 @@ public class ErpOrderItemEntity {
 
     @Setter
     @Column(name = "price")
-    private String price; // 판매금액
+    private Integer price; // 판매금액
 
     @Setter
     @Column(name = "delivery_charge")
-    private String deliveryCharge; // 배송비
+    private Integer deliveryCharge; // 배송비
 
     @Setter
     @Column(name = "barcode")
