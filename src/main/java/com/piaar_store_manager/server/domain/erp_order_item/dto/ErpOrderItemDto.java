@@ -5,11 +5,14 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,7 +48,7 @@ public class ErpOrderItemDto {
     private String optionName; // 옵션정보 / 필수값
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer unit; // 수량 / 필수값
 
     @NotNull
@@ -64,6 +67,9 @@ public class ErpOrderItemDto {
     @NotBlank
     @Size(max = 200)
     private String destination; // 주소 / 필수값
+
+    @Size(max = 200)
+    private String destinationDetail;
 
     @Size(max = 40)
     private String salesChannel; // 판매채널
@@ -104,7 +110,7 @@ public class ErpOrderItemDto {
     @Size(max = 100)
     private String barcode; // 바코드
 
-    @Size(max = 20)
+    @Size(max = 50, message = "[피아르 상품코드] 크기가 0 에서 20 사이여야 합니다.")
     private String prodCode; // 피아르 상품코드
 
     @Size(max = 20)
@@ -113,36 +119,39 @@ public class ErpOrderItemDto {
     @Size(max = 20)
     private String releaseOptionCode;   // 출고 옵션코드
 
+    @JsonDeserialize(using = CustomDateUtils.JsonLocalDateTimeBasicDeserializer.class)
+    private LocalDateTime channelOrderDate;
+
     @Size(max = 200)
     private String managementMemo1; // 관리메모1
-    
+
     @Size(max = 200)
     private String managementMemo2; // 관리메모2
-    
+
     @Size(max = 200)
     private String managementMemo3; // 관리메모3
-    
+
     @Size(max = 200)
     private String managementMemo4; // 관리메모4
-    
+
     @Size(max = 200)
     private String managementMemo5; // 관리메모5
-    
+
     @Size(max = 200)
     private String managementMemo6; // 관리메모6
-    
+
     @Size(max = 200)
     private String managementMemo7; // 관리메모7
-    
+
     @Size(max = 200)
     private String managementMemo8; // 관리메모8
-    
+
     @Size(max = 200)
     private String managementMemo9; // 관리메모9
-    
+
     @Size(max = 200)
     private String managementMemo10; // 관리메모10
-    
+
     @Size(max = 200)
     private String freightCode; // 운송코드
 

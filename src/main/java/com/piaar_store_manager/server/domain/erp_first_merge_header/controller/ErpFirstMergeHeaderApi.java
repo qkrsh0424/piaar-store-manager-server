@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_first_merge_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class ErpFirstMergeHeaderApi {
      * @see ErpFirstMergeHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpFirstMergeHeaderDto headerDto) {
         Message message = new Message();
 
@@ -69,6 +71,7 @@ public class ErpFirstMergeHeaderApi {
      * @see ErpFirstMergeHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpFirstMergeHeaderDto headerDto) {
         Message message = new Message();
 
@@ -89,6 +92,7 @@ public class ErpFirstMergeHeaderApi {
      * @see ErpFirstMergeHeaderBusinessService#deleteOne
      */
     @DeleteMapping("/{id}")
+    @PermissionRole
     public ResponseEntity<?> deleteOne(@PathVariable(value = "id") UUID id) {
         Message message = new Message();
 

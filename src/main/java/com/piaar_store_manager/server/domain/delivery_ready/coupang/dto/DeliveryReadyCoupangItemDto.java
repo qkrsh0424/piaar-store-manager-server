@@ -1,14 +1,18 @@
 package com.piaar_store_manager.server.domain.delivery_ready.coupang.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.delivery_ready.coupang.entity.DeliveryReadyCoupangItemEntity;
+import com.piaar_store_manager.server.domain.delivery_ready.coupang.proj.DeliveryReadyCoupangItemViewProj;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Data
@@ -30,14 +34,14 @@ public class DeliveryReadyCoupangItemDto {
     private String optionManagementCode;        // 업체상품코드(16)
     private String coupangOptionId;        // 옵션ID(14)
     private Integer unit;        // 수량(22)
-    private Date shipmentDueDate;        // 주문시 출고예정일(7)
+    private LocalDateTime shipmentDueDate;        // 주문시 출고예정일(7)
     private String shipmentCostBundleNumber;        // 묶음배송번호(1)
     private String receiverContact1;        // 수취인전화번호(27)
     private String destination;        // 수취인 주소(29)
     private String buyerContact;        // 구매자전화번호(25)
     private String zipCode;        // 우편번호(28)
     private String deliveryMessage;        // 배송메세지(30)
-    private Date orderDateTime;        // 주문일(9)
+    private LocalDateTime orderDateTime;        // 주문일(9)
     private String releaseOptionCode;
 
     // 커스텀 메모
@@ -53,8 +57,8 @@ public class DeliveryReadyCoupangItemDto {
     private String piaarMemo10;
 
     private Boolean released;   // 출고여부
-    private Date releasedAt;
-    private Date createdAt;
+    private LocalDateTime releasedAt;
+    private LocalDateTime createdAt;
     private Boolean releaseCompleted;       // 재고반영 여부
     private Integer deliveryReadyFileCid;
 
@@ -108,5 +112,43 @@ public class DeliveryReadyCoupangItemDto {
             .build();
 
         return itemDto;
+    }
+
+    /**
+     * delivery ready coupang item, 엑셀 다운로드 및 view 결과로 필요한 데이터를 포함하는 객체
+     */
+    @Getter @Setter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ViewReqAndRes {
+        private DeliveryReadyCoupangItemDto deliveryReadyItem;
+        private String prodManufacturingCode;
+        private String prodManagementName;
+        private String optionDefaultName;
+        private String optionManagementName;
+        private Integer optionStockUnit;
+        private String optionMemo;
+        private String sender;
+        private String senderContact1;
+        private String optionNosUniqueCode;
+        private String releaseMemo;
+        private String receiveMemo;
+
+        public static ViewReqAndRes toDto(DeliveryReadyCoupangItemViewProj itemViewProj) {
+            ViewReqAndRes dto = ViewReqAndRes.builder()
+                .deliveryReadyItem(DeliveryReadyCoupangItemDto.toDto(itemViewProj.getDeliveryReadyItem()))
+                .prodManufacturingCode(itemViewProj.getProdManufacturingCode())
+                .prodManagementName(itemViewProj.getProdManagementName())
+                .optionDefaultName(itemViewProj.getOptionDefaultName())
+                .optionManagementName(itemViewProj.getOptionManagementName())
+                .optionStockUnit(itemViewProj.getOptionStockUnit())
+                .optionMemo(itemViewProj.getOptionMemo())
+                .optionNosUniqueCode(itemViewProj.getOptionNosUniqueCode())
+                .build();
+            return dto;
+        }
     }
 }

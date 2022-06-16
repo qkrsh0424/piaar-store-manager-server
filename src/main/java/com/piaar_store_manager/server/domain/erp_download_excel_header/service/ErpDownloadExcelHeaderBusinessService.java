@@ -1,21 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.service;
 
-import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
-import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.DetailDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDownloadExcelHeaderDto;
+import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ViewDetailDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.entity.ErpDownloadExcelHeaderEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
@@ -23,6 +10,15 @@ import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpDownloadItemVo
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +36,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void saveOne(ErpDownloadExcelHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID USER_ID = userService.getUserId();
         ErpDownloadExcelHeaderEntity headerEntity = ErpDownloadExcelHeaderEntity.toEntity(headerDto);
         headerEntity
@@ -65,9 +57,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public List<ErpDownloadExcelHeaderDto> searchAll() {
-        // access check
-        userService.userLoginCheck();
-
         List<ErpDownloadExcelHeaderEntity> entities = erpDownloadExcelHeaderService.searchAll();
         List<ErpDownloadExcelHeaderDto> dtos = entities.stream().map(r -> ErpDownloadExcelHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -84,10 +73,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void updateOne(ErpDownloadExcelHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpDownloadExcelHeaderEntity entity = erpDownloadExcelHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
@@ -105,10 +90,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @ErpDownloadExcelHeaderService#delete
      */
     public void deleteOne(UUID id) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         erpDownloadExcelHeaderService.deleteOne(id);
     }
 
@@ -117,17 +98,12 @@ public class ErpDownloadExcelHeaderBusinessService {
      * <p>
      * 등록된 다운로드 헤더를 참고하여
      * 전달된 데이터를 병합, 합배송 여부에 따라 데이터를 가공해 엑셀다운로드한다.
-     * 
-     * @param id : UUID
+     *
      * @param headerDto : ErpDownloadExcelHeaderDto
      * @param erpDownloadOrderItemDtos : List::ErpDownloadOrderItemDto::
      * @return List::ErpDownloadItemVo::
      */
     public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
         int HEADER_COLUMN_SIZE = headerDto.getHeaderDetail().getDetails().size();   //  다운로드 헤더에 등록된 항목 개수
         int ERP_DOWNLOAD_ITEM_SIZE = erpDownloadOrderItemDtos.size();   // 다운로드 받아야할 엑셀 데이터 개수
         
@@ -195,10 +171,6 @@ public class ErpDownloadExcelHeaderBusinessService {
     TEST 2
      */
     public List<List<String>> downloadByErpDownloadExcelHeader2(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         List<List<String>> matrix = new ArrayList<>();
         List<String> columns = new ArrayList<>();
 
@@ -216,12 +188,8 @@ public class ErpDownloadExcelHeaderBusinessService {
             List<ErpOrderItemDto> dtos = erpDownloadOrderItemDtos.get(i).getCollections();
             int ERP_ORDER_ITEM_DTOS_SIZE = dtos.size();
 
-            dtos.sort(Comparator.comparing(ErpOrderItemDto::getReceiver)
-                    .thenComparing(ErpOrderItemDto::getReceiverContact1)
-                    .thenComparing(ErpOrderItemDto::getDestination)
-                    .thenComparing(ErpOrderItemDto::getProdName)
+            dtos.sort(Comparator.comparing(ErpOrderItemDto::getProdName)
                     .thenComparing(ErpOrderItemDto::getReleaseOptionCode));
-
 
             List<String> columsValue = new ArrayList<>();
 
@@ -232,14 +200,11 @@ public class ErpDownloadExcelHeaderBusinessService {
 
                 if (detail.getFieldType().equals("운송코드")) {
                     appendValue = erpDownloadOrderItemDtos.get(i).getCombinedFreightCode();
-                    columsValue.add(appendValue);
-                    continue;
                 }
 
                 if (detail.getFieldType().equals("고정값")) {
                     if (detail.getMergeYn().equals("n")) {
                         appendValue = detail.getFixedValue();
-                        break;
                     }
 
                     if (detail.getMergeYn().equals("y")) {
@@ -260,7 +225,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                         for (int z = 0; z < viewDetails.size(); z++) {
                             String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
 
-                            Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                            Object obj = CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) : "";
                             if (obj.getClass().equals(LocalDateTime.class)) {
                                 appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
                             } else {
@@ -280,7 +245,7 @@ public class ErpDownloadExcelHeaderBusinessService {
                             for (int z = 0; z < viewDetails.size(); z++) {
                                 String matchedColumnName = viewDetails.get(z).getMatchedColumnName();
 
-                                Object obj = CustomFieldUtils.getFieldValue(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValue(originDto, matchedColumnName) : "";
+                                Object obj = CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) != null ? CustomFieldUtils.getFieldValueWithSuper(originDto, matchedColumnName) : "";
                                 if (obj.getClass().equals(LocalDateTime.class)) {
                                     appendValue += CustomDateUtils.getLocalDateTimeToDownloadFormat((LocalDateTime) obj);
                                 } else {
@@ -298,7 +263,6 @@ public class ErpDownloadExcelHeaderBusinessService {
                         }
                     }
                 }
-
                 columsValue.add(appendValue);
             }
             matrix.add(columsValue);
@@ -317,9 +281,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public ErpDownloadExcelHeaderDto searchErpDownloadExcelHeader(UUID secondMergeHeaderId) {
-        // access check
-        userService.userLoginCheck();
-
         ErpDownloadExcelHeaderEntity downloadHeaderEntity = erpDownloadExcelHeaderService.searchOne(secondMergeHeaderId);
         return ErpDownloadExcelHeaderDto.toDto(downloadHeaderEntity);
     }

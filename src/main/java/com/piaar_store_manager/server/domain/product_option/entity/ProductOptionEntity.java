@@ -12,7 +12,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -81,14 +81,14 @@ public class ProductOptionEntity {
     private String packageYn;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Type(type = "uuid-char")
     @Column(name = "created_by")
     private UUID createdBy;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Type(type = "uuid-char")
     @Column(name = "updated_by")

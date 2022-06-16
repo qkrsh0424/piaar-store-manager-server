@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.service;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -15,7 +14,8 @@ import com.piaar_store_manager.server.domain.delivery_ready.naver.proj.DeliveryR
 import com.piaar_store_manager.server.domain.delivery_ready.naver.repository.DeliveryReadyNaverItemRepository;
 import com.piaar_store_manager.server.domain.delivery_ready_file.entity.DeliveryReadyFileEntity;
 import com.piaar_store_manager.server.domain.delivery_ready_file.repository.DeliveryReadyFileRepository;
-import com.piaar_store_manager.server.utils.DateHandler;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
 
@@ -36,7 +36,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyFileEntity
      * @see DeliveryReadyFileRepository#save
      */
-    public DeliveryReadyFileEntity saveAndGetForFile(DeliveryReadyFileEntity fileEntity) {
+    public DeliveryReadyFileEntity saveAndGetOfFile(DeliveryReadyFileEntity fileEntity) {
         return deliveryReadyFileRepository.save(fileEntity);
     }
 
@@ -49,7 +49,7 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyNaverItemEntity
      * @see DeliveryReadyNaverItemRepository#save
      */
-    public DeliveryReadyNaverItemEntity saveAndModifyForItem(DeliveryReadyNaverItemEntity entity) {
+    public DeliveryReadyNaverItemEntity saveAndModifyOfItem(DeliveryReadyNaverItemEntity entity) {
         return deliveryReadyNaverItemRepository.save(entity);
     }
 
@@ -62,7 +62,7 @@ public class DeliveryReadyNaverService {
      * @return List::DeliveryReadyNaverItemEntity::
      * @see DeliveryReadyNaverItemRepository#saveAll
      */
-    public List<DeliveryReadyNaverItemEntity> saveAndModifyForItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
+    public List<DeliveryReadyNaverItemEntity> saveAndModifyOfItemList(List<DeliveryReadyNaverItemEntity> itemEntities) {
         return deliveryReadyNaverItemRepository.saveAll(itemEntities);
     }
 
@@ -74,7 +74,7 @@ public class DeliveryReadyNaverService {
      * @return Set::String
      * @see DeliveryReadyNaverItemRepository#findAllProdOrderNumber
      */
-    public Set<String> findAllProdOrderNubmer() {
+    public Set<String> findAllProdOrderNumber() {
         return deliveryReadyNaverItemRepository.findAllProdOrderNumber();
     }
 
@@ -84,10 +84,10 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyItem 중 미출고 데이터를 조회한다.
      *
      * @return List::DeliveryReadyNaverItemViewProj::
-     * @see DeliveryReadyNaverItemRepository#findSelectedUnreleased
+     * @see DeliveryReadyNaverItemRepository#findUnreleasedItemList
      */
-    public List<DeliveryReadyNaverItemViewProj> findSelectedUnreleased() {
-        return deliveryReadyNaverItemRepository.findSelectedUnreleased();
+    public List<DeliveryReadyNaverItemViewProj> findUnreleasedItemList() {
+        return deliveryReadyNaverItemRepository.findUnreleasedItemList();
     }
 
     /**
@@ -98,10 +98,10 @@ public class DeliveryReadyNaverService {
      * @param startDate : Date
      * @param endDate : Date
      * @return List::DeliveryReadyNaverItemViewProj::
-     * @see DeliveryReadyNaverItemRepository#findSelectedReleased
+     * @see DeliveryReadyNaverItemRepository#findReleasedItemList
      */
-    public List<DeliveryReadyNaverItemViewProj> findSelectedReleased(LocalDateTime startDate, LocalDateTime endDate) {
-        return deliveryReadyNaverItemRepository.findSelectedReleased(startDate, endDate);
+    public List<DeliveryReadyNaverItemViewProj> findReleasedItemList(LocalDateTime startDate, LocalDateTime endDate) {
+        return deliveryReadyNaverItemRepository.findReleasedItemList(startDate, endDate);
     }
  
     /**
@@ -113,7 +113,7 @@ public class DeliveryReadyNaverService {
      * @see DeliveryReadyNaverItemRepository#findById
      * @see DeliveryReadyNaverItemRepository#delete
      */
-    public void deleteOneDeliveryReadyViewData(Integer itemCid) {
+    public void deleteOneOfItem(Integer itemCid) {
         deliveryReadyNaverItemRepository.findById(itemCid).ifPresent(item -> {
             deliveryReadyNaverItemRepository.delete(item);
         });
@@ -127,7 +127,7 @@ public class DeliveryReadyNaverService {
      * @param idList : List::UUID::
      * @see DeliveryReadyNaverItemRepository#deleteBatchById
      */
-    public void deleteListDeliveryReadyViewData(List<UUID> idList) {
+    public void deleteListOfItem(List<UUID> idList) {
         deliveryReadyNaverItemRepository.deleteBatchById(idList);
     }
 
@@ -139,13 +139,13 @@ public class DeliveryReadyNaverService {
      * @return DeliveryReadyNaverItemEntity
      * @see DeliveryReadyNaverItemRepository#findById
      */
-    public DeliveryReadyNaverItemEntity searchDeliveryReadyItem(Integer itemCid) {
+    public DeliveryReadyNaverItemEntity searchOneOfItem(Integer itemCid) {
         Optional<DeliveryReadyNaverItemEntity> itemEntityOpt = deliveryReadyNaverItemRepository.findById(itemCid);
 
         if (itemEntityOpt.isPresent()) {
             return itemEntityOpt.get();
         } else {
-            throw new NullPointerException();
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
     }
 
@@ -155,10 +155,10 @@ public class DeliveryReadyNaverService {
      * DeliveryReadyNaverItemEntity cid에 대응하는 데이터를 모두 조회한다.
      *
      * @return List::DeliveryReadyNaverItemEntity::
-     * @see DeliveryReadyNaverItemRepository#selectAllByCids
+     * @see DeliveryReadyNaverItemRepository#selectAllByIdList
      */
-    public List<DeliveryReadyNaverItemEntity> searchDeliveryReadyItemList(List<Integer> itemCids) {
-        return deliveryReadyNaverItemRepository.selectAllByCids(itemCids);
+    public List<DeliveryReadyNaverItemEntity> searchListById(List<UUID> idList) {
+        return deliveryReadyNaverItemRepository.selectAllByIdList(idList);
     }
 
     /**
@@ -191,13 +191,12 @@ public class DeliveryReadyNaverService {
      * <p>
      * 데이터 다운로드 시 출고 정보를 설정한다.
      *
-     * @param dtos : List::DeliveryReadyNaverItemViewDto::
-     * @see DeliveryReadyNaverItemEntity#toEntity
-     * @see DeliveryReadyNaverItemRepository#updateReleasedAtByCid
+     * @param itemCids : List::Integer::
+     * @see DeliveryReadyNaverItemRepository#updateReleasedInfoByCid
      */
     @Transactional
-    public void updateReleasedAtByCid(List<Integer> itemCids) {
-        deliveryReadyNaverItemRepository.updateReleasedAtByCid(itemCids, DateHandler.getCurrentDate2());
+    public void updateReleasedInfoByCid(List<Integer> itemCids) {
+        deliveryReadyNaverItemRepository.updateReleasedInfoByCid(itemCids, CustomDateUtils.getCurrentDateTime());
     }
 
 }

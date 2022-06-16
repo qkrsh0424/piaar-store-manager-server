@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.user.entity;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -12,8 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.piaar_store_manager.server.annotation.PermissionRole;
 
 import org.hibernate.annotations.Type;
 
@@ -51,10 +50,10 @@ public class UserEntity {
     private Integer allowedAccessCount;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     public List<String> getRoleList(){
         if(this.roles.length() > 0){

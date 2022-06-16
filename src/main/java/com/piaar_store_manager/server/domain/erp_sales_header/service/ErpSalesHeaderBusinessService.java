@@ -27,9 +27,6 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderEntity#toEntity
      */
     public void saveOne(ErpSalesHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         headerDto
@@ -52,9 +49,6 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderDto#toDto
      */
     public ErpSalesHeaderDto searchOne() {
-        // access check
-        userService.userLoginCheck();
-
         ErpSalesHeaderEntity headerEntity = erpSalesHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpSalesHeaderDto.toDto(headerEntity);
@@ -71,10 +65,6 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderEntity#toEntity
      */
     public void updateOne(ErpSalesHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpSalesHeaderDto dto = this.searchOne();
         
         if(dto == null) {

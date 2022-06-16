@@ -142,7 +142,7 @@ public class ProductReceiveBusinessService {
      * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
      *
-     * @param productReceiveGetDto : List::ProductReceiveGetDto::
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @see ProductReceiveService#saveAndModify
      */
     @Transactional
@@ -150,6 +150,7 @@ public class ProductReceiveBusinessService {
         UUID USER_ID = userService.getUserId();
         List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
+        // 패키지 옵션 분류
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
@@ -212,7 +213,6 @@ public class ProductReceiveBusinessService {
     public void changeOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
         entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-        productReceiveService.saveAndModify(entity);
     }
 
     @Transactional
@@ -220,6 +220,7 @@ public class ProductReceiveBusinessService {
         receiveDtos.stream().forEach(r -> this.changeOne(r));
     }
 
+    @Transactional
     public void patchOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
 
@@ -229,6 +230,5 @@ public class ProductReceiveBusinessService {
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());
         }
-        productReceiveService.saveAndModify(receiveEntity);
     }
 }

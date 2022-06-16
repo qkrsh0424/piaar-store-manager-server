@@ -1,12 +1,12 @@
 package com.piaar_store_manager.server.domain.erp_sales_header.controller;
 
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.service.ErpSalesHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -74,6 +74,7 @@ public class ErpSalesHeaderApi {
      * @see ErpSalesHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpSalesHeaderDto headerDto) {
         Message message = new Message();
 

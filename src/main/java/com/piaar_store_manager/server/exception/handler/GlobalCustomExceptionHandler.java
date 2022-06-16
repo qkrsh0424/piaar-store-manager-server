@@ -5,10 +5,13 @@ import com.piaar_store_manager.server.exception.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
+
+import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
 @Slf4j
@@ -78,13 +81,37 @@ public class GlobalCustomExceptionHandler {
      * http status 400
      */
     @ExceptionHandler({ CustomNotMatchedParamsException.class })
-    public ResponseEntity<?> NotMatchedParamsExceptionHandler(CustomNotMatchedParamsException e) {
+    public ResponseEntity<?> customNotMatchedParamsExceptionHandler(CustomNotMatchedParamsException e) {
         log.error("ERROR STACKTRACE => {}", e.getStackTrace());
 
         Message message = new Message();
         message.setStatus(HttpStatus.BAD_REQUEST);
         message.setMessage("not_match_params");
         message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @ExceptionHandler({ ConstraintViolationException.class })
+    public ResponseEntity<?> constraintViolationExceptionHandler(ConstraintViolationException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.BAD_REQUEST);
+        message.setMessage("data_valid_error");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @ExceptionHandler({ MethodArgumentNotValidException.class })
+    public ResponseEntity<?> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.BAD_REQUEST);
+        message.setMessage("data_valid_error");
+        message.setMemo(e.getFieldError().getField() + " : " + e.getFieldError().getDefaultMessage());
 
         return new ResponseEntity<>(message, message.getStatus());
     }

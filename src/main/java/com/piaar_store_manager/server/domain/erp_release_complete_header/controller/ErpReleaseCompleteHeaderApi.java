@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_release_complete_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.service.ErpReleaseCompleteHeaderBusinessService;
@@ -18,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/erp-release-complete-headers")
-@RequiredArgsConstructor
 @RequiredLogin
+@RequiredArgsConstructor
 public class ErpReleaseCompleteHeaderApi {
     private final ErpReleaseCompleteHeaderBusinessService erpReleaseCompleteHeaderBusinessService;
 
@@ -33,6 +34,7 @@ public class ErpReleaseCompleteHeaderApi {
      * @see ErpReleaseCompleteHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
         Message message = new Message();
 
@@ -72,6 +74,7 @@ public class ErpReleaseCompleteHeaderApi {
      * @see ErpReleaseCompleteHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
         Message message = new Message();
 

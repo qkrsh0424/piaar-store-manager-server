@@ -147,8 +147,8 @@ public class AccountBookApiController {
      * <p>
      * <b>PATCH : API URL => /api/v1/account-book/expenditure-type/{accountBookId}</b>
      *
-     * @param accountBookId
-     * @param expenditureTypeId
+     * @param accountBookId : UUID
+     * @param accountBookDto : AccountBookDto
      * @return ResponseEntity(message, HttpStatus)
      * @see Message
      * @see HttpStatus

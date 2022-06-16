@@ -14,8 +14,8 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGet
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
-import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.stereotype.Service;
 
@@ -63,7 +63,7 @@ public class ProductBusinessService {
      *
      * @param productCid : Integer
      * @see ProductService#searchOneM2OJ
-     * @see ProductOptionService#searchListByProduct
+     * @see ProductOptionService#searchListByProductCid
      */
     public ProductGetDto.FullJoin searchOneFJ(Integer productCid) {
         ProductProj productProj = productService.searchOneM2OJ(productCid);
@@ -151,22 +151,23 @@ public class ProductBusinessService {
         return productFJDtos;
     }
 
+    @Transactional
     public void createOne(ProductGetDto productGetDto) {
         UUID USER_ID = userService.getUserId();
 
-        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-                .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity entity = ProductEntity.toEntity(productGetDto);
-        productService.saveAndModify(entity);
     }
 
+    @Transactional
     public void createList(List<ProductGetDto> productGetDto) {
         UUID USER_ID = userService.getUserId();
 
         List<ProductEntity> productEntities = productGetDto.stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-                    .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                    .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
             return ProductEntity.toEntity(r);
         }).collect(Collectors.toList());
@@ -181,7 +182,7 @@ public class ProductBusinessService {
      * 해당 option에 포함된 option package를 함께 등록한다.
      *
      * @see ProductService#saveAndGet
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#saveListAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
@@ -189,15 +190,15 @@ public class ProductBusinessService {
         UUID USER_ID = userService.getUserId();
 
         // Save Product
-        reqDto.getProductDto().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-                .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+        reqDto.getProductDto().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProductDto()));
         ProductGetDto savedProductDto = ProductGetDto.toDto(savedEntity);
 
         List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-                    .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
+            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                    .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
 
             // 패키지 상품 여부
             if (reqDto.getPackageDtos().size() > 0) {
@@ -266,7 +267,7 @@ public class ProductBusinessService {
                 .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
                 .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
                 .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
-                .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID)
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setStockManagement(productDto.getStockManagement())
                 .setProductCategoryCid(productDto.getProductCategoryCid());
 
@@ -293,6 +294,7 @@ public class ProductBusinessService {
         });
     }
 
+    @Transactional
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -358,7 +360,6 @@ public class ProductBusinessService {
         if (productDto.getProductCategoryCid() != null) {
             productEntity.setProductCategoryCid(productDto.getProductCategoryCid());
         }
-        productEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
-        productService.saveAndModify(productEntity);
+        productEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
     }
 }

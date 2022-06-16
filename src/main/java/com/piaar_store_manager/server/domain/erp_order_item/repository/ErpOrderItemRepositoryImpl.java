@@ -236,6 +236,8 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
             return qErpOrderItemEntity.salesAt.between(startDate, endDate);
         } else if (periodType.equals("release")) {
             return qErpOrderItemEntity.releaseAt.between(startDate, endDate);
+        } else if (periodType.equals("channelOrderDate")) {
+            return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
         } else {
             throw new CustomInvalidDataException("상세조건이 올바르지 않습니다.");
         }

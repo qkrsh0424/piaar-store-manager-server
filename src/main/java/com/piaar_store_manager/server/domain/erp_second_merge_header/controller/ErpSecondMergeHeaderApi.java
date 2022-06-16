@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_second_merge_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +31,7 @@ public class ErpSecondMergeHeaderApi {
      * @see ErpSecondMergeHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpSecondMergeHeaderDto headerDto) {
         Message message = new Message();
 
@@ -70,6 +71,7 @@ public class ErpSecondMergeHeaderApi {
      * @see ErpSecondMergeHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpSecondMergeHeaderDto headerDto) {
         Message message = new Message();
 
@@ -90,6 +92,7 @@ public class ErpSecondMergeHeaderApi {
      * @see ErpSecondMergeHeaderBusinessService#deleteOne
      */
     @DeleteMapping("/{id}")
+    @PermissionRole
     public ResponseEntity<?> deleteOne(@PathVariable(value = "id") UUID id) {
         Message message = new Message();
 

@@ -5,6 +5,8 @@ import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSu
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
+import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
+import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -116,7 +119,7 @@ public class ProductOptionService {
      * optionCodes에 대응되는 option 데이터를 모두 조회한다.
      * 조회된 option의 release(출고)와 receive(입고) 데이터로 옵션의 재고수량을 구한다.
      *
-     * @param productCids : List::Integer::
+     * @param optionCodes : List::String::
      * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#selectListByCodes
      * @see ProductOptionService#searchStockUnit
@@ -247,5 +250,23 @@ public class ProductOptionService {
      */
     public List<ProductOptionProj> qfindAllM2OJ() {
         return productOptionRepository.qfindAllM2OJ();
+    }
+
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * startDate, endDate 날짜 사이의 판매랭킹 데이터를 모두 조회한다.
+     * (네이버, 쿠팡, 피아르 erp)
+     * 
+     * @param startDate : LocalDateTime
+     * @param endDate : LocalDateTime
+     * @return List::SalesAnalysisItemProj::
+     */
+    public List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime startDate, LocalDateTime endDate) {
+        return productOptionRepository.findSalesAnalysisItem(startDate, endDate);
+    }
+
+    public List<StockAnalysisProj> qfindStockAnalysis() {
+        return productOptionRepository.qfindStockAnalysis();
     }
 }

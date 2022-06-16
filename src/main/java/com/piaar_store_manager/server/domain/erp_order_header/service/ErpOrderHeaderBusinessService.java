@@ -28,10 +28,6 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderService#saveAndModify
      */
     public void saveOne(ErpOrderHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         headerDto
@@ -54,9 +50,6 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderDto#toDto
      */
     public ErpOrderHeaderDto searchOne() {
-        // access check
-        userService.userLoginCheck();
-
         ErpOrderHeaderEntity headerEntity = erpOrderHeaderService.findAll().stream().findFirst().orElse(null);
         return ErpOrderHeaderDto.toDto(headerEntity);
     }
@@ -72,10 +65,6 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderEntity#toEntity
      */
     public void updateOne(ErpOrderHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpOrderHeaderDto dto = this.searchOne();
 
         if (dto == null) {

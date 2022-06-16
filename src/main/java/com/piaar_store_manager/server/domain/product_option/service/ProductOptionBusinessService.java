@@ -22,8 +22,8 @@ import com.piaar_store_manager.server.domain.product_release.entity.ProductRelea
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
-import com.piaar_store_manager.server.utils.DateHandler;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -184,8 +184,8 @@ public class ProductOptionBusinessService {
     public void createOne(ProductOptionGetDto optionGetDto) {
         UUID USER_ID = userService.getUserId();
 
-        optionGetDto.setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+        optionGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         productOptionService.saveAndModify(ProductOptionEntity.toEntity(optionGetDto));
     }
@@ -196,8 +196,8 @@ public class ProductOptionBusinessService {
      * 단일 option 등록, 해당 option에 포함된 package을 함께 등록한다.
      * 이때 package의 size에 따라 packageYn을 세팅한다.
      *
-     * @see ProductService#saveAndGet
-     * @see ProductOptionService#createList
+     * @param reqDto : ProductOptionGetDto.CreateReq
+     * @see ProductOptionService#saveAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
@@ -205,8 +205,8 @@ public class ProductOptionBusinessService {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto optionGetDto = reqDto.getOptionDto()
-                .setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(DateHandler.getCurrentDate2()).setCreatedBy(USER_ID)
-            .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+                .setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         // 패키지 상품 여부
         if(reqDto.getPackageDtos().size() > 0) {
@@ -249,7 +249,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
                 .setUnitKrw(productOptionDto.getUnitKrw())
                 .setPackageYn(productOptionDto.getPackageYn())
-                .setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID)
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setProductCid(productOptionDto.getProductCid());
 
         productOptionService.saveAndModify(optionEntity);
@@ -264,7 +264,7 @@ public class ProductOptionBusinessService {
      * 1. 해당 option에 등록된 package 모두 제거
      * 2. 현재 수정되는 데이터로 package 세팅
      *
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#searchOne
      * @see OptionPackageService#deleteBatchByParentOptionId
      * @see OptionPackageService#saveListAndModify
      */
@@ -290,7 +290,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
                 .setUnitKrw(productOptionGetDto.getUnitKrw())
                 .setPackageYn(productOptionGetDto.getPackageYn())
-                .setUpdatedAt(DateHandler.getCurrentDate2())
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                 .setUpdatedBy(USER_ID)
                 .setProductCid(productOptionGetDto.getProductCid());
 
@@ -362,7 +362,7 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
-        productOptionEntity.setUpdatedAt(DateHandler.getCurrentDate2()).setUpdatedBy(USER_ID);
+        productOptionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         productOptionService.saveAndModify(productOptionEntity);
     }
 }

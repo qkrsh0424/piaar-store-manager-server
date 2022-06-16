@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.delivery_ready.naver.dto;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.delivery_ready.naver.entity.DeliveryReadyNaverItemEntity;
