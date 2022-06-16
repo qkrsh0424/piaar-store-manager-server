@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
@@ -47,7 +48,7 @@ public class ErpOrderItemDto {
     private String optionName; // 옵션정보 / 필수값
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer unit; // 수량 / 필수값
 
     @NotNull

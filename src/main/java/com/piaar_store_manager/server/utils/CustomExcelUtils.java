@@ -148,6 +148,10 @@ public class CustomExcelUtils {
     // }
 
     public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
+        if(cell == null) {
+            return defaultValue;
+        }
+        
         CellType cellType = cell.getCellType();
 
         switch (cellType) {

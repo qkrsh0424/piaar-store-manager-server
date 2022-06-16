@@ -363,7 +363,7 @@ public class ErpOrderItemVo {
                     throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
                 }
             }
-
+            
             // 수량, 금액, 배송비 항목값을 Integer로 변환한다
             Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0);
             Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0);
