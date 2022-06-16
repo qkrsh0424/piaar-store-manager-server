@@ -19,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 public class StockAnalysisBusinessService {
     private final ProductOptionService productOptionService;
 
+    /*
+    재고분석 데이터를 조회한다. 입고수량 - 출고수량을 계산해 총 재고수량을 세팅.
+     */
     public List<StockAnalysisDto> searchList() {
         List<StockAnalysisProj> projs = productOptionService.qfindStockAnalysis();
 

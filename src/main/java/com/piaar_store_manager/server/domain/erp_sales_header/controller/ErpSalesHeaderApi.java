@@ -35,7 +35,6 @@ public class ErpSalesHeaderApi {
      * @see ErpSalesHeaderBusinessService#saveOne
      */
     @PostMapping("")
-    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpSalesHeaderDto headerDto) {
         Message message = new Message();
 

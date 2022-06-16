@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Validated
 @RestController
 @RequestMapping("/ws/v1/erp-order-items")
+@RequiredLogin
 public class ErpOrderItemSocket {
     //    TODO : 소켓통신 보완해야됨.
     private final ErpOrderItemBusinessService erpOrderItemBusinessService;

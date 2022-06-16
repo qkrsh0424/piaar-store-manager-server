@@ -49,6 +49,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#uploadErpOrderExcel
      */
     @PostMapping("/excel/upload")
+    @PermissionRole
     public ResponseEntity<?> uploadErpOrderExcel(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 

@@ -51,7 +51,10 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
         return result.getResults();
     }
 
-    // TODO :: 리팩토링 필요
+    /*
+    재고 분석을 위한 데이터 추출.
+    (옵션, 상품, 카테고리, 출고 수량, 입고 수량, 최근 출고 일)
+     */
     @Override
     public List<StockAnalysisProj> qfindStockAnalysis() {
         JPQLQuery customQuery = query.from(qProductOptionEntity)
@@ -62,21 +65,20 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
                         ExpressionUtils.as(
                             JPAExpressions.select(qProductReleaseEntity.releaseUnit.sum())
                                 .from(qProductReleaseEntity)
-                                .where((qProductReleaseEntity.productOptionCid).eq(qProductOptionEntity.cid)),
-                            "releasedUnit"),
+                                .where((qProductReleaseEntity.productOptionCid).eq(qProductOptionEntity.cid))
+                            ,"releasedUnit"),
                         ExpressionUtils.as(
                             JPAExpressions.select(qProductReceiveEntity.receiveUnit.sum())
                                 .from(qProductReceiveEntity)
-                                .where((qProductReceiveEntity.productOptionCid).eq(qProductOptionEntity.cid)),
-                                "receivedUnit"),
+                                .where((qProductReceiveEntity.productOptionCid).eq(qProductOptionEntity.cid))
+                                ,"receivedUnit"),
                         ExpressionUtils.as(
                             JPAExpressions.select(qProductReleaseEntity.createdAt.max())
                                 .from(qProductReleaseEntity)
                                 .where((qProductReleaseEntity.productOptionCid).eq(qProductOptionEntity.cid))
-                                .orderBy(qProductReleaseEntity.createdAt.desc()),
-                                "lastReleasedAt")))
-                .leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-                .leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid));
+                                ,"lastReleasedAt")))
+                .leftJoin(qProductEntity).on((qProductEntity.cid).eq(qProductOptionEntity.productCid))
+                .leftJoin(qProductCategoryEntity).on((qProductCategoryEntity.cid).eq(qProductEntity.productCategoryCid));
 
         QueryResults<StockAnalysisProj> result = customQuery.fetchResults();
         return result.getResults();

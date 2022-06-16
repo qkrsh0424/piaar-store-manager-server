@@ -107,7 +107,7 @@ public class ExcelTranslatorHeaderBusinessService {
             List<ExcelDataDetailDto.UploadedDetailDto> uploadedDetailDtos = new ArrayList<>();
 
             for(int j = 0; j < row.getLastCellNum(); j++) {
-                Object cellObj = CustomExcelUtils.getCellValueObject2(row.getCell(j));
+                Object cellObj = CustomExcelUtils.getCellValueObject(row.getCell(j));
                 ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
                         .id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();
                 uploadedDetailDtos.add(detailDto);

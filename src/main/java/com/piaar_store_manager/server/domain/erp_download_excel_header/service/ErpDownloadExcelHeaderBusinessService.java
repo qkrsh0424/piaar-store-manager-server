@@ -36,10 +36,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void saveOne(ErpDownloadExcelHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID USER_ID = userService.getUserId();
         ErpDownloadExcelHeaderEntity headerEntity = ErpDownloadExcelHeaderEntity.toEntity(headerDto);
         headerEntity
@@ -61,9 +57,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public List<ErpDownloadExcelHeaderDto> searchAll() {
-        // access check
-        userService.userLoginCheck();
-
         List<ErpDownloadExcelHeaderEntity> entities = erpDownloadExcelHeaderService.searchAll();
         List<ErpDownloadExcelHeaderDto> dtos = entities.stream().map(r -> ErpDownloadExcelHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -80,10 +73,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderService#saveAndModify
      */
     public void updateOne(ErpDownloadExcelHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpDownloadExcelHeaderEntity entity = erpDownloadExcelHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
@@ -101,10 +90,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @ErpDownloadExcelHeaderService#delete
      */
     public void deleteOne(UUID id) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         erpDownloadExcelHeaderService.deleteOne(id);
     }
 
@@ -119,10 +104,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @return List::ErpDownloadItemVo::
      */
     public List<ErpDownloadItemVo> downloadByErpDownloadExcelHeader(ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
         int HEADER_COLUMN_SIZE = headerDto.getHeaderDetail().getDetails().size();   //  다운로드 헤더에 등록된 항목 개수
         int ERP_DOWNLOAD_ITEM_SIZE = erpDownloadOrderItemDtos.size();   // 다운로드 받아야할 엑셀 데이터 개수
         
@@ -190,10 +171,6 @@ public class ErpDownloadExcelHeaderBusinessService {
     TEST 2
      */
     public List<List<String>> downloadByErpDownloadExcelHeader2(UUID id, ErpDownloadExcelHeaderDto headerDto, List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         List<List<String>> matrix = new ArrayList<>();
         List<String> columns = new ArrayList<>();
 
@@ -304,9 +281,6 @@ public class ErpDownloadExcelHeaderBusinessService {
      * @see ErpDownloadExcelHeaderDto#toDto
      */
     public ErpDownloadExcelHeaderDto searchErpDownloadExcelHeader(UUID secondMergeHeaderId) {
-        // access check
-        userService.userLoginCheck();
-
         ErpDownloadExcelHeaderEntity downloadHeaderEntity = erpDownloadExcelHeaderService.searchOne(secondMergeHeaderId);
         return ErpDownloadExcelHeaderDto.toDto(downloadHeaderEntity);
     }

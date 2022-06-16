@@ -27,10 +27,6 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void saveOne(ErpReleaseCompleteHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         headerDto
@@ -53,9 +49,6 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderDto#toDto
      */
     public ErpReleaseCompleteHeaderDto searchOne() {
-        // access check
-        userService.userLoginCheck();
-
         ErpReleaseCompleteHeaderEntity headerEntity = erpReleaseCompleteHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpReleaseCompleteHeaderDto.toDto(headerEntity);
@@ -72,10 +65,6 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void updateOne(ErpReleaseCompleteHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
         ErpReleaseCompleteHeaderDto dto = this.searchOne();
         
         if(dto == null) {

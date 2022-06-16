@@ -28,10 +28,6 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderService#saveAndModify
      */
     public void saveOne(ErpSecondMergeHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         headerDto
@@ -53,9 +49,6 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderDto#toDto
      */
     public List<ErpSecondMergeHeaderDto> searchAll() {
-        // access check
-        userService.userLoginCheck();
-
         List<ErpSecondMergeHeaderEntity> entities = erpSecondMergeHeaderService.searchAll();
         List<ErpSecondMergeHeaderDto> dtos = entities.stream().map(r -> ErpSecondMergeHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -72,10 +65,6 @@ public class ErpSecondMergeHeaderBusinessService {
      * @see ErpSecondMergeHeaderService#saveAndModify
      */
     public void updateOne(ErpSecondMergeHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
         ErpSecondMergeHeaderEntity entity = erpSecondMergeHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());

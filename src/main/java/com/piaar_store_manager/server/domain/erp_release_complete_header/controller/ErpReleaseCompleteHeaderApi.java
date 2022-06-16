@@ -19,8 +19,8 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/erp-release-complete-headers")
-@RequiredArgsConstructor
 @RequiredLogin
+@RequiredArgsConstructor
 public class ErpReleaseCompleteHeaderApi {
     private final ErpReleaseCompleteHeaderBusinessService erpReleaseCompleteHeaderBusinessService;
 

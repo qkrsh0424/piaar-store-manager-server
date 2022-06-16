@@ -29,10 +29,6 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderService#saveAndModify
      */
     public void saveOne(ErpFirstMergeHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         ErpFirstMergeHeaderEntity headerEntity = ErpFirstMergeHeaderEntity.toEntity(headerDto);
@@ -55,9 +51,6 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderDto#toDto
      */
     public List<ErpFirstMergeHeaderDto> searchAll() {
-        // access check
-        userService.userLoginCheck();
-
         List<ErpFirstMergeHeaderEntity> entities = erpFirstMergeHeaderService.searchAll();
         List<ErpFirstMergeHeaderDto> dtos = entities.stream().map(r -> ErpFirstMergeHeaderDto.toDto(r)).collect(Collectors.toList());
         return dtos;
@@ -74,10 +67,6 @@ public class ErpFirstMergeHeaderBusinessService {
      * @see ErpFirstMergeHeaderService#saveAndModify
      */
     public void updateOne(ErpFirstMergeHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpFirstMergeHeaderEntity entity = erpFirstMergeHeaderService.searchOne(headerDto.getId());
 
         entity.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
@@ -87,10 +76,6 @@ public class ErpFirstMergeHeaderBusinessService {
     }
 
     public void deleteOne(UUID id) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         erpFirstMergeHeaderService.deleteOne(id);
     }
 }
