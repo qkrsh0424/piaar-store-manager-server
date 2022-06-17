@@ -20,11 +20,11 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ExpenditureTypeService {
-    ExpenditureTypeRepository expenditureTypeRepository;
-    AccountBookRepository accountBookRepository;
+    private final ExpenditureTypeRepository expenditureTypeRepository;
+    private final AccountBookRepository accountBookRepository;
 
     public List<ExpenditureTypeDto> searchList(){
-        // log.info("ExpenditureTypeService : searchList => touched"); 
+        // log.info("ExpenditureTypeService : searchList => touched");
         List<ExpenditureTypeEntity> entities = expenditureTypeRepository.findAll();
         List<ExpenditureTypeDto> dtos = entities.stream().map(entity -> ExpenditureTypeDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
@@ -49,7 +49,6 @@ public class ExpenditureTypeService {
                 .mapToLong(r->r.getMoney()).sum();
             expenditureTypeDto.setSumValue(sum);
         }
-
         return expenditureTypeDtos;
     }
 }
