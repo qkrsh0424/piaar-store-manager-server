@@ -176,6 +176,8 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                 case "optionManagementName":
                     customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("managementName")));
                     break;
+                case "optionReleaseLocation":
+                    customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("releaseLocation")));
                 case "optionDefaultName":
                     customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("defaultName")));
                     break;
@@ -274,6 +276,9 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                     break;
                 case "optionManagementName":
                     columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "managementName");
+                    break;
+                case "optionReleaseLocation":
+                    columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "releaseLocation");
                     break;
                 case "optionDefaultName":
                     columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "defaultName");

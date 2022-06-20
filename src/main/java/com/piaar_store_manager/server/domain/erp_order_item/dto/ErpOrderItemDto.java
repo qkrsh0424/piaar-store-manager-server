@@ -174,6 +174,7 @@ public class ErpOrderItemDto {
     private String prodManagementName;  // 피아르 상품관리명
     private String optionDefaultName;   // 피아르 옵션명
     private String optionManagementName;    // 피아르 옵션관리명
+    private String optionReleaseLocation;    // 피아르 옵션관리명
     private Integer optionStockUnit;    // 재고수량
 
     private Integer salesPrice; // 판매금액

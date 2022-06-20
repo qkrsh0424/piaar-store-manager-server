@@ -1,8 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_order_item.vo;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,7 +11,6 @@ import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
-import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import lombok.AllArgsConstructor;
@@ -92,6 +89,7 @@ public class ErpOrderItemVo {
     private String optionDefaultName;
     private String optionManagementName;
     private String optionStockUnit;
+    private String optionReleaseLocation;
 
     @Builder
     @Data
@@ -210,6 +208,7 @@ public class ErpOrderItemVo {
                 .prodManagementName(proj.getProduct() != null ? proj.getProduct().getManagementName() : "")
                 .optionDefaultName(proj.getProductOption() != null ? proj.getProductOption().getDefaultName() : "")
                 .optionManagementName(proj.getProductOption() != null ? proj.getProductOption().getManagementName() : "")
+                .optionReleaseLocation(proj.getProductOption() != null ? proj.getProductOption().getReleaseLocation() : "")
                 .build();
 
         return itemVo;

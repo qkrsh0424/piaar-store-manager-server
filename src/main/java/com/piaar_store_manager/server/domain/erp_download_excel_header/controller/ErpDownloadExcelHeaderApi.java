@@ -301,7 +301,8 @@ public class ErpDownloadExcelHeaderApi {
         cell = row.createCell(0);
         cell.setCellValue("수취인명");
         cell = row.createCell(1);
-        cell.setCellValue("!운송코드");
+        // cell.setCellValue("!운송코드");
+        cell.setCellValue("전화번호1");
         cell = row.createCell(2);
         cell.setCellValue("운송장번호");
         cell = row.createCell(3);
