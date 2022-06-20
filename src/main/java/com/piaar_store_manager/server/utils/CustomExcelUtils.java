@@ -76,7 +76,7 @@ public class CustomExcelUtils {
      * @return Object : cellValue
      */
     public static Object getCellValueObject(Cell cell) {
-        if(cell == null) {
+        if(cell == null || isBlankCell(cell)) {
             return "";
         }
 
@@ -148,7 +148,7 @@ public class CustomExcelUtils {
     // }
 
     public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
-        if(cell == null) {
+        if(cell == null || isBlankCell(cell)) {
             return defaultValue;
         }
         
@@ -163,7 +163,7 @@ public class CustomExcelUtils {
                 int result = (int) cell.getNumericCellValue();
                 return result;
             case STRING:
-                return cell.getStringCellValue();
+                    return cell.getStringCellValue();
             case FORMULA:
                 return cell.getCellFormula();
             case BOOLEAN:
@@ -186,7 +186,7 @@ public class CustomExcelUtils {
     }
 
     public static Cell setCellValueFromTypeAndCellData(Cell cell, String cellType, Object cellData) {
-        if(cellType.isBlank()) {
+        if(isBlankCell(cell)) {
             cell.setCellValue("");
             return cell;
         }
@@ -213,5 +213,14 @@ public class CustomExcelUtils {
                 throw new CustomInvalidDataException("올바른 데이터 타입이 아닙니다. 수정 후 재업로드 해주세요.");
         }
         return cell;
+    }
+
+    public static boolean isBlankCell(Cell cell) {
+        if(cell.getCellType().equals(CellType.BLANK)
+            || (cell.getCellType().equals(CellType.STRING) && cell.getStringCellValue().isBlank())){
+                return true;
+        }else {
+            return false;
+        }
     }
 }

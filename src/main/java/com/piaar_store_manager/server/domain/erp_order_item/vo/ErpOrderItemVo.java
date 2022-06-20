@@ -359,12 +359,12 @@ public class ErpOrderItemVo {
             // 피아르 양식 필수값 검사
             for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {
                 Integer requiredHeaderIdx = PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.get(j);
-                if(row.getCell(requiredHeaderIdx) == null || row.getCell(requiredHeaderIdx).getCellType().equals(CellType.BLANK)) {
-                    throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                if(row.getCell(requiredHeaderIdx) == null || CustomExcelUtils.isBlankCell(row.getCell(requiredHeaderIdx))) {
+                        throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
                 }
             }
             
-            // 수량, 금액, 배송비 항목값을 Integer로 변환한다
+            // 수량, 금액, 배송비 항목값을 Integer 타입으로 변환한다
             Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0);
             Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0);
             Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0);
