@@ -118,35 +118,6 @@ public class CustomExcelUtils {
         }
     }
 
-    // public static Object getCellValueObject(Cell cell) {
-    //     CellType cellType = cell.getCellType();
-
-    //     switch (cellType) {
-    //         case _NONE:
-    //             return "";
-    //         case NUMERIC:
-    //             if (DateUtil.isCellDateFormatted(cell)) {
-    //                 LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
-    //                 return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
-    //             }
-
-    //             int result = (int) cell.getNumericCellValue();
-    //             return result;
-    //         case STRING:
-    //             return cell.getStringCellValue();
-    //         case FORMULA:
-    //             return cell.getCellFormula();
-    //         case BLANK:
-    //             return "";
-    //         case BOOLEAN:
-    //             return cell.getBooleanCellValue();
-    //         case ERROR:
-    //             return cell.getErrorCellValue();
-    //         default:
-    //             return "";
-    //     }
-    // }
-
     public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
         if(cell == null || isBlankCell(cell)) {
             return defaultValue;
@@ -178,15 +149,20 @@ public class CustomExcelUtils {
     }
 
     public static Integer convertObjectValueToIntegerValue(Object objectValue) {
+        // 한글, 영문, 특수문자 포함되면 숫자로 변환 X
+        if(!CustomRegexUtils.isCheckNumberFormat(objectValue)) {
+            throw new CustomInvalidDataException("타입이 올바르지 않은 데이터가 존재합니다. 수정 후 재업로드 해주세요.");
+        }
+
         try {
             return NumberFormat.getInstance(Locale.getDefault()).parse(objectValue.toString()).intValue();
         } catch (ParseException e) {
-            throw new CustomInvalidDataException("수량, 판매금액, 배송비에 올바르지 않은 데이터가 존재합니다. 수정 후 재업로드 해주세요.");
+            throw new CustomInvalidDataException("타입이 올바르지 않은 데이터가 존재합니다. 수정 후 재업로드 해주세요.");
         }
     }
 
     public static Cell setCellValueFromTypeAndCellData(Cell cell, String cellType, Object cellData) {
-        if(isBlankCell(cell)) {
+        if(cell == null || isBlankCell(cell)) {
             cell.setCellValue("");
             return cell;
         }

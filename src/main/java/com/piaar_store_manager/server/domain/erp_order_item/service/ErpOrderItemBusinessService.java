@@ -13,6 +13,10 @@ import com.piaar_store_manager.server.domain.erp_second_merge_header.entity.ErpS
 import com.piaar_store_manager.server.domain.erp_second_merge_header.service.ErpSecondMergeHeaderService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorHeaderGetDto;
+import com.piaar_store_manager.server.domain.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
+import com.piaar_store_manager.server.domain.excel_translator_header.service.ExcelTranslatorHeaderService;
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -25,6 +29,7 @@ import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCod
 import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
@@ -54,6 +59,7 @@ public class ErpOrderItemBusinessService {
     private final OptionPackageService optionPackageService;
     private final SubOptionCodeService subOptionCodeService;
     private final UserService userService;
+    private final ExcelTranslatorHeaderService excelTranslatorHeaderervice;
 
     /**
      * <b>Upload Excel File</b>
@@ -88,6 +94,134 @@ public class ErpOrderItemBusinessService {
         // subOptionCode의 superOptionCode값을 추출해 ProductOptionCode항목에 대입.
         this.updateOptionCodeBySubOptionCode(vos);
         return vos;
+    }
+
+    // 엑셀변환 후 피아르에 업로드
+    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcelByOtherForm(UUID headerId, MultipartFile file) {
+        Workbook workbook;
+        try {
+            workbook = WorkbookFactory.create(file.getInputStream());
+        } catch (IOException e) {
+            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        }
+
+        Sheet sheet = workbook.getSheetAt(0);
+
+        // headerId에 대응하는 excelTranslator 데이터 조회
+        ExcelTranslatorHeaderEntity translatorEntity = excelTranslatorHeaderervice.searchOne(headerId);
+        ExcelTranslatorHeaderGetDto translatorGetDto = ExcelTranslatorHeaderGetDto.toDto(translatorEntity);
+
+        // header size 비교로 업로드 양식이 올바른지 검사
+        Row headerRow = sheet.getRow(translatorGetDto.getRowStartNumber() - 1);
+        if (translatorGetDto.getUploadHeaderDetail().getDetails().size() != headerRow.getLastCellNum()) {
+            throw new CustomExcelFileUploadException("업로드 엑셀 양식과 동일한 양식의 파일을 업로드해주세요.");
+        }
+
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
+        try {
+            vos = this.excelSheetToPiaarVos(translatorGetDto, sheet);
+        } catch (NullPointerException e) {
+            throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
+        } catch (IllegalStateException e) {
+            throw new CustomExcelFileUploadException("피아르 엑셀 양식과 데이터 타입이 다른 값이 존재합니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (IllegalArgumentException e) {
+            throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        }
+
+        // subOptionCode의 superOptionCode값을 추출해 ProductOptionCode항목에 대입.
+        this.updateOptionCodeBySubOptionCode(vos);
+        return vos;
+    }
+
+    public List<ErpOrderItemVo.ExcelVo> excelSheetToPiaarVos(ExcelTranslatorHeaderGetDto translatorGetDto, Sheet sheet) {
+        // 다운로드 엑셀 디테일에 따라 값 설정.
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
+        List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
+        Row row = null;
+        int rowNum = translatorGetDto.getRowStartNumber();
+
+        for(int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
+            row = sheet.getRow(rowNum++);
+
+            if(row == null) {
+                break;
+            }
+
+            List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = translatorGetDto.getDownloadHeaderDetail().getDetails();
+            for(int j = 0; j < details.size(); j++) {
+                if(PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.contains(j)) {
+                    if(row.getCell(details.get(j).getTargetCellNumber()) == null
+                    || CustomExcelUtils.isBlankCell(row.getCell(details.get(j).getTargetCellNumber()))) {
+                        throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                    }
+                }
+            }
+
+            Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(3).getTargetCellNumber()), details.get(3).getFixedValue().isBlank() ? 0 : details.get(3).getFixedValue());
+            Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(19).getTargetCellNumber()), details.get(19).getFixedValue().isBlank() ? 0 : details.get(19).getFixedValue());
+            Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(20).getTargetCellNumber()), details.get(20).getFixedValue().isBlank() ? 0 : details.get(20).getFixedValue());
+
+            if(!unitObj.getClass().equals(Integer.class)) {
+                unitObj = CustomExcelUtils.convertObjectValueToIntegerValue(unitObj);
+            }
+            if(!priceObj.getClass().equals(Integer.class)){
+                priceObj = CustomExcelUtils.convertObjectValueToIntegerValue(priceObj);
+            }
+            if(!deliveryChargeObj.getClass().equals(Integer.class)) {
+                deliveryChargeObj = CustomExcelUtils.convertObjectValueToIntegerValue(deliveryChargeObj);
+            }
+
+            ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                .uniqueCode(null)
+                .prodName(getTranslatorTargetCellValue(row, details.get(1)))
+                .optionName(getTranslatorTargetCellValue(row, details.get(2)))
+                .unit(unitObj)
+                .receiver(getTranslatorTargetCellValue(row, details.get(4)))
+                .receiverContact1(getTranslatorTargetCellValue(row, details.get(5)))
+                .receiverContact2(getTranslatorTargetCellValue(row, details.get(6)))
+                .destination(getTranslatorTargetCellValue(row, details.get(7)))
+                .destinationDetail(getTranslatorTargetCellValue(row, details.get(8)))
+                .salesChannel(getTranslatorTargetCellValue(row, details.get(9)))
+                .orderNumber1(getTranslatorTargetCellValue(row, details.get(10)))
+                .orderNumber2(getTranslatorTargetCellValue(row, details.get(11)))
+                .channelProdCode(getTranslatorTargetCellValue(row, details.get(12)))
+                .channelOptionCode(getTranslatorTargetCellValue(row, details.get(13)))
+                .zipCode(getTranslatorTargetCellValue(row, details.get(14)))
+                .courier(getTranslatorTargetCellValue(row, details.get(15)))
+                .transportType(getTranslatorTargetCellValue(row, details.get(16)))
+                .deliveryMessage(getTranslatorTargetCellValue(row, details.get(17)))
+                .waybillNumber(getTranslatorTargetCellValue(row, details.get(18)))
+                .price(priceObj)
+                .deliveryCharge(deliveryChargeObj)
+                .barcode(getTranslatorTargetCellValue(row, details.get(21)))
+                .prodCode(getTranslatorTargetCellValue(row, details.get(22)))
+                .optionCode(getTranslatorTargetCellValue(row, details.get(23)))
+                .releaseOptionCode(getTranslatorTargetCellValue(row, details.get(24)))
+                .channelOrderDate(getTranslatorTargetCellValue(row, details.get(25)))
+                .managementMemo1(getTranslatorTargetCellValue(row, details.get(26)))
+                .managementMemo2(getTranslatorTargetCellValue(row, details.get(27)))
+                .managementMemo3(getTranslatorTargetCellValue(row, details.get(28)))
+                .managementMemo4(getTranslatorTargetCellValue(row, details.get(29)))
+                .managementMemo5(getTranslatorTargetCellValue(row, details.get(20)))
+                .managementMemo6(getTranslatorTargetCellValue(row, details.get(31)))
+                .managementMemo7(getTranslatorTargetCellValue(row, details.get(32)))
+                .managementMemo8(getTranslatorTargetCellValue(row, details.get(33)))
+                .managementMemo9(getTranslatorTargetCellValue(row, details.get(34)))
+                .managementMemo10(getTranslatorTargetCellValue(row, details.get(35)))
+                .freightCode(null)
+                .build();
+
+            vos.add(excelVo);
+        }
+        return vos;
+    }
+
+    private Object getTranslatorTargetCellValue(Row row, ExcelTranslatorDownloadHeaderDetailDto.DetailDto detail) {
+        if(detail.getTargetCellNumber().equals(-1)) {
+            return detail.getFixedValue();
+        }else {
+            return CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(detail.getTargetCellNumber()), "");
+        }
     }
 
     /**

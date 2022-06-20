@@ -65,6 +65,23 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PostMapping("/excel/upload/{headerId}")
+    @PermissionRole
+    public ResponseEntity<?> uploadErpOrderExcel(@PathVariable(value = "headerId") UUID headerId, @RequestParam("file") MultipartFile file) {
+        Message message = new Message();
+
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
+
+        message.setData(erpOrderItemBusinessService.uploadErpOrderExcelByOtherForm(headerId, file));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Store excel data for order excel.
      * <p>
