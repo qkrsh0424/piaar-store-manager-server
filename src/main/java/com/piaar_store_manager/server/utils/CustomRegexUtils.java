@@ -5,8 +5,11 @@ import java.util.regex.Pattern;
 public class CustomRegexUtils {
     public static boolean isCheckNumberFormat(Object object) {
         boolean isNumberFormat = true;
-        
-        isNumberFormat = !Pattern.compile("[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z!@#$^&*()]").matcher(object.toString()).find();
+
+        String notAllowChar = "[ㄱ-ㅎㅏ-ㅣ가-힣a-zA-Z~!@#$^&*()]";
+        if(Pattern.compile(notAllowChar).matcher(object.toString()).find()){
+            isNumberFormat = false;
+        }
 
         return isNumberFormat;
     }

@@ -150,13 +150,18 @@ public class ErpOrderItemBusinessService {
             List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = translatorGetDto.getDownloadHeaderDetail().getDetails();
             for(int j = 0; j < details.size(); j++) {
                 if(PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.contains(j)) {
-                    if(row.getCell(details.get(j).getTargetCellNumber()) == null
-                    || CustomExcelUtils.isBlankCell(row.getCell(details.get(j).getTargetCellNumber()))) {
+                    // targetCellNumber가 -1이면서 고정값이 공백인 경우. targetCellNumber가 가리키는 cell값이 null이거나 빈값인 경우 예외처리.
+                    if(details.get(j).getTargetCellNumber().equals(-1)) {
+                        if(details.get(j).getFixedValue().isBlank()) {
+                            throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
+                        }
+                    } else if(row.getCell(details.get(j).getTargetCellNumber()) == null || CustomExcelUtils.isBlankCell(row.getCell(details.get(j).getTargetCellNumber()))) {
                         throw new CustomInvalidDataException("필수값 항목이 비어있습니다. 수정 후 재업로드 해주세요.");
                     }
                 }
             }
 
+            // 수량, 가격, 배송비의 타입을 체크해 Number format 으로 변환한다
             Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(3).getTargetCellNumber()), details.get(3).getFixedValue().isBlank() ? 0 : details.get(3).getFixedValue());
             Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(19).getTargetCellNumber()), details.get(19).getFixedValue().isBlank() ? 0 : details.get(19).getFixedValue());
             Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(20).getTargetCellNumber()), details.get(20).getFixedValue().isBlank() ? 0 : details.get(20).getFixedValue());
@@ -216,6 +221,9 @@ public class ErpOrderItemBusinessService {
         return vos;
     }
 
+    /*
+    detail을 참고해서 고정값 여부에 따라 값을 세팅한다
+     */
     private Object getTranslatorTargetCellValue(Row row, ExcelTranslatorDownloadHeaderDetailDto.DetailDto detail) {
         if(detail.getTargetCellNumber().equals(-1)) {
             return detail.getFixedValue();

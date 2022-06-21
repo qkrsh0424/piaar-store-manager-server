@@ -148,6 +148,9 @@ public class CustomExcelUtils {
         }
     }
 
+    /*
+     Object type의 데이터를 Number format으로 변경한다
+     */
     public static Integer convertObjectValueToIntegerValue(Object objectValue) {
         // 한글, 영문, 특수문자 포함되면 숫자로 변환 X
         if(!CustomRegexUtils.isCheckNumberFormat(objectValue)) {
@@ -191,6 +194,10 @@ public class CustomExcelUtils {
         return cell;
     }
 
+    /*
+     CellType이 Blank이거나
+     String 타입이면서 값이 공백인 경우
+     */
     public static boolean isBlankCell(Cell cell) {
         if(cell.getCellType().equals(CellType.BLANK)
             || (cell.getCellType().equals(CellType.STRING) && cell.getStringCellValue().isBlank())){
