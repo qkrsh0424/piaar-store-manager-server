@@ -1,9 +1,12 @@
 package com.piaar_store_manager.server.domain.erp_order_header.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.erp_order_header.entity.ErpOrderHeaderEntity;
 import com.piaar_store_manager.server.domain.erp_order_header.repository.ErpOrderHeaderRepository;
+import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
 
@@ -36,5 +39,19 @@ public class ErpOrderHeaderService {
      */
     public List<ErpOrderHeaderEntity> findAll() {
         return erpOrderHeaderRepository.findAll();
+    }
+
+    public ErpOrderHeaderEntity searchOne(UUID id) {
+        Optional<ErpOrderHeaderEntity> entityOpt = erpOrderHeaderRepository.findById(id);
+
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
+    }
+
+    public void deleteOne(ErpOrderHeaderEntity entity) {
+        erpOrderHeaderRepository.delete(entity);
     }
 }

@@ -931,8 +931,7 @@ public class ErpOrderItemBusinessService {
             receiverContactList.forEach(receiverContact -> {
                 WaybillExcelFormDto dto = new WaybillExcelFormDto();
                 dto.setReceiver(r.getReceiver());
-                // dto.setFreightCode(freightCode);
-                dto.setReceiverContact1(r.getReceiverContact1());
+                dto.setReceiverContact1(receiverContact);
                 dto.setWaybillNumber(r.getWaybillNumber());
                 dto.setTransportType(r.getTransportType());
                 dto.setCourier(r.getCourier());
@@ -949,23 +948,20 @@ public class ErpOrderItemBusinessService {
         AtomicInteger updatedCount = new AtomicInteger();
 
         /*
-        분해작업이 완료된 운임코드+수취인명과 선택된 주문건들의 운임코드+수취인명을 비교해서 일치하는 데이터에 운송장 관련 데이터들을 업데이트한다.
-        업데이트 완료된건 카운팅
+         * 분해작업이 완료된 운임코드+수취인명과 선택된 주문건들의 운임코드+수취인명을 비교해서 일치하는 데이터에 운송장 관련 데이터들을 업데이트한다.
+         * 업데이트 완료된건 카운팅
          */
         erpOrderItemEntities.forEach(erpOrderItemEntity -> {
-            if(!erpOrderItemEntity.getWaybillNumber().isBlank()){
-                String matchingData = erpOrderItemEntity.getReceiver() + erpOrderItemEntity.getReceiverContact1();
-                dismantledWaybillExcelFormDtos.forEach(waybillExcelFormDto -> {
-                    String matchedData = waybillExcelFormDto.getReceiver() + waybillExcelFormDto.getReceiverContact1();
-    
-                    if (matchingData.equals(matchedData)) {
-                        erpOrderItemEntity.setWaybillNumber(waybillExcelFormDto.getWaybillNumber());
-                        erpOrderItemEntity.setTransportType(waybillExcelFormDto.getTransportType());
-                        erpOrderItemEntity.setCourier(waybillExcelFormDto.getCourier());
-                        updatedCount.getAndIncrement();
-                    }
-                });
-            }
+            String matchingData = erpOrderItemEntity.getReceiver() + erpOrderItemEntity.getReceiverContact1();
+            dismantledWaybillExcelFormDtos.forEach(waybillExcelFormDto -> {
+                String matchedData = waybillExcelFormDto.getReceiver() + waybillExcelFormDto.getReceiverContact1();
+                if (matchingData.equals(matchedData)) {
+                    erpOrderItemEntity.setWaybillNumber(waybillExcelFormDto.getWaybillNumber());
+                    erpOrderItemEntity.setTransportType(waybillExcelFormDto.getTransportType());
+                    erpOrderItemEntity.setCourier(waybillExcelFormDto.getCourier());
+                    updatedCount.getAndIncrement();
+                }
+            });
         });
 
         return updatedCount.get();

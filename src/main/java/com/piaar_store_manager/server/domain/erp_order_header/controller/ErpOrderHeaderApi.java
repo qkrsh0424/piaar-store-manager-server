@@ -7,10 +7,15 @@ import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeader
 import com.piaar_store_manager.server.domain.erp_order_header.service.ErpOrderHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,13 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/erp-order-headers")
 @RequiredLogin
+@RequiredArgsConstructor
 public class ErpOrderHeaderApi {
-    private ErpOrderHeaderBusinessService erpOrderHeaderBusinessService;
-
-    @Autowired
-    public ErpOrderHeaderApi(ErpOrderHeaderBusinessService erpOrderHeaderBusinessService) {
-        this.erpOrderHeaderBusinessService = erpOrderHeaderBusinessService;
-    }
+    private final ErpOrderHeaderBusinessService erpOrderHeaderBusinessService;
 
     /**
      * Create one api for erp order header.
@@ -57,11 +58,33 @@ public class ErpOrderHeaderApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderHeaderBusinessService#searchOne
      */
-    @GetMapping("")
-    public ResponseEntity<?> searchOne() {
+    // @GetMapping("")
+    // public ResponseEntity<?> searchOne() {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderHeaderBusinessService.searchOne());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    @GetMapping("/{headerId}")
+    public ResponseEntity<?> searchOne(@PathVariable UUID headerId) {
         Message message = new Message();
 
-        message.setData(erpOrderHeaderBusinessService.searchOne());
+        message.setData(erpOrderHeaderBusinessService.searchOne(headerId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @GetMapping("/title")
+    public ResponseEntity<?> searchTitleList() {
+        Message message = new Message();
+
+        message.setData(erpOrderHeaderBusinessService.searchTitleList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -83,6 +106,18 @@ public class ErpOrderHeaderApi {
         Message message = new Message();
 
         erpOrderHeaderBusinessService.updateOne(headerDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @DeleteMapping("/{headerId}")
+    @PermissionRole
+    public ResponseEntity<?> deleteOne(@PathVariable UUID headerId) {
+        Message message = new Message();
+
+        erpOrderHeaderBusinessService.deleteOne(headerId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

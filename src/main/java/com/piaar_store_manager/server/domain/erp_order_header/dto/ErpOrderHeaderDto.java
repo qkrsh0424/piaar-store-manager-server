@@ -23,6 +23,9 @@ public class ErpOrderHeaderDto {
     private Integer cid;
     @Setter
     private UUID id;
+
+    @Setter
+    private String headerTitle;
     
     private ErpOrderHeaderDetailDto headerDetail;
 
@@ -41,6 +44,7 @@ public class ErpOrderHeaderDto {
         ErpOrderHeaderDto dto = ErpOrderHeaderDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
+            .headerTitle(entity.getHeaderTitle())
             .headerDetail(entity.getHeaderDetail())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())

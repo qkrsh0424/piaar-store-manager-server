@@ -165,10 +165,6 @@ public class CustomExcelUtils {
     }
 
     public static Cell setCellValueFromTypeAndCellData(Cell cell, String cellType, Object cellData) {
-        if(cell == null || isBlankCell(cell)) {
-            cell.setCellValue("");
-            return cell;
-        }
 
         switch(cellType) {
             case "String":
