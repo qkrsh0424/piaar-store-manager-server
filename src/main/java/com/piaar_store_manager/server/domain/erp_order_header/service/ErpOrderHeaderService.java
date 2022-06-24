@@ -29,7 +29,7 @@ public class ErpOrderHeaderService {
         erpOrderHeaderRepository.save(entity);
     }
 
-     /**
+    /**
      * <b>DB Select Related Method</b>
      * <p>
      * erp order header을 조회한다.
@@ -41,6 +41,14 @@ public class ErpOrderHeaderService {
         return erpOrderHeaderRepository.findAll();
     }
 
+    /**
+     * <b>DB Select Related Method</b>
+     * <p>
+     * erp order header을 조회한다.
+     * 
+     * @param id : UUID
+     * @return ErpOrderHeaderEntity
+     */
     public ErpOrderHeaderEntity searchOne(UUID id) {
         Optional<ErpOrderHeaderEntity> entityOpt = erpOrderHeaderRepository.findById(id);
 
@@ -51,6 +59,13 @@ public class ErpOrderHeaderService {
         }
     }
 
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * erp order header을 제거한다.
+     * 
+     * @param entity : ErpOrderHeaderEntity
+     */
     public void deleteOne(ErpOrderHeaderEntity entity) {
         erpOrderHeaderRepository.delete(entity);
     }

@@ -162,9 +162,9 @@ public class ErpOrderItemBusinessService {
             }
 
             // 수량, 가격, 배송비의 타입을 체크해 Number format 으로 변환한다
-            Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(3).getTargetCellNumber()), details.get(3).getFixedValue().isBlank() ? 0 : details.get(3).getFixedValue());
-            Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(19).getTargetCellNumber()), details.get(19).getFixedValue().isBlank() ? 0 : details.get(19).getFixedValue());
-            Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(details.get(20).getTargetCellNumber()), details.get(20).getFixedValue().isBlank() ? 0 : details.get(20).getFixedValue());
+            Object unitObj = getTranslatorTargetCellValue(row, details.get(3)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(3));
+            Object priceObj = getTranslatorTargetCellValue(row, details.get(19)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(19));
+            Object deliveryChargeObj = getTranslatorTargetCellValue(row, details.get(20)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(20));
 
             if(!unitObj.getClass().equals(Integer.class)) {
                 unitObj = CustomExcelUtils.convertObjectValueToIntegerValue(unitObj);

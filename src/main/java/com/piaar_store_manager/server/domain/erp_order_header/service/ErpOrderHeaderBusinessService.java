@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.erp_order_header.dto.ErpOrderHeaderDto;
 import com.piaar_store_manager.server.domain.erp_order_header.entity.ErpOrderHeaderEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -37,41 +36,23 @@ public class ErpOrderHeaderBusinessService {
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
                 .setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime());
-        ErpOrderHeaderEntity headerEntity = ErpOrderHeaderEntity.toEntity(headerDto);
 
+        ErpOrderHeaderEntity headerEntity = ErpOrderHeaderEntity.toEntity(headerDto);
         erpOrderHeaderService.saveAndModify(headerEntity);
     }
 
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 저장된 erp order header를 조회한다.
+     * 저장된 erp order header를 모두 조회한다.
      *
      * @return ErpOrderHeaderDto
      * @see ErpOrderHeaderService#findAll
      * @see ErpOrderHeaderDto#toDto
      */
-    // public ErpOrderHeaderDto searchOne() {
-    //     ErpOrderHeaderEntity headerEntity = erpOrderHeaderService.findAll().stream().findFirst().orElse(null);
-    //     return ErpOrderHeaderDto.toDto(headerEntity);
-    // }
-    public ErpOrderHeaderDto searchOne(UUID headerId) {
-        ErpOrderHeaderEntity entity = erpOrderHeaderService.searchOne(headerId);
-        ErpOrderHeaderDto dto = ErpOrderHeaderDto.toDto(entity);
-        return dto;
-    }
-    
-    public List<ErpOrderHeaderDto> searchTitleList() {
+    public List<ErpOrderHeaderDto> searchList() {
         List<ErpOrderHeaderEntity> entities = erpOrderHeaderService.findAll();
-        List<ErpOrderHeaderDto> dtos = entities.stream().map(r -> {
-            ErpOrderHeaderDto dto = ErpOrderHeaderDto.builder()
-                .id(r.getId())
-                .headerTitle(r.getHeaderTitle())
-                .build();
-
-            return dto;
-        }).collect(Collectors.toList());
-        
+        List<ErpOrderHeaderDto> dtos = entities.stream().map(entity -> ErpOrderHeaderDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
 
@@ -86,28 +67,25 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderEntity#toEntity
      */
     public void updateOne(ErpOrderHeaderDto headerDto) {
-        ErpOrderHeaderDto dto = this.searchOne(headerDto.getId());
-
-        if (dto == null) {
-            throw new CustomNotFoundDataException("수정하려는 데이터를 찾을 수 없습니다.");
-        }
+        ErpOrderHeaderEntity entity = erpOrderHeaderService.searchOne(headerDto.getId());
+        ErpOrderHeaderDto dto = ErpOrderHeaderDto.toDto(entity);
 
         dto.setHeaderTitle(headerDto.getHeaderTitle());
         dto.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
         dto.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
-        System.out.println(dto);
         erpOrderHeaderService.saveAndModify(ErpOrderHeaderEntity.toEntity(dto));
     }
 
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * erp order header을 제거한다.
+     * 
+     * @param entity
+     */
     public void deleteOne(UUID headerId) {
-        ErpOrderHeaderDto dto = this.searchOne(headerId);
-
-        if (dto == null) {
-            throw new CustomNotFoundDataException("제거하려는 데이터를 찾을 수 없습니다.");
-        }
-
-        ErpOrderHeaderEntity entity = ErpOrderHeaderEntity.toEntity(dto);
+        ErpOrderHeaderEntity entity = erpOrderHeaderService.searchOne(headerId);
         erpOrderHeaderService.deleteOne(entity);
     }
 }

@@ -51,13 +51,13 @@ public class ErpReleaseCompleteHeaderApi {
      * <b>GET : API URL => /api/v1/erp-release-complete-headers</b>
      *
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpReleaseCompleteHeaderBusinessService#searchOne
+     * @see ErpReleaseCompleteHeaderBusinessService#searchList
      */
     @GetMapping("")
-    public ResponseEntity<?> searchOne() {
+    public ResponseEntity<?> searchList() {
         Message message = new Message();
 
-        message.setData(erpReleaseCompleteHeaderBusinessService.searchOne());
+        message.setData(erpReleaseCompleteHeaderBusinessService.searchList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

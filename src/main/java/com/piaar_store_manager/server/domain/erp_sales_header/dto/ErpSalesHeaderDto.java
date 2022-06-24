@@ -23,6 +23,10 @@ public class ErpSalesHeaderDto {
     private Integer cid;
     @Setter
     private UUID id;
+
+    @Setter
+    private String headerTitle;
+
     private ErpSalesHeaderDetailDto headerDetail;
 
     @Setter
@@ -40,6 +44,7 @@ public class ErpSalesHeaderDto {
         ErpSalesHeaderDto dto = ErpSalesHeaderDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
+            .headerTitle(entity.getHeaderTitle())
             .headerDetail(entity.getHeaderDetail())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())

@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_sales_header.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.entity.ErpSalesHeaderEntity;
@@ -27,10 +29,9 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpSalesHeaderEntity#toEntity
      */
     public void saveOne(ErpSalesHeaderDto headerDto) {
-        UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         headerDto
-                .setId(ID)
+                .setId(headerDto.getId())
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
                 .setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime());
@@ -42,16 +43,16 @@ public class ErpSalesHeaderBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 저장된 erp sales header를 조회한다.
+     * 저장된 erp sales header를 모두 조회한다.
      *
-     * @return ErpSalesHeaderDto
-     * @see ErpSalesHeaderService#findAll
-     * @see ErpSalesHeaderDto#toDto
+     * @return ErpOrderHeaderDto
+     * @see ErpOrderHeaderService#findAll
+     * @see ErpOrderHeaderDto#toDto
      */
-    public ErpSalesHeaderDto searchOne() {
-        ErpSalesHeaderEntity headerEntity = erpSalesHeaderService.findAll().stream().findFirst().orElse(null);
-        
-        return ErpSalesHeaderDto.toDto(headerEntity);
+    public List<ErpSalesHeaderDto> searchList() {
+        List<ErpSalesHeaderEntity> entities = erpSalesHeaderService.findAll();
+        List<ErpSalesHeaderDto> dtos = entities.stream().map(entity -> ErpSalesHeaderDto.toDto(entity)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -62,18 +63,21 @@ public class ErpSalesHeaderBusinessService {
      * @param headerDto : ErpSalesHeaderDto
      * @see ErpSalesHeaderBusinessService#searchOne
      * @see CustomDateUtils#getCurrentDateTime
-     * @see ErpSalesHeaderEntity#toEntity
+     * @see ErpSalesHeaderDto#toDto
      */
     public void updateOne(ErpSalesHeaderDto headerDto) {
-        ErpSalesHeaderDto dto = this.searchOne();
-        
-        if(dto == null) {
-            throw new CustomNotFoundDataException("수정하려는 데이터를 찾을 수 없습니다.");
-        }
+        ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerDto.getId());
+        ErpSalesHeaderDto dto = ErpSalesHeaderDto.toDto(entity);
 
+        dto.setHeaderTitle(headerDto.getHeaderTitle());
         dto.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
         dto.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
         erpSalesHeaderService.saveAndModify(ErpSalesHeaderEntity.toEntity(dto));
+    }
+
+    public void deleteOne(UUID headerId) {
+        ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerId);
+        erpSalesHeaderService.deleteOne(entity);
     }
 }

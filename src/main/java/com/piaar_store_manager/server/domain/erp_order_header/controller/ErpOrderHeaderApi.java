@@ -51,40 +51,18 @@ public class ErpOrderHeaderApi {
     }
 
     /**
-     * Search one api for erp order header.
+     * Search api for erp order header.
      * <p>
      * <b>GET : API URL => /api/v1/erp-order-headers</b>
      *
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderHeaderBusinessService#searchOne
+     * @see ErpOrderHeaderBusinessService#searchList
      */
-    // @GetMapping("")
-    // public ResponseEntity<?> searchOne() {
-    //     Message message = new Message();
-
-    //     message.setData(erpOrderHeaderBusinessService.searchOne());
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
-    @GetMapping("/{headerId}")
-    public ResponseEntity<?> searchOne(@PathVariable UUID headerId) {
+    @GetMapping("")
+    public ResponseEntity<?> searchList() {
         Message message = new Message();
 
-        message.setData(erpOrderHeaderBusinessService.searchOne(headerId));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/title")
-    public ResponseEntity<?> searchTitleList() {
-        Message message = new Message();
-
-        message.setData(erpOrderHeaderBusinessService.searchTitleList());
+        message.setData(erpOrderHeaderBusinessService.searchList());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -112,6 +90,14 @@ public class ErpOrderHeaderApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Delete one api for erp order header.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/erp-order-headers</b>
+     * 
+     * @param headerId : UUID
+     * @see ErpOrderHeaderBusinessService#deleteOne
+     */
     @DeleteMapping("/{headerId}")
     @PermissionRole
     public ResponseEntity<?> deleteOne(@PathVariable UUID headerId) {
