@@ -59,6 +59,16 @@ public class ErpReleaseCompleteHeaderService {
         }
     }
 
+    public ErpReleaseCompleteHeaderEntity findOne(UUID id) {
+        Optional<ErpReleaseCompleteHeaderEntity> entityOpt = erpReleaseCompleteHeaderRepository.findById(id);
+
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * <b>DB Delete Related Method</b>
      * <p>

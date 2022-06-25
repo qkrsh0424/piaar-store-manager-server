@@ -59,6 +59,16 @@ public class ErpOrderHeaderService {
         }
     }
 
+    public ErpOrderHeaderEntity findOne(UUID id) {
+        Optional<ErpOrderHeaderEntity> entityOpt = erpOrderHeaderRepository.findById(id);
+        
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * <b>DB Delete Related Method</b>
      * <p>

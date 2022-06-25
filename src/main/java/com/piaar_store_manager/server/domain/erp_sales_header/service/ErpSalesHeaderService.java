@@ -59,6 +59,16 @@ public class ErpSalesHeaderService {
         }
     }
 
+    public ErpSalesHeaderEntity findOne(UUID id) {
+        Optional<ErpSalesHeaderEntity> entityOpt = erpSalesHeaderRepository.findById(id);
+
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * <b>DB Delete Related Method</b>
      * <p>
