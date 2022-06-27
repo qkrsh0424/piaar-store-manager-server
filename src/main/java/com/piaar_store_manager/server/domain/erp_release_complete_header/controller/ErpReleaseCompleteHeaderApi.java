@@ -6,9 +6,13 @@ import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.Erp
 import com.piaar_store_manager.server.domain.erp_release_complete_header.service.ErpReleaseCompleteHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
 
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,7 +69,7 @@ public class ErpReleaseCompleteHeaderApi {
     }
 
     /**
-     * Create one api for product.
+     * Update one api for release complete header.
      * <p>
      * <b>PUT : API URL => /api/v1/erp-release-complete-headers</b>
      * 
@@ -84,4 +88,24 @@ public class ErpReleaseCompleteHeaderApi {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    /**
+    * Delete one api for erp release complete header.
+    * <p>
+    * <b>DELETE : API URL => /api/v1/erp-sales-headers</b>
+    * 
+    * @param headerId : UUID
+    * @see ErpSalesHeaderBusinessService#deleteOne
+    */
+   @DeleteMapping("/{headerId}")
+   @PermissionRole
+   public ResponseEntity<?> deleteOne(@PathVariable UUID headerId) {
+       Message message = new Message();
+
+       erpReleaseCompleteHeaderBusinessService.deleteOne(headerId);
+       message.setStatus(HttpStatus.OK);
+       message.setMessage("success");
+
+       return new ResponseEntity<>(message, message.getStatus());
+   }
 }
