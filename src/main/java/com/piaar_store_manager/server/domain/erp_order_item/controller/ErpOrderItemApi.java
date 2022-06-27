@@ -306,50 +306,6 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    /**
-     * Change erp order item to combined delivery item by first merge header
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/erp-first-merge-headers/{firstMergeHeaderId}/action-merge</b>
-     *
-     * @param firstMergeHeaderId : UUID
-     * @param itemDtos           : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#getFirstMergeItem
-     */
-    @PostMapping("/erp-first-merge-headers/{firstMergeHeaderId}/action-merge")
-    @PermissionRole
-    public ResponseEntity<?> getFirstMergeItem(@PathVariable(value = "firstMergeHeaderId") UUID firstMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.getFirstMergeItem(firstMergeHeaderId, itemDtos));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Change erp order item to combined delivery item by second merge header
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/erp-second-merge-headers/{secondMergeHeaderId}/action-merge</b>
-     *
-     * @param secondMergeHeaderId : UUID
-     * @param itemDtos            : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#getSecondMergeItem
-     */
-    @PostMapping("/erp-second-merge-headers/{secondMergeHeaderId}/action-merge")
-    @PermissionRole
-    public ResponseEntity<?> getSecondMergeItem(@PathVariable(value = "secondMergeHeaderId") UUID secondMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.getSecondMergeItem(secondMergeHeaderId, itemDtos));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
     @PatchMapping(value = "/batch/waybill")
     @PermissionRole
     public ResponseEntity<?> changeBatchForWaybill(

@@ -1,16 +1,9 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
-import com.piaar_store_manager.server.domain.erp_first_merge_header.dto.ErpFirstMergeHeaderDto;
-import com.piaar_store_manager.server.domain.erp_first_merge_header.entity.ErpFirstMergeHeaderEntity;
-import com.piaar_store_manager.server.domain.erp_first_merge_header.service.ErpFirstMergeHeaderService;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
-import com.piaar_store_manager.server.domain.erp_second_merge_header.dto.DetailDto;
-import com.piaar_store_manager.server.domain.erp_second_merge_header.dto.ErpSecondMergeHeaderDto;
-import com.piaar_store_manager.server.domain.erp_second_merge_header.entity.ErpSecondMergeHeaderEntity;
-import com.piaar_store_manager.server.domain.erp_second_merge_header.service.ErpSecondMergeHeaderService;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
 import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTranslatorDownloadHeaderDetailDto;
@@ -53,8 +46,6 @@ import java.util.stream.Collectors;
 public class ErpOrderItemBusinessService {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
-    private final ErpFirstMergeHeaderService erpFirstMergeHeaderService;
-    private final ErpSecondMergeHeaderService erpSecondMergeHeaderService;
     private final ProductReleaseService productReleaseService;
     private final OptionPackageService optionPackageService;
     private final SubOptionCodeService subOptionCodeService;
@@ -620,209 +611,6 @@ public class ErpOrderItemBusinessService {
                 entity.setReleaseOptionCode(dto.getReleaseOptionCode());
             }
         }));
-    }
-
-    /**
-     * @param firstMergeHeaderId : UUID
-     * @param dtos               : List::ErpOrderItemDto::
-     * @return List::ErpOrderItemVo::
-     * @Deprecated <b>Data Processing Related Method</b>
-     * <p>
-     * 수령인 > 수령인 전화번호 > 주소 > 상품명 > 옵션명 순으로 정렬해서
-     * 동일 수령인정보 + 같은 상품과 옵션이라면 수량을 더한다
-     * 병합 데이터의 나열 여부와 고정값 여부를 체크해서 데이터를 변환한다
-     * @see ErpOrderItemBusinessService#searchErpFirstMergeHeader
-     * @see CustomFieldUtils#getFieldValue
-     * @see CustomFieldUtils#setFieldValue
-     */
-    public List<ErpOrderItemVo> getFirstMergeItem(UUID firstMergeHeaderId, List<ErpOrderItemDto> dtos) {
-        List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
-
-        // 선택된 병합 헤더데이터 조회
-        ErpFirstMergeHeaderDto headerDto = this.searchErpFirstMergeHeader(firstMergeHeaderId);
-
-        // 나열 컬럼명 추출
-        List<String> matchedColumnName = headerDto.getHeaderDetail().getDetails().stream().filter(r -> r.getMergeYn().equals("y")).collect(Collectors.toList())
-                .stream().map(r -> r.getMatchedColumnName()).collect(Collectors.toList());
-
-        // fixedValue가 존재하는 컬럼의 컬럼명과 fixedValue값 추출
-        Map<String, String> fixedValueMap = headerDto.getHeaderDetail().getDetails().stream().filter(r -> !r.getFixedValue().isBlank()).collect(Collectors.toList())
-                .stream().collect(Collectors.toMap(
-                        key -> key.getMatchedColumnName(),
-                        value -> value.getFixedValue()
-                ));
-
-        itemVos.sort(Comparator.comparing(ErpOrderItemVo::getReceiver)
-                .thenComparing(ErpOrderItemVo::getReceiverContact1)
-                .thenComparing(ErpOrderItemVo::getDestination)
-                .thenComparing(ErpOrderItemVo::getProdName)
-                .thenComparing(ErpOrderItemVo::getOptionName));
-
-
-        // 반환할 병합 데이터
-        List<ErpOrderItemVo> mergeItemVos = new ArrayList<>();
-
-        Set<String> deliverySet = new HashSet<>();
-        for (int i = 0; i < itemVos.size(); i++) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(itemVos.get(i).getReceiver());
-            sb.append(itemVos.get(i).getReceiverContact1());
-            sb.append(itemVos.get(i).getDestination());
-            sb.append(itemVos.get(i).getProdName());
-            sb.append(itemVos.get(i).getOptionName());
-
-            String resultStr = sb.toString();
-
-            mergeItemVos.add(itemVos.get(i));
-            int currentMergeItemIndex = mergeItemVos.size() - 1;
-
-            // 중복데이터(상품 + 옵션)
-            if (!deliverySet.add(resultStr)) {
-                ErpOrderItemVo currentVo = mergeItemVos.get(currentMergeItemIndex);
-                ErpOrderItemVo prevVo = mergeItemVos.get(currentMergeItemIndex - 1);
-
-                // 수량 더하기
-                int sumUnit = Integer.parseInt(prevVo.getUnit()) + Integer.parseInt(currentVo.getUnit());
-                CustomFieldUtils.setFieldValue(prevVo, "unit", String.valueOf(sumUnit));
-
-                // 구분자로 나열 데이터 처리 - 수량은 제외하고
-                matchedColumnName.forEach(columnName -> {
-                    if (!columnName.equals("unit")) {
-                        String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, columnName) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, columnName);
-                        String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, columnName) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, columnName);
-                        CustomFieldUtils.setFieldValue(prevVo, columnName, prevFieldValue + "|&&|" + currentFieldValue);
-                    }
-                });
-
-                // 중복데이터 제거
-                mergeItemVos.remove(currentMergeItemIndex);
-            }
-
-            // fixedValue가 지정된 column들은 fixedValue값으로 데이터를 덮어씌운다
-            fixedValueMap.entrySet().stream().forEach(map -> {
-                CustomFieldUtils.setFieldValue(mergeItemVos.get(mergeItemVos.size() - 1), map.getKey(), map.getValue());
-            });
-        }
-        return mergeItemVos;
-    }
-
-    /**
-     * @param firstMergeHeaderId : UUID
-     * @return ErpFirstMergeHeaderDto
-     * @Deprecated <b>Data Select Related Method</b>
-     * <p>
-     * firstMergeHeaderId에 대응하는 1차 병합헤더 데이터를 조회한다.
-     * @see ErpFirstMergeHeaderService#searchOne
-     * @see ErpFirstMergeHeaderDto#toDto
-     */
-    public ErpFirstMergeHeaderDto searchErpFirstMergeHeader(UUID firstMergeHeaderId) {
-        ErpFirstMergeHeaderEntity firstMergeHeaderEntity = erpFirstMergeHeaderService.searchOne(firstMergeHeaderId);
-        return ErpFirstMergeHeaderDto.toDto(firstMergeHeaderEntity);
-    }
-
-    /**
-     * @param secondMergeHeaderId : UUID
-     * @param dtos                : List::ErpOrderItemDto::
-     * @return List::ErpOrderItemVo::
-     * @Deprecated <b>Data Processing Related Method</b>
-     * <p>
-     * 병합 여부와 splitter로 구분해 나타낼 컬럼들을 확인해 데이터를 나열한다
-     * 동일 수령인정보라면 구분자(|&&|)로 표시해 병합한다
-     * 고정값 여부를 체크해서 데이터를 고정값으로 채워넣는다
-     * @see ErpOrderItemBusinessService#searchErpSecondMergeHeader
-     * @see CustomFieldUtils#getFieldValue
-     * @see CustomFieldUtils#setFieldValue
-     */
-    public List<ErpOrderItemVo> getSecondMergeItem(UUID secondMergeHeaderId, List<ErpOrderItemDto> dtos) {
-        List<ErpOrderItemVo> itemVos = dtos.stream().map(r -> ErpOrderItemVo.toVo(r)).collect(Collectors.toList());
-
-        // 선택된 병합 헤더데이터 조회
-        ErpSecondMergeHeaderDto headerDto = this.searchErpSecondMergeHeader(secondMergeHeaderId);
-
-        Map<String, String> splitterMap = headerDto.getHeaderDetail().getDetails().stream().filter(r -> r.getMergeYn().equals("y")).collect(Collectors.toList())
-                .stream().collect(Collectors.toMap(
-                        r -> r.getMatchedColumnName(),
-                        r -> r.getSplitter()
-                ));
-
-        // fixedValue가 존재하는 컬럼의 컬럼명과 fixedValue값 추출
-        Map<String, String> fixedValueMap = headerDto.getHeaderDetail().getDetails().stream().filter(r -> !r.getFixedValue().isBlank()).collect(Collectors.toList())
-                .stream().collect(Collectors.toMap(
-                        r -> r.getMatchedColumnName(),
-                        r -> r.getFixedValue()));
-
-        itemVos.sort(Comparator.comparing(ErpOrderItemVo::getReceiver)
-                .thenComparing(ErpOrderItemVo::getReceiverContact1)
-                .thenComparing(ErpOrderItemVo::getDestination)
-                .thenComparing(ErpOrderItemVo::getProdName)
-                .thenComparing(ErpOrderItemVo::getOptionName));
-
-        for (int i = 0; i < itemVos.size() && i < dtos.size(); i++) {
-            ErpOrderItemVo currentVo = itemVos.get(i);
-            ErpOrderItemDto originDto = dtos.get(i);
-
-            // 1. splitter로 나타낼 데이터 컬럼을 모두 추출해서 현재 데이터에 그 컬럼의 데이터 값을 구분자를 붙여 추가한다.
-            // 2. 수령인이 동일하면 |&&|구분자로 병합해서 나열. 중복처리된 열 제거
-            // 3. fixedValue가 존재하는 애들은 fixedValue값으로 채우기
-
-            // 1. splitter로 나타낼 데이터 컬럼을 추출
-            splitterMap.entrySet().stream().forEach(mergeMap -> {
-                // viewDetails 
-                DetailDto matchedDetail = headerDto.getHeaderDetail().getDetails().stream().filter(r -> r.getMatchedColumnName().equals(mergeMap.getKey())).collect(Collectors.toList()).get(0);
-                String appendFieldValue = "";
-
-                for (int j = 0; j < matchedDetail.getViewDetails().size(); j++) {
-                    appendFieldValue += CustomFieldUtils.getFieldValue(originDto, matchedDetail.getViewDetails().get(j).getMatchedColumnName()).toString();
-                    if (j < matchedDetail.getViewDetails().size() - 1) {
-                        appendFieldValue += mergeMap.getValue();
-                    }
-                }
-                CustomFieldUtils.setFieldValue(currentVo, mergeMap.getKey(), appendFieldValue);
-            });
-        }
-
-
-        // 2. 수령인 동일하면 |&&|구분자로 병합해서 나열.
-        List<ErpOrderItemVo> mergeItemVos = new ArrayList<>();
-
-        Set<String> deliverySet = new HashSet<>();
-        for (ErpOrderItemVo itemVo : itemVos) {
-
-            String resultStr = itemVo.getReceiver() +
-                    itemVo.getReceiverContact1() +
-                    itemVo.getDestination();
-
-            mergeItemVos.add(itemVo);
-            int currentMergeItemIndex = mergeItemVos.size() - 1;
-
-            // 중복데이터(상품 + 옵션)
-            if (!deliverySet.add(resultStr)) {
-                ErpOrderItemVo currentVo = mergeItemVos.get(currentMergeItemIndex);
-                ErpOrderItemVo prevVo = mergeItemVos.get(currentMergeItemIndex - 1);
-
-                splitterMap.forEach((key, value) -> {
-                    String prevFieldValue = CustomFieldUtils.getFieldValue(prevVo, key) == null ? "" : CustomFieldUtils.getFieldValue(prevVo, key);
-                    String currentFieldValue = CustomFieldUtils.getFieldValue(currentVo, key) == null ? "" : CustomFieldUtils.getFieldValue(currentVo, key);
-                    CustomFieldUtils.setFieldValue(prevVo, key, prevFieldValue + "|&&|" + currentFieldValue);
-                });
-
-                // 중복데이터 제거
-                mergeItemVos.remove(currentMergeItemIndex);
-            }
-
-            // 3. fixedValue가 지정된 column들은 fixedValue값으로 데이터를 덮어씌운다
-            fixedValueMap.forEach((key, value) -> CustomFieldUtils.setFieldValue(mergeItemVos.get(mergeItemVos.size() - 1), key, value));
-        }
-
-        return mergeItemVos;
-    }
-
-    /**
-     * @Deprecated
-     */
-    public ErpSecondMergeHeaderDto searchErpSecondMergeHeader(UUID secondMergeHeaderId) {
-        ErpSecondMergeHeaderEntity secondMergeHeaderEntity = erpSecondMergeHeaderService.searchOne(secondMergeHeaderId);
-        return ErpSecondMergeHeaderDto.toDto(secondMergeHeaderEntity);
     }
 
     /**
