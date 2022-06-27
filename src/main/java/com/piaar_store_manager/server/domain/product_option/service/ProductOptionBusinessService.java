@@ -169,7 +169,7 @@ public class ProductOptionBusinessService {
         
         List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
-        
+
         List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
         List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
 

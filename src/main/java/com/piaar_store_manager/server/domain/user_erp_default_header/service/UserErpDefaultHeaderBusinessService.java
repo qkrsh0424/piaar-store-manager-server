@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.domain.user_erp_default_header.dto.UserErpDefaultHeaderDto;
 import com.piaar_store_manager.server.domain.user_erp_default_header.entity.UserErpDefaultHeaderEntity;
-import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
 import lombok.RequiredArgsConstructor;
 
