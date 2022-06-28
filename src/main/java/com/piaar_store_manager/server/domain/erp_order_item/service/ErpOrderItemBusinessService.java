@@ -198,7 +198,7 @@ public class ErpOrderItemBusinessService {
                 .managementMemo2(getTranslatorTargetCellValue(row, details.get(27)))
                 .managementMemo3(getTranslatorTargetCellValue(row, details.get(28)))
                 .managementMemo4(getTranslatorTargetCellValue(row, details.get(29)))
-                .managementMemo5(getTranslatorTargetCellValue(row, details.get(20)))
+                .managementMemo5(getTranslatorTargetCellValue(row, details.get(30)))
                 .managementMemo6(getTranslatorTargetCellValue(row, details.get(31)))
                 .managementMemo7(getTranslatorTargetCellValue(row, details.get(32)))
                 .managementMemo8(getTranslatorTargetCellValue(row, details.get(33)))
