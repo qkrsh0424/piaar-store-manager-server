@@ -9,7 +9,6 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +36,7 @@ public class ProductOptionGetDto {
     private Integer totalPurchasePrice;     // 추가된 항목
     private String status;
     private String memo;
+    private String releaseLocation;
     private String imageUrl;
     private String imageFileName;
     private String color;
@@ -74,6 +74,7 @@ public class ProductOptionGetDto {
                 .stockUnit(entity.getStockUnit())
                 .status(entity.getStatus())
                 .memo(entity.getMemo())
+                .releaseLocation(entity.getReleaseLocation())
                 .imageUrl(entity.getImageUrl())
                 .imageFileName(entity.getImageFileName())
                 .color(entity.getColor())

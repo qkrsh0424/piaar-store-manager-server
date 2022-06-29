@@ -14,6 +14,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -94,6 +95,7 @@ public class CustomDateUtils {
 
             /*
             요청 데이터가 UTC의 경우
+            Pattern : "yyyy-MM-dd'T'HH:mm:ss'Z'"
              */
             if (CustomDateUtils.isValidDate(dateStr, "yyyy-MM-dd'T'HH:mm:ss'Z'")) {
                 try {
@@ -106,11 +108,27 @@ public class CustomDateUtils {
 
             /*
             요청 데이터가 String일 경우 UTC로 변환 후 받아온다. (요청 데이터는 Asia/seoul 시간으로 간주한다.)
+            Pattern : "yyyy-MM-dd HH:mm:ss"
              */
             if (CustomDateUtils.isValidDate(dateStr, "yyyy-MM-dd HH:mm:ss")) {
                 try {
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                     LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter);
+                    LocalDateTime dateTimeUTC = CustomDateUtils.toUtc(dateTime);
+                    return dateTimeUTC;
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
+            }
+
+            /*
+             요청 데이터가 String일 경우 UTC로 변환 후 seconds값을 0으로 세팅한다. (요청 데이터는 Asia/seoul 시간으로 간주한다.)
+             Pattern : "yyyy-MM-dd HH:mm"
+             */
+            if (CustomDateUtils.isValidDate(dateStr, "yyyy-MM-dd HH:mm")) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    LocalDateTime dateTime = LocalDateTime.parse(dateStr, formatter).truncatedTo(ChronoUnit.SECONDS);
                     LocalDateTime dateTimeUTC = CustomDateUtils.toUtc(dateTime);
                     return dateTimeUTC;
                 } catch (DateTimeParseException e) {

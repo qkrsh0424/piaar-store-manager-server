@@ -6,6 +6,7 @@ import com.piaar_store_manager.server.domain.product_option.entity.ProductOption
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
+import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
 import org.springframework.stereotype.Service;
@@ -263,5 +264,9 @@ public class ProductOptionService {
      */
     public List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime startDate, LocalDateTime endDate) {
         return productOptionRepository.findSalesAnalysisItem(startDate, endDate);
+    }
+
+    public List<StockAnalysisProj> qfindStockAnalysis() {
+        return productOptionRepository.qfindStockAnalysis();
     }
 }

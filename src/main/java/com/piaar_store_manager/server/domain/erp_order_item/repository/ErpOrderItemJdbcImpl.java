@@ -74,8 +74,10 @@ public class ErpOrderItemJdbcImpl implements ErpOrderItemCustomJdbc {
                 ps.setString(19, entity.getTransportType());
                 ps.setString(20, entity.getDeliveryMessage());
                 ps.setString(21, entity.getWaybillNumber());
-                ps.setObject(22, entity.getPrice() == null ? 0 : entity.getPrice(), Types.INTEGER);
-                ps.setObject(23, entity.getDeliveryCharge() == null ? 0 : entity.getDeliveryCharge(), Types.INTEGER);
+                // ps.setObject(22, entity.getPrice() == null ? 0 : entity.getPrice(), Types.INTEGER);
+                // ps.setObject(23, entity.getDeliveryCharge() == null ? 0 : entity.getDeliveryCharge(), Types.INTEGER);
+                ps.setObject(22, entity.getPrice());
+                ps.setObject(23, entity.getDeliveryCharge());
                 ps.setString(24, entity.getBarcode());
                 ps.setString(25, entity.getProdCode());
                 ps.setString(26, entity.getOptionCode());

@@ -13,7 +13,6 @@ import org.hibernate.annotations.Type;
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,6 +61,9 @@ public class ProductOptionEntity {
 
     @Column(name = "memo")
     private String memo;
+
+    @Column(name = "release_location")
+    private String releaseLocation;
 
     @Column(name = "image_url")
     private String imageUrl;
@@ -129,6 +131,7 @@ public class ProductOptionEntity {
                 .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
+                .releaseLocation(productOptionDto.getReleaseLocation())
                 .imageUrl(productOptionDto.getImageUrl())
                 .imageFileName(productOptionDto.getImageFileName())
                 .color(productOptionDto.getColor())

@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_sales_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.service.ErpSalesHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/ws/v1/erp-sales-headers")
+@RequiredLogin
 @RequiredArgsConstructor
 public class ErpSalesHeaderSocket {
     private final ErpSalesHeaderBusinessService erpSalesHeaderBusinessService;
@@ -47,6 +50,7 @@ public class ErpSalesHeaderSocket {
      * @see ErpSalesHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public void updateOne(@RequestBody ErpSalesHeaderDto headerDto) {
         Message message = new Message();
 

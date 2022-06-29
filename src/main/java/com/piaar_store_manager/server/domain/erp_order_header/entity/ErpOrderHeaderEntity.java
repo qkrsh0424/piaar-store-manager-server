@@ -46,6 +46,9 @@ public class ErpOrderHeaderEntity {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "header_title")
+    private String headerTitle;
+
     @Type(type = "json")
     @Column(name = "header_detail", columnDefinition = "json")
     private ErpOrderHeaderDetailDto headerDetail;
@@ -69,6 +72,7 @@ public class ErpOrderHeaderEntity {
         ErpOrderHeaderEntity entity = ErpOrderHeaderEntity.builder()
             .cid(dto.getCid())
             .id(dto.getId())
+            .headerTitle(dto.getHeaderTitle())
             .headerDetail(dto.getHeaderDetail())
             .createdAt(dto.getCreatedAt())
             .createdBy(dto.getCreatedBy())

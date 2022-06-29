@@ -137,7 +137,7 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                         qProductOptionEntity.as("productOption"),
                         qProductCategoryEntity.as("productCategory")
                 ))
-                .where(eqSalesYn(params), eqReleaseYn(params))
+                .where(eqSalesYn(params), eqReleaseYn(params), eqStockReflectYn(params))
                 .where(lkSearchCondition(params))
                 .where(withinDateRange(params))
                 .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
@@ -176,6 +176,8 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                 case "optionManagementName":
                     customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("managementName")));
                     break;
+                case "optionReleaseLocation":
+                    customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("releaseLocation")));
                 case "optionDefaultName":
                     customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("defaultName")));
                     break;
@@ -210,6 +212,16 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
             return null;
         } else {
             return qErpOrderItemEntity.releaseYn.eq(releaseYn);
+        }
+    }
+
+    private BooleanExpression eqStockReflectYn(Map<String, Object> params) {
+        String stockReflectYn = params.get("stockReflectYn") == null ? null : params.get("stockReflectYn").toString();
+
+        if (stockReflectYn == null) {
+            return null;
+        } else {
+            return qErpOrderItemEntity.stockReflectYn.eq(stockReflectYn);
         }
     }
 
@@ -264,6 +276,9 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                     break;
                 case "optionManagementName":
                     columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "managementName");
+                    break;
+                case "optionReleaseLocation":
+                    columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "releaseLocation");
                     break;
                 case "optionDefaultName":
                     columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "defaultName");

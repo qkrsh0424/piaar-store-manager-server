@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.erp_release_complete_header.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.entity.ErpReleaseCompleteHeaderEntity;
@@ -27,14 +29,10 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void saveOne(ErpReleaseCompleteHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
-        UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
+
         headerDto
-                .setId(ID)
+                .setId(headerDto.getId())
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
                 .setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime());
@@ -52,13 +50,10 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderService#findAll
      * @see ErpReleaseCompleteHeaderDto#toDto
      */
-    public ErpReleaseCompleteHeaderDto searchOne() {
-        // access check
-        userService.userLoginCheck();
-
-        ErpReleaseCompleteHeaderEntity headerEntity = erpReleaseCompleteHeaderService.findAll().stream().findFirst().orElse(null);
-        
-        return ErpReleaseCompleteHeaderDto.toDto(headerEntity);
+    public List<ErpReleaseCompleteHeaderDto> searchList() {
+        List<ErpReleaseCompleteHeaderEntity> entities = erpReleaseCompleteHeaderService.findAll();
+        List<ErpReleaseCompleteHeaderDto> dtos = entities.stream().map(entity -> ErpReleaseCompleteHeaderDto.toDto(entity)).collect(Collectors.toList());
+        return dtos;
     }
 
     /**
@@ -72,19 +67,25 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderEntity#toEntity
      */
     public void updateOne(ErpReleaseCompleteHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-        
-        ErpReleaseCompleteHeaderDto dto = this.searchOne();
-        
-        if(dto == null) {
-            throw new CustomNotFoundDataException("수정하려는 데이터를 찾을 수 없습니다.");
-        }
+        ErpReleaseCompleteHeaderEntity entity = erpReleaseCompleteHeaderService.searchOne(headerDto.getId());
+        ErpReleaseCompleteHeaderDto dto = ErpReleaseCompleteHeaderDto.toDto(entity);
 
+        dto.setHeaderTitle(headerDto.getHeaderTitle());
         dto.getHeaderDetail().setDetails(headerDto.getHeaderDetail().getDetails());
         dto.setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
         erpReleaseCompleteHeaderService.saveAndModify(ErpReleaseCompleteHeaderEntity.toEntity(dto));
+    }
+
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * erp release complete header을 제거한다.
+     * 
+     * @param entity
+     */
+    public void deleteOne(UUID headerId) {
+        ErpReleaseCompleteHeaderEntity entity = erpReleaseCompleteHeaderService.searchOne(headerId);
+        erpReleaseCompleteHeaderService.deleteOne(entity);
     }
 }

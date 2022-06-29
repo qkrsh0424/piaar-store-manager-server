@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessService;
@@ -48,6 +49,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#uploadErpOrderExcel
      */
     @PostMapping("/excel/upload")
+    @PermissionRole
     public ResponseEntity<?> uploadErpOrderExcel(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
@@ -57,6 +59,23 @@ public class ErpOrderItemApi {
         }
 
         message.setData(erpOrderItemBusinessService.uploadErpOrderExcel(file));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/excel/upload/{headerId}")
+    @PermissionRole
+    public ResponseEntity<?> uploadErpOrderExcel(@PathVariable(value = "headerId") UUID headerId, @RequestParam("file") MultipartFile file) {
+        Message message = new Message();
+
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
+
+        message.setData(erpOrderItemBusinessService.uploadErpOrderExcelByOtherForm(headerId, file));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -73,6 +92,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#createBatch
      */
     @PostMapping("/batch")
+    @PermissionRole
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -170,6 +190,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForSalesYn
      */
     @PatchMapping("/batch/sales-yn")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForSalesYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -190,6 +211,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForReleaseYn
      */
     @PatchMapping("/batch/release-yn")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -210,6 +232,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#deleteBatch
      */
     @PostMapping("/batch-delete")
+    @PermissionRole
     public ResponseEntity<?> deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -230,6 +253,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
         Message message = new Message();
 
@@ -250,6 +274,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForAllOptionCode
      */
     @PatchMapping("/batch/option-code/all")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForAllOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -270,6 +295,7 @@ public class ErpOrderItemApi {
      * @see ErpOrderItemBusinessService#changeBatchForReleaseOptionCode
      */
     @PatchMapping("/batch/release-option-code")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
@@ -280,49 +306,8 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    /**
-     * Change erp order item to combined delivery item by first merge header
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/erp-first-merge-headers/{firstMergeHeaderId}/action-merge</b>
-     *
-     * @param firstMergeHeaderId : UUID
-     * @param itemDtos           : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#getFirstMergeItem
-     */
-    @PostMapping("/erp-first-merge-headers/{firstMergeHeaderId}/action-merge")
-    public ResponseEntity<?> getFirstMergeItem(@PathVariable(value = "firstMergeHeaderId") UUID firstMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.getFirstMergeItem(firstMergeHeaderId, itemDtos));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Change erp order item to combined delivery item by second merge header
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/erp-second-merge-headers/{secondMergeHeaderId}/action-merge</b>
-     *
-     * @param secondMergeHeaderId : UUID
-     * @param itemDtos            : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#getSecondMergeItem
-     */
-    @PostMapping("/erp-second-merge-headers/{secondMergeHeaderId}/action-merge")
-    public ResponseEntity<?> getSecondMergeItem(@PathVariable(value = "secondMergeHeaderId") UUID secondMergeHeaderId, @RequestBody List<ErpOrderItemDto> itemDtos) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.getSecondMergeItem(secondMergeHeaderId, itemDtos));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
     @PatchMapping(value = "/batch/waybill")
+    @PermissionRole
     public ResponseEntity<?> changeBatchForWaybill(
             @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "orderItems") List<ErpOrderItemDto> data
     ) {

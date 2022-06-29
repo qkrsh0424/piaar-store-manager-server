@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_delivery_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_delivery_header.dto.ErpDeliveryHeaderDto;
 import com.piaar_store_manager.server.domain.erp_delivery_header.service.ErpDeliveryHeaderBusinessService;
@@ -33,6 +34,7 @@ public class ErpDeliveryHeaderApi {
      * @see ErpDeliveryHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpDeliveryHeaderDto headerDto) {
         Message message = new Message();
 
@@ -72,6 +74,7 @@ public class ErpDeliveryHeaderApi {
      * @see ErpDeliveryHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpDeliveryHeaderDto headerDto) {
         Message message = new Message();
 

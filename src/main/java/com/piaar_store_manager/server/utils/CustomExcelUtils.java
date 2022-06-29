@@ -1,15 +1,21 @@
 package com.piaar_store_manager.server.utils;
 
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 public class CustomExcelUtils {
@@ -65,48 +71,16 @@ public class CustomExcelUtils {
 
     /**
      * CellValue를 Object 타입으로 리턴한다.
-     *
+     * 타입이 numeric일 경우 해당 타입(int, double, long)에 맞도록 변환해서 반환.
      * @param cell
-     * @param numericType 타입이 numeric일 경우 int로 변환해서 내보낼지 double로 변환해서 내보낼지 결정한다.
      * @return Object : cellValue
      */
-    public static Object getCellValueObject(Cell cell, int numericType) {
-        CellType cellType = cell.getCellType();
-
-        switch (cellType) {
-            case _NONE:
-                return "";
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                    return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
-                }
-                if (numericType == NUMERIC_TO_DOUBLE) {
-                    return cell.getNumericCellValue();
-                }
-                if (numericType == NUMERIC_TO_INT) {
-                    int result = (int) cell.getNumericCellValue();
-                    return result;
-                }
-            case STRING:
-                return cell.getStringCellValue();
-            case FORMULA:
-                return cell.getCellFormula();
-            case BLANK:
-                return "";
-            case BOOLEAN:
-                return cell.getBooleanCellValue();
-            case ERROR:
-                return cell.getErrorCellValue();
-            default:
-                return "";
-        }
-    }
-
     public static Object getCellValueObject(Cell cell) {
-        CellType cellType = cell.getCellType();
+        if(cell == null || isBlankCell(cell)) {
+            return "";
+        }
 
-        switch (cellType) {
+        switch (cell.getCellType()) {
             case _NONE:
                 return "";
             case NUMERIC:
@@ -115,8 +89,20 @@ public class CustomExcelUtils {
                     return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
                 }
 
-                int result = (int) cell.getNumericCellValue();
-                return result;
+                Double cellValue = cell.getNumericCellValue();
+                if(cellValue.equals(Math.floor(cellValue))
+                        && !Double.isInfinite(cellValue)
+                        && !Double.isNaN(cellValue)
+                        && cellValue >= Integer.MIN_VALUE
+                        && cellValue <= Integer.MAX_VALUE
+                ) {
+                    return (int) cell.getNumericCellValue();
+                }else if(cellValue >= Integer.MAX_VALUE
+                        && cellValue <= Long.MAX_VALUE) {
+                    return (long)cell.getNumericCellValue();
+                }else {
+                    return cellValue;
+                }
             case STRING:
                 return cell.getStringCellValue();
             case FORMULA:
@@ -133,6 +119,10 @@ public class CustomExcelUtils {
     }
 
     public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
+        if(cell == null || isBlankCell(cell)) {
+            return defaultValue;
+        }
+        
         CellType cellType = cell.getCellType();
 
         switch (cellType) {
@@ -141,11 +131,10 @@ public class CustomExcelUtils {
                     LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
                     return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
                 }
-
                 int result = (int) cell.getNumericCellValue();
                 return result;
             case STRING:
-                return cell.getStringCellValue();
+                    return cell.getStringCellValue();
             case FORMULA:
                 return cell.getCellFormula();
             case BOOLEAN:
@@ -156,6 +145,61 @@ public class CustomExcelUtils {
             case _NONE:
             default:
                 return defaultValue;
+        }
+    }
+
+    /*
+     Object type의 데이터를 Number format으로 변경한다
+     */
+    public static Integer convertObjectValueToIntegerValue(Object objectValue) {
+        // 한글, 영문, 특수문자 포함되면 숫자로 변환 X
+        if(!CustomRegexUtils.isCheckNumberFormat(objectValue)) {
+            throw new CustomInvalidDataException("타입이 올바르지 않은 데이터가 존재합니다. 수정 후 재업로드 해주세요.");
+        }
+
+        try {
+            return NumberFormat.getInstance(Locale.getDefault()).parse(objectValue.toString()).intValue();
+        } catch (ParseException e) {
+            throw new CustomInvalidDataException("타입이 올바르지 않은 데이터가 존재합니다. 수정 후 재업로드 해주세요.");
+        }
+    }
+
+    public static Cell setCellValueFromTypeAndCellData(Cell cell, String cellType, Object cellData) {
+
+        switch(cellType) {
+            case "String":
+                cell.setCellValue(cellData.toString());
+                break;
+            case "Date":
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                LocalDateTime date = LocalDateTime.parse(cellData.toString(), formatter);
+                cell.setCellValue(CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(date));
+                break;
+            case "Double":
+                cell.setCellValue((double) cellData);
+                break;
+            case "Long":
+                cell.setCellValue((long) cellData);
+                break;
+            case "Integer":
+                cell.setCellValue((int) cellData);
+                break;
+            default:
+                throw new CustomInvalidDataException("올바른 데이터 타입이 아닙니다. 수정 후 재업로드 해주세요.");
+        }
+        return cell;
+    }
+
+    /*
+     CellType이 Blank이거나
+     String 타입이면서 값이 공백인 경우
+     */
+    public static boolean isBlankCell(Cell cell) {
+        if(cell.getCellType().equals(CellType.BLANK)
+            || (cell.getCellType().equals(CellType.STRING) && cell.getStringCellValue().isBlank())){
+                return true;
+        }else {
+            return false;
         }
     }
 }

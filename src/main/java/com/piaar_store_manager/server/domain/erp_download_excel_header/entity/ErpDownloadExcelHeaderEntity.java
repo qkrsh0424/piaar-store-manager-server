@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Builder
 @Getter
-@Table(name = "erp_second_merge_header")
+@Table(name = "erp_download_excel_header")
 @ToString
 @Accessors(chain = true)
 @NoArgsConstructor

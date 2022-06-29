@@ -23,6 +23,10 @@ public class ErpReleaseCompleteHeaderDto {
     private Integer cid;
     @Setter
     private UUID id;
+
+    @Setter
+    private String headerTitle;
+    
     private ErpReleaseCompleteHeaderDetailDto headerDetail;
 
     @Setter
@@ -40,6 +44,7 @@ public class ErpReleaseCompleteHeaderDto {
         ErpReleaseCompleteHeaderDto dto = ErpReleaseCompleteHeaderDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
+            .headerTitle(entity.getHeaderTitle())
             .headerDetail(entity.getHeaderDetail())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())

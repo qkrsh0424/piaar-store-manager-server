@@ -27,10 +27,6 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderEntity#toEntity
      */
     public void saveOne(ErpDeliveryHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         UUID ID = UUID.randomUUID();
         UUID USER_ID = userService.getUserId();
         
@@ -53,10 +49,7 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderService#findAll
      * @see ErpDeliveryHeaderDto#toDto
      */
-    public ErpDeliveryHeaderDto searchOne() {
-        // access check
-        userService.userLoginCheck();
-        
+    public ErpDeliveryHeaderDto searchOne() {  
         ErpDeliveryHeaderEntity headerEntity = erpDeliveryHeaderService.findAll().stream().findFirst().orElse(null);
         
         return ErpDeliveryHeaderDto.toDto(headerEntity);
@@ -73,10 +66,6 @@ public class ErpDeliveryHeaderBusinessService {
      * @see ErpDeliveryHeaderEntity#toEntity
      */
     public void updateOne(ErpDeliveryHeaderDto headerDto) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         ErpDeliveryHeaderDto dto = this.searchOne();
         
         if(dto == null) {

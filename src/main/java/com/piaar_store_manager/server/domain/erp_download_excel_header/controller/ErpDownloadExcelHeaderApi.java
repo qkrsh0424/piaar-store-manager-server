@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_download_excel_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -38,6 +39,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public ResponseEntity<?> saveOne(@RequestBody ErpDownloadExcelHeaderDto headerDto) {
         Message message = new Message();
 
@@ -77,6 +79,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpDownloadExcelHeaderDto headerDto) {
         Message message = new Message();
 
@@ -97,6 +100,7 @@ public class ErpDownloadExcelHeaderApi {
      * @see ErpDownloadExcelHeaderBusinessService#deleteOne
      */
     @DeleteMapping("/{id}")
+    @PermissionRole
     public ResponseEntity<?> deleteOne(@PathVariable(value = "id") UUID id) {
         Message message = new Message();
 
@@ -178,6 +182,7 @@ public class ErpDownloadExcelHeaderApi {
     downloadForDownloadOrderItems OR downloadForDownloadOrderItems2 둘중 하나 주석후 사용
      */
     @PostMapping("/{id}/download-order-items/action-download")
+    @PermissionRole
     public void downloadForDownloadOrderItems2(HttpServletResponse response, @PathVariable(value = "id") UUID id, @RequestBody List<ErpDownloadOrderItemDto> erpDownloadOrderItemDtos) {
 
         ErpDownloadExcelHeaderDto headerDto = erpDownloadExcelHeaderBusinessService.searchErpDownloadExcelHeader(id);
@@ -186,6 +191,9 @@ public class ErpDownloadExcelHeaderApi {
 //         엑셀 생성
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Sheet1");
+        CellStyle cs = workbook.createCellStyle();
+        cs.setWrapText(true);
+        cs.setVerticalAlignment(VerticalAlignment.CENTER);
         Row row = null;
         Cell cell = null;
         int rowNum = 0;
@@ -194,12 +202,14 @@ public class ErpDownloadExcelHeaderApi {
             row = sheet.createRow(rowNum++);
             for (int j = 0; j < matrix.get(i).size(); j++) {
                 cell = row.createCell(j);
+                cell.setCellStyle(cs);
                 cell.setCellValue(matrix.get(i).get(j));
             }
         }
 
         for (int i = 0; i < headerDto.getHeaderDetail().getDetails().size(); i++) {
             sheet.autoSizeColumn(i);
+            sheet.setColumnWidth(i, (sheet.getColumnWidth(i))+(short)1024);
         }
 
         response.setContentType("ms-vnd/excel");
@@ -214,6 +224,7 @@ public class ErpDownloadExcelHeaderApi {
     }
 
     @PostMapping("/upload-excel-sample/action-download")
+    @PermissionRole
     public void downloadSample(HttpServletResponse response) {
         List<Object> dataList = StaticErpItemDataUtils.getUploadHeaderExcelSample();
 
@@ -264,6 +275,7 @@ public class ErpDownloadExcelHeaderApi {
     }
 
     @PostMapping("/waybill-excel-sample/action-download")
+    @PermissionRole
     public void downloadWaybillExcelSample(HttpServletResponse response) {
 
         Workbook workbook = new XSSFWorkbook();
@@ -289,7 +301,8 @@ public class ErpDownloadExcelHeaderApi {
         cell = row.createCell(0);
         cell.setCellValue("수취인명");
         cell = row.createCell(1);
-        cell.setCellValue("!운송코드");
+        // cell.setCellValue("!운송코드");
+        cell.setCellValue("전화번호1");
         cell = row.createCell(2);
         cell.setCellValue("운송장번호");
         cell = row.createCell(3);

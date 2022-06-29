@@ -45,6 +45,9 @@ public class ErpReleaseCompleteHeaderEntity {
     @Column(name = "id")
     private UUID id;
 
+    @Column(name = "header_title")
+    private String headerTitle;
+
     @Type(type = "json")
     @Column(name = "header_detail", columnDefinition = "json")
     private ErpReleaseCompleteHeaderDetailDto headerDetail;
@@ -68,6 +71,7 @@ public class ErpReleaseCompleteHeaderEntity {
         ErpReleaseCompleteHeaderEntity entity = ErpReleaseCompleteHeaderEntity.builder()
             .cid(dto.getCid())
             .id(dto.getId())
+            .headerTitle(dto.getHeaderTitle())
             .headerDetail(dto.getHeaderDetail())
             .createdAt(dto.getCreatedAt())
             .createdBy(dto.getCreatedBy())

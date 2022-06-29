@@ -16,9 +16,9 @@ import com.piaar_store_manager.server.domain.excel_translator_header.entity.Exce
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.UploadExcelDataGetDto;
 
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -106,20 +106,7 @@ public class ExcelTranslatorHeaderBusinessService {
             List<ExcelDataDetailDto.UploadedDetailDto> uploadedDetailDtos = new ArrayList<>();
 
             for(int j = 0; j < row.getLastCellNum(); j++) {
-                Cell cell = row.getCell(j);
-                Object cellObj = new Object();
-
-                if(cell == null || cell.getCellType().equals(CellType.BLANK)) {
-                    cellObj = "";
-                } else if (cell.getCellType().equals(CellType.STRING)) {
-                    cellObj = cell.getStringCellValue();
-                } else if (cell.getCellType().equals(CellType.NUMERIC)) {
-                    if (DateUtil.isCellDateFormatted(cell)) {
-                        cellObj = cell.getDateCellValue();
-                    } else {
-                        cellObj = cell.getNumericCellValue();
-                    }
-                }
+                Object cellObj = CustomExcelUtils.getCellValueObject(row.getCell(j));
                 ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
                         .id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();
                 uploadedDetailDtos.add(detailDto);

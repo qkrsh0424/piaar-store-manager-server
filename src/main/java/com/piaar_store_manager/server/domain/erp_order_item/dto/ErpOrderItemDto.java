@@ -5,10 +5,10 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 
@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
-import lombok.experimental.SuperBuilder;
 
 @Builder
 @Getter
@@ -49,7 +48,7 @@ public class ErpOrderItemDto {
     private String optionName; // 옵션정보 / 필수값
 
     @NotNull
-    @PositiveOrZero
+    @Positive
     private Integer unit; // 수량 / 필수값
 
     @NotNull
@@ -175,6 +174,7 @@ public class ErpOrderItemDto {
     private String prodManagementName;  // 피아르 상품관리명
     private String optionDefaultName;   // 피아르 옵션명
     private String optionManagementName;    // 피아르 옵션관리명
+    private String optionReleaseLocation;    // 피아르 옵션관리명
     private Integer optionStockUnit;    // 재고수량
 
     private Integer salesPrice; // 판매금액

@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.product_receive.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -26,6 +27,7 @@ public class ProductReceiveGetDto {
     private UUID id;
     private Integer receiveUnit;
     private String memo;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
     private UUID createdBy;
     private Integer productOptionCid;

@@ -1,5 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_release_complete_header.controller;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.service.ErpReleaseCompleteHeaderBusinessService;
 import com.piaar_store_manager.server.domain.message.Message;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/ws/v1/erp-release-complete-headers")
+@RequiredLogin
 @RequiredArgsConstructor
 public class ErpReleaseCompleteHeaderSocket {
     private final ErpReleaseCompleteHeaderBusinessService erpReleaseCompleteHeaderBusinessService;
@@ -27,6 +30,7 @@ public class ErpReleaseCompleteHeaderSocket {
      * @see ErpReleaseCompleteHeaderBusinessService#saveOne
      */
     @PostMapping("")
+    @PermissionRole
     public void saveOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
         Message message = new Message();
 
@@ -48,6 +52,7 @@ public class ErpReleaseCompleteHeaderSocket {
      * @see ErpReleaseCompleteHeaderBusinessService#updateOne
      */
     @PutMapping("")
+    @PermissionRole
     public void updateOne(@RequestBody ErpReleaseCompleteHeaderDto headerDto) {
         Message message = new Message();
 

@@ -1,8 +1,6 @@
 package com.piaar_store_manager.server.domain.excel_translator_header.controller;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -17,7 +15,6 @@ import com.piaar_store_manager.server.domain.excel_translator_item.dto.DownloadE
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
-import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -243,16 +240,10 @@ public class ExcelTranslatorHeaderApiController {
                 // 데이터 타입에 맞춰 엑셀 항목 작성.
                 ExcelDataDetailDto.UploadedDetailDto detailDto = dtos.get(i).getTranslatedData().getDetails().get(j);
 
-                if (detailDto == null || detailDto.getCellType().isBlank()) {
+                if(detailDto == null) {
                     cell.setCellValue("");
-                } else if (detailDto.getCellType().equals("String")) {
-                    cell.setCellValue(detailDto.getColData().toString());
-                } else if (detailDto.getCellType().equals("Date")) {
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-                    LocalDateTime date = LocalDateTime.parse(detailDto.getColData().toString(), formatter);
-                    cell.setCellValue(CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(date));
-                } else if (detailDto.getCellType().equals("Double")) {
-                    cell.setCellValue((int) detailDto.getColData());
+                }else{
+                    CustomExcelUtils.setCellValueFromTypeAndCellData(cell, detailDto.getCellType(), detailDto.getColData());
                 }
             }
         }
