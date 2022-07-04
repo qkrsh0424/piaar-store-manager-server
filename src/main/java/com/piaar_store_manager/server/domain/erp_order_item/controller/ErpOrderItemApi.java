@@ -112,11 +112,22 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchList
      */
+    // @GetMapping("")
+    // public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchList(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
     @GetMapping("")
-    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
         Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchList(params));
+        message.setData(erpOrderItemBusinessService.searchAllByPaging(params, pageable));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

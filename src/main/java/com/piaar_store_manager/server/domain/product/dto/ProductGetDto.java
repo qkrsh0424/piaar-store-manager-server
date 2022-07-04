@@ -57,6 +57,8 @@ public class ProductGetDto {
      * @return ProductGetDto
      */
     public static ProductGetDto toDto(ProductEntity entity) {
+        if(entity == null) return null;
+        
         ProductGetDto productDto = ProductGetDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())

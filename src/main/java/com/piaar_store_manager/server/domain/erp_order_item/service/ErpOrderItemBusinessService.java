@@ -351,6 +351,15 @@ public class ErpOrderItemBusinessService {
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
+    // TEST 대시보드 -> searchAllByPaging 사용. => 판매성과에서 사용
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo.ManyToOneJoin> searchAll(Map<String, Object> params) {
+        // 등록된 모든 엑셀 데이터를 조회한다
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
+        // 옵션재고수량 추가 및 vos 변환
+        return this.setOptionStockUnitAndToM2OJVos(itemProjs);
+    }
+
     /*
     아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
     옵션 재고 수량 추가 및 vos 변환
@@ -382,6 +391,23 @@ public class ErpOrderItemBusinessService {
 
         return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     }
+
+    // TEST 대시보드
+    @Transactional(readOnly = true)
+    public Page<ErpOrderItemVo.ManyToOneJoin> searchAllByPaging(Map<String, Object> params, Pageable pageable) {
+        /*
+        조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+         */
+        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
+        List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
+
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = this.setOptionStockUnitAndToM2OJVos(itemProjs);
+
+        return new PageImpl(erpOrderItemM2OJVos, pageable, itemPages.getTotalElements());
+    }
+
+
 
     /*
     조건별 페이지별 출고 상태인 ErpOrderItemProj Page 데이터를 가져온다.
@@ -432,6 +458,17 @@ public class ErpOrderItemBusinessService {
         ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
 
         return erpOrderItemVos;
+    }
+
+    private List<ErpOrderItemVo.ManyToOneJoin> setOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+
+        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+        ErpOrderItemVo.setOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
+
+        return erpOrderItemM2OJVos;
     }
 
     /**

@@ -9,6 +9,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
+import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
@@ -16,7 +19,9 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.*;
 
@@ -153,6 +158,43 @@ public class ErpOrderItemVo {
 
         private UUID createdBy;
     }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ManyToOneJoin {
+        ErpOrderItemVo erpOrderItem;
+        ProductCategoryGetDto productCategory;
+        ProductGetDto product;
+        ProductOptionGetDto productOption;
+
+        public static ManyToOneJoin toVo(ErpOrderItemProj proj) {
+            ErpOrderItemVo erpOrderItem = ErpOrderItemVo.toVo(proj);
+            ProductCategoryGetDto productCategory = null;
+            ProductGetDto product = null;
+            ProductOptionGetDto productOption = null;
+
+            if(proj.getProductOption() != null) {
+                productCategory = ProductCategoryGetDto.toDto(proj.getProductCategory());
+                product = ProductGetDto.toDto(proj.getProduct());
+                productOption = ProductOptionGetDto.toDto(proj.getProductOption());
+            }
+
+            ManyToOneJoin vo = ManyToOneJoin.builder()
+                .erpOrderItem(erpOrderItem)
+                .product(product)
+                .productCategory(productCategory)
+                .productOption(productOption)
+                .build();
+
+            return vo;
+        }
+    }
+
+
     public static ErpOrderItemVo toVo(ErpOrderItemProj proj) {
         if (proj == null)
             return null;
@@ -273,6 +315,17 @@ public class ErpOrderItemVo {
             optionEntities.forEach(optionEntity ->{
                 if(!erpOrderItemVo.getReleaseOptionCode().isEmpty() && erpOrderItemVo.getReleaseOptionCode().equals(optionEntity.getCode())){
                     erpOrderItemVo.setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static void setOptionStockUnitForM2OJList(List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemM2OJVos.forEach(erpOrderItemM2OJVo -> {
+            optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().isEmpty() && erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemM2OJVo.getErpOrderItem().setOptionStockUnit(optionEntity.getStockSumUnit().toString());
                     return;
                 }
             });
