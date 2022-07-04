@@ -395,18 +395,10 @@ public class ErpOrderItemApi {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellStyle(cs);
-            cell.setCellValue(itemDtos.get(i).getProdName());
+            cell.setCellValue(itemDtos.get(i).getProdDefaultName() != null ? itemDtos.get(i).getProdDefaultName() : "*지정필요");
             cell = row.createCell(1);
-            cell.setCellValue(itemDtos.get(i).getOptionName());
+            cell.setCellValue(itemDtos.get(i).getOptionDefaultName() != null ? itemDtos.get(i).getOptionDefaultName() : "*지정필요");
             cell = row.createCell(2);
-            cell.setCellValue(itemDtos.get(i).getOptionCode());
-            cell = row.createCell(3);
-            cell.setCellValue(itemDtos.get(i).getReleaseOptionCode());
-            cell = row.createCell(4);
-            cell.setCellValue(itemDtos.get(i).getProdDefaultName());
-            cell = row.createCell(5);
-            cell.setCellValue(itemDtos.get(i).getOptionDefaultName());
-            cell = row.createCell(6);
             cell.setCellValue(itemDtos.get(i).getUnit());
         }
 

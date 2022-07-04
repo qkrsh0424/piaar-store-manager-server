@@ -56,10 +56,6 @@ public class StaticErpItemDataUtils {
     }
 
     public static String[] RELEASE_ITEM_LIST_HEADER = {
-        "상품명",
-        "옵션정보",
-        "피아르 옵션코드",
-        "출고 옵션코드",
         "$피아르 상품명",
         "$피아르 옵션명",
         "수량"
