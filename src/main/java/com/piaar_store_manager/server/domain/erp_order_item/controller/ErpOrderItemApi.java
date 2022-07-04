@@ -1,10 +1,12 @@
 package com.piaar_store_manager.server.domain.erp_order_item.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
@@ -15,7 +17,15 @@ import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelForm
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
+import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -134,13 +144,39 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/action-refresh")
-    public ResponseEntity<?> refresh(@RequestBody Map<String, Object> params) {
+    @PostMapping("/target:order/action-refresh")
+    public ResponseEntity<?> orderRefresh(@RequestBody Map<String, Object> params) {
         List<String> idsStr = (List<String>) params.get("ids");
         List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
 
         Message message = new Message();
         message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/target:sales/action-refresh")
+    public ResponseEntity<?> salesRefresh(@RequestBody Map<String, Object> params) {
+        List<String> idsStr = (List<String>) params.get("ids");
+        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+        Message message = new Message();
+        message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/target:release/action-refresh")
+    public ResponseEntity<?> releaseRefresh(@RequestBody Map<String, Object> params) {
+        List<String> idsStr = (List<String>) params.get("ids");
+        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+        Message message = new Message();
+        message.setData(erpOrderItemBusinessService.searchBatchByReleasedItemIds(ids, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -305,7 +341,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#changeBatchForReleaseOptionCode
      */
-    @PatchMapping("/batch/release-option-code")
+    @PatchMapping("/batch/release-option-code/all")
     @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
@@ -331,5 +367,62 @@ public class ErpOrderItemApi {
         message.setMemo("선택된 데이터 : " + data.size() + " 건\n" + "운송장 입력된 데이터 총 : " + updatedCount + " 건");
 
         return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/download-release-items/action-download")
+    @PermissionRole
+    public void downloadForDownloadReleaseItems(HttpServletResponse response, @RequestBody List<ErpOrderItemDto> itemDtos) {
+
+//         엑셀 생성
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Sheet1");
+        CellStyle cs = workbook.createCellStyle();
+        cs.setWrapText(true);
+        cs.setVerticalAlignment(VerticalAlignment.CENTER);
+        Row row = null;
+        Cell cell = null;
+        int rowNum = 0;
+
+        row = sheet.createRow(rowNum++);
+        List<String> releaseItemHeader = StaticErpItemDataUtils.getReleaseItemListHeader();
+        for(int i = 0; i < releaseItemHeader.size(); i++) {
+            String cellName = releaseItemHeader.get(i);
+            cell = row.createCell(i);
+            cell.setCellValue(cellName);
+        }
+
+        for(int i = 0; i < itemDtos.size(); i++) {
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellStyle(cs);
+            cell.setCellValue(itemDtos.get(i).getProdName());
+            cell = row.createCell(1);
+            cell.setCellValue(itemDtos.get(i).getOptionName());
+            cell = row.createCell(2);
+            cell.setCellValue(itemDtos.get(i).getOptionCode());
+            cell = row.createCell(3);
+            cell.setCellValue(itemDtos.get(i).getReleaseOptionCode());
+            cell = row.createCell(4);
+            cell.setCellValue(itemDtos.get(i).getProdDefaultName());
+            cell = row.createCell(5);
+            cell.setCellValue(itemDtos.get(i).getOptionDefaultName());
+            cell = row.createCell(6);
+            cell.setCellValue(itemDtos.get(i).getUnit());
+        }
+
+        for (int i = 0; i < itemDtos.size(); i++) {
+            sheet.autoSizeColumn(i);
+            sheet.setColumnWidth(i, (sheet.getColumnWidth(i))+(short)1024);
+        }
+
+        response.setContentType("ms-vnd/excel");
+        response.setHeader("Content-Disposition", "attachment;filename=example.xlsx");
+
+        try {
+            workbook.write(response.getOutputStream());
+            workbook.close();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
     }
 }

@@ -54,4 +54,24 @@ public class StaticErpItemDataUtils {
 
         return result;
     }
+
+    public static String[] RELEASE_ITEM_LIST_HEADER = {
+        "상품명",
+        "옵션정보",
+        "피아르 옵션코드",
+        "출고 옵션코드",
+        "$피아르 상품명",
+        "$피아르 옵션명",
+        "수량"
+    };
+
+    public static List<String> getReleaseItemListHeader() {
+        List<String> result = new ArrayList<>();
+
+        Arrays.stream(RELEASE_ITEM_LIST_HEADER).forEach(r -> {
+            result.add(r);
+        });
+
+        return result;
+    }
 }
