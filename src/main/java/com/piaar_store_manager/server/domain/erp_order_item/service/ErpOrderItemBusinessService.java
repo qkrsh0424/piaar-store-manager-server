@@ -373,6 +373,15 @@ public class ErpOrderItemBusinessService {
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
+    // 출고 상태 관리에서 action-refresh
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo> searchBatchByReleasedItemIds(List<UUID> ids, Map<String, Object> params) {
+        // 등록된 모든 엑셀 데이터를 조회한다
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJByReleasedItem(ids, params);       // 페이징 처리 x
+        // 옵션재고수량 추가 및 vos 변환
+        return this.setOptionStockUnitAndToVos(itemProjs);
+    }
+
     /*
     조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
     옵션 재고 수량 추가 및 vos 변환
@@ -456,7 +465,6 @@ public class ErpOrderItemBusinessService {
         ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
          */
         ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
-
         return erpOrderItemVos;
     }
 

@@ -16,6 +16,7 @@ public interface ErpOrderItemRepositoryCustom {
     List<ErpOrderItemEntity> qfindAllByIdList(List<UUID> idList);
     List<ErpOrderItemProj> qfindAllM2OJ(Map<String, Object> params);
     List<ErpOrderItemProj> qfindAllM2OJByIdList(List<UUID> idList, Map<String, Object> params);
+    List<ErpOrderItemProj> qfindAllM2OJByReleasedItemIdList(List<UUID> idList, Map<String, Object> params);
     Page<ErpOrderItemProj> qfindAllM2OJByPage(Map<String, Object> params, Pageable pageable);
     Page<ErpOrderItemProj> qfindReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable);
 }

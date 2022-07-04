@@ -77,7 +77,7 @@ public class ErpOrderItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
-    @PatchMapping("/batch/release-option-code")
+    @PatchMapping("/batch/release-option-code/all")
     @PermissionRole
     public void changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();

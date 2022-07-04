@@ -73,6 +73,10 @@ public class ErpOrderItemService {
         return erpOrderItemRepository.qfindAllM2OJByIdList(ids, params);
     }
 
+    public List<ErpOrderItemProj> findAllM2OJByReleasedItem(List<UUID> ids, Map<String, Object> params) {
+        return erpOrderItemRepository.qfindAllM2OJByReleasedItemIdList(ids, params);
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>
