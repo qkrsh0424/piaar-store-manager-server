@@ -20,10 +20,8 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
@@ -133,11 +131,22 @@ public class ErpOrderItemApi {
     //     return new ResponseEntity<>(message, message.getStatus());
     // }
 
+    // @GetMapping("")
+    // public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchAllByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
     @GetMapping("")
-    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchAllByPaging(params, pageable));
+        message.setData(erpOrderItemBusinessService.searchAll(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -376,25 +385,24 @@ public class ErpOrderItemApi {
 //         엑셀 생성
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("Sheet1");
-        CellStyle cs = workbook.createCellStyle();
-        cs.setWrapText(true);
-        cs.setVerticalAlignment(VerticalAlignment.CENTER);
         Row row = null;
         Cell cell = null;
         int rowNum = 0;
 
         row = sheet.createRow(rowNum++);
         List<String> releaseItemHeader = StaticErpItemDataUtils.getReleaseItemListHeader();
+        
+        // 출고 리스트 다운로드 헤더
         for(int i = 0; i < releaseItemHeader.size(); i++) {
             String cellName = releaseItemHeader.get(i);
             cell = row.createCell(i);
             cell.setCellValue(cellName);
         }
 
+        // 출 리스트 다운로드 데이터
         for(int i = 0; i < itemDtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
-            cell.setCellStyle(cs);
             cell.setCellValue(itemDtos.get(i).getProdDefaultName() != "" ? itemDtos.get(i).getProdDefaultName() : "*지정필요");
             cell = row.createCell(1);
             cell.setCellValue(itemDtos.get(i).getOptionDefaultName() != "" ? itemDtos.get(i).getOptionDefaultName() : "*지정필요");

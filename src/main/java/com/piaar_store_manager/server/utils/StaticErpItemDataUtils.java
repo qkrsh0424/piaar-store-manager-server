@@ -55,6 +55,7 @@ public class StaticErpItemDataUtils {
         return result;
     }
 
+    // 출고 리스트 다운로드 양식
     public static String[] RELEASE_ITEM_LIST_HEADER = {
         "$피아르 상품명",
         "$피아르 옵션명",
