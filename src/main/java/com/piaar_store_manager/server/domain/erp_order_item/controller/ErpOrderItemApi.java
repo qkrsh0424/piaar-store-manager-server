@@ -214,6 +214,17 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/batch/search")
+    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(erpOrderItemBusinessService.searchList(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Search erp order item.
      * Mapping by release option code.
