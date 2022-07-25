@@ -268,4 +268,15 @@ public class ProductOptionApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/release-location")
+    public ResponseEntity<?> searchRleaseLocation() {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchReleaseLocation());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
 }

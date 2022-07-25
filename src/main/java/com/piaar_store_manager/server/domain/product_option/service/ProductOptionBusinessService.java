@@ -2,8 +2,10 @@ package com.piaar_store_manager.server.domain.product_option.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -366,5 +368,21 @@ public class ProductOptionBusinessService {
         }
         productOptionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         productOptionService.saveAndModify(productOptionEntity);
+    }
+
+    /*
+     * 옵션에 등록된 출고지를 중복을 제거해 추출한다
+     */
+    public List<String> searchReleaseLocation() {
+        List<ProductOptionEntity> entities = productOptionService.searchList();
+        Set<String> releaseLocationSet = new HashSet<>();
+        entities.forEach(r -> {
+            if(r.getReleaseLocation() != null && !r.getReleaseLocation().equals("")){
+                releaseLocationSet.add(r.getReleaseLocation());
+            }
+        });
+
+        List<String> allReleaseLocation = releaseLocationSet.stream().map(r -> r).collect(Collectors.toList());
+        return allReleaseLocation;
     }
 }
