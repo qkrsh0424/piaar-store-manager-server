@@ -120,6 +120,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchList
      */
+    // Deprecated API
     // @GetMapping("")
     // public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
     //     Message message = new Message();
@@ -131,6 +132,7 @@ public class ErpOrderItemApi {
     //     return new ResponseEntity<>(message, message.getStatus());
     // }
 
+    // // Deprecated API
     // @GetMapping("")
     // public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
     //     Message message = new Message();
@@ -142,6 +144,7 @@ public class ErpOrderItemApi {
     //     return new ResponseEntity<>(message, message.getStatus());
     // }
 
+    // Deprecated API
     @GetMapping("")
     public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -153,6 +156,7 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // Deprecated API
     @PostMapping("/target:order/action-refresh")
     public ResponseEntity<?> orderRefresh(@RequestBody Map<String, Object> params) {
         List<String> idsStr = (List<String>) params.get("ids");
@@ -166,6 +170,7 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // Deprecated API
     @PostMapping("/target:sales/action-refresh")
     public ResponseEntity<?> salesRefresh(@RequestBody Map<String, Object> params) {
         List<String> idsStr = (List<String>) params.get("ids");
@@ -179,6 +184,7 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // Deprecated API
     @PostMapping("/target:release/action-refresh")
     public ResponseEntity<?> releaseRefresh(@RequestBody Map<String, Object> params) {
         List<String> idsStr = (List<String>) params.get("ids");
@@ -203,6 +209,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
+    // Deprecated API
     @GetMapping("/search")
     public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
         Message message = new Message();
@@ -214,6 +221,7 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // Deprecated API
     @GetMapping("/batch/search")
     public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -236,6 +244,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
+    // Deprecated API
     @GetMapping("/search/release")
     public ResponseEntity<?> searchReleaseItemBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
         Message message = new Message();

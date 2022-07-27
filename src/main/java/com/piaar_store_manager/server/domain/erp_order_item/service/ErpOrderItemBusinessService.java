@@ -293,6 +293,8 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemDto> newItems = dtos.stream().filter(r -> r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
         List<ErpOrderItemDto> duplicationCheckItems = dtos.stream().filter(r -> !r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
 
+        this.convertToStripedDto(duplicationCheckItems);
+
         List<String> orderNumber1 = new ArrayList<>();
         List<String> receiver = new ArrayList<>();
         List<String> prodName = new ArrayList<>();
@@ -326,9 +328,12 @@ public class ErpOrderItemBusinessService {
                 }
                 if (!duplication) {
                     newItems.add(duplicationCheckItem);
+                    System.out.println(duplicationCheckItem);
                 }
             }
         }
+
+        // System.out.println(newItems);
         return newItems;
     }
 
