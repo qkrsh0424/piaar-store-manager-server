@@ -97,6 +97,8 @@ public class ErpOrderItemApiV2 {
     /**
      * Search erp order item.
      * Mapping by option code.
+     * <p>
+     * <b>GET : API URL => /api/v1/erp-order-items/batch/search</b>
      * 
      * @param params   : Map::String, Object::
      * @param pageable : Pageable

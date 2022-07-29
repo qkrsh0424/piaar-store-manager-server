@@ -77,7 +77,7 @@ public class ProductOptionService {
      * productCid에 대응되는 option 데이터를 모두 조회한다.
      *
      * @param productCid : Integer
-     * @return List::ProductOptionEntity::
+     * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#findByProductCid
      */
     public List<ProductOptionEntity> searchListByProductCid(Integer productCid) {

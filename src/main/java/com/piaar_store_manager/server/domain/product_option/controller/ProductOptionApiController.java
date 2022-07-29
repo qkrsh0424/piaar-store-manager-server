@@ -141,6 +141,17 @@ public class ProductOptionApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/stock/status/product/{productCid}")
+    public ResponseEntity<?> searchStockStatusByProductCid(@PathVariable(value = "productCid") Integer productCid) {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchStockStatusByProductCid(productCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Search list api of status(release & receive) for product option.
      * <p>
