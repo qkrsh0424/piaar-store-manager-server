@@ -97,10 +97,10 @@ public class ErpOrderItemBusinessServiceV2 {
         }else if(matchedCode.equals("releaseOptionCode")) {
             itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
         }
+
         /*
         조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
          */
-        // Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
         List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
 
         // 옵션재고수량 추가 및 vos 변환

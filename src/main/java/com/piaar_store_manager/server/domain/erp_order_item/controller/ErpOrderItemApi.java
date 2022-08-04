@@ -46,19 +46,18 @@ public class ErpOrderItemApi {
     private final SimpMessagingTemplate messagingTemplate;
 
     /**
-     * Upload excel data for order excel.
-     * 주문 파일 업로드 엑셀 대량등록시 사용하는 API
+     * Check password for order excel.
+     * 주문 파일 업로드 엑셀 대량등록 시 엑셀에 암호화가 걸려있는지 검사하는 API
      * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/excel/upload</b>
-     *
+     * <b>POST : API URL => /api/v1/erp-order-items/excel/upload/check-password</b>
+     * 
      * @param file : MultipartFile
-     * @return ResponseEntity(message, HttpStatus)
      * @see CustomExcelUtils#isExcelFile
-     * @see ErpOrderItemBusinessService#uploadErpOrderExcel
+     * @see ErpOrderItemBusinessService#checkPasswordForUploadedErpOrderExcel
      */
-    @PostMapping("/excel/upload")
+    @PostMapping("/excel/upload/check-password")
     @PermissionRole
-    public ResponseEntity<?> uploadErpOrderExcel(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> checkPasswordForUploadedErpOrderExcel(@RequestParam("file") MultipartFile file) {
         Message message = new Message();
 
         // file extension check.
@@ -66,16 +65,27 @@ public class ErpOrderItemApi {
             throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
-        message.setData(erpOrderItemBusinessService.uploadErpOrderExcel(file));
+        erpOrderItemBusinessService.checkPasswordForUploadedErpOrderExcel(file);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/excel/upload/{headerId}")
+    /**
+     * Upload excel data for order excel.
+     * 주문 파일 업로드 엑셀 대량등록시 사용하는 API
+     * <p>
+     * <b>POST : API URL => /api/v1/erp-order-items/excel/upload</b>
+     *
+     * @param file : MultipartFile
+     * @param params : Map::String, Object:: [headerId, excelPassword]
+     * @see CustomExcelUtils#isExcelFile
+     * @see ErpOrderItemBusinessService#uploadErpOrderExcel
+     */
+    @PostMapping("/excel/upload")
     @PermissionRole
-    public ResponseEntity<?> uploadErpOrderExcel(@PathVariable(value = "headerId") UUID headerId, @RequestParam("file") MultipartFile file) {
+    public ResponseEntity<?> uploadErpOrderExcel(@RequestParam("file") MultipartFile file, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
         // file extension check.
@@ -83,7 +93,7 @@ public class ErpOrderItemApi {
             throw new CustomExcelFileUploadException("This is not an excel file.");
         }
 
-        message.setData(erpOrderItemBusinessService.uploadErpOrderExcelByOtherForm(headerId, file));
+        message.setData(erpOrderItemBusinessService.uploadErpOrderExcel(file, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

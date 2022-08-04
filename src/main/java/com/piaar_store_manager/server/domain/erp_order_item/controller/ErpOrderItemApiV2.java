@@ -14,7 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredLogin
 public class ErpOrderItemApiV2 {
     private final ErpOrderItemBusinessServiceV2 erpOrderItemBusinessService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * Search erp order item.

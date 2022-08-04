@@ -21,6 +21,7 @@ import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDt
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.exception.CustomExcelFileRequiredPwdException;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -28,6 +29,8 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -52,26 +55,66 @@ public class ErpOrderItemBusinessService {
     private final UserService userService;
     private final ExcelTranslatorHeaderService excelTranslatorHeaderervice;
 
+    /*
+     * 업로드된 엑셀 파일의 암호화 여부 체크
+     */
+    public void checkPasswordForUploadedErpOrderExcel(MultipartFile file) {
+        try {
+            WorkbookFactory.create(file.getInputStream());
+        } catch (IOException e) {
+            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            // 암호화 된 경우
+            throw new CustomExcelFileRequiredPwdException();
+        }
+    }
+
     /**
      * <b>Upload Excel File</b>
      * <p>
-     * 피아르 엑셀 파일을 업로드한다.
-     *
+     * 엑셀 파일을 업로드한다.
+     * 
      * @param file : MultipartFile
-     * @return List::ErpOrderItemVo::
+     * @param params : Map::String, Object::
+     * @return List::ErpOrderItemVo.ExcelVo::
      */
-//    RE-OK
-    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcel(MultipartFile file) {
+    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcel(MultipartFile file, Map<String, Object> params) {
+        UUID headerId = params.get("headerId") != null ? UUID.fromString(params.get("headerId").toString()) : null;
+        
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
+        
+        // 변환여부에 따라 엑셀 데이터 추출. headerId가 존재한다면 변환된 엑셀.
+        if(headerId != null) {
+            vos = this.uploadOtherForm(file, params);
+        }else {
+            vos = this.uploadPiaarForm(file, params);
+        }
+        return vos;
+    }
+
+    /*
+     * 피아르 엑셀파일 업로드
+     */
+    public List<ErpOrderItemVo.ExcelVo> uploadPiaarForm(MultipartFile file, Map<String, Object> params) {
         Workbook workbook;
+
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
+
         try {
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if (excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            } else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
             throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<ErpOrderItemVo.ExcelVo> vos;
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
         try {
             vos = ErpOrderItemVo.excelSheetToVos(sheet);
         } catch (NullPointerException e) {
@@ -87,29 +130,45 @@ public class ErpOrderItemBusinessService {
         return vos;
     }
 
-    // 엑셀변환 후 피아르에 업로드
-    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcelByOtherForm(UUID headerId, MultipartFile file) {
+    /*
+     * 타 양식 업로드 > 피아르 양식으로 변환
+     */
+    public List<ErpOrderItemVo.ExcelVo> uploadOtherForm(MultipartFile file, Map<String, Object> params) {
         Workbook workbook;
+
+        UUID headerId = params.get("headerId") != null ? UUID.fromString(params.get("headerId").toString()) : null;
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
+
         try {
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if (excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            } else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
-            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            if(e.getMessage().equals("Password incorrect")) {
+                throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
+            }
+            throw new CustomExcelFileUploadException("엑셀 암호 오류. \n올바른 엑셀 파일을 업로드해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        // headerId에 대응하는 excelTranslator 데이터 조회
-        ExcelTranslatorHeaderEntity translatorEntity = excelTranslatorHeaderervice.searchOne(headerId);
-        ExcelTranslatorHeaderGetDto translatorGetDto = ExcelTranslatorHeaderGetDto.toDto(translatorEntity);
-
-        // header size 비교로 업로드 양식이 올바른지 검사
-        Row headerRow = sheet.getRow(translatorGetDto.getRowStartNumber() - 1);
-        if (translatorGetDto.getUploadHeaderDetail().getDetails().size() != headerRow.getLastCellNum()) {
-            throw new CustomExcelFileUploadException("업로드 엑셀 양식과 동일한 양식의 파일을 업로드해주세요.");
-        }
-
         List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
         try {
+            // 엑셀변환기에 등록된 타 엑셀 양식을 피아르 양식으로 변환해 업로드하는 경우
+            // headerId에 대응하는 excelTranslator 데이터 조회
+            ExcelTranslatorHeaderEntity translatorEntity = excelTranslatorHeaderervice.searchOne(headerId);
+            ExcelTranslatorHeaderGetDto translatorGetDto = ExcelTranslatorHeaderGetDto.toDto(translatorEntity);
+
+            // header size 비교로 업로드 양식이 올바른지 검사
+            Row headerRow = sheet.getRow(translatorGetDto.getRowStartNumber() - 1);
+            if (translatorGetDto.getUploadHeaderDetail().getDetails().size() != headerRow.getLastCellNum()) {
+                throw new CustomExcelFileUploadException("업로드 엑셀 양식과 동일한 양식의 파일을 업로드해주세요.");
+            }
+
             vos = this.excelSheetToPiaarVos(translatorGetDto, sheet);
         } catch (NullPointerException e) {
             throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");

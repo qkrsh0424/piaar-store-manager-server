@@ -115,4 +115,16 @@ public class GlobalCustomExceptionHandler {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @ExceptionHandler({ CustomExcelFileRequiredPwdException.class })
+    public ResponseEntity<?> customExcelFilePasswordExceptionHandler(CustomExcelFileRequiredPwdException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("need_password");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

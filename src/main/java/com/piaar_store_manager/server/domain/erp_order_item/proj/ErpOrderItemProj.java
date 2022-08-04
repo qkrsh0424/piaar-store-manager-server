@@ -7,8 +7,10 @@ import com.piaar_store_manager.server.domain.product_category.entity.ProductCate
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ErpOrderItemProj {
     ErpOrderItemEntity erpOrderItem;
     ProductEntity product;
