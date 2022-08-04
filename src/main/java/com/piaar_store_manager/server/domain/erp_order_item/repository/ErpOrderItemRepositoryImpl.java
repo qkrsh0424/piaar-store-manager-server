@@ -151,7 +151,7 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                         qProductOptionEntity.as("productOption"),
                         qProductCategoryEntity.as("productCategory")
                 ))
-                .where(eqSalesYn(params), eqReleaseYn(params))
+                .where(eqSalesYn(params), eqReleaseYn(params), eqStockReflectYn(params))
                 .where(lkSearchCondition(params))
                 .where(withinDateRange(params))
                 .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))
