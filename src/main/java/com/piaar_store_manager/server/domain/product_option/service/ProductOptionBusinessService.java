@@ -252,6 +252,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
                 .setUnitKrw(productOptionDto.getUnitKrw())
                 .setPackageYn(productOptionDto.getPackageYn())
+                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setProductCid(productOptionDto.getProductCid());
 
@@ -295,6 +296,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
                 .setUnitKrw(productOptionGetDto.getUnitKrw())
                 .setPackageYn(productOptionGetDto.getPackageYn())
+                .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                 .setUpdatedBy(USER_ID)
                 .setProductCid(productOptionGetDto.getProductCid());
@@ -366,6 +368,9 @@ public class ProductOptionBusinessService {
         }
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
+        }
+        if (productOptionDto.getSafetyStockUnit() != null) {
+            productOptionEntity.setSafetyStockUnit(productOptionDto.getSafetyStockUnit());
         }
         productOptionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         productOptionService.saveAndModify(productOptionEntity);

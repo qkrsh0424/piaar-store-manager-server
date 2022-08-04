@@ -83,6 +83,9 @@ public class ProductOptionEntity {
     @Column(name = "package_yn", columnDefinition = "n")
     private String packageYn;
 
+    @Column(name = "safety_stock_unit")
+    private Integer safetyStockUnit;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -106,6 +109,7 @@ public class ProductOptionEntity {
     private Integer releasedSum;
     @Transient
     private Integer stockSumUnit;
+
 
     /**
      * <b>Convert Method</b>
@@ -138,6 +142,7 @@ public class ProductOptionEntity {
                 .unitCny(productOptionDto.getUnitCny())
                 .unitKrw(productOptionDto.getUnitKrw())
                 .packageYn(productOptionDto.getPackageYn())
+                .safetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .createdAt(productOptionDto.getCreatedAt())
                 .createdBy(productOptionDto.getCreatedBy())
                 .updatedAt(productOptionDto.getUpdatedAt())

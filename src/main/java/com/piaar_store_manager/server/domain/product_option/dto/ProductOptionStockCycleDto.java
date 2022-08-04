@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductOptionStockCycleDto {
+public class ProductOptionStockCycleDto {   // w1: 최근 1주, w2: w1 전 1주, w3: w3 전 1주, ...
     Integer optionCid;
     UUID optionId;
     Integer totalStockUnitForW1;
