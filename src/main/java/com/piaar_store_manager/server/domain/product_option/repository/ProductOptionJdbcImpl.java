@@ -1,0 +1,83 @@
+package com.piaar_store_manager.server.domain.product_option.repository;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
+
+import lombok.RequiredArgsConstructor;
+
+@Repository
+@RequiredArgsConstructor
+public class ProductOptionJdbcImpl implements ProductOptionCustomJdbc {
+    private final JdbcTemplate jdbcTemplate;
+    private final int TOTAL_WEEK = 7;
+
+    @Override
+    public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
+        List<ProductOptionStockCycleDto> cycleDtos = new ArrayList<>();
+        List<String> searchParams = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+
+        // 파라미터로 넘어온 searchEndDate값은 [YYYY-MM-DDT14:59:59]로 넘어온다
+        LocalDateTime endDate = searchEndDate.with(LocalTime.MAX).minusHours(9);
+        LocalDateTime startDate = endDate.minusDays(6).with(LocalTime.MIN).minusHours(9);
+
+        // 총 재고수량 추출
+        sql.append("SELECT po.cid AS optionCid, po.id AS optionId, "
+                    + "SUM( CASE WHEN s.created_at <= ? AND s.status= ? THEN (s.unit * -1) "
+                    + "WHEN s.created_at <= ? AND s.status= ? THEN s.unit ELSE 0 "
+                    + "END) AS totalStockUnitForW1 ");
+        
+        searchParams.add(endDate.toString());
+        searchParams.add("release");
+        searchParams.add(endDate.toString());
+        searchParams.add("receive");
+
+        // 기간별(W) 출고 수량, 입고 수량 계산
+        for(int i = 0; i < TOTAL_WEEK; i++) {
+            sql.append(", SUM(CASE WHEN s.created_at BETWEEN ? AND ? "
+                    + "AND s.status= ? THEN s.unit ELSE 0 END) AS ?, "
+                    + "SUM(CASE WHEN s.created_at BETWEEN ? AND ? "
+                    + "AND s.status= ? THEN s.unit ELSE 0 END) AS ? ");
+
+            searchParams.add(startDate.toString());
+            searchParams.add(endDate.toString());
+            searchParams.add("release");
+            searchParams.add("releaseSumUnitForW" + (i+1));
+
+            searchParams.add(startDate.toString());
+            searchParams.add(endDate.toString());
+            searchParams.add("receive");
+            searchParams.add("receiveSumUnitForW" + (i+1));
+
+            endDate = startDate.with(LocalTime.MAX).minusHours(9);
+            startDate = endDate.minusDays(6).with(LocalTime.MIN).minusHours(9);
+        }
+
+        // 옵션별 product_release, product_receive 추출
+        sql.append( "FROM product_option po LEFT JOIN ("
+            + "SELECT 'release' as status, release_unit as unit, created_at as created_at, product_option_cid as product_option_cid "
+            + "FROM product_release "
+            + "UNION ALL "
+            + "SELECT 'receive' as status, receive_unit as unit, created_at as created_at, product_option_cid as product_option_cid "
+            + "FROM product_receive "
+            + ") as s ON s.product_option_cid = po.cid "
+            + "WHERE po.product_cid = ? "
+            + "GROUP BY po.cid"
+        );
+
+        searchParams.add(productCid.toString());
+
+        Object[] objs = new Object[searchParams.size()];
+        objs = searchParams.stream().toArray();
+
+        cycleDtos = jdbcTemplate.query(sql.toString(), new ProductOptionStockCycleDto.Mapper(), objs);
+        return cycleDtos;
+    }
+}

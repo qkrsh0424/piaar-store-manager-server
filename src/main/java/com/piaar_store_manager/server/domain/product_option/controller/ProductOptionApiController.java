@@ -141,17 +141,6 @@ public class ProductOptionApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/stock/status/product/{productCid}")
-    public ResponseEntity<?> searchStockStatusByProductCid(@PathVariable(value = "productCid") Integer productCid) {
-        Message message = new Message();
-
-        message.setData(productOptionBusinessService.searchStockStatusByProductCid(productCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
     /**
      * Search list api of status(release & receive) for product option.
      * <p>
@@ -279,11 +268,35 @@ public class ProductOptionApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search api for release location of produc option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/release-location</b>
+     * <p>
+     */
     @GetMapping("/release-location")
-    public ResponseEntity<?> searchRleaseLocation() {
+    public ResponseEntity<?> searchRelaseLocation() {
         Message message = new Message();
 
         message.setData(productOptionBusinessService.searchReleaseLocation());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search api for stock status by week.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/stock-cycle</b>
+     * <p>
+     * @param params Map::String, Object:: [searchEndDate, productCid]
+     */
+    @GetMapping("/stock-cycle")
+    public ResponseEntity<?> searchStockCycle(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchStockCycle(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

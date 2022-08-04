@@ -2,8 +2,6 @@ package com.piaar_store_manager.server.domain.product_option.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
@@ -124,47 +123,6 @@ public class ProductOptionBusinessService {
             .build();
 
         return statusDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 
-     * productId에 대응하는 product의 모든 옵션을 조회한다.
-     * product에 등록된 옵션을 돌면서
-     * optionCid에 대응하는 옵션의 release(출고) 데이터를 모두 조회한다.
-     * optionCid에 대응하는 옵션의 receive(입고) 데이터를 모두 조회한다.
-     * 입출고 데이터를 이용해 재고수량을 계산해 ProductOptionStatusDto.StockSumUnit 생성한다.
-     *
-     * @param optionCid : Integer
-     * @return ProductOptionStatusDto
-     * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReceiveService#searchListByOptionCid
-     */
-    public List<ProductOptionGetDto.StockStatus> searchStockStatusByProductCid(Integer productCid) {
-        List<Integer> productCids = new ArrayList<>(Arrays.asList(productCid));
-        List<ProductOptionGetDto> optionDtos = productOptionService.searchListByProductCids(productCids);
-        List<ProductOptionGetDto.StockStatus> statusDtos = optionDtos.stream().map(option -> {
-            List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(option.getCid());
-            List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(option.getCid());
-            
-            List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
-            List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-    
-            ProductOptionStockStatusDto statusDto = ProductOptionStockStatusDto.builder()
-                .productRelease(releaseDtos)
-                .productReceive(receiveDtos)
-                .build();
-
-            ProductOptionGetDto.StockStatus statusAndStockSumDto = ProductOptionGetDto.StockStatus.builder()
-                .option(option)
-                .stockStatus(statusDto)
-                .build();
-
-            return statusAndStockSumDto;
-        }).collect(Collectors.toList());
-
-        return statusDtos;
     }
 
     /**
@@ -427,5 +385,16 @@ public class ProductOptionBusinessService {
 
         List<String> allReleaseLocation = releaseLocationSet.stream().map(r -> r).collect(Collectors.toList());
         return allReleaseLocation;
+    }
+
+    public List<ProductOptionStockCycleDto> searchStockCycle(Map<String, Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        String date = params.get("searchEndDate") != null ? params.get("searchEndDate").toString() : null;
+        LocalDateTime searchEndDate = date != null ? LocalDateTime.parse(date, formatter) : LocalDateTime.now();
+
+        Integer productCid = params.get("productCid") != null ? Integer.parseInt(params.get("productCid").toString()) : null;
+
+        List<ProductOptionStockCycleDto> stockCycle = productOptionService.searchStockStatusByWeek(searchEndDate, productCid);
+        return stockCycle;
     }
 }

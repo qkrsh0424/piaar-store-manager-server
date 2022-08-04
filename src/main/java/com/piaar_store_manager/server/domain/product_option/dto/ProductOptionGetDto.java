@@ -138,14 +138,4 @@ public class ProductOptionGetDto {
         ProductOptionGetDto optionDto;
         List<OptionPackageDto> packageDtos;
     }
-
-    @Getter
-    @ToString
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StockStatus {
-        private ProductOptionGetDto option;
-        private ProductOptionStockStatusDto stockStatus;
-    }
 }

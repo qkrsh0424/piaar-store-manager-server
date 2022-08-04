@@ -1,9 +1,11 @@
 package com.piaar_store_manager.server.domain.product_option.service;
 
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionCustomJdbc;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
@@ -25,6 +27,7 @@ import javax.persistence.Tuple;
 @RequiredArgsConstructor
 public class ProductOptionService {
     private final ProductOptionRepository productOptionRepository;
+    private final ProductOptionCustomJdbc productOptionCustomJdbc;
 
     public ProductOptionEntity searchOne(Integer productOptionCid) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
@@ -268,5 +271,9 @@ public class ProductOptionService {
 
     public List<StockAnalysisProj> qfindStockAnalysis() {
         return productOptionRepository.qfindStockAnalysis();
+    }
+
+    public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
+        return productOptionCustomJdbc.searchStockStatusByWeek(searchEndDate, productCid);
     }
 }
