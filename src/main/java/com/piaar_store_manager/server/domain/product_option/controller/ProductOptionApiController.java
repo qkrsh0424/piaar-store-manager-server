@@ -290,7 +290,7 @@ public class ProductOptionApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-option/stock-cycle</b>
      * <p>
-     * @param params Map::String, Object:: [searchEndDate, productCid]
+     * @param params Map::String, Object:: [searchEndDate, categoryCid]
      */
     @GetMapping("/stock-cycle")
     public ResponseEntity<?> searchStockCycle(@RequestParam Map<String, Object> params) {

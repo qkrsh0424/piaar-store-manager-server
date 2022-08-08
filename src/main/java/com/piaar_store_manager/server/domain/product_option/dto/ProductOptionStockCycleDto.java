@@ -22,21 +22,22 @@ import lombok.experimental.Accessors;
 public class ProductOptionStockCycleDto {   // w1: 최근 1주, w2: w1 전 1주, w3: w3 전 1주, ...
     Integer optionCid;
     UUID optionId;
-    Integer totalStockUnitForW1;
-    Integer releaseSumUnitForW1;
-    Integer receiveSumUnitForW1;
-    Integer releaseSumUnitForW2;
-    Integer receiveSumUnitForW2;
-    Integer releaseSumUnitForW3;
-    Integer receiveSumUnitForW3;
-    Integer releaseSumUnitForW4;
-    Integer receiveSumUnitForW4;
-    Integer releaseSumUnitForW5;
-    Integer receiveSumUnitForW5;
-    Integer releaseSumUnitForW6;
-    Integer receiveSumUnitForW6;
-    Integer releaseSumUnitForW7;
-    Integer receiveSumUnitForW7;
+    UUID productId;
+    Integer stockForW1;
+    Integer releaseForW1;
+    Integer receiveForW1;
+    Integer releaseForW2;
+    Integer receiveForW2;
+    Integer releaseForW3;
+    Integer receiveForW3;
+    Integer releaseForW4;
+    Integer receiveForW4;
+    Integer releaseForW5;
+    Integer receiveForW5;
+    Integer releaseForW6;
+    Integer receiveForW6;
+    Integer releaseForW7;
+    Integer receiveForW7;
 
     @Getter
     @ToString
@@ -50,21 +51,22 @@ public class ProductOptionStockCycleDto {   // w1: 최근 1주, w2: w1 전 1주,
             ProductOptionStockCycleDto dto = ProductOptionStockCycleDto.builder()
                 .optionCid(rs.getInt("optionCid"))
                 .optionId(UUID.fromString(rs.getString("optionId")))
-                .totalStockUnitForW1(rs.getInt("totalStockUnitForW1"))
-                .releaseSumUnitForW1(rs.getInt("releaseSumUnitForW1"))
-                .receiveSumUnitForW1(rs.getInt("receiveSumUnitForW1"))
-                .releaseSumUnitForW2(rs.getInt("releaseSumUnitForW2"))
-                .receiveSumUnitForW2(rs.getInt("receiveSumUnitForW2"))
-                .releaseSumUnitForW3(rs.getInt("releaseSumUnitForW3"))
-                .receiveSumUnitForW3(rs.getInt("receiveSumUnitForW3"))
-                .releaseSumUnitForW4(rs.getInt("releaseSumUnitForW4"))
-                .receiveSumUnitForW4(rs.getInt("receiveSumUnitForW4"))
-                .releaseSumUnitForW5(rs.getInt("releaseSumUnitForW5"))
-                .receiveSumUnitForW5(rs.getInt("receiveSumUnitForW5"))
-                .releaseSumUnitForW6(rs.getInt("releaseSumUnitForW6"))
-                .receiveSumUnitForW6(rs.getInt("receiveSumUnitForW6"))
-                .releaseSumUnitForW7(rs.getInt("releaseSumUnitForW7"))
-                .receiveSumUnitForW7(rs.getInt("receiveSumUnitForW7"))
+                .productId(UUID.fromString(rs.getString("productId")))
+                .stockForW1(rs.getInt("stockForW1"))
+                .releaseForW1(rs.getInt("releaseForW1"))
+                .receiveForW1(rs.getInt("receiveForW1"))
+                .releaseForW2(rs.getInt("releaseForW2"))
+                .receiveForW2(rs.getInt("receiveForW2"))
+                .releaseForW3(rs.getInt("releaseForW3"))
+                .receiveForW3(rs.getInt("receiveForW3"))
+                .releaseForW4(rs.getInt("releaseForW4"))
+                .receiveForW4(rs.getInt("receiveForW4"))
+                .releaseForW5(rs.getInt("releaseForW5"))
+                .receiveForW5(rs.getInt("receiveForW5"))
+                .releaseForW6(rs.getInt("releaseForW6"))
+                .receiveForW6(rs.getInt("receiveForW6"))
+                .releaseForW7(rs.getInt("releaseForW7"))
+                .receiveForW7(rs.getInt("receiveForW7"))
                 .build();
 
             return dto;

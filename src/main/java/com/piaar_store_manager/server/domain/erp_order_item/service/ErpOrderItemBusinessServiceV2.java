@@ -33,7 +33,7 @@ public class ErpOrderItemBusinessServiceV2 {
     // RE-OK
     @Transactional(readOnly = true)
     public List<ErpOrderItemVo> searchList(Map<String, Object> params) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "optionCode";
+        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
 
         if(matchedCode.equals("optionCode")) {
@@ -49,7 +49,7 @@ public class ErpOrderItemBusinessServiceV2 {
     // 대시보드 에서 사용. 페이징 처리하지 않는
     @Transactional(readOnly = true)
     public List<ErpOrderItemVo.ManyToOneJoin> searchAll(Map<String, Object> params) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "optionCode";
+        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         
         if(matchedCode.equals("optionCode")) {
@@ -69,7 +69,7 @@ public class ErpOrderItemBusinessServiceV2 {
 //    RE-OK
     @Transactional(readOnly = true)
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "optionCode";
+        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
 
@@ -89,7 +89,7 @@ public class ErpOrderItemBusinessServiceV2 {
 //    RE-OK
     @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "optionCode";        // 기본값은 옵션관리코드로 지정
+        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";        // 기본값은 옵션관리코드로 지정
         Page<ErpOrderItemProj> itemPages = null;
 
         if(matchedCode.equals("optionCode")) {

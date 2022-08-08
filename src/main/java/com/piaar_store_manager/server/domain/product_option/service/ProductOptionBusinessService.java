@@ -397,9 +397,9 @@ public class ProductOptionBusinessService {
         String date = params.get("searchEndDate") != null ? params.get("searchEndDate").toString() : null;
         LocalDateTime searchEndDate = date != null ? LocalDateTime.parse(date, formatter) : LocalDateTime.now();
 
-        Integer productCid = params.get("productCid") != null ? Integer.parseInt(params.get("productCid").toString()) : null;
+        Integer categoryCid = params.get("categoryCid") != null ? Integer.parseInt(params.get("categoryCid").toString()) : null;
 
-        List<ProductOptionStockCycleDto> stockCycle = productOptionService.searchStockStatusByWeek(searchEndDate, productCid);
+        List<ProductOptionStockCycleDto> stockCycle = productOptionService.searchStockStatusByWeek(searchEndDate, categoryCid);
         return stockCycle;
     }
 }

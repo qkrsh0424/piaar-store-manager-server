@@ -53,7 +53,7 @@ public class ErpOrderItemDto {
 
     @NotNull
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 50)
     private String receiver; // 수취인명 / 필수값
 
     @NotBlank

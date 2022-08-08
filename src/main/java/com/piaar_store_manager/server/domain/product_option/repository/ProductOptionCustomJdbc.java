@@ -9,5 +9,5 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionSto
 
 @Repository
 public interface ProductOptionCustomJdbc {
-    List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productId);
+    List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer categoryCid);
 }
