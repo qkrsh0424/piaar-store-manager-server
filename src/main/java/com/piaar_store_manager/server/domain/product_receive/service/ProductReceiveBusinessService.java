@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product_receive.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,10 @@ import com.piaar_store_manager.server.domain.product_option.service.ProductOptio
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
+import com.piaar_store_manager.server.domain.product_receive.service.strategy.create.CreateContext;
+import com.piaar_store_manager.server.domain.product_receive.service.strategy.delete.DeleteContext;
+import com.piaar_store_manager.server.domain.product_receive.service.strategy.search.SearchContext;
+import com.piaar_store_manager.server.domain.product_receive.service.strategy.update.UpdateContext;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
@@ -27,13 +32,19 @@ public class ProductReceiveBusinessService {
     private final ProductOptionService productOptionService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
+    private final SearchContext productReceiveSearchContext;
+    private final CreateContext productReceiveCreateContext;
+    private final DeleteContext productReceiveDeleteContext;
+    private final UpdateContext productReceiveUpdateContext;
 
+    // deprecated
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
         ProductReceiveEntity entity = productReceiveService.searchOne(productReceiveCid);
         ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
         return dto;
     }
 
+    // deprecated
     public List<ProductReceiveGetDto> searchList() {
         List<ProductReceiveEntity> entities = productReceiveService.searchList();
         List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
@@ -48,6 +59,7 @@ public class ProductReceiveBusinessService {
      * @param productReceiveCid : Integer
      * @see ProductReceiveService#searchOneM2OJ
      */
+    // deprecated
     public ProductReceiveGetDto.ManyToOneJoin searchOneM2OJ(Integer productReceiveCid){
         ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
         ProductReceiveGetDto.ManyToOneJoin resDto = ProductReceiveGetDto.ManyToOneJoin.toDto(receiveProj);
@@ -61,6 +73,7 @@ public class ProductReceiveBusinessService {
      *
      * @see ProductReceiveService#searchListM2OJ
      */
+    // deprecated
     public List<ProductReceiveGetDto.ManyToOneJoin> searchListM2OJ() {
         List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
         List<ProductReceiveGetDto.ManyToOneJoin> resDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
@@ -75,12 +88,12 @@ public class ProductReceiveBusinessService {
      * @param productOptionCid : Integer
      * @see ProductReceiveService#searchListByOptionCid
      */
+    // deprecated
     public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
         List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
-
     
     /**
      * <b>DB Insert Related Method</b>
@@ -95,6 +108,7 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#saveListAndModify
      * @see OptionPackageService#searchListByParentOptionId
      */
+    // deprecated
     @Transactional
     public void createOne(ProductReceiveGetDto productReceiveGetDto) {
         UUID USER_ID = userService.getUserId();
@@ -145,6 +159,7 @@ public class ProductReceiveBusinessService {
      * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @see ProductReceiveService#saveAndModify
      */
+    // deprecated
     @Transactional
     public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
         UUID USER_ID = userService.getUserId();
@@ -205,21 +220,25 @@ public class ProductReceiveBusinessService {
         }
     }
 
+    // deprecated
     public void destroyOne(Integer productReceiveCid) {
         productReceiveService.destroyOne(productReceiveCid);
     }
 
+    // deprecated
     @Transactional
     public void changeOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
         entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
     }
 
+    // deprecated
     @Transactional
     public void changeList(List<ProductReceiveGetDto> receiveDtos) {
         receiveDtos.stream().forEach(r -> this.changeOne(r));
     }
 
+    // deprecated
     @Transactional
     public void patchOne(ProductReceiveGetDto receiveDto) {
         ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
@@ -230,5 +249,71 @@ public class ProductReceiveBusinessService {
         if (receiveDto.getMemo() != null) {
             receiveEntity.setMemo(receiveDto.getMemo());
         }
+    }
+
+    public <T> T searchOne(UUID productReceiveId, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveSearchContext.setSearchStrategy(objectType);
+
+        T dto = productReceiveSearchContext.searchOne(productReceiveId);
+        return dto;
+    }
+
+    public <T> List<T> searchList(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveSearchContext.setSearchStrategy(objectType);
+        
+        List<T> dto = productReceiveSearchContext.searchList();
+        return dto;
+    }
+
+    public <T> List<T> searchListByOptionCid(Integer productOptionCid, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveSearchContext.setSearchStrategy(objectType);
+
+        List<T> dtos = productReceiveSearchContext.searchListByOptionCid(productOptionCid);
+        return dtos;
+    }
+
+    public void createOne(Map<String, Object> params, ProductReceiveGetDto productReceiveDto) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveCreateContext.setCreateStrategy(objectType);
+
+        productReceiveCreateContext.createOne(productReceiveDto);
+    }
+
+    public void createList(Map<String, Object> params, List<ProductReceiveGetDto> productReceiveGetDtos) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveCreateContext.setCreateStrategy(objectType);
+        
+        productReceiveCreateContext.createList(productReceiveGetDtos);
+    }
+
+    public void destroyOne(UUID productReceiveId, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveDeleteContext.setDeleteStrategy(objectType);
+
+        productReceiveDeleteContext.destroyOne(productReceiveId);
+    }
+
+    public void changeOne(Map<String, Object> params, ProductReceiveGetDto receiveDto) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveUpdateContext.setUpdateStrategy(objectType);
+
+        productReceiveUpdateContext.changeOne(receiveDto);
+    }
+
+    public void changeList(Map<String, Object> params, List<ProductReceiveGetDto> receiveDtos) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveUpdateContext.setUpdateStrategy(objectType);
+
+        productReceiveUpdateContext.changeList(receiveDtos);
+    }
+
+    public void patchOne(Map<String, Object> params, ProductReceiveGetDto receiveDto) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReceiveUpdateContext.setUpdateStrategy(objectType);
+
+        productReceiveUpdateContext.patchOne(receiveDto);
     }
 }
