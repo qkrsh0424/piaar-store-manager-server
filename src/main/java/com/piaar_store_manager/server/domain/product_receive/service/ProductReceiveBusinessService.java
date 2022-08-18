@@ -1,26 +1,14 @@
 package com.piaar_store_manager.server.domain.product_receive.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import javax.transaction.Transactional;
-
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.domain.product_receive.service.strategy.create.CreateContext;
 import com.piaar_store_manager.server.domain.product_receive.service.strategy.delete.DeleteContext;
 import com.piaar_store_manager.server.domain.product_receive.service.strategy.search.SearchContext;
 import com.piaar_store_manager.server.domain.product_receive.service.strategy.update.UpdateContext;
-import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,28 +16,28 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProductReceiveBusinessService {
-    private final ProductReceiveService productReceiveService;
-    private final ProductOptionService productOptionService;
-    private final OptionPackageService optionPackageService;
-    private final UserService userService;
+    // private final ProductReceiveService productReceiveService;
+    // private final ProductOptionService productOptionService;
+    // private final OptionPackageService optionPackageService;
+    // private final UserService userService;
     private final SearchContext productReceiveSearchContext;
     private final CreateContext productReceiveCreateContext;
     private final DeleteContext productReceiveDeleteContext;
     private final UpdateContext productReceiveUpdateContext;
 
     // deprecated
-    public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
-        ProductReceiveEntity entity = productReceiveService.searchOne(productReceiveCid);
-        ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
-        return dto;
-    }
+    // public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
+    //     ProductReceiveEntity entity = productReceiveService.searchOne(productReceiveCid);
+    //     ProductReceiveGetDto dto = ProductReceiveGetDto.toDto(entity);
+    //     return dto;
+    // }
 
     // deprecated
-    public List<ProductReceiveGetDto> searchList() {
-        List<ProductReceiveEntity> entities = productReceiveService.searchList();
-        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-        return dtos;
-    }
+    // public List<ProductReceiveGetDto> searchList() {
+    //     List<ProductReceiveEntity> entities = productReceiveService.searchList();
+    //     List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
+    //     return dtos;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -60,11 +48,11 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#searchOneM2OJ
      */
     // deprecated
-    public ProductReceiveGetDto.ManyToOneJoin searchOneM2OJ(Integer productReceiveCid){
-        ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
-        ProductReceiveGetDto.ManyToOneJoin resDto = ProductReceiveGetDto.ManyToOneJoin.toDto(receiveProj);
-        return resDto;
-    }
+    // public ProductReceiveGetDto.ManyToOneJoin searchOneM2OJ(Integer productReceiveCid){
+    //     ProductReceiveProj receiveProj = productReceiveService.searchOneM2OJ(productReceiveCid);
+    //     ProductReceiveGetDto.ManyToOneJoin resDto = ProductReceiveGetDto.ManyToOneJoin.toDto(receiveProj);
+    //     return resDto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -74,11 +62,11 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#searchListM2OJ
      */
     // deprecated
-    public List<ProductReceiveGetDto.ManyToOneJoin> searchListM2OJ() {
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-        List<ProductReceiveGetDto.ManyToOneJoin> resDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return resDtos;
-    }
+    // public List<ProductReceiveGetDto.ManyToOneJoin> searchListM2OJ() {
+    //     List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
+    //     List<ProductReceiveGetDto.ManyToOneJoin> resDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
+    //     return resDtos;
+    // }
     
     /**
      * <b>DB Select Related Method</b>
@@ -89,11 +77,11 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#searchListByOptionCid
      */
     // deprecated
-    public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
-        List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
-        List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-        return dtos;
-    }
+    // public List<ProductReceiveGetDto> searchListByOptionCid(Integer productOptionCid) {
+    //     List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(productOptionCid);
+    //     List<ProductReceiveGetDto> dtos = entities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
+    //     return dtos;
+    // }
     
     /**
      * <b>DB Insert Related Method</b>
@@ -109,44 +97,44 @@ public class ProductReceiveBusinessService {
      * @see OptionPackageService#searchListByParentOptionId
      */
     // deprecated
-    @Transactional
-    public void createOne(ProductReceiveGetDto productReceiveGetDto) {
-        UUID USER_ID = userService.getUserId();
-        productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
+    // @Transactional
+    // public void createOne(ProductReceiveGetDto productReceiveGetDto) {
+    //     UUID USER_ID = userService.getUserId();
+    //     productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
 
-        ProductOptionEntity optionEntity = productOptionService.searchOne(productReceiveGetDto.getProductOptionCid());
+    //     ProductOptionEntity optionEntity = productOptionService.searchOne(productReceiveGetDto.getProductOptionCid());
 
-        if(optionEntity.getPackageYn().equals("n")) {
-            // 1) 실행
-            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                    .id(UUID.randomUUID())
-                    .receiveUnit(productReceiveGetDto.getReceiveUnit())
-                    .memo(productReceiveGetDto.getMemo())
-                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                    .createdBy(USER_ID)
-                    .productOptionCid(productReceiveGetDto.getCid())
-                    .build();
-            productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
-        } else {
-            // 2) 실행
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+    //     if(optionEntity.getPackageYn().equals("n")) {
+    //         // 1) 실행
+    //         ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+    //                 .id(UUID.randomUUID())
+    //                 .receiveUnit(productReceiveGetDto.getReceiveUnit())
+    //                 .memo(productReceiveGetDto.getMemo())
+    //                 .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                 .createdBy(USER_ID)
+    //                 .productOptionCid(productReceiveGetDto.getCid())
+    //                 .build();
+    //         productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
+    //     } else {
+    //         // 2) 실행
+    //         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
             
-            List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-            optionPackageEntities.forEach(option -> {
-                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .receiveUnit(option.getPackageUnit() * productReceiveGetDto.getReceiveUnit())
-                        .memo(productReceiveGetDto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getOriginOptionCid())
-                        .build();
+    //         List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+    //         optionPackageEntities.forEach(option -> {
+    //             ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+    //                     .id(UUID.randomUUID())
+    //                     .receiveUnit(option.getPackageUnit() * productReceiveGetDto.getReceiveUnit())
+    //                     .memo(productReceiveGetDto.getMemo())
+    //                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                     .createdBy(USER_ID)
+    //                     .productOptionCid(option.getOriginOptionCid())
+    //                     .build();
 
-                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-            });
-            productReceiveService.saveListAndModify(productReceiveEntities);
-        }
-    }
+    //             productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+    //         });
+    //         productReceiveService.saveListAndModify(productReceiveEntities);
+    //     }
+    // }
 
     /**
      * <b>DB Insert Related Method</b>
@@ -160,96 +148,96 @@ public class ProductReceiveBusinessService {
      * @see ProductReceiveService#saveAndModify
      */
     // deprecated
-    @Transactional
-    public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
-        UUID USER_ID = userService.getUserId();
-        List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
-        // 패키지 옵션 분류
-        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
+    // @Transactional
+    // public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
+    //     UUID USER_ID = userService.getUserId();
+    //     List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
+    //     List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
+    //     // 패키지 옵션 분류
+    //     List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+    //     List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        // 1) 실행
-        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-        productReceiveGetDtos.forEach(dto -> {
-            originOptionEntities.forEach(option -> {
-                if(dto.getProductOptionCid().equals(option.getCid())){
-                    ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .receiveUnit(dto.getReceiveUnit())
-                        .memo(dto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getCid())
-                        .build();
+    //     // 1) 실행
+    //     List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+    //     productReceiveGetDtos.forEach(dto -> {
+    //         originOptionEntities.forEach(option -> {
+    //             if(dto.getProductOptionCid().equals(option.getCid())){
+    //                 ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+    //                     .id(UUID.randomUUID())
+    //                     .receiveUnit(dto.getReceiveUnit())
+    //                     .memo(dto.getMemo())
+    //                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                     .createdBy(USER_ID)
+    //                     .productOptionCid(option.getCid())
+    //                     .build();
 
-                    productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-                }
-            });
-        });
+    //                 productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+    //             }
+    //         });
+    //     });
 
-        productReceiveService.saveListAndModify(productReceiveEntities);
-        productReceiveEntities.clear();
+    //     productReceiveService.saveListAndModify(productReceiveEntities);
+    //     productReceiveEntities.clear();
 
-        // 2) 실행
-        if (parentOptionEntities.size() > 0) {
-            List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+    //     // 2) 실행
+    //     if (parentOptionEntities.size() > 0) {
+    //         List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+    //         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
 
-            productReceiveGetDtos.forEach(dto -> {
-                parentOptionEntities.forEach(parentOption -> {
-                    if (dto.getProductOptionCid().equals(parentOption.getCid())) {
-                        optionPackageEntities.forEach(option -> {
-                            if (option.getParentOptionId().equals(parentOption.getId())) {
-                                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                                        .id(UUID.randomUUID())
-                                        .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
-                                        .memo(dto.getMemo())
-                                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                                        .createdBy(USER_ID)
-                                        .productOptionCid(option.getOriginOptionCid())
-                                        .build();
+    //         productReceiveGetDtos.forEach(dto -> {
+    //             parentOptionEntities.forEach(parentOption -> {
+    //                 if (dto.getProductOptionCid().equals(parentOption.getCid())) {
+    //                     optionPackageEntities.forEach(option -> {
+    //                         if (option.getParentOptionId().equals(parentOption.getId())) {
+    //                             ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+    //                                     .id(UUID.randomUUID())
+    //                                     .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
+    //                                     .memo(dto.getMemo())
+    //                                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                                     .createdBy(USER_ID)
+    //                                     .productOptionCid(option.getOriginOptionCid())
+    //                                     .build();
 
-                                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-                            }
-                        });
-                    }
-                });
-            });
-            productReceiveService.saveListAndModify(productReceiveEntities);
-        }
-    }
-
-    // deprecated
-    public void destroyOne(Integer productReceiveCid) {
-        productReceiveService.destroyOne(productReceiveCid);
-    }
+    //                             productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+    //                         }
+    //                     });
+    //                 }
+    //             });
+    //         });
+    //         productReceiveService.saveListAndModify(productReceiveEntities);
+    //     }
+    // }
 
     // deprecated
-    @Transactional
-    public void changeOne(ProductReceiveGetDto receiveDto) {
-        ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
-        entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-    }
+    // public void destroyOne(Integer productReceiveCid) {
+    //     productReceiveService.destroyOne(productReceiveCid);
+    // }
 
     // deprecated
-    @Transactional
-    public void changeList(List<ProductReceiveGetDto> receiveDtos) {
-        receiveDtos.stream().forEach(r -> this.changeOne(r));
-    }
+    // @Transactional
+    // public void changeOne(ProductReceiveGetDto receiveDto) {
+    //     ProductReceiveEntity entity = productReceiveService.searchOne(receiveDto.getCid());
+    //     entity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
+    // }
 
     // deprecated
-    @Transactional
-    public void patchOne(ProductReceiveGetDto receiveDto) {
-        ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
+    // @Transactional
+    // public void changeList(List<ProductReceiveGetDto> receiveDtos) {
+    //     receiveDtos.stream().forEach(r -> this.changeOne(r));
+    // }
 
-        if (receiveDto.getReceiveUnit() != null) {
-            receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
-        }
-        if (receiveDto.getMemo() != null) {
-            receiveEntity.setMemo(receiveDto.getMemo());
-        }
-    }
+    // deprecated
+    // @Transactional
+    // public void patchOne(ProductReceiveGetDto receiveDto) {
+    //     ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getCid());
+
+    //     if (receiveDto.getReceiveUnit() != null) {
+    //         receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
+    //     }
+    //     if (receiveDto.getMemo() != null) {
+    //         receiveEntity.setMemo(receiveDto.getMemo());
+    //     }
+    // }
 
     public <T> T searchOne(UUID productReceiveId, Map<String, Object> params) {
         String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";

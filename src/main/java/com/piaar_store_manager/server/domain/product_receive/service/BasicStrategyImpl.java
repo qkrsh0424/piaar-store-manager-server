@@ -70,8 +70,7 @@ public class BasicStrategyImpl implements SearchStrategy, CreateStrategy, Delete
     public <T> void createList(List<T> dtos) {
         UUID USER_ID = userService.getUserId();
         List<ProductReceiveGetDto> productReceiveGetDtos = dtos.stream().map(dto -> (ProductReceiveGetDto) dto).collect(Collectors.toList());
-        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-        productReceiveGetDtos.forEach(dto -> {
+        List<ProductReceiveEntity> productReceiveEntities = productReceiveGetDtos.stream().map(dto -> {
             ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
                     .id(UUID.randomUUID())
                     .receiveUnit(dto.getReceiveUnit())
@@ -81,8 +80,8 @@ public class BasicStrategyImpl implements SearchStrategy, CreateStrategy, Delete
                     .productOptionCid(dto.getProductOptionCid())
                     .build();
 
-            productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-        });
+            return ProductReceiveEntity.toEntity(receiveGetDto);
+        }).collect(Collectors.toList());
 
         productReceiveService.saveListAndModify(productReceiveEntities);
     }
