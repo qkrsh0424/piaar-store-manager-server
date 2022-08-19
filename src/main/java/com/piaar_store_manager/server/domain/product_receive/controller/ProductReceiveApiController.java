@@ -205,10 +205,10 @@ public class ProductReceiveApiController {
     // Unused API
     @PostMapping("")
     @PermissionRole
-    public ResponseEntity<?> createOne(@RequestParam Map<String, Object> params, @RequestBody ProductReceiveGetDto productReceiveGetDto) {
+    public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        productReceiveBusinessService.createOne(params, productReceiveGetDto);
+        productReceiveBusinessService.createOne(productReceiveGetDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -236,15 +236,13 @@ public class ProductReceiveApiController {
      * Create list api for receive.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/list</b>
-     * 
-     * @param params : Map[String, Object] (objectType)
      */
     @PostMapping("/list")
     @PermissionRole
-    public ResponseEntity<?> createList(@RequestParam Map<String, Object> params, @RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.createList(params, productReceiveGetDtos);
+        productReceiveBusinessService.createList(productReceiveGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -279,10 +277,10 @@ public class ProductReceiveApiController {
     // Unused API
     @DeleteMapping("{productReceiveId}")
     @PermissionRole
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveId") UUID productReceiveId, @RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveId") UUID productReceiveId) {
         Message message = new Message();
 
-        productReceiveBusinessService.destroyOne(productReceiveId, params);
+        productReceiveBusinessService.destroyOne(productReceiveId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -316,10 +314,10 @@ public class ProductReceiveApiController {
      */
     @PutMapping("")
     @PermissionRole
-    public ResponseEntity<?> changeOne(@RequestParam Map<String, Object> params, @RequestBody ProductReceiveGetDto receiveDto) {
+    public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
 
-        productReceiveBusinessService.changeOne(params, receiveDto);
+        productReceiveBusinessService.changeOne(receiveDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -374,10 +372,10 @@ public class ProductReceiveApiController {
     // Unused API
     @PatchMapping("")
     @PermissionRole
-    public ResponseEntity<?> patchOne(@RequestParam Map<String, Object> params, @RequestBody ProductReceiveGetDto productReceiveGetDto) {
+    public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
 
-        productReceiveBusinessService.patchOne(params, productReceiveGetDto);
+        productReceiveBusinessService.patchOne(productReceiveGetDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

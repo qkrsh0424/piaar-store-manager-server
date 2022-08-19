@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.piaar_store_manager.server.domain.product_receive.type.ProductReceiveObjectType;
 
-@Component
+// @Component
 public class UpdateContext {
     private ProductReceiveObjectType objectType;
     private UpdateStrategy updateStrategy;
