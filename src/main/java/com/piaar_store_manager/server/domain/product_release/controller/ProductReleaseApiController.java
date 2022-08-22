@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.product_release.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,16 +36,17 @@ public class ProductReleaseApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-release/one/{productReleaseCid}</b>
      */
-    @GetMapping("/one/{productReleaseCid}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
-        Message message = new Message();
+    // deprecated
+    // @GetMapping("/one/{productReleaseCid}")
+    // public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
+    //     Message message = new Message();
 
-        message.setData(productReleaseBusinessService.searchOne(productReleaseCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productReleaseBusinessService.searchOne(productReleaseCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search one api for release.
@@ -51,11 +55,23 @@ public class ProductReleaseApiController {
      * <p>
      * productReleaseCid에 대응하는 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      */
-    @GetMapping("/one-m2oj/{productReleaseCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
+    // deprecated
+    // @GetMapping("/one-m2oj/{productReleaseCid}")
+    // public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
+    //     Message message = new Message();
+
+    //     message.setData(productReleaseBusinessService.searchOneM2OJ(productReleaseCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    @GetMapping("{productReleaseId}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productReleaseId") UUID productReleaseId, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReleaseBusinessService.searchOneM2OJ(productReleaseCid));
+        message.setData(productReleaseBusinessService.searchOne(productReleaseId, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -67,11 +83,42 @@ public class ProductReleaseApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-release/list</b>
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    // deprecated
+    // @GetMapping("/list")
+    // public ResponseEntity<?> searchList() {
+    //     Message message = new Message();
+
+    //     message.setData(productReleaseBusinessService.searchList());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search list api for release.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-release/list-m2oj</b>
+     * <p>
+     * 모든 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
+     */
+    // deprecated
+    // @GetMapping("/list-m2oj")
+    // public ResponseEntity<?> searchListM2OJ() {
+    //     Message message = new Message();
+
+    //     message.setData(productReleaseBusinessService.searchListM2OJ());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    @GetMapping("/batch")
+    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReleaseBusinessService.searchList());
+        message.setData(productReleaseBusinessService.searchBatch(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -88,24 +135,6 @@ public class ProductReleaseApiController {
         Message message = new Message();
 
         message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search list api for release.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-release/list-m2oj</b>
-     * <p>
-     * 모든 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
-        Message message = new Message();
-
-        message.setData(productReleaseBusinessService.searchListM2OJ());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

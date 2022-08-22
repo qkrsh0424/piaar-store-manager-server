@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product_release.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import com.piaar_store_manager.server.domain.product_option.service.ProductOptio
 import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
+import com.piaar_store_manager.server.domain.product_release.service.strategy.search.ProductReleaseSearchContext;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
@@ -29,17 +31,13 @@ public class ProductReleaseBusinessService {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    public ProductReleaseGetDto searchOne(Integer productReleaseCid) {
-        ProductReleaseEntity entity = productReleaseService.searchOne(productReleaseCid);
-        ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
-        return dto;
-    }
+    private final ProductReleaseSearchContext productReleaseSearchContext;
 
-    public List<ProductReleaseGetDto> searchList() {
-        List<ProductReleaseEntity> entities = productReleaseService.searchList();
-        List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
-        return dtos;
-    }
+    // public ProductReleaseGetDto searchOne(Integer productReleaseCid) {
+    //     ProductReleaseEntity entity = productReleaseService.searchOne(productReleaseCid);
+    //     ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
+    //     return dto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -49,11 +47,25 @@ public class ProductReleaseBusinessService {
      * @param productReleaseCid : Integer
      * @see ProductReleaseService#searchOneM2OJ
      */
-    public ProductReleaseGetDto.ManyToOneJoin searchOneM2OJ(Integer productReleaseCid) {
-        ProductReleaseProj releaseProj = productReleaseService.searchOneM2OJ(productReleaseCid);
-        ProductReleaseGetDto.ManyToOneJoin resDto = ProductReleaseGetDto.ManyToOneJoin.toDto(releaseProj);
-        return resDto;
+    // public ProductReleaseGetDto.ManyToOneJoin searchOneM2OJ(Integer productReleaseCid) {
+    //     ProductReleaseProj releaseProj = productReleaseService.searchOneM2OJ(productReleaseCid);
+    //     ProductReleaseGetDto.ManyToOneJoin resDto = ProductReleaseGetDto.ManyToOneJoin.toDto(releaseProj);
+    //     return resDto;
+    // }
+
+    public <T> T searchOne(UUID productReceiveId, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReleaseSearchContext.setSearchStrategy(objectType);
+
+        T dto = productReleaseSearchContext.searchOne(productReceiveId);
+        return dto;
     }
+
+    // public List<ProductReleaseGetDto> searchList() {
+    //     List<ProductReleaseEntity> entities = productReleaseService.searchList();
+    //     List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
+    //     return dtos;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -62,10 +74,18 @@ public class ProductReleaseBusinessService {
      *
      * @see ProductReleaseService#searchListM2OJ
      */
-    public List<ProductReleaseGetDto.ManyToOneJoin> searchListM2OJ() {
-        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-        List<ProductReleaseGetDto.ManyToOneJoin> resDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return resDtos;
+    // public List<ProductReleaseGetDto.ManyToOneJoin> searchListM2OJ() {
+    //     List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
+    //     List<ProductReleaseGetDto.ManyToOneJoin> resDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
+    //     return resDtos;
+    // }
+
+    public <T> List<T> searchBatch(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReleaseSearchContext.setSearchStrategy(objectType);
+
+        List<T> dto = productReleaseSearchContext.searchBatch();
+        return dto;
     }
 
     /**
@@ -76,9 +96,18 @@ public class ProductReleaseBusinessService {
      * @param productOptionCid : Integer
      * @see ProductReleaseService#searchListByOptionCid
      */
+    // deprecated
     public List<ProductReleaseGetDto> searchListByOptionCid(Integer productOptionCid) {
         List<ProductReleaseEntity> entities = productReleaseService.searchListByOptionCid(productOptionCid);
         List<ProductReleaseGetDto> dtos = entities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public <T> List<T> searchListByOptionCid(Integer productOptionCid, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productReleaseSearchContext.setSearchStrategy(objectType);
+
+        List<T> dtos = productReleaseSearchContext.searchBatchByOptionCid(productOptionCid);
         return dtos;
     }
 

@@ -130,11 +130,11 @@ public class ProductReceiveApiController {
      * @param params : Map[String, Object] (objectType)
      */
     // Unused API
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
+    @GetMapping("/batch")
+    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchList(params));
+        message.setData(productReceiveBusinessService.searchBatch(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -159,18 +159,18 @@ public class ProductReceiveApiController {
     // }
 
     /**
-     * Search list api for receive matching option cid.
+     * Search api for receive matching option cid.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/list/{productOptionCid}</b>
+     * <b>GET : API URL => /api/v1/product-receive/batch/{productOptionCid}</b>
      * 
      * @param params : Map[String, Object] (objectType)
      */
     // Unused API
-    @GetMapping("/list/{productOptionCid}")
-    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid, @RequestParam Map<String, Object> params) {
+    @GetMapping("/batch/{productOptionCid}")
+    public ResponseEntity<?> searchBatchByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid, params));
+        message.setData(productReceiveBusinessService.searchBatchByOptionCid(productOptionCid, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -237,12 +237,12 @@ public class ProductReceiveApiController {
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/list</b>
      */
-    @PostMapping("/list")
+    @PostMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public ResponseEntity<?> createBatch(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.createList(productReceiveGetDtos);
+        productReceiveBusinessService.createBatch(productReceiveGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -332,12 +332,12 @@ public class ProductReceiveApiController {
      * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      */
     // Unused API
-    @PutMapping("/list")
+    @PutMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public ResponseEntity<?> changeBatch(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.changeList(productReceiveGetDtos);
+        productReceiveBusinessService.changeBatch(productReceiveGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

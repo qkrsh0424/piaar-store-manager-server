@@ -17,12 +17,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEntity, Integer>{
     
+    Optional<ProductReleaseEntity> findById(UUID id);
+    
    /**
      * cid값에 대응되는 release, release와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      *
      * @param cid : Integer
      * @return Optional::ProductReleaseProj::
      */
+    // deprecated
     @Query(
         "SELECT pl AS productRelease, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReleaseEntity pl\n"+
         "JOIN ProductOptionEntity po ON po.cid=pl.productOptionCid\n"+
@@ -32,6 +35,16 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
         "WHERE pl.cid=:cid"
     )
     Optional<ProductReleaseProj> searchOneM2OJ(Integer cid);
+
+    @Query(
+        "SELECT pl AS productRelease, po AS productOption, p AS product, u AS user, pc AS category FROM ProductReleaseEntity pl\n"+
+        "JOIN ProductOptionEntity po ON po.cid=pl.productOptionCid\n"+
+        "JOIN ProductEntity p ON p.cid=po.productCid\n"+
+        "JOIN ProductCategoryEntity pc ON pc.cid=p.productCategoryCid\n"+
+        "JOIN UserEntity u ON u.id=pl.createdBy\n"+
+        "WHERE pl.id=:id"
+    )
+    Optional<ProductReleaseProj> searchOneM2OJ(UUID id);
 
     /**
      * 모든 release, release와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option ,category, user를 함께 조회한다.

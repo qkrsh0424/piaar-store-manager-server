@@ -24,6 +24,7 @@ public class ProductReleaseService {
     private final ProductOptionService productOptionService;
     private final ProductReleaseCustomJdbc productReleaseCustomJdbc;
 
+    // deprecated
     public ProductReleaseEntity searchOne(Integer productReleaseCid) {
         Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findById(productReleaseCid);
 
@@ -34,8 +35,14 @@ public class ProductReleaseService {
         }
     }
 
-    public List<ProductReleaseEntity> searchList() {
-        return productReleaseRepository.findAll();
+    public ProductReleaseEntity searchOne(UUID productReceiveId) {
+        Optional<ProductReleaseEntity> receiveEntityOpt = productReleaseRepository.findById(productReceiveId);
+
+        if (receiveEntityOpt.isPresent()) {
+            return receiveEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
     }
 
     /**
@@ -47,6 +54,7 @@ public class ProductReleaseService {
      * @return ProductReleaseProj
      * @see ProductReleaseRepository#searchOneM2OJ
      */
+    // deprecated
     public ProductReleaseProj searchOneM2OJ(Integer productReleaseCid){
         Optional<ProductReleaseProj> productReleaseProjOpt = productReleaseRepository.searchOneM2OJ(productReleaseCid);
 
@@ -55,6 +63,21 @@ public class ProductReleaseService {
         } else {
             throw new NullPointerException();
         }
+    }
+
+    public ProductReleaseProj searchOneM2OJ(UUID productReleaseId){
+        Optional<ProductReleaseProj> productReleaseProjOpt = productReleaseRepository.searchOneM2OJ(productReleaseId);
+
+        if(productReleaseProjOpt.isPresent()) {
+            return productReleaseProjOpt.get();
+        } else {
+            throw new NullPointerException();
+        }
+    }
+
+    // deprecated
+    public List<ProductReleaseEntity> searchList() {
+        return productReleaseRepository.findAll();
     }
 
     /**

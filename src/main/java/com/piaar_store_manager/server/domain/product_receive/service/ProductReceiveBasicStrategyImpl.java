@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-// public class BasicStrategyImpl implements SearchStrategy, CreateStrategy, DeleteStrategy, UpdateStrategy {
 public class ProductReceiveBasicStrategyImpl implements SearchStrategy {
     private final ProductReceiveService productReceiveService;
 
@@ -29,13 +28,13 @@ public class ProductReceiveBasicStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchList() {
+    public <T> List<T> searchBatch() {
         List<ProductReceiveEntity> dtos = productReceiveService.searchList();
         return dtos.stream().map(entity -> (T) ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
     }
 
     @Override
-    public <T> List<T> searchListByOptionCid(Integer optionCid) {
+    public <T> List<T> searchBatchByOptionCid(Integer optionCid) {
         List<ProductReceiveEntity> entities = productReceiveService.searchListByOptionCid(optionCid);
         return entities.stream().map(entity -> (T) ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
     }

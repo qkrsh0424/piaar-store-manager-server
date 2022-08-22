@@ -30,19 +30,19 @@ public class ProductReceiveBusinessService {
         return dto;
     }
 
-    public <T> List<T> searchList(Map<String, Object> params) {
+    public <T> List<T> searchBatch(Map<String, Object> params) {
         String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
         productReceiveSearchContext.setSearchStrategy(objectType);
         
-        List<T> dtos = productReceiveSearchContext.searchList();
+        List<T> dtos = productReceiveSearchContext.searchBatch();
         return dtos;
     }
 
-    public <T> List<T> searchListByOptionCid(Integer productOptionCid, Map<String, Object> params) {
+    public <T> List<T> searchBatchByOptionCid(Integer productOptionCid, Map<String, Object> params) {
         String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
         productReceiveSearchContext.setSearchStrategy(objectType);
 
-        List<T> dtos = productReceiveSearchContext.searchListByOptionCid(productOptionCid);
+        List<T> dtos = productReceiveSearchContext.searchBatchByOptionCid(productOptionCid);
         return dtos;
     }
 
@@ -63,7 +63,7 @@ public class ProductReceiveBusinessService {
     }
 
     @Transactional
-    public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public void createBatch(List<ProductReceiveGetDto> productReceiveGetDtos) {
         UUID USER_ID = userService.getUserId();
         List<ProductReceiveEntity> productReceiveEntities = productReceiveGetDtos.stream().map(dto -> {
             ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
@@ -93,7 +93,7 @@ public class ProductReceiveBusinessService {
     }
 
     @Transactional
-    public void changeList(List<ProductReceiveGetDto> receiveDtos) {
+    public void changeBatch(List<ProductReceiveGetDto> receiveDtos) {
         receiveDtos.stream().forEach(dto -> this.changeOne(dto));
     }
 
