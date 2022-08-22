@@ -82,7 +82,7 @@ public class ErpOrderItemApiV2 {
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
     @GetMapping("/search")
-    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 50) Pageable pageable) {
         Message message = new Message();
 
         message.setData(erpOrderItemBusinessService.searchBatchByPaging(params, pageable));
