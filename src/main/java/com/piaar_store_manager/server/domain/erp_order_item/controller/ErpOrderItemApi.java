@@ -3,8 +3,6 @@ package com.piaar_store_manager.server.domain.erp_order_item.controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -24,9 +22,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -106,160 +101,15 @@ public class ErpOrderItemApi {
      * <b>POST : API URL => /api/v1/erp-order-items/batch</b>
      *
      * @param itemDtos : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#createBatch
      */
+    // Unused API
     @PostMapping("/batch")
     @PermissionRole
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
         erpOrderItemBusinessService.createBatch(itemDtos);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search erp order item.
-     * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items</b>
-     *
-     * @param params : Map::String, Object::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#searchList
-     */
-    // Deprecated API
-    // @GetMapping("")
-    // public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
-    //     Message message = new Message();
-
-    //     message.setData(erpOrderItemBusinessService.searchList(params));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
-    // // Deprecated API
-    // @GetMapping("")
-    // public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
-    //     Message message = new Message();
-
-    //     message.setData(erpOrderItemBusinessService.searchAllByPaging(params, pageable));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
-    // Deprecated API
-    @GetMapping("")
-    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.searchAll(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    // Deprecated API
-    @PostMapping("/target:order/action-refresh")
-    public ResponseEntity<?> orderRefresh(@RequestBody Map<String, Object> params) {
-        List<String> idsStr = (List<String>) params.get("ids");
-        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
-
-        Message message = new Message();
-        message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    // Deprecated API
-    @PostMapping("/target:sales/action-refresh")
-    public ResponseEntity<?> salesRefresh(@RequestBody Map<String, Object> params) {
-        List<String> idsStr = (List<String>) params.get("ids");
-        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
-
-        Message message = new Message();
-        message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    // Deprecated API
-    @PostMapping("/target:release/action-refresh")
-    public ResponseEntity<?> releaseRefresh(@RequestBody Map<String, Object> params) {
-        List<String> idsStr = (List<String>) params.get("ids");
-        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
-
-        Message message = new Message();
-        message.setData(erpOrderItemBusinessService.searchBatchByReleasedItemIds(ids, params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search erp order item.
-     * Mapping by option code.
-     * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/search</b>
-     *
-     * @param params   : Map::String, Object::
-     * @param pageable : Pageable
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#searchBatchByPaging
-     */
-    // Deprecated API
-    @GetMapping("/search")
-    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.searchBatchByPaging(params, pageable));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    // Deprecated API
-    @GetMapping("/batch/search")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.searchList(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search erp order item.
-     * Mapping by release option code.
-     * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/search/release</b>
-     *
-     * @param params   : Map::String, Object::
-     * @param pageable : Pageable
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#searchBatchByPaging
-     */
-    // Deprecated API
-    @GetMapping("/search/release")
-    public ResponseEntity<?> searchReleaseItemBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.searchReleaseItemBatchByPaging(params, pageable));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -275,6 +125,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#changeBatchForSalesYn
      */
+    // Unused API
     @PatchMapping("/batch/sales-yn")
     @PermissionRole
     public ResponseEntity<?> changeBatchForSalesYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
@@ -293,57 +144,15 @@ public class ErpOrderItemApi {
      * <b>PATCH : API URL => /api/v1/erp-order-items/batch/release-yn</b>
      *
      * @param itemDtos : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#changeBatchForReleaseYn
      */
+    // Unused API
     @PatchMapping("/batch/release-yn")
     @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
 
         erpOrderItemBusinessService.changeBatchForReleaseYn(itemDtos);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Delete erp order item.
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/batch-delete</b>
-     *
-     * @param itemDtos : List::ErpOrderItemDto::
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#deleteBatch
-     */
-    @PostMapping("/batch-delete")
-    @PermissionRole
-    public ResponseEntity<?> deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
-        Message message = new Message();
-
-        erpOrderItemBusinessService.deleteBatch(itemDtos);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Update erp order item.
-     * <p>
-     * <b>PUT : API URL => /api/v1/erp-order-items</b>
-     *
-     * @param itemDtos : ErpOrderItemDto
-     * @return ResponseEntity(message, HttpStatus)
-     * @see ErpOrderItemBusinessService#updateOne
-     */
-    @PutMapping("")
-    @PermissionRole
-    public ResponseEntity<?> updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
-        Message message = new Message();
-
-        erpOrderItemBusinessService.updateOne(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -359,6 +168,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#changeBatchForAllOptionCode
      */
+    // Unused API
     @PatchMapping("/batch/option-code/all")
     @PermissionRole
     public ResponseEntity<?> changeBatchForAllOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
@@ -380,6 +190,7 @@ public class ErpOrderItemApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#changeBatchForReleaseOptionCode
      */
+    // Unused API
     @PatchMapping("/batch/release-option-code/all")
     @PermissionRole
     public ResponseEntity<?> changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
@@ -392,6 +203,7 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // Unused API
     @PatchMapping(value = "/batch/waybill")
     @PermissionRole
     public ResponseEntity<?> changeBatchForWaybill(
@@ -408,6 +220,58 @@ public class ErpOrderItemApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Update erp order item.
+     * <p>
+     * <b>PUT : API URL => /api/v1/erp-order-items</b>
+     *
+     * @param itemDtos : ErpOrderItemDto
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#updateOne
+     */
+    // Unused API
+    @PutMapping("")
+    @PermissionRole
+    public ResponseEntity<?> updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
+        Message message = new Message();
+
+        erpOrderItemBusinessService.updateOne(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Delete erp order item.
+     * <p>
+     * <b>POST : API URL => /api/v1/erp-order-items/batch-delete</b>
+     *
+     * @param itemDtos : List::ErpOrderItemDto::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#deleteBatch
+     */
+    // Unused API
+    @PostMapping("/batch-delete")
+    @PermissionRole
+    public ResponseEntity<?> deleteBatch(@RequestBody List<ErpOrderItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpOrderItemBusinessService.deleteBatch(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Data Prodcess api.
+     * <p>
+     * <b>POST : API URL => /api/v1/download-release-items/action-dowsnload
+     * 
+     * @param response
+     * @param itemDtos
+     */
     @PostMapping("/download-release-items/action-download")
     @PermissionRole
     public void downloadForDownloadReleaseItems(HttpServletResponse response, @RequestBody List<ErpOrderItemDto> itemDtos) {
@@ -455,4 +319,149 @@ public class ErpOrderItemApi {
             throw new IllegalArgumentException();
         }
     }
+
+    /**
+     * Search erp order item.
+     * <p>
+     * <b>GET : API URL => /api/v1/erp-order-items</b>
+     *
+     * @param params : Map::String, Object::
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#searchList
+     */
+    // Deprecated API
+    // @GetMapping("")
+    // public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchList(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // // Deprecated API
+    // @GetMapping("")
+    // public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchAllByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // Deprecated API
+    // @GetMapping("")
+    // public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchAll(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // Deprecated API
+    // @PostMapping("/target:order/action-refresh")
+    // public ResponseEntity<?> orderRefresh(@RequestBody Map<String, Object> params) {
+    //     List<String> idsStr = (List<String>) params.get("ids");
+    //     List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+    //     Message message = new Message();
+    //     message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // Deprecated API
+    // @PostMapping("/target:sales/action-refresh")
+    // public ResponseEntity<?> salesRefresh(@RequestBody Map<String, Object> params) {
+    //     List<String> idsStr = (List<String>) params.get("ids");
+    //     List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+    //     Message message = new Message();
+    //     message.setData(erpOrderItemBusinessService.searchBatchByIds(ids, params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // Deprecated API
+    // @PostMapping("/target:release/action-refresh")
+    // public ResponseEntity<?> releaseRefresh(@RequestBody Map<String, Object> params) {
+    //     List<String> idsStr = (List<String>) params.get("ids");
+    //     List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+    //     Message message = new Message();
+    //     message.setData(erpOrderItemBusinessService.searchBatchByReleasedItemIds(ids, params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search erp order item.
+     * Mapping by option code.
+     * <p>
+     * <b>GET : API URL => /api/v1/erp-order-items/search</b>
+     *
+     * @param params   : Map::String, Object::
+     * @param pageable : Pageable
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#searchBatchByPaging
+     */
+    // Deprecated API
+    // @GetMapping("/search")
+    // public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchBatchByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // Deprecated API
+    // @GetMapping("/batch/search")
+    // public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchList(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search erp order item.
+     * Mapping by release option code.
+     * <p>
+     * <b>GET : API URL => /api/v1/erp-order-items/search/release</b>
+     *
+     * @param params   : Map::String, Object::
+     * @param pageable : Pageable
+     * @return ResponseEntity(message, HttpStatus)
+     * @see ErpOrderItemBusinessService#searchBatchByPaging
+     */
+    // Deprecated API
+    // @GetMapping("/search/release")
+    // public ResponseEntity<?> searchReleaseItemBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
+    //     Message message = new Message();
+
+    //     message.setData(erpOrderItemBusinessService.searchReleaseItemBatchByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 }

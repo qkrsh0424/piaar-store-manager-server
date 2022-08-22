@@ -540,6 +540,11 @@ public class ErpOrderItemBusinessService {
         return erpOrderItemM2OJVos;
     }
 
+    public void changeBatch(Map<String, Object> params, List<ErpOrderItemDto> itemDtos) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        
+    }
+
     /**
      * <b>DB Update Related Method</b>
      * <p>
@@ -688,8 +693,7 @@ public class ErpOrderItemBusinessService {
 //        Dirty Checking update
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setOptionCode(dto.getOptionCode())
-                        .setReleaseOptionCode(dto.getOptionCode());
+                entity.setOptionCode(dto.getOptionCode()).setReleaseOptionCode(dto.getOptionCode());
             }
         }));
     }

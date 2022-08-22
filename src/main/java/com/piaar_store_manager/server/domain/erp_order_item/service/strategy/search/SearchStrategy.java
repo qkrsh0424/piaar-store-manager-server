@@ -7,10 +7,10 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.piaar_store_manager.server.domain.erp_order_item.service.type.ObjectTypeStrategy;
+import com.piaar_store_manager.server.domain.erp_order_item.service.strategy.type.ObjectTypeStrategy;
 
 public interface SearchStrategy extends ObjectTypeStrategy {
-    <T> List<T> searchList(Map<String, Object> params);
-    default <T> Page<T> searchListByPage(Map<String, Object> params, Pageable pageable) { return null; }
+    <T> List<T> searchBatch(Map<String, Object> params);
+    default <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) { return null; }
     default <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) { return null; }
 }

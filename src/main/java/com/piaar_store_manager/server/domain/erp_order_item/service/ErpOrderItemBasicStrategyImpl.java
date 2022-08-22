@@ -28,7 +28,7 @@ public class ErpOrderItemBasicStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchList(Map<String, Object> params) {
+    public <T> List<T> searchBatch(Map<String, Object> params) {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();

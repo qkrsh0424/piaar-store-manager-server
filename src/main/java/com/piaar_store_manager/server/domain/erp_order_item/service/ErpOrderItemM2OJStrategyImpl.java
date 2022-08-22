@@ -32,7 +32,7 @@ public class ErpOrderItemM2OJStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchList(Map<String, Object> params) {
+    public <T> List<T> searchBatch(Map<String, Object> params) {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
@@ -45,7 +45,7 @@ public class ErpOrderItemM2OJStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> Page<T> searchListByPage(Map<String, Object> params, Pageable pageable) {
+    public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";        // 기본값은 옵션관리코드로 지정
         Page<ErpOrderItemProj> itemPages = null;
 

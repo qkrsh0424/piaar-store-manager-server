@@ -1,25 +1,17 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
-import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.service.strategy.search.ErpOrderItemSearchContext;
-import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ErpOrderItemBusinessServiceV2 {
-    private final ErpOrderItemService erpOrderItemService;
-    private final ProductOptionService productOptionService;
     private final ErpOrderItemSearchContext erpOrderItemSearchContext;
 
     /**
@@ -74,14 +66,6 @@ public class ErpOrderItemBusinessServiceV2 {
     //     return this.setOptionStockUnitAndToM2OJVos(itemProjs);
     // }
 
-    @Transactional(readOnly = true)
-    public <T> List<T> searchList(Map<String, Object> params) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
-        erpOrderItemSearchContext.setSearchStrategy(objectType);
-
-        return erpOrderItemSearchContext.searchList(params);
-    }
-
     /*
     아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
     옵션 재고 수량 추가 및 vos 변환
@@ -102,15 +86,6 @@ public class ErpOrderItemBusinessServiceV2 {
     //     // 옵션재고수량 추가 및 vos 변환
     //     return this.setOptionStockUnitAndToVos(itemProjs);
     // }
-    
-    @Transactional(readOnly = true)
-    public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
-        erpOrderItemSearchContext.setSearchStrategy(objectType);
-
-        return erpOrderItemSearchContext.searchBatchByIds(ids, params);
-    }
-
 
     /*
     조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
@@ -139,15 +114,6 @@ public class ErpOrderItemBusinessServiceV2 {
 
     //     return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
     // }
-
-    @Transactional(readOnly = true)
-    public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
-        erpOrderItemSearchContext.setSearchStrategy(objectType);
-
-        return erpOrderItemSearchContext.searchListByPage(params, pageable);
-    }
-
 
     /**
      * ErpOrderItemProjs => ErpOrderItemVos
@@ -194,4 +160,28 @@ public class ErpOrderItemBusinessServiceV2 {
 
     //     return erpOrderItemM2OJVos;
     // }
+
+    @Transactional(readOnly = true)
+    public <T> List<T> searchBatch(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        erpOrderItemSearchContext.setSearchStrategy(objectType);
+
+        return erpOrderItemSearchContext.searchBatch(params);
+    }
+
+    @Transactional(readOnly = true)
+    public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        erpOrderItemSearchContext.setSearchStrategy(objectType);
+
+        return erpOrderItemSearchContext.searchBatchByIds(ids, params);
+    }
+
+    @Transactional(readOnly = true)
+    public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        erpOrderItemSearchContext.setSearchStrategy(objectType);
+
+        return erpOrderItemSearchContext.searchBatchByPaging(params, pageable);
+    }
 }

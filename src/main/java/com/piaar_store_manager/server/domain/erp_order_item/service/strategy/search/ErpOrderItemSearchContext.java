@@ -37,12 +37,12 @@ public class ErpOrderItemSearchContext {
         });
     }
 
-    public <T> List<T> searchList(Map<String, Object> params) {
-        return searchStrategy.searchList(params);
+    public <T> List<T> searchBatch(Map<String, Object> params) {
+        return searchStrategy.searchBatch(params);
     }
 
-    public <T> Page<T> searchListByPage(Map<String, Object> params, Pageable pageable) {
-        return searchStrategy.searchListByPage(params, pageable);
+    public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        return searchStrategy.searchBatchByPaging(params, pageable);
     }
 
     public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
