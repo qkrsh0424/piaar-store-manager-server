@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 // Product Receive JOIN Product, Product Category, Product Option, User 
-public class M2OJStrategyImpl implements SearchStrategy {
+public class ProductReceiveM2OJStrategyImpl implements SearchStrategy {
     private final ProductReceiveService productReceiveService;
 
     public ProductReceiveObjectType findObjectType(){

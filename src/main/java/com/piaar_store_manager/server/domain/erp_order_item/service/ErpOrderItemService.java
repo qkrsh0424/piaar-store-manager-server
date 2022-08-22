@@ -154,6 +154,5 @@ public class ErpOrderItemService {
     public List<ErpOrderItemEntity> getEntities(List<ErpOrderItemDto> itemDtos) {
         List<UUID> ids = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         return erpOrderItemRepository.qfindAllByIdList(ids);
-
     }
 }

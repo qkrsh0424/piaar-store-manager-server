@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
 import com.piaar_store_manager.server.domain.erp_order_item.type.ErpOrderItemObjectType;
 
 @Component
-public class SearchContext {
+public class ErpOrderItemSearchContext {
     private ErpOrderItemObjectType objectType;
     private SearchStrategy searchStrategy;
 
     private Map<ErpOrderItemObjectType, SearchStrategy> searchStrategies;
 
     @Autowired
-    public SearchContext(Set<SearchStrategy> searchStrategySet) {
+    public ErpOrderItemSearchContext(Set<SearchStrategy> searchStrategySet) {
         makeSearchStrategy(searchStrategySet);
     }
 

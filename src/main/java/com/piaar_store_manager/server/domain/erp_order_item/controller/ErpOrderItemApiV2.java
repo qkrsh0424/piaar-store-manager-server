@@ -29,15 +29,15 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/batch/search</b>
+     * <b>GET : API URL => /api/v2/erp-order-items/batch/search</b>
      * 
      * @param params   : Map::String, Object::
      * @param pageable : Pageable
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
+    // deprecated
     // @GetMapping("/batch/search")
     // public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
     //     Message message = new Message();
@@ -51,15 +51,13 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items</b>
+     * <b>GET : API URL => /api/v2/erp-order-items</b>
      *
      * @param params : Map::String, Object::
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchList
      */
-    // refactor ok
     @GetMapping("")
     public ResponseEntity<?> searchList(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -74,13 +72,12 @@ public class ErpOrderItemApiV2 {
     /**
      * Search erp order item.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/action-refresh</b>
+     * <b>POST : API URL => /api/v2/erp-order-items/action-refresh</b>
      * 
      * @param params : Map::String, Object::
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByIds
      */
-    // refactor ok
     @PostMapping("/action-refresh")
     public ResponseEntity<?> orderRefresh(@RequestBody Map<String, Object> params) {
         List<String> idsStr = (List<String>) params.get("ids");
@@ -96,7 +93,6 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
      * <b>GET : API URL => /api/v1/erp-order-items/search</b>
      *
@@ -105,8 +101,8 @@ public class ErpOrderItemApiV2 {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
-    // refactor ok
-    @GetMapping("/search")
+    // @GetMapping("/search")
+    @GetMapping("/page")
     public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 300) Pageable pageable) {
         Message message = new Message();
 

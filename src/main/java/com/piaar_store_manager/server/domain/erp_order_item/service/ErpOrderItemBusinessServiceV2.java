@@ -1,7 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
-import com.piaar_store_manager.server.domain.erp_order_item.service.strategy.search.SearchContext;
+import com.piaar_store_manager.server.domain.erp_order_item.service.strategy.search.ErpOrderItemSearchContext;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ErpOrderItemBusinessServiceV2 {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
-    private final SearchContext erpOrderItemSearchContext;
+    private final ErpOrderItemSearchContext erpOrderItemSearchContext;
 
     /**
      * <b>DB Select Related Method</b>

@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 import com.piaar_store_manager.server.domain.product_receive.type.ProductReceiveObjectType;
 
 @Component
-public class SearchContext {
+public class ProductReceiveSearchContext {
     private ProductReceiveObjectType objectType;
     private SearchStrategy searchStrategy;
     
     private Map<ProductReceiveObjectType, SearchStrategy> searchStrategies;
 
     @Autowired
-    public SearchContext(Set<SearchStrategy> searchStrategySet) {
+    public ProductReceiveSearchContext(Set<SearchStrategy> searchStrategySet) {
         makeSearchStrategies(searchStrategySet);
     }
 

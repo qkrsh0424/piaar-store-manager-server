@@ -272,7 +272,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/product-receive/{productReceiveCid}</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param productReceiveId : UUID
      */
     // Unused API
     @DeleteMapping("{productReceiveId}")
@@ -310,7 +310,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param receiveDto : ProductReceiveGetDto
      */
     @PutMapping("")
     @PermissionRole
@@ -329,7 +329,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive/list</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      */
     // Unused API
     @PutMapping("/list")
@@ -367,7 +367,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>PATCH : API URL => /api/v1/product-receive</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param productReceiveGetDto : ProductReceiveGetDto
      */
     // Unused API
     @PatchMapping("")

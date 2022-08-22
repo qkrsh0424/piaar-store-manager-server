@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 // public class BasicStrategyImpl implements SearchStrategy, CreateStrategy, DeleteStrategy, UpdateStrategy {
-public class BasicStrategyImpl implements SearchStrategy {
+public class ProductReceiveBasicStrategyImpl implements SearchStrategy {
     private final ProductReceiveService productReceiveService;
 
     public ProductReceiveObjectType findObjectType() {

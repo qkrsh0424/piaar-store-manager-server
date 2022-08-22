@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class BasicStrategyImpl implements SearchStrategy {
+public class ErpOrderItemBasicStrategyImpl implements SearchStrategy {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
     
@@ -37,8 +37,6 @@ public class BasicStrategyImpl implements SearchStrategy {
         }else if(matchedCode.equals("releaseOptionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJByReleaseItem(params);   // 페이징 처리 x
         }
-
-        // 옵션재고수량 추가 및 vos 변환
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 

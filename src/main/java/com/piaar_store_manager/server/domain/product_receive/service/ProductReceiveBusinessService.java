@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.domain.product_receive.service.strategy.search.SearchContext;
+import com.piaar_store_manager.server.domain.product_receive.service.strategy.search.ProductReceiveSearchContext;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProductReceiveBusinessService {
-    private final SearchContext productReceiveSearchContext;
+    private final ProductReceiveSearchContext productReceiveSearchContext;
     private final ProductReceiveService productReceiveService;
     private final UserService userService;
 

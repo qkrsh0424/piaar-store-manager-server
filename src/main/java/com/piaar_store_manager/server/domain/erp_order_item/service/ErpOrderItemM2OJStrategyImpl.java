@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class M2OJStrategyImpl implements SearchStrategy {
+public class ErpOrderItemM2OJStrategyImpl implements SearchStrategy {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
 
