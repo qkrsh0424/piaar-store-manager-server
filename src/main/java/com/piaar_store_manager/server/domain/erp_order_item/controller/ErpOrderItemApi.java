@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +37,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredLogin
 public class ErpOrderItemApi {
     private final ErpOrderItemBusinessService erpOrderItemBusinessService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     /**
      * Check password for order excel.

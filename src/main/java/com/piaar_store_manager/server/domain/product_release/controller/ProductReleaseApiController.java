@@ -236,7 +236,7 @@ public class ProductReleaseApiController {
      * @param productReleaseId : UUID
      */
     // Unused API
-    @DeleteMapping("/one/{productReleaseId}")
+    @DeleteMapping("{productReleaseId}")
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReleaseId") UUID productReleaseId) {
         Message message = new Message();

@@ -7,6 +7,9 @@ import com.piaar_store_manager.server.domain.product_detail.dto.ProductDetailGet
 import com.piaar_store_manager.server.domain.product_detail.service.ProductDetailBusinessService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,13 +32,31 @@ public class ProductDetailApiController {
     /**
      * Search one api for product detail.
      * <p>
-     * <b>GET : API URL => /api/v1/product-detail/one/{detailCid}</b>
+     * <b>GET : API URL => /api/v1/product-detail/{detailCid}</b>
      */
-    @GetMapping("/one/{detailCid}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "detailCid") Integer detailCid) {
+    // deprecated
+    // @GetMapping("{detailCid}")
+    // public ResponseEntity<?> searchOne(@PathVariable(value = "detailCid") Integer detailCid) {
+    //     Message message = new Message();
+
+    //     message.setData(productDetailBusinessService.searchOne(detailCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search one api for detail.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-detail/{detailId}</b>
+     */
+    // Unused API
+    @GetMapping("{detailId}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "detailId") UUID detailId) {
         Message message = new Message();
 
-        message.setData(productDetailBusinessService.searchOne(detailCid));
+        message.setData(productDetailBusinessService.searchOne(detailId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -43,27 +64,11 @@ public class ProductDetailApiController {
     }
 
     /**
-     * Search list api for product detail.
+     * Search all api for detail.
      * <p>
-     * <b>GET : API URL => /api/v1/product-detail/list/{optionCid}</b>
+     * <b>GET : API URL => /api/v1/product-detail/all</b>
      */
-    @GetMapping("/list/{optionCid}")
-    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "optionCid") Integer optionCid) {
-        Message message = new Message();
-
-        message.setData(productDetailBusinessService.searchList(optionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search all api for product detail.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-detail/list</b>
-     */
-    @GetMapping("/list")
+    @GetMapping("/all")
     public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
@@ -75,11 +80,32 @@ public class ProductDetailApiController {
     }
 
     /**
-     * Create one api for product detail.
+     * Search api for detail matching option cid.
      * <p>
-     * <b>POST : API URL => /api/v1/product-detail/one</b>
+     * <b>GET : API URL => /api/v1/product-detail/batch/{productOptionCid}</b>
+     * 
+     * @param productOptionCid : Integer
      */
-    @PostMapping("/one")
+    // Unused API
+    @GetMapping("/batch/{productOptionCid}")
+    public ResponseEntity<?> searchBatchByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+        Message message = new Message();
+
+        message.setData(productDetailBusinessService.searchBatchByOptionCid(productOptionCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Create one api for detail.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-detail</b>
+     * 
+     * @param productDetailGetDto : ProductDetailGetDto
+     */
+    @PostMapping("")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();
@@ -92,28 +118,30 @@ public class ProductDetailApiController {
     }
 
     /**
-     * Destroy( Delete or Remove ) one api for product detail.
+     * Destroy( Delete or Remove ) one api for detail.
      * <p>
-     * <b>DELETE : API URL => /api/v1/product-detail/one/{detailCid}</b>
+     * <b>DELETE : API URL => /api/v1/product-detail/{detailCid}</b>
      */
-    @DeleteMapping("/one/{detailCid}")
-    @PermissionRole
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "detailCid") Integer detailCid) {
-        Message message = new Message();
+    // @DeleteMapping("{detailCid}")
+    // @PermissionRole
+    // public ResponseEntity<?> destroyOne(@PathVariable(value = "detailCid") Integer detailCid) {
+    //     Message message = new Message();
 
-        productDetailBusinessService.destroyOne(detailCid);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     productDetailBusinessService.destroyOne(detailCid);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
-     * Change one api for product detail.
+     * Change one api for detail.
      * <p>
-     * <b>PUT : API URL => /api/v1/product-detail/one</b>
+     * <b>PUT : API URL => /api/v1/product-detail</b>
+     * 
+     * @param productDetailGetDto : ProductDetailGetDto
      */
-    @PutMapping("/one")
+    @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();
@@ -126,16 +154,38 @@ public class ProductDetailApiController {
     }
 
     /**
-     * Patch( Delete or Remove ) one api for product detail.
+     * Patch one api for detail.
      * <p>
-     * <b>PATCH : API URL => /api/v1/product-detail/one</b>
+     * <b>PATCH : API URL => /api/v1/product-detail</b>
+     * 
+     * @param productDetailGetDto : ProductDetailGetDto
      */
-    @PatchMapping("/one")
+    // Unused API
+    @PatchMapping("")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
         Message message = new Message();
 
         productDetailBusinessService.patchOne(productDetailGetDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Delete one api for detail.
+     * <p>
+     * <b>DELETE : API UTL => /api/v1/product-detail/{detailId}</b>
+     * 
+     * @param detailId : UUID
+     */
+    @DeleteMapping("{detailId}")
+    @PermissionRole
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "detailId") UUID detailId) {
+        Message message = new Message();
+
+        productDetailBusinessService.destroyOne(detailId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

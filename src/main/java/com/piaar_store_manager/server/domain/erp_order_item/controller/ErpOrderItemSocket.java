@@ -17,6 +17,8 @@ import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItem
 import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormDto;
 import com.piaar_store_manager.server.domain.message.Message;
 
+import lombok.RequiredArgsConstructor;
+
 import java.util.List;
 import java.util.Map;
 
@@ -24,19 +26,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/ws/v1/erp-order-items")
 @RequiredLogin
+@RequiredArgsConstructor
 public class ErpOrderItemSocket {
     //    TODO : 소켓통신 보완해야됨.
     private final ErpOrderItemBusinessService erpOrderItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;
-
-    @Autowired
-    public ErpOrderItemSocket(
-            ErpOrderItemBusinessService erpOrderItemBusinessService,
-            SimpMessagingTemplate messagingTemplate
-    ) {
-        this.erpOrderItemBusinessService = erpOrderItemBusinessService;
-        this.messagingTemplate = messagingTemplate;
-    }
 
     @PostMapping("/batch")
     @PermissionRole
@@ -55,10 +49,10 @@ public class ErpOrderItemSocket {
 
     @PutMapping("")
     @PermissionRole
-    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
+    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDto) {
         Message message = new Message();
 
-        erpOrderItemBusinessService.updateOne(itemDtos);
+        erpOrderItemBusinessService.updateOne(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
