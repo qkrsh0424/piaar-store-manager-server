@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseCustomJdbc;
@@ -21,19 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductReleaseService {
     private final ProductReleaseRepository productReleaseRepository;
-    private final ProductOptionService productOptionService;
     private final ProductReleaseCustomJdbc productReleaseCustomJdbc;
-
-    // deprecated
-    public ProductReleaseEntity searchOne(Integer productReleaseCid) {
-        Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findById(productReleaseCid);
-
-        if (releaseEntityOpt.isPresent()) {
-            return releaseEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
 
     public ProductReleaseEntity searchOne(UUID productReceiveId) {
         Optional<ProductReleaseEntity> receiveEntityOpt = productReleaseRepository.findById(productReceiveId);
@@ -42,26 +29,6 @@ public class ProductReleaseService {
             return receiveEntityOpt.get();
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productReleaseCid에 대응되는 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     *
-     * @param productReleaseCid : Integer
-     * @return ProductReleaseProj
-     * @see ProductReleaseRepository#searchOneM2OJ
-     */
-    // deprecated
-    public ProductReleaseProj searchOneM2OJ(Integer productReleaseCid){
-        Optional<ProductReleaseProj> productReleaseProjOpt = productReleaseRepository.searchOneM2OJ(productReleaseCid);
-
-        if(productReleaseProjOpt.isPresent()) {
-            return productReleaseProjOpt.get();
-        } else {
-            throw new NullPointerException();
         }
     }
 
@@ -75,7 +42,6 @@ public class ProductReleaseService {
         }
     }
 
-    // deprecated
     public List<ProductReleaseEntity> searchList() {
         return productReleaseRepository.findAll();
     }
@@ -141,9 +107,16 @@ public class ProductReleaseService {
         productReleaseRepository.saveAll(entities);
     }
 
+    // deprecated
     public void destroyOne(Integer productReleaseCid) {
         productReleaseRepository.findById(productReleaseCid).ifPresent(product -> {
             productReleaseRepository.delete(product);
+        });
+    }
+
+    public void destroyOne(UUID id) {
+        productReleaseRepository.findById(id).ifPresent(release -> {
+            productReleaseRepository.delete(release);
         });
     }
 

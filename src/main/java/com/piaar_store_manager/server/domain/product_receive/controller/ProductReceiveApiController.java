@@ -70,7 +70,7 @@ public class ProductReceiveApiController {
     /**
      * Search one api for receive.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/{productReceiveCid}</b>
+     * <b>GET : API URL => /api/v1/product-receive/{productReceiveId}</b>
      * 
      * @param params : Map[String, Object] (objectType)
      */
@@ -125,7 +125,7 @@ public class ProductReceiveApiController {
     /**
      * Search list api for receive.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
+     * <b>GET : API URL => /api/v1/product-receive/batch</b>
      * 
      * @param params : Map[String, Object] (objectType)
      */
@@ -199,8 +199,6 @@ public class ProductReceiveApiController {
      * Create one api for receive.
      * <p>
      * <b>POST : API URL => /api/v1/product-receive</b>
-     * 
-     * @param params : Map[String, Object] (objectType)
      */
     // Unused API
     @PostMapping("")
@@ -235,7 +233,7 @@ public class ProductReceiveApiController {
     /**
      * Create list api for receive.
      * <p>
-     * <b>POST : API URL => /api/v1/product-receive/list</b>
+     * <b>POST : API URL => /api/v1/product-receive/batch</b>
      */
     @PostMapping("/batch")
     @PermissionRole
@@ -270,7 +268,7 @@ public class ProductReceiveApiController {
     /**
      * Destroy( Delete or Remove ) one api for receive.
      * <p>
-     * <b>DELETE : API URL => /api/v1/product-receive/{productReceiveCid}</b>
+     * <b>DELETE : API URL => /api/v1/product-receive/{productReceiveId}</b>
      * 
      * @param productReceiveId : UUID
      */

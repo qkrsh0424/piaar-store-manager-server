@@ -94,7 +94,7 @@ public class ErpOrderItemService {
     }
 
     public Page<ErpOrderItemProj> findReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable) {
-        return erpOrderItemRepository.qfindReleaseItemM2OJByPage(params, pageable);
+        return erpOrderItemRepository.qfindAllOfReleaseItemM2OJByPage(params, pageable);
     }
 
     /**

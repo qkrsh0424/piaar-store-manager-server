@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductReceiveBusinessService {
     private final ProductReceiveSearchContext productReceiveSearchContext;
+    
     private final ProductReceiveService productReceiveService;
     private final UserService userService;
 

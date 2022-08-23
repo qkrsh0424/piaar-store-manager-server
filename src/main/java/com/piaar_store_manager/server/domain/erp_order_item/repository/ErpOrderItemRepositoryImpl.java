@@ -171,7 +171,7 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
     }
 
     @Override
-    public Page<ErpOrderItemProj> qfindReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable) {
+    public Page<ErpOrderItemProj> qfindAllOfReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qErpOrderItemEntity)
                 .select(Projections.fields(ErpOrderItemProj.class,
                         qErpOrderItemEntity.as("erpOrderItem"),

@@ -20,37 +20,11 @@ import lombok.RequiredArgsConstructor;
 public class ProductReceiveService {
     private final ProductReceiveRepository productReceiveRepository;
 
-    // deprecated
-    public ProductReceiveEntity searchOne(Integer productReceiveCid) {
-        Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveCid);
-
-        if (receiveEntityOpt.isPresent()) {
-            return receiveEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
-
     public ProductReceiveEntity searchOne(UUID productReceiveId) {
         Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveId);
 
         if (receiveEntityOpt.isPresent()) {
             return receiveEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
-
-    public List<ProductReceiveEntity> searchList() {
-        return productReceiveRepository.findAll();
-    }
-
-    // deprecated
-    public ProductReceiveProj searchOneM2OJ(Integer productReceiveCid){
-        Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.searchOneM2OJ(productReceiveCid);
-
-        if(productReceiveProjOpt.isPresent()) {
-            return productReceiveProjOpt.get();
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
@@ -73,6 +47,10 @@ public class ProductReceiveService {
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
+    }
+
+    public List<ProductReceiveEntity> searchList() {
+        return productReceiveRepository.findAll();
     }
 
     /**
@@ -132,8 +110,8 @@ public class ProductReceiveService {
     }
 
     @Transactional
-    public List<ProductReceiveEntity> saveListAndModify(List<ProductReceiveEntity> entities) {
-        return productReceiveRepository.saveAll(entities);
+    public void saveListAndModify(List<ProductReceiveEntity> entities) {
+        productReceiveRepository.saveAll(entities);
     }
 
     // deprecated
