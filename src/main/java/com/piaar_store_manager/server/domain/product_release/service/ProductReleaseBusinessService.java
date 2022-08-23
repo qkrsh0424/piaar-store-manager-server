@@ -90,49 +90,66 @@ public class ProductReleaseBusinessService {
      * 1) - option의 packageYn이 n인 상품은 release 데이터를 바로 생성하고,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 release 데이터 생성.
      *
+     * FIX => 세트상품 여부와 관계없이 현재 선택된 옵션에 대한 출고 데이터 추가.
+     * 
      * @param productReleaseGetDto : ProductReleaseGetDto
      * @see ProductReleaseService#saveAndModify
      * @see ProductReleaseService#saveListAndModify
      * @see OptionPackageService#searchListByParentOptionId
      */
     @Transactional
-    public void createOne(ProductReleaseGetDto productReleaseGetDto) {
+    public void createOne(ProductReleaseGetDto productReleaseDto) {
         UUID USER_ID = userService.getUserId();
-        productReleaseGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
 
-        ProductOptionEntity optionEntity = productOptionService.searchOne(productReleaseGetDto.getProductOptionCid());
-        
-        if(optionEntity.getPackageYn().equals("n")) {
-            // 1) 실행
-            ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
-                    .id(UUID.randomUUID())
-                    .releaseUnit(productReleaseGetDto.getReleaseUnit())
-                    .memo(productReleaseGetDto.getMemo())
-                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                    .createdBy(USER_ID)
-                    .productOptionCid(productReleaseGetDto.getCid())
-                    .build();
-             productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));
-        } else {
-            // 2) 실행
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
-            
-            List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
-            optionPackageEntities.forEach(option -> {
-                ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .releaseUnit(option.getPackageUnit() * productReleaseGetDto.getReleaseUnit())
-                        .memo(productReleaseGetDto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getOriginOptionCid())
-                        .build();
+        ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                .id(UUID.randomUUID())
+                .releaseUnit(productReleaseDto.getReleaseUnit())
+                .memo(productReleaseDto.getMemo())
+                .createdAt(CustomDateUtils.getCurrentDateTime())
+                .createdBy(USER_ID)
+                .productOptionCid(productReleaseDto.getProductOptionCid())
+                .build();
 
-                productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
-            });
-            productReleaseService.saveListAndModify(productReleaseEntities);
-        }
+        productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));
     }
+    // @Transactional
+    // public void createOne(ProductReleaseGetDto productReleaseGetDto) {
+    //     UUID USER_ID = userService.getUserId();
+    //     productReleaseGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
+
+    //     ProductOptionEntity optionEntity = productOptionService.searchOne(productReleaseGetDto.getProductOptionCid());
+        
+    //     if(optionEntity.getPackageYn().equals("n")) {
+    //         // 1) 실행
+    //         ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+    //                 .id(UUID.randomUUID())
+    //                 .releaseUnit(productReleaseGetDto.getReleaseUnit())
+    //                 .memo(productReleaseGetDto.getMemo())
+    //                 .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                 .createdBy(USER_ID)
+    //                 .productOptionCid(productReleaseGetDto.getCid())
+    //                 .build();
+    //          productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));
+    //     } else {
+    //         // 2) 실행
+    //         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+            
+    //         List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
+    //         optionPackageEntities.forEach(option -> {
+    //             ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+    //                     .id(UUID.randomUUID())
+    //                     .releaseUnit(option.getPackageUnit() * productReleaseGetDto.getReleaseUnit())
+    //                     .memo(productReleaseGetDto.getMemo())
+    //                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                     .createdBy(USER_ID)
+    //                     .productOptionCid(option.getOriginOptionCid())
+    //                     .build();
+
+    //             productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+    //         });
+    //         productReleaseService.saveListAndModify(productReleaseEntities);
+    //     }
+    // }
 
     /**
      * <b>DB Insert Related Method</b>
@@ -142,68 +159,89 @@ public class ProductReleaseBusinessService {
      * 1) - option의 packageYn이 n인 상품은 release 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 release 데이터 생성.
      *
+     * FIX => 세트상품 여부와 관계없이 현재 선택된 옵션에 대한 출고 데이터 추가.
+     * 
      * @param productReleaseGetDtos : List::ProductReleaseGetDto::
      * @see ProductReleaseService#saveAndModify
      */
     @Transactional
     public void createList(List<ProductReleaseGetDto> productReleaseGetDtos) {
         UUID USER_ID = userService.getUserId();
-        List<Integer> optionCids = productReleaseGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
-        // 패키지 옵션 분류
-        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
+        List<ProductReleaseEntity> productReleaseEntities = productReleaseGetDtos.stream().map(dto -> {
+            ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+                    .id(UUID.randomUUID())
+                    .releaseUnit(dto.getReleaseUnit())
+                    .memo(dto.getMemo())
+                    .createdAt(CustomDateUtils.getCurrentDateTime())
+                    .createdBy(USER_ID)
+                    .productOptionCid(dto.getProductOptionCid())
+                    .build();
 
-        // 1) 실행
-        List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
-        productReleaseGetDtos.forEach(dto -> {
-            originOptionEntities.forEach(option -> {
-                if(dto.getProductOptionCid().equals(option.getCid())){
-                    ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .releaseUnit(dto.getReleaseUnit())
-                        .memo(dto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getCid())
-                        .build();
-
-                    productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
-                }
-            });
-        });
+            return ProductReleaseEntity.toEntity(releaseGetDto);
+        }).collect(Collectors.toList());
 
         productReleaseService.saveListAndModify(productReleaseEntities);
-        productReleaseEntities.clear();
-
-        // 2) 실행
-        if (parentOptionEntities.size() > 0) {
-            List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
-
-            productReleaseGetDtos.forEach(dto -> {
-                parentOptionEntities.forEach(parentOption -> {
-                    if (dto.getProductOptionCid().equals(parentOption.getCid())) {
-                        optionPackageEntities.forEach(option -> {
-                            if (option.getParentOptionId().equals(parentOption.getId())) {
-                                ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
-                                        .id(UUID.randomUUID())
-                                        .releaseUnit(option.getPackageUnit() * dto.getReleaseUnit())
-                                        .memo(dto.getMemo())
-                                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                                        .createdBy(USER_ID)
-                                        .productOptionCid(option.getOriginOptionCid())
-                                        .build();
-
-                                productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
-                            }
-                        });
-                    }
-                });
-            });
-            productReleaseService.saveListAndModify(productReleaseEntities);
-        }
     }
+
+    // @Transactional
+    // public void createList(List<ProductReleaseGetDto> productReleaseGetDtos) {
+    //     UUID USER_ID = userService.getUserId();
+    //     List<Integer> optionCids = productReleaseGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
+    //     List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
+    //     // 패키지 옵션 분류
+    //     List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+    //     List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
+
+    //     // 1) 실행
+    //     List<ProductReleaseEntity> productReleaseEntities = new ArrayList<>();
+    //     productReleaseGetDtos.forEach(dto -> {
+    //         originOptionEntities.forEach(option -> {
+    //             if(dto.getProductOptionCid().equals(option.getCid())){
+    //                 ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+    //                     .id(UUID.randomUUID())
+    //                     .releaseUnit(dto.getReleaseUnit())
+    //                     .memo(dto.getMemo())
+    //                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                     .createdBy(USER_ID)
+    //                     .productOptionCid(option.getCid())
+    //                     .build();
+
+    //                 productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+    //             }
+    //         });
+    //     });
+
+    //     productReleaseService.saveListAndModify(productReleaseEntities);
+    //     productReleaseEntities.clear();
+
+    //     // 2) 실행
+    //     if (parentOptionEntities.size() > 0) {
+    //         List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+    //         List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+    //         productReleaseGetDtos.forEach(dto -> {
+    //             parentOptionEntities.forEach(parentOption -> {
+    //                 if (dto.getProductOptionCid().equals(parentOption.getCid())) {
+    //                     optionPackageEntities.forEach(option -> {
+    //                         if (option.getParentOptionId().equals(parentOption.getId())) {
+    //                             ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
+    //                                     .id(UUID.randomUUID())
+    //                                     .releaseUnit(option.getPackageUnit() * dto.getReleaseUnit())
+    //                                     .memo(dto.getMemo())
+    //                                     .createdAt(CustomDateUtils.getCurrentDateTime())
+    //                                     .createdBy(USER_ID)
+    //                                     .productOptionCid(option.getOriginOptionCid())
+    //                                     .build();
+
+    //                             productReleaseEntities.add(ProductReleaseEntity.toEntity(releaseGetDto));
+    //                         }
+    //                     });
+    //                 }
+    //             });
+    //         });
+    //         productReleaseService.saveListAndModify(productReleaseEntities);
+    //     }
+    // }
 
     public void destroyOne(Integer productReleaseCid) {
         productReleaseService.destroyOne(productReleaseCid);

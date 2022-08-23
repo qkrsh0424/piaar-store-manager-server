@@ -1,16 +1,12 @@
 package com.piaar_store_manager.server.domain.product_receive.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
@@ -24,8 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductReceiveBusinessService {
     private final ProductReceiveService productReceiveService;
-    private final ProductOptionService productOptionService;
-    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
