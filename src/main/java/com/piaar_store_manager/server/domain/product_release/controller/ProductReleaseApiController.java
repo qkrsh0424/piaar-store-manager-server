@@ -130,11 +130,22 @@ public class ProductReleaseApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-release/list/{productOptionCid}</b>
      */
+    // @GetMapping("/list/{productOptionCid}")
+    // public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    //     Message message = new Message();
+
+    //     message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
     @GetMapping("/list/{productOptionCid}")
-    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    public ResponseEntity<?> searchBatchByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
+        message.setData(productReleaseBusinessService.searchBatchByOptionCid(productOptionCid, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -163,12 +174,12 @@ public class ProductReleaseApiController {
      * <p>
      * <b>POST : API URL => /api/v1/product-release/list</b>
      */
-    @PostMapping("/list")
+    @PostMapping("/batch")
     @PermissionRole
     public ResponseEntity<?> createList(@RequestBody List<ProductReleaseGetDto> productReleaseGetDtos) {
         Message message = new Message();
 
-        productReleaseBusinessService.createList(productReleaseGetDtos);
+        productReleaseBusinessService.createBatch(productReleaseGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
