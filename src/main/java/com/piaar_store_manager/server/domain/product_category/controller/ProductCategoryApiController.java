@@ -19,15 +19,15 @@ public class ProductCategoryApiController {
     private final ProductCategoryBusinessService productCategoryBusinessService;
 
     /**
-     * Search list api for product category.
+     * Search all api for product category.
      * <p>
-     * <b>GET : API URL => /api/v1/product-category/list</b>
+     * <b>GET : API URL => /api/v1/product-category/all</b>
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
-        message.setData(productCategoryBusinessService.searchList());
+        message.setData(productCategoryBusinessService.searchAll());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
