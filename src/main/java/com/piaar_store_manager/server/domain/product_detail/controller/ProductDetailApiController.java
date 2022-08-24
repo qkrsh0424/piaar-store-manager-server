@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/product-detail")
+@RequestMapping("/api/v1/product-details")
 @RequiredArgsConstructor
 @RequiredLogin
 public class ProductDetailApiController {
@@ -105,6 +105,7 @@ public class ProductDetailApiController {
      * 
      * @param productDetailGetDto : ProductDetailGetDto
      */
+    // Unused API
     @PostMapping("")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductDetailGetDto productDetailGetDto) {
@@ -141,6 +142,7 @@ public class ProductDetailApiController {
      * 
      * @param productDetailGetDto : ProductDetailGetDto
      */
+    // Unused API
     @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductDetailGetDto productDetailGetDto) {

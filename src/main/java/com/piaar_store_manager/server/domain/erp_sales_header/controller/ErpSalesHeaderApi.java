@@ -38,6 +38,7 @@ public class ErpSalesHeaderApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpSalesHeaderBusinessService#saveOne
      */
+    // Unused API
     @PostMapping("")
     public ResponseEntity<?> saveOne(@RequestBody ErpSalesHeaderDto headerDto) {
         Message message = new Message();
@@ -52,16 +53,16 @@ public class ErpSalesHeaderApi {
     /**
      * Search one api for erp sales header.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-sales-headers</b>
+     * <b>GET : API URL => /api/v1/erp-sales-headers/all</b>
      *
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpSalesHeaderBusinessService#searchList
+     * @see ErpSalesHeaderBusinessService#searchAll
      */
-    @GetMapping("")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
-        message.setData(erpSalesHeaderBusinessService.searchList());
+        message.setData(erpSalesHeaderBusinessService.searchAll());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -77,6 +78,7 @@ public class ErpSalesHeaderApi {
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpSalesHeaderBusinessService#updateOne
      */
+    // Unused API
     @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody ErpSalesHeaderDto headerDto) {
