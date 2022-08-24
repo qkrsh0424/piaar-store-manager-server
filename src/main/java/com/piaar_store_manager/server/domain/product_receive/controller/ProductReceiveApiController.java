@@ -75,7 +75,7 @@ public class ProductReceiveApiController {
      * @param params : Map[String, Object] (objectType)
      */
     // Unused API
-    @GetMapping("{productReceiveId}")
+    @GetMapping("/{productReceiveId}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveId") UUID productReceiveId, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
@@ -273,7 +273,7 @@ public class ProductReceiveApiController {
      * @param productReceiveId : UUID
      */
     // Unused API
-    @DeleteMapping("{productReceiveId}")
+    @DeleteMapping("/{productReceiveId}")
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveId") UUID productReceiveId) {
         Message message = new Message();

@@ -52,7 +52,7 @@ public class ProductDetailApiController {
      * <b>GET : API URL => /api/v1/product-detail/{detailId}</b>
      */
     // Unused API
-    @GetMapping("{detailId}")
+    @GetMapping("/{detailId}")
     public ResponseEntity<?> searchOne(@PathVariable(value = "detailId") UUID detailId) {
         Message message = new Message();
 
@@ -180,7 +180,7 @@ public class ProductDetailApiController {
      * 
      * @param detailId : UUID
      */
-    @DeleteMapping("{detailId}")
+    @DeleteMapping("/{detailId}")
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "detailId") UUID detailId) {
         Message message = new Message();

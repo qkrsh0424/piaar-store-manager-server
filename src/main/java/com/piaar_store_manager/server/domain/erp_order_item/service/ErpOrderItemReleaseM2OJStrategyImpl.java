@@ -21,24 +21,24 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class ErpOrderItemM2OJStrategyImpl implements SearchStrategy {
+public class ErpOrderItemReleaseM2OJStrategyImpl implements SearchStrategy {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
 
     @Override
     public ErpOrderItemObjectType findObjectType() {
-        return ErpOrderItemObjectType.M2OJ;
+        return ErpOrderItemObjectType.ReleaseM2OJ;
     }
 
     @Override
     public <T> List<T> searchBatch(Map<String, Object> params) {
-        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJByReleaseItem(params);
         return this.setOptionStockUnitAndToM2OJVos(itemProjs);
     }
 
     @Override
     public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
+        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
 
         /*
         조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
@@ -53,7 +53,7 @@ public class ErpOrderItemM2OJStrategyImpl implements SearchStrategy {
 
     @Override
     public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
-        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJByReleasedItem(ids, params); // 페이징 처리 x
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 

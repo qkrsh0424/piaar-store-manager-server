@@ -4,7 +4,9 @@ import org.apache.commons.codec.binary.StringUtils;
 
 public enum ErpOrderItemObjectType {
     Basic("basic", "erp order item basic type"),
-    M2OJ("m2oj", "erp order item with many to one entity");
+    ReleaseBasic("releaseBasic", "erp release item basic type"),
+    M2OJ("m2oj", "erp order item with many to one entity"),
+    ReleaseM2OJ("releaseM2oj", "erp release item with many to one entity");
 
     private String objectType;
     private String description;
@@ -21,6 +23,6 @@ public enum ErpOrderItemObjectType {
             }
         }
 
-        return M2OJ;
+        return Basic;
     }
 }

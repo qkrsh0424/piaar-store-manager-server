@@ -1,6 +1,5 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,14 +28,7 @@ public class ErpOrderItemBasicStrategyImpl implements SearchStrategy {
 
     @Override
     public <T> List<T> searchBatch(Map<String, Object> params) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
-        
-        List<ErpOrderItemProj> itemProjs = new ArrayList<>();
-        if(matchedCode.equals("optionCode")) {
-            itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
-        }else if(matchedCode.equals("releaseOptionCode")) {
-            itemProjs = erpOrderItemService.findAllM2OJByReleaseItem(params);   // 페이징 처리 x
-        }
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
