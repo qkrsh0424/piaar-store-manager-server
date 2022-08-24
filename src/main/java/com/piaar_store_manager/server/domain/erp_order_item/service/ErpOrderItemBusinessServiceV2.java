@@ -163,7 +163,7 @@ public class ErpOrderItemBusinessServiceV2 {
 
     @Transactional(readOnly = true)
     public <T> List<T> searchBatch(Map<String, Object> params) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "releaseBasic";
         erpOrderItemSearchContext.setSearchStrategy(objectType);
 
         return erpOrderItemSearchContext.searchBatch(params);
@@ -171,7 +171,7 @@ public class ErpOrderItemBusinessServiceV2 {
 
     @Transactional(readOnly = true)
     public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "releaseBasic";
         erpOrderItemSearchContext.setSearchStrategy(objectType);
 
         return erpOrderItemSearchContext.searchBatchByIds(ids, params);
@@ -179,7 +179,7 @@ public class ErpOrderItemBusinessServiceV2 {
 
     @Transactional(readOnly = true)
     public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "releaseBasic";
         erpOrderItemSearchContext.setSearchStrategy(objectType);
 
         return erpOrderItemSearchContext.searchBatchByPaging(params, pageable);

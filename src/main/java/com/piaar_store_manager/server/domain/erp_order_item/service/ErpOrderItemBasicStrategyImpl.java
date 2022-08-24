@@ -2,8 +2,12 @@ package com.piaar_store_manager.server.domain.erp_order_item.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
@@ -29,6 +33,27 @@ public class ErpOrderItemBasicStrategyImpl implements SearchStrategy {
     @Override
     public <T> List<T> searchBatch(Map<String, Object> params) {
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
+        return this.setOptionStockUnitAndToVos(itemProjs);
+    }
+
+    @Override
+    public <T> Page<T> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
+
+        /*
+        조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+         */
+        List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
+
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+
+        return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
+    }
+
+    @Override
+    public <T> List<T> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
