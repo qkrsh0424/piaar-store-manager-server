@@ -160,10 +160,14 @@ public class ExcelTranslatorHeaderApiController {
         if (!CustomExcelUtils.isExcelFile(file)) {
             throw new CustomExcelFileUploadException("This is not an excel file.");
         }
-        
-        message.setData(excelTranslatorHeaderBusinessService.uploadHeaderExcelFile(params, file));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+
+        try{
+            message.setData(excelTranslatorHeaderBusinessService.uploadHeaderExcelFile(params, file));
+            message.setStatus(HttpStatus.OK);
+            message.setMessage("success");
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new CustomExcelFileUploadException("올바르지 않은 양식의 데이터입니다. 수정 후 재업로드 해주세요.");
+        }
 
         return new ResponseEntity<>(message, message.getStatus());
     }
