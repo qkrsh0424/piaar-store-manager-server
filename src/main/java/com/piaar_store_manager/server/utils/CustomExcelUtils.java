@@ -1,9 +1,11 @@
 package com.piaar_store_manager.server.utils;
 
+import com.piaar_store_manager.server.exception.CustomExcelFileRequiredPwdException;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +32,20 @@ public class CustomExcelUtils {
             return true;
         }
         return false;
+    }
+
+    /*
+     * 업로드된 엑셀 파일의 암호화 여부 체크
+     */
+    public static void checkPasswordForUploadedErpOrderExcel(MultipartFile file) {
+        try {
+            WorkbookFactory.create(file.getInputStream());
+        } catch (IOException e) {
+            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            // 암호화 된 경우
+            throw new CustomExcelFileRequiredPwdException();
+        }
     }
 
     public static Workbook getWorkbook(MultipartFile file) {
