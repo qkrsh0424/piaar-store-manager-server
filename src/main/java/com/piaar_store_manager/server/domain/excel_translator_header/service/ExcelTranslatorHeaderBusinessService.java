@@ -71,12 +71,20 @@ public class ExcelTranslatorHeaderBusinessService {
      * @return List::UploadExcelDataGetDto::
      * @see ExcelTranslatorHeaderBusinessService#getUploadedExcelForm
      */
-    public List<UploadExcelDataGetDto> uploadExcelFile(MultipartFile file, ExcelTranslatorHeaderGetDto dto) {
+    public List<UploadExcelDataGetDto> uploadExcelFile(MultipartFile file, Map<String, Object> params, ExcelTranslatorHeaderGetDto dto) {
         Workbook workbook = null;
+
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
         try{
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if(excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            }else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
             throw new IllegalArgumentException();
+        } catch (EncryptedDocumentException e) {
+            throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);

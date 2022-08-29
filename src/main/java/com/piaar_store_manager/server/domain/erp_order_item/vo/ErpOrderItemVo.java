@@ -387,6 +387,7 @@ public class ErpOrderItemVo {
             }
 
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                    .id(UUID.randomUUID())
                     .uniqueCode(null)
                     .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
                     .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))

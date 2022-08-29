@@ -213,6 +213,7 @@ public class ErpOrderItemBusinessService {
             }
 
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                .id(UUID.randomUUID())
                 .uniqueCode(null)
                 .prodName(getTranslatorTargetCellValue(row, details.get(1)))
                 .optionName(getTranslatorTargetCellValue(row, details.get(2)))

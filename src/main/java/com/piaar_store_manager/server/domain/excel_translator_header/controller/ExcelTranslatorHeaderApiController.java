@@ -122,7 +122,7 @@ public class ExcelTranslatorHeaderApiController {
      * @see ExcelTranslatorHeaderBusinessService#uploadExcelFile
      */
     @PostMapping("/upload")
-    public ResponseEntity<?> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestPart ExcelTranslatorHeaderGetDto dto) {
+    public ResponseEntity<?> uploadExcelFile(@RequestParam("file") MultipartFile file, @RequestParam Map<String, Object> params, @RequestPart ExcelTranslatorHeaderGetDto dto) {
         Message message = new Message();
 
         // file extension check.
@@ -131,7 +131,7 @@ public class ExcelTranslatorHeaderApiController {
         }
         
         try{
-            message.setData(excelTranslatorHeaderBusinessService.uploadExcelFile(file, dto));
+            message.setData(excelTranslatorHeaderBusinessService.uploadExcelFile(file, params, dto));
             message.setStatus(HttpStatus.OK);
             message.setMessage("success");
         } catch (IllegalArgumentException e) {
