@@ -52,16 +52,16 @@ public class ErpReleaseCompleteHeaderApi {
     /**
      * Search one api for erp release complete header.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-release-complete-headers</b>
+     * <b>GET : API URL => /api/v1/erp-release-complete-headers/all</b>
      *
      * @return ResponseEntity(message, HttpStatus)
-     * @see ErpReleaseCompleteHeaderBusinessService#searchList
+     * @see ErpReleaseCompleteHeaderBusinessService#searchAll
      */
-    @GetMapping("")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
-        message.setData(erpReleaseCompleteHeaderBusinessService.searchList());
+        message.setData(erpReleaseCompleteHeaderBusinessService.searchAll());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

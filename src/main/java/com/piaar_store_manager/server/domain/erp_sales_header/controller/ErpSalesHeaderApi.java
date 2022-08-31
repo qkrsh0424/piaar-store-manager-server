@@ -70,7 +70,7 @@ public class ErpSalesHeaderApi {
     }
 
     /**
-     * Create one api for product.
+     * Update one api for sales header.
      * <p>
      * <b>PUT : API URL => /api/v1/erp-sales-headers</b>
      * 

@@ -45,8 +45,8 @@ public class ErpSalesHeaderBusinessService {
      * 저장된 erp sales header를 모두 조회한다.
      *
      * @return ErpOrderHeaderDto
-     * @see ErpOrderHeaderService#findAll
-     * @see ErpOrderHeaderDto#toDto
+     * @see ErpSalesHeaderService#findAll
+     * @see ErpSalesHeaderDto#toDto
      */
     public List<ErpSalesHeaderDto> searchAll() {
         List<ErpSalesHeaderEntity> entities = erpSalesHeaderService.findAll();
@@ -62,7 +62,7 @@ public class ErpSalesHeaderBusinessService {
      * @param headerDto : ErpSalesHeaderDto
      * @see ErpSalesHeaderBusinessService#searchOne
      * @see CustomDateUtils#getCurrentDateTime
-     * @see ErpSalesHeaderDto#toDto
+     * @see ErpSalesHeaderEntity#toEntity
      */
     public void updateOne(ErpSalesHeaderDto headerDto) {
         ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerDto.getId());
@@ -74,7 +74,16 @@ public class ErpSalesHeaderBusinessService {
 
         erpSalesHeaderService.saveAndModify(ErpSalesHeaderEntity.toEntity(dto));
     }
-
+  
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * erp release complete header을 제거한다.
+     * 
+     * @param headerId : UUID
+     * @see ErpSalesHeaderService#searchOne
+     * @see ErpSalesHeaderService#deleteOne
+     */
     public void deleteOne(UUID headerId) {
         ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerId);
         erpSalesHeaderService.deleteOne(entity);

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.dto.ErpReleaseCompleteHeaderDto;
 import com.piaar_store_manager.server.domain.erp_release_complete_header.entity.ErpReleaseCompleteHeaderEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ public class ErpReleaseCompleteHeaderBusinessService {
      */
     public void saveOne(ErpReleaseCompleteHeaderDto headerDto) {
         UUID USER_ID = userService.getUserId();
-
         headerDto
                 .setId(headerDto.getId())
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime())
@@ -50,7 +48,7 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * @see ErpReleaseCompleteHeaderService#findAll
      * @see ErpReleaseCompleteHeaderDto#toDto
      */
-    public List<ErpReleaseCompleteHeaderDto> searchList() {
+    public List<ErpReleaseCompleteHeaderDto> searchAll() {
         List<ErpReleaseCompleteHeaderEntity> entities = erpReleaseCompleteHeaderService.findAll();
         List<ErpReleaseCompleteHeaderDto> dtos = entities.stream().map(entity -> ErpReleaseCompleteHeaderDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
@@ -82,7 +80,9 @@ public class ErpReleaseCompleteHeaderBusinessService {
      * <p>
      * erp release complete header을 제거한다.
      * 
-     * @param entity
+     * @param headerId : UUID
+     * @see ErpReleaseCompleteHeaderService#searchOne
+     * @see ErpReleaseCompleteHeaderService#deleteOne
      */
     public void deleteOne(UUID headerId) {
         ErpReleaseCompleteHeaderEntity entity = erpReleaseCompleteHeaderService.searchOne(headerId);
