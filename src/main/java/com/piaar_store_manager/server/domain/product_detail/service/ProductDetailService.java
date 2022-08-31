@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product_detail.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product_detail.entity.ProductDetailEntity;
 import com.piaar_store_manager.server.domain.product_detail.repository.ProductDetailRepository;
@@ -16,8 +17,19 @@ import lombok.RequiredArgsConstructor;
 public class ProductDetailService {
     private final ProductDetailRepository productDetailRepository;
 
+    // deprecated
     public ProductDetailEntity searchOne(Integer detailCid) {
         Optional<ProductDetailEntity> detailEntityOpt = productDetailRepository.findById(detailCid);
+
+        if (detailEntityOpt.isPresent()) {
+            return detailEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+
+    public ProductDetailEntity searchOne(UUID detailId) {
+        Optional<ProductDetailEntity> detailEntityOpt = productDetailRepository.findById(detailId);
 
         if (detailEntityOpt.isPresent()) {
             return detailEntityOpt.get();
@@ -30,16 +42,7 @@ public class ProductDetailService {
         return productDetailRepository.findAll();
     }
 
-    /**
-     * <b>DB Select Related Method.</b>
-     * <p>
-     * optionCid에 대응되는 product detail 데이터를 모두 조회한다.
-     * 
-     * @param optionCid : Integer
-     * @return List::ProductDetailEntity::
-     * @see ProductDetailRepository#findByProductOptionCid
-     */
-    public List<ProductDetailEntity> searchList(Integer optionCid) {
+    public List<ProductDetailEntity> searchListByOptionCid(Integer optionCid) {
         return productDetailRepository.findByProductOptionCid(optionCid);
     }
 
@@ -47,9 +50,16 @@ public class ProductDetailService {
         productDetailRepository.save(productDetailEntity);
     }
 
+    // deprecated
     public void destroyOne(Integer detailCid) {
         productDetailRepository.findById(detailCid).ifPresent(product -> {
             productDetailRepository.delete(product);
+        });
+    }
+
+    public void destroyOne(UUID detailId) {
+        productDetailRepository.findById(detailId).ifPresent(detail -> {
+            productDetailRepository.delete(detail);
         });
     }
 }

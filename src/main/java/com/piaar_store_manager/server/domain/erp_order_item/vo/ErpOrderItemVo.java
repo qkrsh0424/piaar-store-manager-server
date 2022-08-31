@@ -320,7 +320,7 @@ public class ErpOrderItemVo {
             });
         });
     }
-
+    
     public static void setReleaseOptionStockUnitForList(List<ErpOrderItemVo> erpOrderItemVos, List<ProductOptionEntity> optionEntities) {
         erpOrderItemVos.forEach(erpOrderItemVo -> {
             optionEntities.forEach(optionEntity ->{
@@ -333,6 +333,17 @@ public class ErpOrderItemVo {
     }
 
     public static void setOptionStockUnitForM2OJList(List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemM2OJVos.forEach(erpOrderItemM2OJVo -> {
+            optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemM2OJVo.getErpOrderItem().getOptionCode().isEmpty() && erpOrderItemM2OJVo.getErpOrderItem().getOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemM2OJVo.getErpOrderItem().setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static void setReleaseOptionStockUnitForM2OJList(List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos, List<ProductOptionEntity> optionEntities) {
         erpOrderItemM2OJVos.forEach(erpOrderItemM2OJVo -> {
             optionEntities.forEach(optionEntity ->{
                 if(!erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().isEmpty() && erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().equals(optionEntity.getCode())){

@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.product_receive.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
@@ -19,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class ProductReceiveService {
     private final ProductReceiveRepository productReceiveRepository;
 
-    public ProductReceiveEntity searchOne(Integer productReceiveCid) {
-        Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveCid);
+    public ProductReceiveEntity searchOne(UUID productReceiveId) {
+        Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveId);
 
         if (receiveEntityOpt.isPresent()) {
             return receiveEntityOpt.get();
@@ -29,27 +30,27 @@ public class ProductReceiveService {
         }
     }
 
-    public List<ProductReceiveEntity> searchList() {
-        return productReceiveRepository.findAll();
-    }
-
     /**
      * <b>DB Select Related Method</b>
      * <p>
      * productReceiveCid에 대응되는 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      *
-     * @param productReceiveCid : Integer
+     * @param id : Integer
      * @return ProductReceiveProj
      * @see ProductReceiveRepository#searchOneM2OJ
      */
-    public ProductReceiveProj searchOneM2OJ(Integer productReceiveCid){
-        Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.searchOneM2OJ(productReceiveCid);
+    public ProductReceiveProj searchOneM2OJ(UUID id){
+        Optional<ProductReceiveProj> productReceiveProjOpt = productReceiveRepository.searchOneM2OJ(id);
 
         if(productReceiveProjOpt.isPresent()) {
             return productReceiveProjOpt.get();
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
+    }
+
+    public List<ProductReceiveEntity> searchList() {
+        return productReceiveRepository.findAll();
     }
 
     /**
@@ -109,12 +110,19 @@ public class ProductReceiveService {
     }
 
     @Transactional
-    public List<ProductReceiveEntity> saveListAndModify(List<ProductReceiveEntity> entities) {
-        return productReceiveRepository.saveAll(entities);
+    public void saveListAndModify(List<ProductReceiveEntity> entities) {
+        productReceiveRepository.saveAll(entities);
     }
 
+    // deprecated
     public void destroyOne(Integer productReceiveCid) {
         productReceiveRepository.findById(productReceiveCid).ifPresent(receive -> {
+            productReceiveRepository.delete(receive);
+        });
+    }
+
+    public void destroyOne(UUID id) {
+        productReceiveRepository.findById(id).ifPresent(receive -> {
             productReceiveRepository.delete(receive);
         });
     }

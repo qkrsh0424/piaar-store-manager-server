@@ -374,7 +374,6 @@ public class ErpOrderItemBusinessService {
                 }
                 if (!duplication) {
                     newItems.add(duplicationCheckItem);
-                    System.out.println(duplicationCheckItem);
                 }
             }
         }
@@ -528,6 +527,11 @@ public class ErpOrderItemBusinessService {
         return erpOrderItemM2OJVos;
     }
 
+    public void changeBatch(Map<String, Object> params, List<ErpOrderItemDto> itemDtos) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        
+    }
+
     /**
      * <b>DB Update Related Method</b>
      * <p>
@@ -676,8 +680,7 @@ public class ErpOrderItemBusinessService {
 //        Dirty Checking update
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             if (entity.getId().equals(dto.getId())) {
-                entity.setOptionCode(dto.getOptionCode())
-                        .setReleaseOptionCode(dto.getOptionCode());
+                entity.setOptionCode(dto.getOptionCode()).setReleaseOptionCode(dto.getOptionCode());
             }
         }));
     }
@@ -738,8 +741,6 @@ public class ErpOrderItemBusinessService {
          */
         List<WaybillExcelFormDto> waybillExcelFormDtos = new ArrayList<>();
 
-        System.out.println(CustomExcelUtils.getCellCount(worksheet, HEADER_ROW_INDEX));
-        System.out.println(ALLOWED_CELL_SIZE);
         /*
         엑셀 형식 검사 => cell size, header cell name check
          */

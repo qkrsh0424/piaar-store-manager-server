@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.entity.ErpSalesHeaderEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -49,7 +48,7 @@ public class ErpSalesHeaderBusinessService {
      * @see ErpOrderHeaderService#findAll
      * @see ErpOrderHeaderDto#toDto
      */
-    public List<ErpSalesHeaderDto> searchList() {
+    public List<ErpSalesHeaderDto> searchAll() {
         List<ErpSalesHeaderEntity> entities = erpSalesHeaderService.findAll();
         List<ErpSalesHeaderDto> dtos = entities.stream().map(entity -> ErpSalesHeaderDto.toDto(entity)).collect(Collectors.toList());
         return dtos;

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.sales_analysis.dto.SalesAnalysisItemDto;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
-import com.piaar_store_manager.server.domain.user.service.UserService;
 
 import org.springframework.stereotype.Service;
 
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesAnalysisItemBusinessService {
     private final ProductOptionService productOptionService;
-    private final UserService userService;
 
     /**
      * <b></b>
@@ -33,8 +31,8 @@ public class SalesAnalysisItemBusinessService {
      */
     public List<SalesAnalysisItemDto> searchAll(Map<String, Object> params) {
         // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
+        // userService.userLoginCheck();
+        // userService.userManagerRoleCheck();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = params.get("startDate") != null ? LocalDateTime.parse(params.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */

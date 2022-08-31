@@ -13,12 +13,14 @@ import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Builder
-@Data
+@Getter
 @Accessors(chain = true)
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,8 +29,10 @@ public class ProductReceiveGetDto {
     private UUID id;
     private Integer receiveUnit;
     private String memo;
+    @Setter
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
+    @Setter
     private UUID createdBy;
     private Integer productOptionCid;
 
@@ -53,11 +57,11 @@ public class ProductReceiveGetDto {
 
         return dto;
     }
-
     /**
      * receive, receive와 Many To One Join(m2oj) 연관관계에 놓여있는 product, category, user, option으로 구성된 객체
      */
-    @Data
+    @Getter
+    @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor
@@ -91,7 +95,8 @@ public class ProductReceiveGetDto {
     /**
      * receive, receive 데이터에 대응되는 option, product를 포함한 객체
      */
-    @Data
+    @Getter
+    @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor

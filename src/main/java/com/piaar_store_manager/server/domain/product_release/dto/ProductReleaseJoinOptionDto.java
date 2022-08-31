@@ -15,6 +15,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+// Unused DTO
 public class ProductReleaseJoinOptionDto {
     ProductReleaseGetDto release;
     ProductOptionGetDto option;

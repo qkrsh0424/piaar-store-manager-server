@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.stock_analysis.service.StockAnalysisBusinessService;
 
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/stock-analysis")
+@RequiredLogin
 @RequiredArgsConstructor
 public class StockAnalysisApi {
     private final StockAnalysisBusinessService stockAnalysisBusinessService;
