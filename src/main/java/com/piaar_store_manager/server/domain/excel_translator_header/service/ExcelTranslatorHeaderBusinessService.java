@@ -15,8 +15,10 @@ import com.piaar_store_manager.server.domain.excel_translator_header.dto.ExcelTr
 import com.piaar_store_manager.server.domain.excel_translator_header.entity.ExcelTranslatorHeaderEntity;
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.ExcelDataDetailDto;
 import com.piaar_store_manager.server.domain.excel_translator_item.dto.UploadExcelDataGetDto;
-
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.utils.CustomExcelUtils;
+
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -69,12 +71,20 @@ public class ExcelTranslatorHeaderBusinessService {
      * @return List::UploadExcelDataGetDto::
      * @see ExcelTranslatorHeaderBusinessService#getUploadedExcelForm
      */
-    public List<UploadExcelDataGetDto> uploadExcelFile(MultipartFile file, ExcelTranslatorHeaderGetDto dto) {
+    public List<UploadExcelDataGetDto> uploadExcelFile(MultipartFile file, Map<String, Object> params, ExcelTranslatorHeaderGetDto dto) {
         Workbook workbook = null;
+
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
         try{
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if(excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            }else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
             throw new IllegalArgumentException();
+        } catch (EncryptedDocumentException e) {
+            throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);
@@ -127,10 +137,19 @@ public class ExcelTranslatorHeaderBusinessService {
      */
     public UploadExcelDataGetDto uploadHeaderExcelFile(Map<String, Object> params, MultipartFile file) {
         Workbook workbook = null;
+        
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
+        
         try{
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if(excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            }else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
             throw new IllegalArgumentException();
+        } catch (EncryptedDocumentException e) {
+            throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);

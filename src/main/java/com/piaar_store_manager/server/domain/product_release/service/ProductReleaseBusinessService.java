@@ -50,7 +50,7 @@ public class ProductReleaseBusinessService {
     }
 
     @Transactional
-    public void createOne(ProductReleaseGetDto productReleaseGetDto) {
+    public void createOne(ProductReleaseGetDto productReleaseDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()

@@ -55,20 +55,6 @@ public class ErpOrderItemBusinessService {
     private final UserService userService;
     private final ExcelTranslatorHeaderService excelTranslatorHeaderervice;
 
-    /*
-     * 업로드된 엑셀 파일의 암호화 여부 체크
-     */
-    public void checkPasswordForUploadedErpOrderExcel(MultipartFile file) {
-        try {
-            WorkbookFactory.create(file.getInputStream());
-        } catch (IOException e) {
-            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
-        } catch (EncryptedDocumentException e) {
-            // 암호화 된 경우
-            throw new CustomExcelFileRequiredPwdException();
-        }
-    }
-
     /**
      * <b>Upload Excel File</b>
      * <p>
@@ -96,7 +82,7 @@ public class ErpOrderItemBusinessService {
      * 피아르 엑셀파일 업로드
      */
     public List<ErpOrderItemVo.ExcelVo> uploadPiaarForm(MultipartFile file, Map<String, Object> params) {
-        Workbook workbook;
+        Workbook workbook = null;
 
         String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
 
@@ -227,6 +213,7 @@ public class ErpOrderItemBusinessService {
             }
 
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                .id(UUID.randomUUID())
                 .uniqueCode(null)
                 .prodName(getTranslatorTargetCellValue(row, details.get(1)))
                 .optionName(getTranslatorTargetCellValue(row, details.get(2)))

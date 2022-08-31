@@ -14,6 +14,8 @@ import com.piaar_store_manager.server.domain.waybill.dto.WaybillAssembledDto;
 import com.piaar_store_manager.server.domain.waybill.dto.WaybillGetDto;
 import com.piaar_store_manager.server.domain.waybill.dto.WaybillOptionInfo;
 import com.piaar_store_manager.server.domain.waybill.service.WaybillService;
+import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
+import com.piaar_store_manager.server.utils.CustomExcelUtils;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
@@ -459,6 +461,32 @@ public class ExcelApiController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+     /**
+     * Check password for order excel.
+     * 엑셀 업로드 시 엑셀에 암호화가 걸려있는지 검사하는 API
+     * <p>
+     * <b>POST : API URL => /api/excel/check-password</b>
+     * 
+     * @param file : MultipartFile
+     * @see CustomExcelUtils#isExcelFile
+     */
+    // @PermissionRole
+    @PostMapping("/check-password")
+    public ResponseEntity<?> checkPasswordForUploadedErpOrderExcel(@RequestParam("file") MultipartFile file) {
+        Message message = new Message();
+
+        // file extension check.
+        if (!CustomExcelUtils.isExcelFile(file)) {
+            throw new CustomExcelFileUploadException("This is not an excel file.");
+        }
+
+        CustomExcelUtils.checkPasswordForUploadedErpOrderExcel(file);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
     }
 
     private String getOptionInfosString(List<WaybillOptionInfo> optionInfos) {

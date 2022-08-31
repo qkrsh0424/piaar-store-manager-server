@@ -38,32 +38,32 @@ import lombok.RequiredArgsConstructor;
 public class ErpOrderItemApi {
     private final ErpOrderItemBusinessService erpOrderItemBusinessService;
 
-    /**
-     * Check password for order excel.
-     * 주문 파일 업로드 엑셀 대량등록 시 엑셀에 암호화가 걸려있는지 검사하는 API
-     * <p>
-     * <b>POST : API URL => /api/v1/erp-order-items/excel/upload/check-password</b>
-     * 
-     * @param file : MultipartFile
-     * @see CustomExcelUtils#isExcelFile
-     * @see ErpOrderItemBusinessService#checkPasswordForUploadedErpOrderExcel
-     */
-    @PostMapping("/excel/upload/check-password")
-    @PermissionRole
-    public ResponseEntity<?> checkPasswordForUploadedErpOrderExcel(@RequestParam("file") MultipartFile file) {
-        Message message = new Message();
+    // /**
+    //  * Check password for order excel.
+    //  * 주문 파일 업로드 엑셀 대량등록 시 엑셀에 암호화가 걸려있는지 검사하는 API
+    //  * <p>
+    //  * <b>POST : API URL => /api/v1/erp-order-items/excel/upload/check-password</b>
+    //  * 
+    //  * @param file : MultipartFile
+    //  * @see CustomExcelUtils#isExcelFile
+    //  * @see ErpOrderItemBusinessService#checkPasswordForUploadedErpOrderExcel
+    //  */
+    // @PostMapping("/excel/upload/check-password")
+    // @PermissionRole
+    // public ResponseEntity<?> checkPasswordForUploadedErpOrderExcel(@RequestParam("file") MultipartFile file) {
+    //     Message message = new Message();
 
-        // file extension check.
-        if (!CustomExcelUtils.isExcelFile(file)) {
-            throw new CustomExcelFileUploadException("This is not an excel file.");
-        }
+    //     // file extension check.
+    //     if (!CustomExcelUtils.isExcelFile(file)) {
+    //         throw new CustomExcelFileUploadException("This is not an excel file.");
+    //     }
 
-        erpOrderItemBusinessService.checkPasswordForUploadedErpOrderExcel(file);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     CustomExcelUtils.checkPasswordForUploadedErpOrderExcel(file);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Upload excel data for order excel.
