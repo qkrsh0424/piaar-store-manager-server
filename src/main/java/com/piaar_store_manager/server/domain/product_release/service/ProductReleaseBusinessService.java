@@ -55,11 +55,11 @@ public class ProductReleaseBusinessService {
 
         ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
                 .id(UUID.randomUUID())
-                .releaseUnit(productReleaseGetDto.getReleaseUnit())
-                .memo(productReleaseGetDto.getMemo())
+                .releaseUnit(productReleaseDto.getReleaseUnit())
+                .memo(productReleaseDto.getMemo())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .createdBy(USER_ID)
-                .productOptionCid(productReleaseGetDto.getProductOptionCid())
+                .productOptionCid(productReleaseDto.getProductOptionCid())
                 .build();
 
         productReleaseService.saveAndModify(ProductReleaseEntity.toEntity(releaseGetDto));

@@ -21,7 +21,6 @@ import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDt
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomExcelFileRequiredPwdException;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;

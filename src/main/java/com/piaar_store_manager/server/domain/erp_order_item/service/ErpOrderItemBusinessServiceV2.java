@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
 import com.piaar_store_manager.server.domain.erp_order_item.service.strategy.search.ErpOrderItemSearchContext;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -183,16 +184,5 @@ public class ErpOrderItemBusinessServiceV2 {
         erpOrderItemSearchContext.setSearchStrategy(objectType);
 
         return erpOrderItemSearchContext.searchBatchByPaging(params, pageable);
-    }
-
-    private List<ErpOrderItemVo.ManyToOneJoin> setReleaseOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
-        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
-
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
-
-        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
-        ErpOrderItemVo.setReleaseOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
-
-        return erpOrderItemM2OJVos;
     }
 }
