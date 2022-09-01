@@ -49,7 +49,7 @@ public class ProductReceiveService {
         }
     }
 
-    public List<ProductReceiveEntity> searchList() {
+    public List<ProductReceiveEntity> searchAll() {
         return productReceiveRepository.findAll();
     }
 

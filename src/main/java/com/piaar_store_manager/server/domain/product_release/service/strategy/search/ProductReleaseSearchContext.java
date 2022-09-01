@@ -39,8 +39,8 @@ public class ProductReleaseSearchContext {
         return searchStrategy.searchOne(releaseId);
     }
 
-    public <T> List<T> searchBatch() {
-        return searchStrategy.searchBatch();
+    public <T> List<T> searchAll() {
+        return searchStrategy.searchAll();
     }
 
     public <T> List<T> searchBatchByOptionCid(Integer optionCid) {

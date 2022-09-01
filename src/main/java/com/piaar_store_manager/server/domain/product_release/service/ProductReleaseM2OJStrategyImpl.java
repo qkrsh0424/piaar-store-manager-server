@@ -30,7 +30,7 @@ public class ProductReleaseM2OJStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchBatch() {
+    public <T> List<T> searchAll() {
         List<ProductReleaseProj> projs = productReleaseService.searchListM2OJ();
         return projs.stream().map(proj -> (T)ProductReleaseGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
     }

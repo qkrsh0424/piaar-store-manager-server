@@ -28,9 +28,9 @@ public class ProductReceiveBasicStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchBatch() {
-        List<ProductReceiveEntity> dtos = productReceiveService.searchList();
-        return dtos.stream().map(entity -> (T) ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
+    public <T> List<T> searchAll() {
+        List<ProductReceiveEntity> entities = productReceiveService.searchAll();
+        return entities.stream().map(entity -> (T) ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
     }
 
     @Override

@@ -32,7 +32,7 @@ public class ErpOrderItemApiV2 {
      * <p>
      * <b>GET : API URL => /api/v2/erp-order-items/batch</b>
      *
-     * @param params : Map::String, Object::
+     * @param params : Map::String, Object:: [objectType, ...]
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchList
      */
@@ -52,7 +52,7 @@ public class ErpOrderItemApiV2 {
      * <p>
      * <b>POST : API URL => /api/v2/erp-order-items/action-refresh</b>
      * 
-     * @param params : Map::String, Object::
+     * @param params : Map::String, Object:: [objectType, ...]
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByIds
      */
@@ -74,7 +74,7 @@ public class ErpOrderItemApiV2 {
      * <p>
      * <b>GET : API URL => /api/v1/erp-order-items/batch/page</b>
      *
-     * @param params   : Map::String, Object::
+     * @param params   : Map::String, Object:: [objectType, ...]
      * @param pageable : Pageable
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */

@@ -33,11 +33,11 @@ public class ProductReleaseBusinessService {
         return dto;
     }
 
-    public <T> List<T> searchBatch(Map<String, Object> params) {
+    public <T> List<T> searchAll(Map<String, Object> params) {
         String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
         productReleaseSearchContext.setSearchStrategy(objectType);
 
-        List<T> dto = productReleaseSearchContext.searchBatch();
+        List<T> dto = productReleaseSearchContext.searchAll();
         return dto;
     }
 

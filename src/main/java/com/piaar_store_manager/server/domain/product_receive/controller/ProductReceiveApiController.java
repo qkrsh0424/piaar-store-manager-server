@@ -72,7 +72,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/{productReceiveId}</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
     @GetMapping("/{productReceiveId}")
@@ -125,16 +125,16 @@ public class ProductReceiveApiController {
     /**
      * Search list api for receive.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/batch</b>
+     * <b>GET : API URL => /api/v1/product-receive/all</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
-    @GetMapping("/batch")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchBatch(params));
+        message.setData(productReceiveBusinessService.searchAll(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -163,7 +163,7 @@ public class ProductReceiveApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/batch/{productOptionCid}</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
     @GetMapping("/batch/{productOptionCid}")

@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.product_option.controller;
 
 import java.util.Map;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/product-option")
+@RequestMapping("/api/v1/product-options")
 @RequiredArgsConstructor
 @RequiredLogin
 public class ProductOptionApiController {
@@ -24,18 +25,19 @@ public class ProductOptionApiController {
     /**
      * Search one api for product option.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/one/{productOptionCid}</b>
+     * <b>GET : API URL => /api/v1/product-options/one/{productOptionCid}</b>
      */
-    @GetMapping("/one/{productOptionCid}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
-        Message message = new Message();
+    // Deprecated
+    // @GetMapping("/one/{productOptionCid}")
+    // public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchOne(productOptionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchOne(productOptionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search one api for product option.
@@ -44,11 +46,31 @@ public class ProductOptionApiController {
      * <p>
      * productOptionCid에 대응하는 option, option와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
      */
-    @GetMapping("/one-m2oj/{productOptionCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    // Deprecated
+    // @GetMapping("/one-m2oj/{productOptionCid}")
+    // public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    //     Message message = new Message();
+
+    //     message.setData(productOptionBusinessService.searchOneM2OJ(productOptionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search one api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-options/{productOptionId}</b>
+     * 
+     * @param params : Map::String, Object:: [objectType]
+     */
+    // Unused API
+    @GetMapping("/{productOptionId}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productOptionId") UUID optionId, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchOneM2OJ(productOptionCid));
+        message.setData(productOptionBusinessService.searchOne(optionId, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -60,11 +82,49 @@ public class ProductOptionApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-option/list</b>
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    // Deprecated
+    // @GetMapping("/list")
+    // public ResponseEntity<?> searchList() {
+    //     Message message = new Message();
+
+    //     message.setData(productOptionBusinessService.searchList());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // /**
+    //  * Search list api for product option.
+    //  * <p>
+    //  * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
+    //  * <p>
+    //  * 모든 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category을 함께 조회한다.
+    //  */
+    // Deprecated
+    // @GetMapping("/list-m2oj")
+    // public ResponseEntity<?> searchListM2OJ() {
+    //     Message message = new Message();
+
+    //     message.setData(productOptionBusinessService.searchListM2OJ());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search all api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-options/all</b>
+     * 
+     * @param params : Map::String, Object:: [objectType]
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchList());
+        message.setData(productOptionBusinessService.searchAll(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -74,31 +134,33 @@ public class ProductOptionApiController {
     /**
      * Search list api for product option.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/list/{productCid}</b>
+     * <b>GET : API URL => /api/v1/product-options/list/{productCid}</b>
      */
-    @GetMapping("/list/{productCid}")
-    public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid) {
-        Message message = new Message();
+    // Deprecated
+    // @GetMapping("/list/{productCid}")
+    // public ResponseEntity<?> searchListByProduct(@PathVariable(value = "productCid") Integer productCid) {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchListByProductCid(productCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchListByProductCid(productCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+    
     /**
-     * Search list api for product option.
+     * Search api for option matching product cid.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
-     * <p>
-     * 모든 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category을 함께 조회한다.
+     * <b>GET : API URL => /api/v1/product-options/batch/{productCid}</b>
+     * 
+     * @param params : Map::String, Object:: [objectType]
      */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
+    // Unused API
+    @GetMapping("/batch/{productCid}")
+    public ResponseEntity<?> searchBatchByProductCid(@PathVariable(value = "productCid") Integer productCid, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchListM2OJ());
+        message.setData(productOptionBusinessService.searchBatchByProductCid(productCid, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -112,16 +174,27 @@ public class ProductOptionApiController {
      * <p>
      * optionCid에 대응하는 option의 모든 receive(입고), release(출고) 데이터를 조회한다.
      */
-    @GetMapping("/stock/status/{optionCid}")
-    public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
-        Message message = new Message();
+    // @GetMapping("/stock/status/{optionCid}")
+    // public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchStockStatus(optionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchStockStatus(optionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // @GetMapping("/stock/status/{optionCid}")
+    // public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid, @RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(productOptionBusinessService.searchStockStatus(optionCid, params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api of status(release & receive) for product option.
@@ -130,16 +203,16 @@ public class ProductOptionApiController {
      * <p>
      * 모든 option 조회, 해당 option의 모든 receive(입고), release(출고) 데이터를 조회한다.
      */
-    @GetMapping("/stock/status/list")
-    public ResponseEntity<?> searchAllStockStatus() {
-        Message message = new Message();
+    // @GetMapping("/stock/status/list")
+    // public ResponseEntity<?> searchAllStockStatus() {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchAllStockStatus());
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchAllStockStatus());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api of status(release & receive) for product option.
@@ -148,11 +221,32 @@ public class ProductOptionApiController {
      * <p>
      * 모든 option 조회, 해당 option의 startDate와 endDate기간 사이에 등록된 receive(입고), release(출고) 데이터를 조회한다.
      */
+    
+    // @GetMapping("/stock/status")
+    // public ResponseEntity<?> searchStockStatus(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(productOptionBusinessService.searchStockStatus(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search api of status(release & receive) for product option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-options/stock/status</b>
+     * <p>
+     * option의 모든 receive(입고), release(출고) 데이터를 조회한다.
+     * 
+     * @param params : Map::String, Object:: [objectType, (optionCid)]
+     */
     @GetMapping("/stock/status")
-    public ResponseEntity<?> searchAllStockStatus(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchForStockStatus(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchAllStockStatus(params));
+        message.setData(productOptionBusinessService.searchForStockStatus(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -162,9 +256,26 @@ public class ProductOptionApiController {
     /**
      * Create one api for product option.
      * <p>
-     * <b>POST : API URL => /api/v1/product-option/one</b>
+     * <b>POST : API URL => /api/v1/product-options/one</b>
      */
-    @PostMapping("/one")
+    // @PostMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> createOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
+    //     Message message = new Message();
+
+    //     productOptionBusinessService.createOne(productOptionGetDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Create one api for product option.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-options</b>
+     */
+    @PostMapping("")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();
@@ -179,16 +290,16 @@ public class ProductOptionApiController {
     /**
      * Create one api for product option.
      * <p>
-     * <b>POST : API URL => /api/v1/product-option/option-packages</b>
+     * <b>POST : API URL => /api/v1/product-options/option-packages</b>
      * <p>
      * 단일 option, option 하위의 다중 package를 등록한다.
      */
     @PostMapping("/option-packages")
     @PermissionRole
-    public ResponseEntity<?> createOAP(@RequestBody ProductOptionGetDto.CreateReq createReqDto) {
+    public ResponseEntity<?> createOptionAndPackages(@RequestBody ProductOptionGetDto.CreateReq createReqDto) {
         Message message = new Message();
 
-        productOptionBusinessService.createOAP(createReqDto);
+        productOptionBusinessService.createOptionAndPackages(createReqDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -201,12 +312,30 @@ public class ProductOptionApiController {
      * <b>DELETE : API URL => /api/v1/product-option/one/{productOptionCid}</b>
      * <p>
      */
-    @DeleteMapping("/one/{productOptionCid}")
+    // @DeleteMapping("/one/{productOptionCid}")
+    // @PermissionRole(role = "ROLE_SUPERADMIN")
+    // public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    //     Message message = new Message();
+
+    //     productOptionBusinessService.destroyOne(productOptionCid);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Destroy( Delete or Remove ) one api for product option.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/product-option/{optionId}</b>
+     * <p>
+     */
+    @DeleteMapping("/{optionId}")
     @PermissionRole(role = "ROLE_SUPERADMIN")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "optionId") UUID optionId) {
         Message message = new Message();
 
-        productOptionBusinessService.destroyOne(productOptionCid);
+        productOptionBusinessService.destroyOne(optionId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -216,10 +345,28 @@ public class ProductOptionApiController {
     /**
      * Change one api for product option.
      * <p>
-     * <b>PUT : API URL => /api/v1/product-option/one</b>
+     * <b>PUT : API URL => /api/v1/product-options/one</b>
      * <p>
      */
-    @PutMapping("/one")
+    // @PutMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
+    //     Message message = new Message();
+
+    //     productOptionBusinessService.changeOne(productOptionGetDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Change one api for product option.
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-options</b>
+     * <p>
+     */
+    @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();
@@ -234,16 +381,17 @@ public class ProductOptionApiController {
     /**
      * Change one api for product option.
      * <p>
-     * <b>PUT : API URL => /api/v1/product-option/option-packages</b>
+     * <b>PUT : API URL => /api/v1/product-options/option-packages</b>
      * <p>
      * 단일 option, option 하위의 다중 package를 수정한다.
      */
+    // TODO :: 옵션과 옵션패키지 분리해야 할 듯
     @PutMapping("/option-packages")
     @PermissionRole
-    public ResponseEntity<?> changeOAP(@RequestBody ProductOptionGetDto.CreateReq reqDto) {
+    public ResponseEntity<?> changeOptionAndPackages(@RequestBody ProductOptionGetDto.CreateReq reqDto) {
         Message message = new Message();
 
-        productOptionBusinessService.changeOAP(reqDto);
+        productOptionBusinessService.changeOptionAndPackages(reqDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -253,10 +401,11 @@ public class ProductOptionApiController {
     /**
      * Patch one api for product option.
      * <p>
-     * <b>PATCH : API URL => /api/v1/product-option/one</b>
+     * <b>PATCH : API URL => /api/v1/product-options</b>
      * <p>
      */
-    @PatchMapping("/one")
+    // Unused API
+    @PatchMapping("")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductOptionGetDto productOptionGetDto) {
         Message message = new Message();
@@ -271,7 +420,7 @@ public class ProductOptionApiController {
     /**
      * Search api for release location of produc option.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/release-location</b>
+     * <b>GET : API URL => /api/v1/product-options/release-location</b>
      * <p>
      */
     @GetMapping("/release-location")
@@ -288,7 +437,7 @@ public class ProductOptionApiController {
     /**
      * Search api for stock status by week.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/stock-cycle</b>
+     * <b>GET : API URL => /api/v1/product-options/stock-cycle</b>
      * <p>
      * @param params Map::String, Object:: [searchEndDate, categoryCid]
      */

@@ -42,7 +42,7 @@ public class ProductReleaseService {
         }
     }
 
-    public List<ProductReleaseEntity> searchList() {
+    public List<ProductReleaseEntity> searchAll() {
         return productReleaseRepository.findAll();
     }
 

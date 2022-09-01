@@ -2,6 +2,8 @@ package com.piaar_store_manager.server.domain.product_option.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,7 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGet
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.service.strategy.search.ProductOptionSearchContext;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
@@ -42,44 +44,62 @@ public class ProductOptionBusinessService {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    public ProductOptionGetDto searchOne(Integer productOptionCid) {
-        ProductOptionEntity entity = productOptionService.searchOne(productOptionCid);
-        ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
+    private final ProductOptionSearchContext productOptionSearchContext;
+
+    // public ProductOptionGetDto searchOne(Integer productOptionCid) {
+    //     ProductOptionEntity entity = productOptionService.searchOne(productOptionCid);
+    //     ProductOptionGetDto dto = ProductOptionGetDto.toDto(entity);
+    //     return dto;
+    // }
+
+    // /**
+    //  * <b>DB Select Related Method</b>
+    //  * <p>
+    //  * productOptionCid 대응하는 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
+    //  *
+    //  * @param productOptionCid : Integer
+    //  * @see ProductOptionService#searchOneM2OJ
+    //  */
+    // public ProductOptionGetDto.ManyToOneJoin searchOneM2OJ(Integer productOptionCid) {
+    //     ProductOptionProj optionProj = productOptionService.searchOneM2OJ(productOptionCid);
+    //     ProductOptionGetDto.ManyToOneJoin optionM2OJDto = ProductOptionGetDto.ManyToOneJoin.toDto(optionProj);
+    //     return optionM2OJDto;
+    // }
+
+    public <T> T searchOne(UUID productOptionId, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productOptionSearchContext.setSearchStrategy(objectType);
+
+        T dto = productOptionSearchContext.searchOne(productOptionId);
         return dto;
     }
     
-    public List<ProductOptionGetDto> searchList() {
-        List<ProductOptionEntity> entities = productOptionService.searchList();
-        List<ProductOptionGetDto> dtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
+    // public List<ProductOptionGetDto> searchList() {
+    //     List<ProductOptionEntity> entities = productOptionService.searchList();
+    //     List<ProductOptionGetDto> dtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
+    //     return dtos;
+    // }
+
+    // /**
+    //  * <b>DB Select Related Method</b>
+    //  * <p>
+    //  * 모든 option 조회, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
+    //  *
+    //  * @return List::ProductOptionGetDto.ManyToOneJoin::
+    //  * @see ProductOptionService#searchListM2OJ
+    //  */
+    // public List<ProductOptionGetDto.ManyToOneJoin> searchListM2OJ() {
+    //     List<ProductOptionProj> productOptionProjs = productOptionService.searchListM2OJ();
+    //     List<ProductOptionGetDto.ManyToOneJoin> optionM2OJDtos = productOptionProjs.stream().map(proj -> ProductOptionGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
+    //     return optionM2OJDtos;
+    // }
+
+    public <T> List<T> searchAll(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productOptionSearchContext.setSearchStrategy(objectType);
+
+        List<T> dtos = productOptionSearchContext.searchAll();
         return dtos;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productOptionCid 대응하는 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
-     *
-     * @param productOptionCid : Integer
-     * @see ProductOptionService#searchOneM2OJ
-     */
-    public ProductOptionGetDto.ManyToOneJoin searchOneM2OJ(Integer productOptionCid) {
-        ProductOptionProj optionProj = productOptionService.searchOneM2OJ(productOptionCid);
-        ProductOptionGetDto.ManyToOneJoin optionM2OJDto = ProductOptionGetDto.ManyToOneJoin.toDto(optionProj);
-        return optionM2OJDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 option 조회, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
-     *
-     * @return List::ProductOptionGetDto.ManyToOneJoin::
-     * @see ProductOptionService#searchListM2OJ
-     */
-    public List<ProductOptionGetDto.ManyToOneJoin> searchListM2OJ() {
-        List<ProductOptionProj> productOptionProjs = productOptionService.searchListM2OJ();
-        List<ProductOptionGetDto.ManyToOneJoin> optionM2OJDtos = productOptionProjs.stream().map(proj -> ProductOptionGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return optionM2OJDtos;
     }
 
     /**
@@ -92,9 +112,17 @@ public class ProductOptionBusinessService {
      * @return List::ProductOptionGetDto::
      * @see ProductOptionService#searchListByProductCid
      */
-    public List<ProductOptionGetDto> searchListByProductCid(Integer productCid) {
-        List<ProductOptionEntity> entities = productOptionService.searchListByProductCid(productCid);
-        List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+    // public List<ProductOptionGetDto> searchListByProductCid(Integer productCid) {
+    //     List<ProductOptionEntity> entities = productOptionService.searchListByProductCid(productCid);
+    //     List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+    //     return dtos;
+    // }
+
+    public <T> List<T> searchBatchByProductCid(Integer productCid, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productOptionSearchContext.setSearchStrategy(objectType);
+
+        List<T> dtos = productOptionSearchContext.searchBatchByProductCid(productCid);
         return dtos;
     }
 
@@ -110,20 +138,28 @@ public class ProductOptionBusinessService {
      * @see ProductReleaseService#searchListByOptionCid
      * @see ProductReceiveService#searchListByOptionCid
      */
-    public ProductOptionStockStatusDto searchStockStatus(Integer optionCid) {
-        List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
-        List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
+    // public ProductOptionStockStatusDto searchStockStatus(Integer optionCid) {
+    //     List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
+    //     List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
         
-        List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
-        List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
+    //     List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
+    //     List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
 
-        ProductOptionStockStatusDto statusDto = ProductOptionStockStatusDto.builder()
-            .productRelease(releaseDtos)
-            .productReceive(receiveDtos)
-            .build();
+    //     ProductOptionStockStatusDto statusDto = ProductOptionStockStatusDto.builder()
+    //         .productRelease(releaseDtos)
+    //         .productReceive(receiveDtos)
+    //         .build();
 
-        return statusDto;
-    }
+    //     return statusDto;
+    // }
+
+    // public <T> T searchStockStatus(Integer optionCid, Map<String, Object> params) {
+    //     String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+    //     productOptionSearchContext.setSearchStrategy(objectType);
+
+    //     T dto = productOptionSearchContext.searchStockStatus(optionCid);
+    //     return dto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -137,20 +173,20 @@ public class ProductOptionBusinessService {
      * @see ProductReleaseService#searchListM2OJ
      * @see ProductReceiveService#searchListM2OJ
      */
-    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus() {
-        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
+    // public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus() {
+    //     List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
+    //     List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
         
-        List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-        List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
+    //     List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
+    //     List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
 
-        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
-            .productReceive(receiveDtos)
-            .productRelease(releaseDtos)
-            .build();
+    //     ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
+    //         .productReceive(receiveDtos)
+    //         .productRelease(releaseDtos)
+    //         .build();
 
-        return statusDto;
-    }
+    //     return statusDto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -163,27 +199,44 @@ public class ProductOptionBusinessService {
      * @see ProductReleaseService#searchListM2OJ
      * @see ProductReceiveService#searchListM2OJ
      */
-    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus(Map<String,Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+    // public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus(Map<String,Object> params) {
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    //     LocalDateTime startDate = null;
+    //     LocalDateTime endDate = null;
+    //     startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+    //     endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
         
-        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
+    //     List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
+    //     List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
 
-        List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-        List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
+    //     List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
+    //     List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
 
-        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
-            .productReceive(receiveDtos)
-            .productRelease(releaseDtos)
-            .build();
+    //     ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
+    //         .productReceive(receiveDtos)
+    //         .productRelease(releaseDtos)
+    //         .build();
 
-        return statusDto;
+    //     return statusDto;
+    // }
+
+    // public <T> T searchStockStatus(Map<String,Object> params) {
+    //     String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+    //     productOptionSearchContext.setSearchStrategy(objectType);
+
+    //     T dto = productOptionSearchContext.searchStockStatus(params);
+    //     return dto;
+    // }
+
+    public <T> T searchForStockStatus(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productOptionSearchContext.setSearchStrategy(objectType);
+
+        T dto = productOptionSearchContext.searchForStockStatus(params);
+        return dto;
     }
 
+    @Transactional
     public void createOne(ProductOptionGetDto optionGetDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -204,7 +257,7 @@ public class ProductOptionBusinessService {
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
-    public void createOAP(ProductOptionGetDto.CreateReq reqDto) {
+    public void createOptionAndPackages(ProductOptionGetDto.CreateReq reqDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto optionGetDto = reqDto.getOptionDto()
@@ -232,29 +285,43 @@ public class ProductOptionBusinessService {
         optionPackageService.saveListAndModify(optionPackageEntities);
     }
 
-    public void destroyOne(Integer productOptionCid) {
-        productOptionService.destroyOne(productOptionCid);
+    // TODO :: 옵션 삭세하는 경우 옵션 패키지 처리 ?
+    // public void destroyOne(Integer productOptionCid) {
+    //     productOptionService.destroyOne(productOptionCid);
+    // }
+
+    // 옵션 삭제 후 하위 패키지들도 함께 제거
+    @Transactional
+    public void destroyOne(UUID optionId) {
+        productOptionService.destroyOne(optionId);
+
+        optionPackageService.deleteBatchByParentOptionId(optionId);
     }
 
+    @Transactional
     public void changeOne(ProductOptionGetDto productOptionDto) {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity optionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
-        optionEntity.setCode(productOptionDto.getCode())
+        optionEntity
+                .setCode(productOptionDto.getCode())
                 .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                 .setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName())
-                .setNosUniqueCode(productOptionDto.getNosUniqueCode())
-                .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
-                .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
-                .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
-                .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
-                .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
-                .setUnitKrw(productOptionDto.getUnitKrw())
-                .setPackageYn(productOptionDto.getPackageYn())
+                .setSalesPrice(productOptionDto.getSalesPrice())
+                .setStockUnit(productOptionDto.getStockUnit())
                 .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
-                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
-                .setProductCid(productOptionDto.getProductCid());
+                .setStatus(productOptionDto.getStatus())
+                .setMemo(productOptionDto.getMemo())
+                .setReleaseLocation(productOptionDto.getReleaseLocation())
+                .setProductCid(productOptionDto.getProductCid())
+                .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
+                .setColor(productOptionDto.getColor())
+                .setUnitCny(productOptionDto.getUnitCny()).setUnitKrw(productOptionDto.getUnitKrw())
+                .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
+                .setPackageYn(productOptionDto.getPackageYn())
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
+                .setUpdatedBy(USER_ID);
 
         productOptionService.saveAndModify(optionEntity);
     }
@@ -273,11 +340,11 @@ public class ProductOptionBusinessService {
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
-    public void changeOAP(ProductOptionGetDto.CreateReq reqDto) {
+    public void changeOptionAndPackages(ProductOptionGetDto.CreateReq reqDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto productOptionGetDto = reqDto.getOptionDto();
-        ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionGetDto.getCid());
+        ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionGetDto.getId());
         /*
         영속성 업데이트
          */
@@ -286,20 +353,20 @@ public class ProductOptionBusinessService {
                 .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
                 .setDefaultName(productOptionGetDto.getDefaultName())
                 .setManagementName(productOptionGetDto.getManagementName())
-                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
-                .setSalesPrice(productOptionGetDto.getSalesPrice()).setStockUnit(productOptionGetDto.getStockUnit())
-                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
-                .setStatus(productOptionGetDto.getStatus())
-                .setReleaseLocation(productOptionGetDto.getReleaseLocation())
-                .setMemo(productOptionGetDto.getMemo())
-                .setImageUrl(productOptionGetDto.getImageUrl()).setImageFileName(productOptionGetDto.getImageFileName())
-                .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
-                .setUnitKrw(productOptionGetDto.getUnitKrw())
-                .setPackageYn(productOptionGetDto.getPackageYn())
+                .setSalesPrice(productOptionGetDto.getSalesPrice())
+                .setStockUnit(productOptionGetDto.getStockUnit())
                 .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
+                .setStatus(productOptionGetDto.getStatus())
+                .setMemo(productOptionGetDto.getMemo())
+                .setReleaseLocation(productOptionGetDto.getReleaseLocation())
+                .setProductCid(productOptionGetDto.getProductCid())
+                .setImageUrl(productOptionGetDto.getImageUrl()).setImageFileName(productOptionGetDto.getImageFileName())
+                .setColor(productOptionGetDto.getColor())
+                .setUnitCny(productOptionGetDto.getUnitCny()).setUnitKrw(productOptionGetDto.getUnitKrw())
+                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
+                .setPackageYn(productOptionGetDto.getPackageYn())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
-                .setUpdatedBy(USER_ID)
-                .setProductCid(productOptionGetDto.getProductCid());
+                .setUpdatedBy(USER_ID);
 
         // 패키지 상품 여부
         if(reqDto.getPackageDtos().size() > 0) {
@@ -308,6 +375,9 @@ public class ProductOptionBusinessService {
             productOptionEntity.setPackageYn("n");
         }
 
+        /*
+         * 해당 옵션의 하위 옵션 패키지 전체 제거 후 재등록.
+         */
         // 해당 옵션에 등록된 옵션패키지 전체 제거
         optionPackageService.deleteBatchByParentOptionId(productOptionEntity.getId());
 
@@ -320,6 +390,7 @@ public class ProductOptionBusinessService {
         optionPackageService.saveListAndModify(newOptionPackageEntities);
     }
 
+    @Transactional
     public void patchOne(ProductOptionGetDto productOptionDto) {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionDto.getCid());
@@ -339,17 +410,23 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getSalesPrice() != null) {
             productOptionEntity.setSalesPrice(productOptionDto.getSalesPrice());
         }
-        if (productOptionDto.getTotalPurchasePrice() != null) {
-            productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());
-        }
         if (productOptionDto.getStockUnit() != null) {
             productOptionEntity.setStockUnit(productOptionDto.getStockUnit());
+        }
+        if (productOptionDto.getSafetyStockUnit() != null) {
+            productOptionEntity.setSafetyStockUnit(productOptionDto.getSafetyStockUnit());
         }
         if (productOptionDto.getStatus() != null) {
             productOptionEntity.setStatus(productOptionDto.getStatus());
         }
         if (productOptionDto.getMemo() != null) {
             productOptionEntity.setMemo(productOptionDto.getMemo());
+        }
+        if (productOptionDto.getReleaseLocation() != null) {
+            productOptionEntity.setReleaseLocation(productOptionDto.getReleaseLocation());
+        }
+        if (productOptionDto.getProductCid() != null) {
+            productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
         if (productOptionDto.getImageUrl() != null) {
             productOptionEntity.setImageUrl(productOptionDto.getImageUrl());
@@ -366,13 +443,15 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getUnitKrw() != null) {
             productOptionEntity.setUnitKrw(productOptionDto.getUnitKrw());
         }
-        if (productOptionDto.getProductCid() != null) {
-            productOptionEntity.setProductCid(productOptionDto.getProductCid());
+        if (productOptionDto.getTotalPurchasePrice() != null) {
+            productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());
         }
-        if (productOptionDto.getSafetyStockUnit() != null) {
-            productOptionEntity.setSafetyStockUnit(productOptionDto.getSafetyStockUnit());
+        // TODO :: 이 경우 옵션패키지를 어떻게 세팅할지 생각해보자
+        if (productOptionDto.getPackageYn() != null) {
+            productOptionEntity.setPackageYn(productOptionDto.getPackageYn());
         }
-        productOptionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
+
+        productOptionEntity.setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
         productOptionService.saveAndModify(productOptionEntity);
     }
 
@@ -380,7 +459,7 @@ public class ProductOptionBusinessService {
      * 옵션에 등록된 출고지를 중복을 제거해 추출한다
      */
     public List<String> searchReleaseLocation() {
-        List<ProductOptionEntity> entities = productOptionService.searchList();
+        List<ProductOptionEntity> entities = productOptionService.searchAll();
         Set<String> releaseLocationSet = new HashSet<>();
         entities.forEach(r -> {
             if(r.getReleaseLocation() != null && !r.getReleaseLocation().equals("")){
@@ -388,7 +467,7 @@ public class ProductOptionBusinessService {
             }
         });
 
-        List<String> allReleaseLocation = releaseLocationSet.stream().map(r -> r).collect(Collectors.toList());
+        List<String> allReleaseLocation = new ArrayList<>(releaseLocationSet);
         return allReleaseLocation;
     }
 

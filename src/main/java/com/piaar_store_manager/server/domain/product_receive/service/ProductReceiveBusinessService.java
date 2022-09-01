@@ -31,11 +31,11 @@ public class ProductReceiveBusinessService {
         return dto;
     }
 
-    public <T> List<T> searchBatch(Map<String, Object> params) {
+    public <T> List<T> searchAll(Map<String, Object> params) {
         String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
         productReceiveSearchContext.setSearchStrategy(objectType);
         
-        List<T> dtos = productReceiveSearchContext.searchBatch();
+        List<T> dtos = productReceiveSearchContext.searchAll();
         return dtos;
     }
 

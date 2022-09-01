@@ -29,9 +29,9 @@ public class ProductReleaseBasicStrategyImpl implements SearchStrategy {
     }
 
     @Override
-    public <T> List<T> searchBatch() {
-        List<ProductReleaseEntity> dtos = productReleaseService.searchList();
-        return dtos.stream().map(entity -> (T) ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
+    public <T> List<T> searchAll() {
+        List<ProductReleaseEntity> entities = productReleaseService.searchAll();
+        return entities.stream().map(entity -> (T) ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
     }
 
     @Override

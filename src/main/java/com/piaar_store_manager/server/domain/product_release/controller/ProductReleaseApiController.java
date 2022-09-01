@@ -72,7 +72,7 @@ public class ProductReleaseApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-release/{productReleaseId}</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
     @GetMapping("/{productReleaseId}")
@@ -125,16 +125,16 @@ public class ProductReleaseApiController {
     /**
      * Search list api for release.
      * <p>
-     * <b>GET : API URL => /api/v1/product-release/batch</b>
+     * <b>GET : API URL => /api/v1/product-release/all</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
-    @GetMapping("/batch")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReleaseBusinessService.searchBatch(params));
+        message.setData(productReleaseBusinessService.searchAll(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -162,10 +162,10 @@ public class ProductReleaseApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-release/batch/{productOptionCid}</b>
      * 
-     * @param params : Map[String, Object] (objectType)
+     * @param params : Map[String, Object] [objectType]
      */
     // Unused API
-    @GetMapping("/list/{productOptionCid}")
+    @GetMapping("/batch/{productOptionCid}")
     public ResponseEntity<?> searchBatchByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
