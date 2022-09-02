@@ -32,10 +32,6 @@ public class SalesAnalysisItemBusinessService {
      * @return List::SalesAnalysisItemDto::
      */
     public List<SalesAnalysisItemDto> searchAll(Map<String, Object> params) {
-        // access check
-        userService.userLoginCheck();
-        userService.userManagerRoleCheck();
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = params.get("startDate") != null ? LocalDateTime.parse(params.get("startDate").toString(), formatter) : LocalDateTime.of(1970, 1, 1, 0, 0);  /* 지정된 startDate 값이 있다면 해당 데이터로 조회, 없다면 1970년을 기준으로 조회 */
         LocalDateTime endDate = params.get("endDate") != null ? LocalDateTime.parse(params.get("endDate").toString(), formatter) : LocalDateTime.now();   /* 지정된 endDate 값이 있다면 해당 데이터로 조회, 없다면 현재시간을 기준으로 조회 */

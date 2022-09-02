@@ -160,6 +160,7 @@ public class UserService {
         }
     }
 
+    // Deprecated
     public void userManagerRoleCheck() {
         if (!this.isManager()) {
             throw new CustomAccessDeniedException("접근 권한이 없습니다.");
