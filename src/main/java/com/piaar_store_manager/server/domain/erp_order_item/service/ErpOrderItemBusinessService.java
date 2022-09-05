@@ -593,6 +593,26 @@ public class ErpOrderItemBusinessService {
         erpOrderItemService.saveListAndModify(entities);
     }
 
+    @Transactional
+    public void changeBatchForReturnYn(List<ErpOrderItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
+        List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getReturnYn().equals("n")) {
+                    entity.setReturnYn("n");
+                    return;
+                }
+
+                entity.setReturnYn("y");
+            }
+        }));
+
+        erpOrderItemService.saveListAndModify(entities);
+    }
+
     /**
      * <b>Data Delete Related Method</b>
      * <p>

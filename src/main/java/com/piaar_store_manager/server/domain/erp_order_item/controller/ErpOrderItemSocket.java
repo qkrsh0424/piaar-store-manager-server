@@ -113,6 +113,18 @@ public class ErpOrderItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
+    @PatchMapping("/batch/return-yn")
+    @PermissionRole
+    public void changeBatchForReturnYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpOrderItemBusinessService.changeBatchForReturnYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
+    }
+
     @PatchMapping("/batch/stock/action-reflect")
     @PermissionRole
     public ResponseEntity<?> actionReflectStock(@RequestBody List<ErpOrderItemDto> itemDtos, @RequestParam Map<String, Object> params){

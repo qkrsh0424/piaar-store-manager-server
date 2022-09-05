@@ -82,6 +82,8 @@ public class ErpOrderItemVo {
     private LocalDateTime releaseAt;
 
     private String stockReflectYn;
+    private String returnYn;
+    private String exchangeYn;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
@@ -152,6 +154,8 @@ public class ErpOrderItemVo {
         private LocalDateTime releaseAt;
 
         private Object stockReflectYn;
+        private Object returnYn;
+        private Object exchangeYn;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
@@ -243,6 +247,8 @@ public class ErpOrderItemVo {
                 .releaseYn(proj.getErpOrderItem().getReleaseYn())
                 .releaseAt(proj.getErpOrderItem().getReleaseAt())
                 .stockReflectYn(proj.getErpOrderItem().getStockReflectYn())
+                .returnYn(proj.getErpOrderItem().getReturnYn())
+                .exchangeYn(proj.getErpOrderItem().getExchangeYn())
                 .createdAt(proj.getErpOrderItem().getCreatedAt())
                 .createdBy(proj.getErpOrderItem().getCreatedBy())
                 .categoryName(proj.getProductCategory() != null ? proj.getProductCategory().getName() : "")
@@ -303,6 +309,8 @@ public class ErpOrderItemVo {
                 .releaseYn(dto.getReleaseYn())
                 .releaseAt(dto.getReleaseAt())
                 .stockReflectYn(dto.getStockReflectYn())
+                .returnYn(dto.getReturnYn())
+                .exchangeYn(dto.getExchangeYn())
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
                 .build();
