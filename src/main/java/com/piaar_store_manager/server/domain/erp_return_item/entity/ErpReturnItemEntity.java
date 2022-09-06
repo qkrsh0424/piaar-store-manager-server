@@ -63,8 +63,8 @@ public class ErpReturnItemEntity {
     private String receiveLocation;
 
     @Setter
-    @Column(name = "return_reason_type_cid")
-    private String returnReasonTypeCid;
+    @Column(name = "return_reason_type")
+    private String returnReasonType;
 
     @Setter
     @Column(name = "return_reason_detail")

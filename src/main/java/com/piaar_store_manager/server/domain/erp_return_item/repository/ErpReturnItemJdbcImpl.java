@@ -37,7 +37,7 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
     private int batchInsert(int batchCount, List<ErpReturnItemEntity> subItems) {
         String sql = "INSERT INTO erp_return_item" + 
                 "(cid, id, waybill_number, courier, transport_type, delivery_charge_return_yn, delivery_charge_return_type, receive_location, " +
-                "return_reason_type_cid, return_reason_detail, management_memo1, management_memo2, management_memo3, management_memo4, management_memo5, " +
+                "return_reason_type, return_reason_detail, management_memo1, management_memo2, management_memo3, management_memo4, management_memo5, " +
                 "created_at, created_by, collect_yn, collect_at, collect_complete_yn, collect_complete_at, return_complete_yn, return_complete_at, hold_yn, hold_at, " +
                 "return_reject_yn, return_reject_at, erp_order_item_id)" +
                 "VALUES" + 
@@ -57,7 +57,7 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(6, entity.getDeliveryChargeReturnYn());
                 ps.setObject(7, entity.getDeliveryChargeReturnType());
                 ps.setObject(8, entity.getReceiveLocation());
-                ps.setObject(9, entity.getReturnReasonTypeCid());
+                ps.setObject(9, entity.getReturnReasonType());
                 ps.setObject(10, entity.getReturnReasonDetail());
                 ps.setObject(11, entity.getManagementMemo1());
                 ps.setObject(12, entity.getManagementMemo2());

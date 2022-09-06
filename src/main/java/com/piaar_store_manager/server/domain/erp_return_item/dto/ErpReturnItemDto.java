@@ -25,7 +25,7 @@ public class ErpReturnItemDto {
     private String deliveryChargeReturnYn;
     private String deliveryChargeReturnType;
     private String receiveLocation;
-    private String returnReasonTypeCid;
+    private String returnReasonType;
     private String returnReasonDetail;
     private String managementMemo1;
     private String managementMemo2;
