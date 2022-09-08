@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_return_item.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -89,11 +90,19 @@ public class ErpReturnItemBusinessService {
 
         List<ErpReturnItemProj> itemProjs = itemPages.getContent();
 
-        List<ErpReturnItemVo> erpReturnItemVos = this.setOptionStockUnitAndToVos(itemProjs);
+        List<ErpReturnItemVo> erpReturnItemVos = this.setReleaseOptionStockUnitAndToVos(itemProjs);
         return new PageImpl<>(erpReturnItemVos, pageable, itemPages.getTotalElements());
     }
 
-    private List<ErpReturnItemVo> setOptionStockUnitAndToVos(List<ErpReturnItemProj> itemProjs) {
+    @Transactional(readOnly = true)
+    public List<ErpReturnItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
+        // 등록된 모든 엑셀 데이터를 조회한다
+        List<ErpReturnItemProj> itemProjs = erpReturnItemService.findAllM2OJByReleasedItem(ids, params); // 페이징 처리 x
+        List<ErpReturnItemVo> itemVos = this.setReleaseOptionStockUnitAndToVos(itemProjs);
+        return itemVos;
+    }
+
+    private List<ErpReturnItemVo> setReleaseOptionStockUnitAndToVos(List<ErpReturnItemProj> itemProjs) {
         /*
         ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
          */
@@ -114,4 +123,23 @@ public class ErpReturnItemBusinessService {
         return erpReturnItemVos;
     }
     
+    @Transactional
+    public void updateOne(ErpReturnItemDto dto) {
+        ErpReturnItemEntity entity = erpReturnItemService.searchOne(dto.getId());
+
+        entity
+            .setWaybillNumber(dto.getWaybillNumber())
+            .setCourier(dto.getCourier())
+            .setTransportType(dto.getTransportType())
+            .setDeliveryChargeReturnYn(dto.getDeliveryChargeReturnYn())
+            .setDeliveryChargeReturnType(dto.getDeliveryChargeReturnType())
+            .setReceiveLocation(dto.getReceiveLocation())
+            .setReturnReasonType(dto.getReturnReasonType())
+            .setReturnReasonDetail(dto.getReturnReasonDetail())
+            .setManagementMemo1(dto.getManagementMemo1())
+            .setManagementMemo2(dto.getManagementMemo2())
+            .setManagementMemo3(dto.getManagementMemo3())
+            .setManagementMemo4(dto.getManagementMemo4())
+            .setManagementMemo5(dto.getManagementMemo5());
+    }
 }

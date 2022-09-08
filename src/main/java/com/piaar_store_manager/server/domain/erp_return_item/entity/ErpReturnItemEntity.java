@@ -59,6 +59,7 @@ public class ErpReturnItemEntity {
     @Column(name = "delivery_charge_return_type")
     private String deliveryChargeReturnType;
 
+    @Setter
     @Column(name = "receive_location")
     private String receiveLocation;
 

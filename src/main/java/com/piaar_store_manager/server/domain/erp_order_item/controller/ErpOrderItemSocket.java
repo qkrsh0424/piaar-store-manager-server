@@ -55,10 +55,10 @@ public class ErpOrderItemSocket {
 
     @PutMapping("")
     @PermissionRole
-    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
+    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDto) {
         Message message = new Message();
 
-        erpOrderItemBusinessService.updateOne(itemDtos);
+        erpOrderItemBusinessService.updateOne(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

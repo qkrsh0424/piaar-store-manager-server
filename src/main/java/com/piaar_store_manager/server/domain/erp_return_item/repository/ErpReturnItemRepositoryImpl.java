@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.erp_return_item.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -64,5 +65,27 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
 
         QueryResults<ErpReturnItemProj> result = customQuery.fetchResults();
         return new PageImpl<ErpReturnItemProj>(result.getResults(), pageable, result.getTotal());
+    }
+
+    @Override
+    public List<ErpReturnItemProj> qfindAllM2OJByReleasedItemIdList(List<UUID> idList, Map<String, Object> params) {
+        JPQLQuery customQuery = query.from(qErpReturnItemEntity)
+                .select(
+                        Projections.fields(ErpReturnItemProj.class,
+                                qErpReturnItemEntity.as("erpReturnItem"),
+                                qErpOrderItemEntity.as("erpOrderItem"),
+                                qProductEntity.as("product"),
+                                qProductOptionEntity.as("productOption"),
+                                qProductCategoryEntity.as("productCategory")
+                        )
+                )
+                .where(qErpReturnItemEntity.id.in(idList))
+                .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
+                .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
+                .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
+                .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid));
+
+        QueryResults<ErpReturnItemProj> result = customQuery.fetchResults();
+        return result.getResults();
     }
 }

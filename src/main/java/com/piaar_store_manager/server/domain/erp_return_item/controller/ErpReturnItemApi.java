@@ -2,6 +2,8 @@ package com.piaar_store_manager.server.domain.erp_return_item.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -48,6 +50,19 @@ public class ErpReturnItemApi {
         Message message = new Message();
 
         message.setData(erpReturnItemBusinessService.searchBatchByPaging(params, pageable));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/action-refresh")
+    public ResponseEntity<?> returnRefresh(@RequestBody Map<String, Object> params) {
+        List<String> idsStr = (List<String>) params.get("ids");
+        List<UUID> ids = idsStr.stream().map(r->UUID.fromString(r)).collect(Collectors.toList());
+
+        Message message = new Message();
+        message.setData(erpReturnItemBusinessService.searchBatchByIds(ids, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
