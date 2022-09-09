@@ -268,4 +268,39 @@ public class ProductOptionApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search api for release location of produc option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/release-location</b>
+     * <p>
+     */
+    @GetMapping("/release-location")
+    public ResponseEntity<?> searchRelaseLocation() {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchReleaseLocation());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search api for stock status by week.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/stock-cycle</b>
+     * <p>
+     * @param params Map::String, Object:: [searchEndDate, categoryCid]
+     */
+    @GetMapping("/stock-cycle")
+    public ResponseEntity<?> searchStockCycle(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchStockCycle(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
 }

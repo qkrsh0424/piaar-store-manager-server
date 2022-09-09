@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.product_option.entity;
 
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
+import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 
 import lombok.AllArgsConstructor;
@@ -83,6 +84,9 @@ public class ProductOptionEntity {
     @Column(name = "package_yn", columnDefinition = "n")
     private String packageYn;
 
+    @Column(name = "safety_stock_unit")
+    private Integer safetyStockUnit;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -106,6 +110,7 @@ public class ProductOptionEntity {
     private Integer releasedSum;
     @Transient
     private Integer stockSumUnit;
+
 
     /**
      * <b>Convert Method</b>
@@ -138,6 +143,7 @@ public class ProductOptionEntity {
                 .unitCny(productOptionDto.getUnitCny())
                 .unitKrw(productOptionDto.getUnitKrw())
                 .packageYn(productOptionDto.getPackageYn())
+                .safetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .createdAt(productOptionDto.getCreatedAt())
                 .createdBy(productOptionDto.getCreatedBy())
                 .updatedAt(productOptionDto.getUpdatedAt())
@@ -152,6 +158,13 @@ public class ProductOptionEntity {
         return itemProjs.stream()
                 .filter(r -> r.getProductOption() != null)
                 .map(ErpOrderItemProj::getProductOption)
+                .collect(Collectors.toList());
+    }
+
+    public static List<ProductOptionEntity> getExistListByReturnItem(List<ErpReturnItemProj> itemProjs) {
+        return itemProjs.stream()
+                .filter(r -> r.getProductOption() != null)
+                .map(ErpReturnItemProj::getProductOption)
                 .collect(Collectors.toList());
     }
 }

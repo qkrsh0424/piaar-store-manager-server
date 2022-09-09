@@ -28,6 +28,8 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -55,23 +57,49 @@ public class ErpOrderItemBusinessService {
     /**
      * <b>Upload Excel File</b>
      * <p>
-     * 피아르 엑셀 파일을 업로드한다.
-     *
+     * 엑셀 파일을 업로드한다.
+     * 
      * @param file : MultipartFile
-     * @return List::ErpOrderItemVo::
+     * @param params : Map::String, Object::
+     * @return List::ErpOrderItemVo.ExcelVo::
      */
-//    RE-OK
-    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcel(MultipartFile file) {
-        Workbook workbook;
+    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcel(MultipartFile file, Map<String, Object> params) {
+        UUID headerId = params.get("headerId") != null ? UUID.fromString(params.get("headerId").toString()) : null;
+        
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
+        
+        // 변환여부에 따라 엑셀 데이터 추출. headerId가 존재한다면 변환된 엑셀.
+        if(headerId != null) {
+            vos = this.uploadOtherForm(file, params);
+        }else {
+            vos = this.uploadPiaarForm(file, params);
+        }
+        return vos;
+    }
+
+    /*
+     * 피아르 엑셀파일 업로드
+     */
+    public List<ErpOrderItemVo.ExcelVo> uploadPiaarForm(MultipartFile file, Map<String, Object> params) {
+        Workbook workbook = null;
+
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
+
         try {
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if (excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            } else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
             throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        List<ErpOrderItemVo.ExcelVo> vos;
+        List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
         try {
             vos = ErpOrderItemVo.excelSheetToVos(sheet);
         } catch (NullPointerException e) {
@@ -87,29 +115,45 @@ public class ErpOrderItemBusinessService {
         return vos;
     }
 
-    // 엑셀변환 후 피아르에 업로드
-    public List<ErpOrderItemVo.ExcelVo> uploadErpOrderExcelByOtherForm(UUID headerId, MultipartFile file) {
+    /*
+     * 타 양식 업로드 > 피아르 양식으로 변환
+     */
+    public List<ErpOrderItemVo.ExcelVo> uploadOtherForm(MultipartFile file, Map<String, Object> params) {
         Workbook workbook;
+
+        UUID headerId = params.get("headerId") != null ? UUID.fromString(params.get("headerId").toString()) : null;
+        String excelPassword = params.get("excelPassword") != null ? params.get("excelPassword").toString() : null;
+
         try {
-            workbook = WorkbookFactory.create(file.getInputStream());
+            if (excelPassword != null) {
+                workbook = WorkbookFactory.create(file.getInputStream(), excelPassword);
+            } else {
+                workbook = WorkbookFactory.create(file.getInputStream());
+            }
         } catch (IOException e) {
-            throw new CustomExcelFileUploadException("올바른 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+            throw new CustomExcelFileUploadException("피아르 양식의 엑셀 파일이 아닙니다.\n올바른 엑셀 파일을 업로드해주세요.");
+        } catch (EncryptedDocumentException e) {
+            if(e.getMessage().equals("Password incorrect")) {
+                throw new CustomExcelFileUploadException("비밀번호가 올바르지 않습니다. \n엑셀 파일을 재업로드 해주세요.");
+            }
+            throw new CustomExcelFileUploadException("엑셀 암호 오류. \n올바른 엑셀 파일을 업로드해주세요.");
         }
 
         Sheet sheet = workbook.getSheetAt(0);
 
-        // headerId에 대응하는 excelTranslator 데이터 조회
-        ExcelTranslatorHeaderEntity translatorEntity = excelTranslatorHeaderervice.searchOne(headerId);
-        ExcelTranslatorHeaderGetDto translatorGetDto = ExcelTranslatorHeaderGetDto.toDto(translatorEntity);
-
-        // header size 비교로 업로드 양식이 올바른지 검사
-        Row headerRow = sheet.getRow(translatorGetDto.getRowStartNumber() - 1);
-        if (translatorGetDto.getUploadHeaderDetail().getDetails().size() != headerRow.getLastCellNum()) {
-            throw new CustomExcelFileUploadException("업로드 엑셀 양식과 동일한 양식의 파일을 업로드해주세요.");
-        }
-
         List<ErpOrderItemVo.ExcelVo> vos = new ArrayList<>();
         try {
+            // 엑셀변환기에 등록된 타 엑셀 양식을 피아르 양식으로 변환해 업로드하는 경우
+            // headerId에 대응하는 excelTranslator 데이터 조회
+            ExcelTranslatorHeaderEntity translatorEntity = excelTranslatorHeaderervice.searchOne(headerId);
+            ExcelTranslatorHeaderGetDto translatorGetDto = ExcelTranslatorHeaderGetDto.toDto(translatorEntity);
+
+            // header size 비교로 업로드 양식이 올바른지 검사
+            Row headerRow = sheet.getRow(translatorGetDto.getRowStartNumber() - 1);
+            if (translatorGetDto.getUploadHeaderDetail().getDetails().size() != headerRow.getLastCellNum()) {
+                throw new CustomExcelFileUploadException("업로드 엑셀 양식과 동일한 양식의 파일을 업로드해주세요.");
+            }
+
             vos = this.excelSheetToPiaarVos(translatorGetDto, sheet);
         } catch (NullPointerException e) {
             throw new CustomExcelFileUploadException("엑셀 파일 데이터에 올바르지 않은 값이 존재합니다.");
@@ -168,6 +212,7 @@ public class ErpOrderItemBusinessService {
             }
 
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                .id(UUID.randomUUID())
                 .uniqueCode(null)
                 .prodName(getTranslatorTargetCellValue(row, details.get(1)))
                 .optionName(getTranslatorTargetCellValue(row, details.get(2)))
@@ -293,6 +338,8 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemDto> newItems = dtos.stream().filter(r -> r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
         List<ErpOrderItemDto> duplicationCheckItems = dtos.stream().filter(r -> !r.getOrderNumber1().isEmpty()).collect(Collectors.toList());
 
+        this.convertToStripedDto(duplicationCheckItems);
+
         List<String> orderNumber1 = new ArrayList<>();
         List<String> receiver = new ArrayList<>();
         List<String> prodName = new ArrayList<>();
@@ -326,9 +373,12 @@ public class ErpOrderItemBusinessService {
                 }
                 if (!duplication) {
                     newItems.add(duplicationCheckItem);
+                    System.out.println(duplicationCheckItem);
                 }
             }
         }
+
+        // System.out.println(newItems);
         return newItems;
     }
 
@@ -351,6 +401,15 @@ public class ErpOrderItemBusinessService {
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
 
+    // TEST 대시보드 -> searchAllByPaging 사용. => 판매성과에서 사용
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo.ManyToOneJoin> searchAll(Map<String, Object> params) {
+        // 등록된 모든 엑셀 데이터를 조회한다
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
+        // 옵션재고수량 추가 및 vos 변환
+        return this.setOptionStockUnitAndToM2OJVos(itemProjs);
+    }
+
     /*
     아이디 리스트 별 ErpOrderItemProjs 데이터를 가져온다.
     옵션 재고 수량 추가 및 vos 변환
@@ -360,6 +419,15 @@ public class ErpOrderItemBusinessService {
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
         // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
+        // 옵션재고수량 추가 및 vos 변환
+        return this.setOptionStockUnitAndToVos(itemProjs);
+    }
+
+    // 출고 상태 관리에서 action-refresh
+    @Transactional(readOnly = true)
+    public List<ErpOrderItemVo> searchBatchByReleasedItemIds(List<UUID> ids, Map<String, Object> params) {
+        // 등록된 모든 엑셀 데이터를 조회한다
+        List<ErpOrderItemProj> itemProjs = erpOrderItemService.findAllM2OJByReleasedItem(ids, params);       // 페이징 처리 x
         // 옵션재고수량 추가 및 vos 변환
         return this.setOptionStockUnitAndToVos(itemProjs);
     }
@@ -381,6 +449,21 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemVo> erpOrderItemVos = this.setOptionStockUnitAndToVos(itemProjs);
 
         return new PageImpl(erpOrderItemVos, pageable, itemPages.getTotalElements());
+    }
+
+    // TEST 대시보드
+    @Transactional(readOnly = true)
+    public Page<ErpOrderItemVo.ManyToOneJoin> searchAllByPaging(Map<String, Object> params, Pageable pageable) {
+        /*
+        조건별 페이지별 ErpOrderItemProj Page 데이터를 가져온다.
+         */
+        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
+        List<ErpOrderItemProj> itemProjs = itemPages.getContent();    // 페이징 처리 o
+
+        // 옵션재고수량 추가 및 vos 변환
+        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = this.setOptionStockUnitAndToM2OJVos(itemProjs);
+
+        return new PageImpl(erpOrderItemM2OJVos, pageable, itemPages.getTotalElements());
     }
 
     /*
@@ -430,8 +513,18 @@ public class ErpOrderItemBusinessService {
         ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
          */
         ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
-
         return erpOrderItemVos;
+    }
+
+    private List<ErpOrderItemVo.ManyToOneJoin> setOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+
+        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+        ErpOrderItemVo.setOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
+
+        return erpOrderItemM2OJVos;
     }
 
     /**
@@ -493,6 +586,26 @@ public class ErpOrderItemBusinessService {
 
                 entity.setReleaseYn("y");
                 entity.setReleaseAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpOrderItemService.saveListAndModify(entities);
+    }
+
+    @Transactional
+    public void changeBatchForReturnYn(List<ErpOrderItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
+        List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getReturnYn().equals("n")) {
+                    entity.setReturnYn("n");
+                    return;
+                }
+
+                entity.setReturnYn("y");
             }
         }));
 

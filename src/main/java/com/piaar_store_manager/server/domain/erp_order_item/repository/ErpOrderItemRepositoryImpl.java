@@ -78,6 +78,27 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
 
         return result.getResults();
     }
+    
+    @Override
+    public List<ErpOrderItemProj> qfindAllM2OJByReleaseItem(Map<String, Object> params) {
+        JPQLQuery customQuery = query.from(qErpOrderItemEntity)
+                .select(Projections.fields(ErpOrderItemProj.class,
+                        qErpOrderItemEntity.as("erpOrderItem"),
+                        qProductEntity.as("product"),
+                        qProductOptionEntity.as("productOption"),
+                        qProductCategoryEntity.as("productCategory")
+                ))
+                .where(eqSalesYn(params), eqReleaseYn(params))
+                .where(lkSearchCondition(params))
+                .where(withinDateRange(params))
+                .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
+                .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
+                .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid));
+
+        QueryResults<ErpOrderItemProj> result = customQuery.fetchResults();
+
+        return result.getResults();
+    }
 
     @Override
     public List<ErpOrderItemProj> qfindAllM2OJByIdList(List<UUID> idList, Map<String, Object> params) {
@@ -101,6 +122,27 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
     }
 
     @Override
+    public List<ErpOrderItemProj> qfindAllM2OJByReleasedItemIdList(List<UUID> idList, Map<String, Object> params) {
+        JPQLQuery customQuery = query.from(qErpOrderItemEntity)
+                .select(
+                        Projections.fields(ErpOrderItemProj.class,
+                                qErpOrderItemEntity.as("erpOrderItem"),
+                                qProductEntity.as("product"),
+                                qProductOptionEntity.as("productOption"),
+                                qProductCategoryEntity.as("productCategory")
+                        )
+                )
+                .where(qErpOrderItemEntity.id.in(idList))
+                .where(eqSalesYn(params), eqReleaseYn(params))
+                .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
+                .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
+                .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid));
+
+        QueryResults<ErpOrderItemProj> result = customQuery.fetchResults();
+        return result.getResults();
+    }
+
+    @Override
     public Page<ErpOrderItemProj> qfindAllM2OJByPage(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qErpOrderItemEntity)
                 .select(Projections.fields(ErpOrderItemProj.class,
@@ -109,7 +151,7 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                         qProductOptionEntity.as("productOption"),
                         qProductCategoryEntity.as("productCategory")
                 ))
-                .where(eqSalesYn(params), eqReleaseYn(params))
+                .where(eqSalesYn(params), eqReleaseYn(params), eqStockReflectYn(params))
                 .where(lkSearchCondition(params))
                 .where(withinDateRange(params))
                 .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))

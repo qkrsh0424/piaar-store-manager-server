@@ -54,4 +54,21 @@ public class StaticErpItemDataUtils {
 
         return result;
     }
+
+    // 출고 리스트 다운로드 양식
+    public static String[] RELEASE_ITEM_LIST_HEADER = {
+        "$피아르 상품명",
+        "$피아르 옵션명",
+        "수량"
+    };
+
+    public static List<String> getReleaseItemListHeader() {
+        List<String> result = new ArrayList<>();
+
+        Arrays.stream(RELEASE_ITEM_LIST_HEADER).forEach(r -> {
+            result.add(r);
+        });
+
+        return result;
+    }
 }

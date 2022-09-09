@@ -69,8 +69,16 @@ public class ErpOrderItemService {
         return erpOrderItemRepository.qfindAllM2OJ(params);
     }
 
+    public List<ErpOrderItemProj> findAllM2OJByReleaseItem(Map<String, Object> params) {
+        return erpOrderItemRepository.qfindAllM2OJByReleaseItem(params);
+    }
+
     public List<ErpOrderItemProj> findAllM2OJ(List<UUID> ids, Map<String, Object> params) {
         return erpOrderItemRepository.qfindAllM2OJByIdList(ids, params);
+    }
+
+    public List<ErpOrderItemProj> findAllM2OJByReleasedItem(List<UUID> ids, Map<String, Object> params) {
+        return erpOrderItemRepository.qfindAllM2OJByReleasedItemIdList(ids, params);
     }
 
     /**

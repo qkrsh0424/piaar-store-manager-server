@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.erp_release_ready_header.dto;
+package com.piaar_store_manager.server.domain.erp_return_header.dto;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErpReleaseReadyHeaderDetailDto {
+public class ErpReturnHeaderDetailDto {
     @Type(type = "jsonb")
     private List<DetailDto> details;
 }

@@ -1,9 +1,9 @@
-package com.piaar_store_manager.server.domain.erp_release_ready_header.dto;
+package com.piaar_store_manager.server.domain.erp_return_header.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.domain.erp_release_ready_header.entity.ErpReleaseReadyHeaderEntity;
+import com.piaar_store_manager.server.domain.erp_return_header.entity.ErpReturnHeaderEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,16 +16,19 @@ import lombok.experimental.Accessors;
 @Builder
 @Getter
 @ToString
-@Accessors(chain=true)
+@Accessors(chain = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class ErpReleaseReadyHeaderDto {
+public class ErpReturnHeaderDto {
     private Integer cid;
-
+    
     @Setter
     private UUID id;
+
+    @Setter
+    private String headerTitle;
     
-    private ErpReleaseReadyHeaderDetailDto headerDetail;
+    private ErpReturnHeaderDetailDto headerDetail;
 
     @Setter
     private LocalDateTime createdAt;
@@ -36,12 +39,13 @@ public class ErpReleaseReadyHeaderDto {
     @Setter
     private LocalDateTime updatedAt;
 
-    public static ErpReleaseReadyHeaderDto toDto(ErpReleaseReadyHeaderEntity entity) {
+    public static ErpReturnHeaderDto toDto(ErpReturnHeaderEntity entity) {
         if(entity == null) return null;
 
-        ErpReleaseReadyHeaderDto dto = ErpReleaseReadyHeaderDto.builder()
+        ErpReturnHeaderDto dto = ErpReturnHeaderDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
+            .headerTitle(entity.getHeaderTitle())
             .headerDetail(entity.getHeaderDetail())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())

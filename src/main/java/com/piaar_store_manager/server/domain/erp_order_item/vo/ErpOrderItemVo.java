@@ -9,6 +9,9 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
+import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
@@ -16,7 +19,9 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.*;
 
@@ -77,6 +82,8 @@ public class ErpOrderItemVo {
     private LocalDateTime releaseAt;
 
     private String stockReflectYn;
+    private String returnYn;
+    private String exchangeYn;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime createdAt;
@@ -147,12 +154,51 @@ public class ErpOrderItemVo {
         private LocalDateTime releaseAt;
 
         private Object stockReflectYn;
+        private Object returnYn;
+        private Object exchangeYn;
 
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime createdAt;
 
         private UUID createdBy;
     }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ManyToOneJoin {
+        ErpOrderItemVo erpOrderItem;
+        ProductCategoryGetDto productCategory;
+        ProductGetDto product;
+        ProductOptionGetDto productOption;
+
+        public static ManyToOneJoin toVo(ErpOrderItemProj proj) {
+            ErpOrderItemVo erpOrderItem = ErpOrderItemVo.toVo(proj);
+            ProductCategoryGetDto productCategory = null;
+            ProductGetDto product = null;
+            ProductOptionGetDto productOption = null;
+
+            if(proj.getProductOption() != null) {
+                productCategory = ProductCategoryGetDto.toDto(proj.getProductCategory());
+                product = ProductGetDto.toDto(proj.getProduct());
+                productOption = ProductOptionGetDto.toDto(proj.getProductOption());
+            }
+
+            ManyToOneJoin vo = ManyToOneJoin.builder()
+                .erpOrderItem(erpOrderItem)
+                .product(product)
+                .productCategory(productCategory)
+                .productOption(productOption)
+                .build();
+
+            return vo;
+        }
+    }
+
+
     public static ErpOrderItemVo toVo(ErpOrderItemProj proj) {
         if (proj == null)
             return null;
@@ -201,6 +247,8 @@ public class ErpOrderItemVo {
                 .releaseYn(proj.getErpOrderItem().getReleaseYn())
                 .releaseAt(proj.getErpOrderItem().getReleaseAt())
                 .stockReflectYn(proj.getErpOrderItem().getStockReflectYn())
+                .returnYn(proj.getErpOrderItem().getReturnYn())
+                .exchangeYn(proj.getErpOrderItem().getExchangeYn())
                 .createdAt(proj.getErpOrderItem().getCreatedAt())
                 .createdBy(proj.getErpOrderItem().getCreatedBy())
                 .categoryName(proj.getProductCategory() != null ? proj.getProductCategory().getName() : "")
@@ -261,6 +309,8 @@ public class ErpOrderItemVo {
                 .releaseYn(dto.getReleaseYn())
                 .releaseAt(dto.getReleaseAt())
                 .stockReflectYn(dto.getStockReflectYn())
+                .returnYn(dto.getReturnYn())
+                .exchangeYn(dto.getExchangeYn())
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
                 .build();
@@ -271,8 +321,41 @@ public class ErpOrderItemVo {
     public static void setOptionStockUnitForList(List<ErpOrderItemVo> erpOrderItemVos, List<ProductOptionEntity> optionEntities) {
         erpOrderItemVos.forEach(erpOrderItemVo -> {
             optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemVo.getOptionCode().isEmpty() && erpOrderItemVo.getOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemVo.setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static void setReleaseOptionStockUnitForList(List<ErpOrderItemVo> erpOrderItemVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemVos.forEach(erpOrderItemVo -> {
+            optionEntities.forEach(optionEntity ->{
                 if(!erpOrderItemVo.getReleaseOptionCode().isEmpty() && erpOrderItemVo.getReleaseOptionCode().equals(optionEntity.getCode())){
                     erpOrderItemVo.setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static void setOptionStockUnitForM2OJList(List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemM2OJVos.forEach(erpOrderItemM2OJVo -> {
+            optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().isEmpty() && erpOrderItemM2OJVo.getErpOrderItem().getReleaseOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemM2OJVo.getErpOrderItem().setOptionStockUnit(optionEntity.getStockSumUnit().toString());
+                    return;
+                }
+            });
+        });
+    }
+
+    public static void setReleaseOptionStockUnitForM2OJList(List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos, List<ProductOptionEntity> optionEntities) {
+        erpOrderItemM2OJVos.forEach(erpOrderItemM2OJVo -> {
+            optionEntities.forEach(optionEntity ->{
+                if(!erpOrderItemM2OJVo.getErpOrderItem().getOptionCode().isEmpty() && erpOrderItemM2OJVo.getErpOrderItem().getOptionCode().equals(optionEntity.getCode())){
+                    erpOrderItemM2OJVo.getErpOrderItem().setOptionStockUnit(optionEntity.getStockSumUnit().toString());
                     return;
                 }
             });
@@ -312,6 +395,7 @@ public class ErpOrderItemVo {
             }
 
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
+                    .id(UUID.randomUUID())
                     .uniqueCode(null)
                     .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
                     .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))

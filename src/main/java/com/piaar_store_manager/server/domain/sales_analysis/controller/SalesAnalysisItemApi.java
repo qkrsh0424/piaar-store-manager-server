@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.sales_analysis.controller;
 
 import java.util.Map;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.sales_analysis.service.SalesAnalysisItemBusinessService;
@@ -22,6 +23,7 @@ public class SalesAnalysisItemApi {
     private final SalesAnalysisItemBusinessService salesAnalysisItemBusinessService;
 
     @GetMapping("")
+    @PermissionRole
     public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params){
         Message message = new Message();
 

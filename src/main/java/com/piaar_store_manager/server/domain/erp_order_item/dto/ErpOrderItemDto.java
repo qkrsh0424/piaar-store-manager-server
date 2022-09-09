@@ -53,7 +53,7 @@ public class ErpOrderItemDto {
 
     @NotNull
     @NotBlank
-    @Size(max = 20)
+    @Size(max = 50)
     private String receiver; // 수취인명 / 필수값
 
     @NotBlank
@@ -166,6 +166,8 @@ public class ErpOrderItemDto {
 
     private LocalDateTime releaseAt;   // 출고등록일
     private String stockReflectYn;
+    private String returnYn;
+    private String exchangeYn;
     private LocalDateTime createdAt;  // 주문등록일
     private UUID createdBy;
 
@@ -229,6 +231,8 @@ public class ErpOrderItemDto {
                 .releaseYn(entity.getReleaseYn())
                 .releaseAt(entity.getReleaseAt())
                 .stockReflectYn(entity.getStockReflectYn())
+                .returnYn(entity.getReturnYn())
+                .exchangeYn(entity.getExchangeYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .build();

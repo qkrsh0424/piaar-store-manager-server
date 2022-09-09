@@ -55,10 +55,10 @@ public class ErpOrderItemSocket {
 
     @PutMapping("")
     @PermissionRole
-    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDtos) {
+    public void updateOne(@RequestBody @Valid ErpOrderItemDto itemDto) {
         Message message = new Message();
 
-        erpOrderItemBusinessService.updateOne(itemDtos);
+        erpOrderItemBusinessService.updateOne(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -77,7 +77,7 @@ public class ErpOrderItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
-    @PatchMapping("/batch/release-option-code")
+    @PatchMapping("/batch/release-option-code/all")
     @PermissionRole
     public void changeBatchForReleaseOptionCode(@RequestBody List<ErpOrderItemDto> itemDtos) {
         Message message = new Message();
@@ -107,6 +107,18 @@ public class ErpOrderItemSocket {
         Message message = new Message();
 
         erpOrderItemBusinessService.changeBatchForReleaseYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
+    }
+
+    @PatchMapping("/batch/return-yn")
+    @PermissionRole
+    public void changeBatchForReturnYn(@RequestBody List<ErpOrderItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpOrderItemBusinessService.changeBatchForReturnYn(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

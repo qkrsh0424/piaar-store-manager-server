@@ -1,16 +1,12 @@
 package com.piaar_store_manager.server.domain.product_receive.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
@@ -24,8 +20,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductReceiveBusinessService {
     private final ProductReceiveService productReceiveService;
-    private final ProductOptionService productOptionService;
-    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     public ProductReceiveGetDto searchOne(Integer productReceiveCid) {
@@ -90,6 +84,8 @@ public class ProductReceiveBusinessService {
      * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성하고,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
      *
+     * FIX => 세트상품 여부와 관계없이 현재 선택된 옵션에 대한 입고 데이터 추가.
+     * 
      * @param productReceiveGetDto : ProductReceiveGetDto
      * @see ProductReceiveService#saveAndModify
      * @see ProductReceiveService#saveListAndModify
@@ -98,40 +94,50 @@ public class ProductReceiveBusinessService {
     @Transactional
     public void createOne(ProductReceiveGetDto productReceiveGetDto) {
         UUID USER_ID = userService.getUserId();
-        productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
 
-        ProductOptionEntity optionEntity = productOptionService.searchOne(productReceiveGetDto.getProductOptionCid());
+        ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                .id(UUID.randomUUID())
+                .receiveUnit(productReceiveGetDto.getReceiveUnit())
+                .memo(productReceiveGetDto.getMemo())
+                .createdAt(CustomDateUtils.getCurrentDateTime())
+                .createdBy(USER_ID)
+                .productOptionCid(productReceiveGetDto.getProductOptionCid())
+                .build();
+        productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
 
-        if(optionEntity.getPackageYn().equals("n")) {
-            // 1) 실행
-            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                    .id(UUID.randomUUID())
-                    .receiveUnit(productReceiveGetDto.getReceiveUnit())
-                    .memo(productReceiveGetDto.getMemo())
-                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                    .createdBy(USER_ID)
-                    .productOptionCid(productReceiveGetDto.getCid())
-                    .build();
-            productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
-        } else {
-            // 2) 실행
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+        // productReceiveGetDto.setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID);
+        // ProductOptionEntity optionEntity = productOptionService.searchOne(productReceiveGetDto.getProductOptionCid());
             
-            List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-            optionPackageEntities.forEach(option -> {
-                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .receiveUnit(option.getPackageUnit() * productReceiveGetDto.getReceiveUnit())
-                        .memo(productReceiveGetDto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getOriginOptionCid())
-                        .build();
+        // if(optionEntity.getPackageYn().equals("n")) {
+        //     // 1) 실행
+        //     ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+        //             .id(UUID.randomUUID())
+        //             .receiveUnit(productReceiveGetDto.getReceiveUnit())
+        //             .memo(productReceiveGetDto.getMemo())
+        //             .createdAt(CustomDateUtils.getCurrentDateTime())
+        //             .createdBy(USER_ID)
+        //             .productOptionCid(productReceiveGetDto.getProductOptionCid())
+        //             .build();
+        //     productReceiveService.saveAndModify(ProductReceiveEntity.toEntity(receiveGetDto));
+        // } else {
+        //     // 2) 실행
+        //     List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+            
+        //     List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+        //     optionPackageEntities.forEach(option -> {
+        //         ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+        //                 .id(UUID.randomUUID())
+        //                 .receiveUnit(option.getPackageUnit() * productReceiveGetDto.getReceiveUnit())
+        //                 .memo(productReceiveGetDto.getMemo())
+        //                 .createdAt(CustomDateUtils.getCurrentDateTime())
+        //                 .createdBy(USER_ID)
+        //                 .productOptionCid(option.getOriginOptionCid())
+        //                 .build();
 
-                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-            });
-            productReceiveService.saveListAndModify(productReceiveEntities);
-        }
+        //         productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+        //     });
+        //     productReceiveService.saveListAndModify(productReceiveEntities);
+        // }
     }
 
     /**
@@ -141,6 +147,8 @@ public class ProductReceiveBusinessService {
      * receive로 넘어온 productOptionCid로 option 데이터를 조회한다.
      * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성,
      * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
+     * 
+     * FIX => 세트상품 여부와 관계없이 현재 선택된 옵션에 대한 입고 데이터 추가.
      *
      * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @see ProductReceiveService#saveAndModify
@@ -148,61 +156,77 @@ public class ProductReceiveBusinessService {
     @Transactional
     public void createList(List<ProductReceiveGetDto> productReceiveGetDtos) {
         UUID USER_ID = userService.getUserId();
-        List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
-        // 패키지 옵션 분류
-        List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
-        List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-        // 1) 실행
-        List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
-        productReceiveGetDtos.forEach(dto -> {
-            originOptionEntities.forEach(option -> {
-                if(dto.getProductOptionCid().equals(option.getCid())){
-                    ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                        .id(UUID.randomUUID())
-                        .receiveUnit(dto.getReceiveUnit())
-                        .memo(dto.getMemo())
-                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                        .createdBy(USER_ID)
-                        .productOptionCid(option.getCid())
-                        .build();
+        List<ProductReceiveEntity> productReceiveEntities = productReceiveGetDtos.stream().map(dto -> {
+            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+                    .id(UUID.randomUUID())
+                    .receiveUnit(dto.getReceiveUnit())
+                    .memo(dto.getMemo())
+                    .createdAt(CustomDateUtils.getCurrentDateTime())
+                    .createdBy(USER_ID)
+                    .productOptionCid(dto.getProductOptionCid())
+                    .build();
 
-                    productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-                }
-            });
-        });
+            return ProductReceiveEntity.toEntity(receiveGetDto);
+        }).collect(Collectors.toList());
 
         productReceiveService.saveListAndModify(productReceiveEntities);
-        productReceiveEntities.clear();
 
-        // 2) 실행
-        if (parentOptionEntities.size() > 0) {
-            List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
-            List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+        // List<Integer> optionCids = productReceiveGetDtos.stream().map(r -> r.getProductOptionCid()).collect(Collectors.toList());
+        // List<ProductOptionEntity> optionEntities = productOptionService.searchListByCids(optionCids);
+        // // 패키지 옵션 분류
+        // List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
+        // List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
 
-            productReceiveGetDtos.forEach(dto -> {
-                parentOptionEntities.forEach(parentOption -> {
-                    if (dto.getProductOptionCid().equals(parentOption.getCid())) {
-                        optionPackageEntities.forEach(option -> {
-                            if (option.getParentOptionId().equals(parentOption.getId())) {
-                                ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                                        .id(UUID.randomUUID())
-                                        .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
-                                        .memo(dto.getMemo())
-                                        .createdAt(CustomDateUtils.getCurrentDateTime())
-                                        .createdBy(USER_ID)
-                                        .productOptionCid(option.getOriginOptionCid())
-                                        .build();
+        // 1) 실행
+        // List<ProductReceiveEntity> productReceiveEntities = new ArrayList<>();
+        // productReceiveGetDtos.forEach(dto -> {
+        //     originOptionEntities.forEach(option -> {
+        //         if(dto.getProductOptionCid().equals(option.getCid())){
+        //             ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+        //                 .id(UUID.randomUUID())
+        //                 .receiveUnit(dto.getReceiveUnit())
+        //                 .memo(dto.getMemo())
+        //                 .createdAt(CustomDateUtils.getCurrentDateTime())
+        //                 .createdBy(USER_ID)
+        //                 .productOptionCid(option.getCid())
+        //                 .build();
 
-                                productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
-                            }
-                        });
-                    }
-                });
-            });
-            productReceiveService.saveListAndModify(productReceiveEntities);
-        }
+        //             productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+        //         }
+        //     });
+        // });
+
+        // productReceiveService.saveListAndModify(productReceiveEntities);
+        // productReceiveEntities.clear();
+
+        // // 2) 실행
+        // if (parentOptionEntities.size() > 0) {
+        //     List<UUID> parentOptionIdList = parentOptionEntities.stream().map(r -> r.getId()).collect(Collectors.toList());
+        //     List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
+
+        //     productReceiveGetDtos.forEach(dto -> {
+        //         parentOptionEntities.forEach(parentOption -> {
+        //             if (dto.getProductOptionCid().equals(parentOption.getCid())) {
+        //                 optionPackageEntities.forEach(option -> {
+        //                     if (option.getParentOptionId().equals(parentOption.getId())) {
+        //                         ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
+        //                                 .id(UUID.randomUUID())
+        //                                 .receiveUnit(option.getPackageUnit() * dto.getReceiveUnit())
+        //                                 .memo(dto.getMemo())
+        //                                 .createdAt(CustomDateUtils.getCurrentDateTime())
+        //                                 .createdBy(USER_ID)
+        //                                 .productOptionCid(option.getOriginOptionCid())
+        //                                 .build();
+
+        //                         productReceiveEntities.add(ProductReceiveEntity.toEntity(receiveGetDto));
+        //                     }
+        //                 });
+        //             }
+        //         });
+        //     });
+        //     productReceiveService.saveListAndModify(productReceiveEntities);
+        // }
     }
 
     public void destroyOne(Integer productReceiveCid) {

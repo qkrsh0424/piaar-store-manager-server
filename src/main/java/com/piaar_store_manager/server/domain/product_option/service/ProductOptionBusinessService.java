@@ -2,14 +2,17 @@ package com.piaar_store_manager.server.domain.product_option.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
@@ -249,6 +252,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionDto.getColor()).setUnitCny(productOptionDto.getUnitCny())
                 .setUnitKrw(productOptionDto.getUnitKrw())
                 .setPackageYn(productOptionDto.getPackageYn())
+                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setProductCid(productOptionDto.getProductCid());
 
@@ -292,6 +296,7 @@ public class ProductOptionBusinessService {
                 .setColor(productOptionGetDto.getColor()).setUnitCny(productOptionGetDto.getUnitCny())
                 .setUnitKrw(productOptionGetDto.getUnitKrw())
                 .setPackageYn(productOptionGetDto.getPackageYn())
+                .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                 .setUpdatedBy(USER_ID)
                 .setProductCid(productOptionGetDto.getProductCid());
@@ -364,7 +369,37 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getProductCid() != null) {
             productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
+        if (productOptionDto.getSafetyStockUnit() != null) {
+            productOptionEntity.setSafetyStockUnit(productOptionDto.getSafetyStockUnit());
+        }
         productOptionEntity.setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         productOptionService.saveAndModify(productOptionEntity);
+    }
+
+    /*
+     * 옵션에 등록된 출고지를 중복을 제거해 추출한다
+     */
+    public List<String> searchReleaseLocation() {
+        List<ProductOptionEntity> entities = productOptionService.searchList();
+        Set<String> releaseLocationSet = new HashSet<>();
+        entities.forEach(r -> {
+            if(r.getReleaseLocation() != null && !r.getReleaseLocation().equals("")){
+                releaseLocationSet.add(r.getReleaseLocation());
+            }
+        });
+
+        List<String> allReleaseLocation = releaseLocationSet.stream().map(r -> r).collect(Collectors.toList());
+        return allReleaseLocation;
+    }
+
+    public List<ProductOptionStockCycleDto> searchStockCycle(Map<String, Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        String date = params.get("searchEndDate") != null ? params.get("searchEndDate").toString() : null;
+        LocalDateTime searchEndDate = date != null ? LocalDateTime.parse(date, formatter) : LocalDateTime.now();
+
+        Integer categoryCid = params.get("categoryCid") != null ? Integer.parseInt(params.get("categoryCid").toString()) : null;
+
+        List<ProductOptionStockCycleDto> stockCycle = productOptionService.searchStockStatusByWeek(searchEndDate, categoryCid);
+        return stockCycle;
     }
 }
