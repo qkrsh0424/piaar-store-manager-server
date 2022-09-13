@@ -14,7 +14,6 @@ import javax.persistence.*;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -43,10 +42,10 @@ public class ProductEntity {
     @Setter
     @Column(name = "manufacturing_code")
     private String manufacturingCode;
-    
+
     @Setter
-    @Column(name = "naver_product_code")
-    private String naverProductCode;
+    @Column(name = "management_number")
+    private String managementNumber;
 
     @Setter
     @Column(name = "default_name")
@@ -72,37 +71,37 @@ public class ProductEntity {
     @Column(name = "memo")
     private String memo;
 
-    @Setter
-    @Column(name = "hs_code")
-    private String hsCode;
+    // @Setter
+    // @Column(name = "hs_code")
+    // private String hsCode;
 
-    @Setter
-    @Column(name = "style")
-    private String style;
+    // @Setter
+    // @Column(name = "style")
+    // private String style;
 
-    @Setter
-    @Column(name = "tariff_rate")
-    private String tariffRate;
+    // @Setter
+    // @Column(name = "tariff_rate")
+    // private String tariffRate;
 
-    @Setter
-    @Column(name = "default_width")
-    private Integer defaultWidth;
+    // @Setter
+    // @Column(name = "default_width")
+    // private Integer defaultWidth;
 
-    @Setter
-    @Column(name = "default_length")
-    private Integer defaultLength;
+    // @Setter
+    // @Column(name = "default_length")
+    // private Integer defaultLength;
 
-    @Setter
-    @Column(name = "default_height")
-    private Integer defaultHeight;
+    // @Setter
+    // @Column(name = "default_height")
+    // private Integer defaultHeight;
 
-    @Setter
-    @Column(name = "default_quantity")
-    private Integer defaultQuantity;
+    // @Setter
+    // @Column(name = "default_quantity")
+    // private Integer defaultQuantity;
 
-    @Setter
-    @Column(name = "default_weight")
-    private Integer defaultWeight;
+    // @Setter
+    // @Column(name = "default_weight")
+    // private Integer defaultWeight;
 
     @Setter
     @Column(name = "default_total_purchase_price")
@@ -147,22 +146,22 @@ public class ProductEntity {
             .id(UUID.randomUUID())
             .code(productDto.getCode())
             .manufacturingCode(productDto.getManufacturingCode())
-            .naverProductCode(productDto.getNaverProductCode())
+            .managementNumber(productDto.getManagementNumber())
             .defaultName(productDto.getDefaultName())
             .managementName(productDto.getManagementName())
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
             .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
-            .hsCode(productDto.getHsCode())
-            .tariffRate(productDto.getTariffRate())
-            .style(productDto.getStyle())
-            .tariffRate(productDto.getTariffRate())
-            .defaultWidth(productDto.getDefaultWidth())
-            .defaultLength(productDto.getDefaultLength())
-            .defaultHeight(productDto.getDefaultHeight())
-            .defaultQuantity(productDto.getDefaultQuantity())
-            .defaultWeight(productDto.getDefaultWeight())
+            // .hsCode(productDto.getHsCode())
+            // .tariffRate(productDto.getTariffRate())
+            // .style(productDto.getStyle())
+            // .tariffRate(productDto.getTariffRate())
+            // .defaultWidth(productDto.getDefaultWidth())
+            // .defaultLength(productDto.getDefaultLength())
+            // .defaultHeight(productDto.getDefaultHeight())
+            // .defaultQuantity(productDto.getDefaultQuantity())
+            // .defaultWeight(productDto.getDefaultWeight())
             .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
             .stockManagement(productDto.getStockManagement())
             .createdAt(productDto.getCreatedAt())
