@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.piaar_store_manager.server.domain.erp_return_item.dto.ErpReturnItemDto;
 import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.erp_return_item.repository.ErpReturnItemCustomJdbc;
@@ -49,5 +51,18 @@ public class ErpReturnItemService {
 
     public List<ErpReturnItemProj> findAllM2OJByReleasedItem(List<UUID> ids, Map<String, Object> params) {
         return erpReturnItemRepository.qfindAllM2OJByReleasedItemIdList(ids, params);
+    }
+
+    public List<ErpReturnItemEntity> findAllByIdList(List<UUID> idList) {
+        return erpReturnItemRepository.qfindAllByIdList(idList);
+    }
+
+    public void deleteBatch(List<UUID> ids) {
+        erpReturnItemRepository.deleteAllById(ids);
+    }
+
+    public List<ErpReturnItemEntity> getEntities(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> ids = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
+        return erpReturnItemRepository.qfindAllByIdList(ids);
     }
 }

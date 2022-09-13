@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_return_item.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,6 +22,7 @@ import com.piaar_store_manager.server.domain.product_option.entity.ProductOption
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -141,5 +141,50 @@ public class ErpReturnItemBusinessService {
             .setManagementMemo3(dto.getManagementMemo3())
             .setManagementMemo4(dto.getManagementMemo4())
             .setManagementMemo5(dto.getManagementMemo5());
+    }
+
+    @Transactional
+    public void changeBatchForCollectYn(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getCollectYn().equals("n")) {
+                    entity.setCollectYn("n");
+                    entity.setCollectAt(null);
+                    
+                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거중처리만 하면됨.
+                    // entity.setReleaseYn("n");
+                    // entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setCollectYn("y");
+                entity.setCollectAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpReturnItemService.saveListAndModify(entities);
+    }
+
+    @Transactional
+    public void deleteBatch(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> itemIds = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        erpReturnItemService.deleteBatch(itemIds);
+    }
+
+    @Transactional
+    public void changeBatchForReturnReason(List<ErpReturnItemDto> itemDtos) {
+        List<ErpReturnItemEntity> entities = erpReturnItemService.getEntities(itemDtos);
+
+//        Dirty Checking update
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+                entity.setReturnReasonType(dto.getReturnReasonType())
+                    .setReturnReasonDetail(dto.getReturnReasonDetail());
+            }
+        }));
     }
 }

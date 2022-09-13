@@ -8,10 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 
 @Repository
 public interface ErpReturnItemRepositoryCustom {
+    List<ErpReturnItemEntity> qfindAllByIdList(List<UUID> idList);
     Page<ErpReturnItemProj> qfindAllM2OJByPage(Map<String, Object> params, Pageable pageable);
     List<ErpReturnItemProj> qfindAllM2OJByReleasedItemIdList(List<UUID> idList, Map<String, Object> params);
 }

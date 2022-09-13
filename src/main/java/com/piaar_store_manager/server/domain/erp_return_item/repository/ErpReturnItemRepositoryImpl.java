@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
+import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.entity.QErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
@@ -20,6 +21,7 @@ import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -40,6 +42,18 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
         this.query = query;
     }
 
+    
+
+    @Override
+    public List<ErpReturnItemEntity> qfindAllByIdList(List<UUID> idList) {
+        JPQLQuery customQuery = query.from(qErpReturnItemEntity)
+            .select(qErpReturnItemEntity)
+            .where(qErpReturnItemEntity.id.in(idList));
+
+        QueryResults<ErpReturnItemEntity> result = customQuery.fetchResults();
+        return result.getResults();
+    }
+
     @Override
     public Page<ErpReturnItemProj> qfindAllM2OJByPage(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qErpReturnItemEntity)
@@ -50,6 +64,7 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                 qProductOptionEntity.as("productOption"),
                 qProductCategoryEntity.as("productCategory")
             ))
+            .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params))
             .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
             .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))     // 반품상태에서 출고 옵션코드로 데이터를 조회한다
             .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
@@ -78,8 +93,9 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                                 qProductOptionEntity.as("productOption"),
                                 qProductCategoryEntity.as("productCategory")
                         )
-                )
+                )                
                 .where(qErpReturnItemEntity.id.in(idList))
+                .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params))
                 .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
                 .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
                 .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
@@ -87,5 +103,35 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
 
         QueryResults<ErpReturnItemProj> result = customQuery.fetchResults();
         return result.getResults();
+    }
+
+    private BooleanExpression eqCollectYn(Map<String, Object> params) {
+        String collectYn = params.get("collectYn") == null ? null : params.get("collectYn").toString();
+
+        if(collectYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.collectYn.eq(collectYn);
+        }
+    }
+
+    private BooleanExpression eqCollectCompleteYn(Map<String, Object> params) {
+        String collectCompleteYn = params.get("collectCompleteYn") == null ? null : params.get("collectCompleteYn").toString();
+
+        if(collectCompleteYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.collectCompleteYn.eq(collectCompleteYn);
+        }
+    }
+
+    private BooleanExpression eqReturnCompleteYn(Map<String, Object> params) {
+        String returnCompleteYn = params.get("returnCompleteYn") == null ? null : params.get("returnCompleteYn").toString();
+
+        if(returnCompleteYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.returnCompleteYn.eq(returnCompleteYn);
+        }
     }
 }
