@@ -41,6 +41,7 @@ public class ProductGetDto {
     // private Integer defaultWeight;
     private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
+    private UUID productDetailPageId;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
@@ -81,6 +82,7 @@ public class ProductGetDto {
             // .defaultWeight(entity.getDefaultWeight())
             .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
+            .productDetailPageId(entity.getProductDetailPageId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())

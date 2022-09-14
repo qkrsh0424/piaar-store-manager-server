@@ -267,6 +267,7 @@ public class ProductBusinessService {
                 // .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
                 // .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
                 .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
+                .setProductDetailPageId(productDto.getProductDetailPageId())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setStockManagement(productDto.getStockManagement())
                 .setProductCategoryCid(productDto.getProductCategoryCid());
@@ -298,7 +299,8 @@ public class ProductBusinessService {
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        // ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
 
         if (productDto.getCode() != null) {
             productEntity.setCode(productDto.getCode());
@@ -356,6 +358,9 @@ public class ProductBusinessService {
         // }
         if (productDto.getDefaultTotalPurchasePrice() != null) {
             productEntity.setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice());
+        }
+        if (productDto.getProductDetailPageId() != null) {
+            productEntity.setProductDetailPageId(productDto.getProductDetailPageId());   
         }
         if (productDto.getStockManagement() != null) {
             productEntity.setStockManagement(productDto.getStockManagement());

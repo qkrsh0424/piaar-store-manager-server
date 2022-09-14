@@ -112,6 +112,11 @@ public class ProductEntity {
     private Boolean stockManagement;
 
     @Setter
+    @Type(type = "uuid-char")
+    @Column(name = "product_detail_page_id")
+    private UUID productDetailPageId;
+
+    @Setter
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -164,6 +169,7 @@ public class ProductEntity {
             // .defaultWeight(productDto.getDefaultWeight())
             .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
             .stockManagement(productDto.getStockManagement())
+            .productDetailPageId(productDto.getProductDetailPageId())
             .createdAt(productDto.getCreatedAt())
             .createdBy(productDto.getCreatedBy())
             .updatedAt(productDto.getUpdatedAt())

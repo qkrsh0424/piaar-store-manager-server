@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
@@ -18,6 +19,16 @@ public class ProductService {
 
     public ProductEntity searchOne(Integer productCid) {
         Optional<ProductEntity> productEntityOpt = productRepository.findById(productCid);
+
+        if (productEntityOpt.isPresent()) {
+            return productEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+
+    public ProductEntity searchOne(UUID productId) {
+        Optional<ProductEntity> productEntityOpt = productRepository.findById(productId);
 
         if (productEntityOpt.isPresent()) {
             return productEntityOpt.get();
