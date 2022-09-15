@@ -1014,8 +1014,8 @@ public class DeliveryReadyNaverApiController {
             cell.setCellValue(dtos.get(i).getProdName());
             cell = row.createCell(19);
             cell.setCellValue(dtos.get(i).getOptionInfo());
-            cell = row.createCell(20);
-            cell.setCellValue(dtos.get(i).getOptionNosUniqueCode());
+            // cell = row.createCell(20);
+            // cell.setCellValue(dtos.get(i).getOptionNosUniqueCode());
             cell = row.createCell(21);
             cell.setCellValue(dtos.get(i).getReceiverContact1());
             cell = row.createCell(22);

@@ -38,9 +38,6 @@ public class ProductOptionEntity {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "nos_unique_code")
-    private String nosUniqueCode;
-
     @Column(name = "default_name")
     private String defaultName;
 
@@ -70,15 +67,6 @@ public class ProductOptionEntity {
 
     @Column(name = "image_file_name")
     private String imageFileName;
-
-    @Column(name = "color")
-    private String color;
-
-    @Column(name = "unit_cny")
-    private String unitCny;
-
-    @Column(name = "unit_krw")
-    private String unitKrw;
 
     @Column(name = "package_yn", columnDefinition = "n")
     private String packageYn;
@@ -127,7 +115,6 @@ public class ProductOptionEntity {
                 // .id(UUID.randomUUID())
                 .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
-                .nosUniqueCode(productOptionDto.getNosUniqueCode())
                 .defaultName(productOptionDto.getDefaultName())
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
@@ -138,9 +125,6 @@ public class ProductOptionEntity {
                 .releaseLocation(productOptionDto.getReleaseLocation())
                 .imageUrl(productOptionDto.getImageUrl())
                 .imageFileName(productOptionDto.getImageFileName())
-                .color(productOptionDto.getColor())
-                .unitCny(productOptionDto.getUnitCny())
-                .unitKrw(productOptionDto.getUnitKrw())
                 .packageYn(productOptionDto.getPackageYn())
                 .safetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .createdAt(productOptionDto.getCreatedAt())

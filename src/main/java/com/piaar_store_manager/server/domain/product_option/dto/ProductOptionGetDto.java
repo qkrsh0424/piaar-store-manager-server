@@ -28,7 +28,6 @@ public class ProductOptionGetDto {
     private Integer cid;
     private UUID id;
     private String code;
-    private String nosUniqueCode;
     private String defaultName;
     private String managementName;
     private Integer salesPrice;
@@ -39,9 +38,6 @@ public class ProductOptionGetDto {
     private String releaseLocation;
     private String imageUrl;
     private String imageFileName;
-    private String color;
-    private String unitCny;
-    private String unitKrw;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
@@ -69,7 +65,6 @@ public class ProductOptionGetDto {
                 .cid(entity.getCid())
                 .id(entity.getId())
                 .code(entity.getCode())
-                .nosUniqueCode(entity.getNosUniqueCode())
                 .defaultName(entity.getDefaultName())
                 .managementName(entity.getManagementName())
                 .salesPrice(entity.getSalesPrice())
@@ -80,9 +75,6 @@ public class ProductOptionGetDto {
                 .releaseLocation(entity.getReleaseLocation())
                 .imageUrl(entity.getImageUrl())
                 .imageFileName(entity.getImageFileName())
-                .color(entity.getColor())
-                .unitCny(entity.getUnitCny())
-                .unitKrw(entity.getUnitKrw())
                 .packageYn(entity.getPackageYn())
                 .safetyStockUnit(entity.getSafetyStockUnit())
                 .createdAt(entity.getCreatedAt())

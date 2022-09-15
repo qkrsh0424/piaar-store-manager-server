@@ -28,7 +28,6 @@ public class DeliveryReadyNaverItemExcelFormDto {
     private String sellerProdCode;        // 판매자 상품코드
     private String prodName;        // 상품명
     private String optionInfo;        // 옵션정보
-    private String optionNosUniqueCode;     // 노스노스 고유번호
     private String receiverContact1;        // 수취인연락처1
     private String receiverContact2;        // 수취인연락처2
     private String zipCode;        // 우편번호
@@ -69,7 +68,6 @@ public class DeliveryReadyNaverItemExcelFormDto {
                 .sellerProdCode(viewDto.getDeliveryReadyItem().getSellerProdCode())
                 .prodName(viewDto.getDeliveryReadyItem().getProdName())
                 .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
-                .optionNosUniqueCode(viewDto.getOptionNosUniqueCode())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
                 .receiverContact2(viewDto.getDeliveryReadyItem().getReceiverContact2())
                 .zipCode(viewDto.getDeliveryReadyItem().getZipCode())

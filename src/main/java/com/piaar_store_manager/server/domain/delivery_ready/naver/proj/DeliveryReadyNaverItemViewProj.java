@@ -10,5 +10,4 @@ public interface DeliveryReadyNaverItemViewProj {
     String getOptionManagementName();
     Integer getOptionStockUnit();
     String getOptionMemo();
-    String getOptionNosUniqueCode();
 }

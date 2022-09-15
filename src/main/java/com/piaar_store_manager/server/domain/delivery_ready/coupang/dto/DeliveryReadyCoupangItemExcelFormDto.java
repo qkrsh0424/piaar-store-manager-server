@@ -24,7 +24,6 @@ public class DeliveryReadyCoupangItemExcelFormDto {
     private String prodExposureName;        // 노출상품명(옵션명)
     private String coupangOptionId;         // 옵션ID
     private String optionInfo;              // 등록옵션명
-    private String optionNosUniqueCode;     // 노스노스 고유번호
     private String receiverContact1;        // 수취인 전화번호
     private String zipCode;        // 우편번호
     private String destination;        // 수취인 주소
@@ -62,7 +61,6 @@ public class DeliveryReadyCoupangItemExcelFormDto {
                 .prodExposureName(viewDto.getDeliveryReadyItem().getProdExposureName())
                 .coupangOptionId(viewDto.getDeliveryReadyItem().getCoupangOptionId())
                 .optionInfo(viewDto.getDeliveryReadyItem().getOptionInfo())
-                .optionNosUniqueCode(viewDto.getOptionNosUniqueCode())
                 .receiverContact1(viewDto.getDeliveryReadyItem().getReceiverContact1())
                 .zipCode(viewDto.getDeliveryReadyItem().getZipCode())
                 .destination(viewDto.getDeliveryReadyItem().getDestination())
