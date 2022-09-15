@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.product_receive.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -33,16 +36,17 @@ public class ProductReceiveApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
      */
-    @GetMapping("/one/{productReceiveCid}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
-        Message message = new Message();
+    // deprecated
+    // @GetMapping("/one/{productReceiveCid}")
+    // public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+    //     Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api for receive.
@@ -51,11 +55,31 @@ public class ProductReceiveApiController {
      * <p>
      * productReceiveCid에 대응하는 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      */
-    @GetMapping("/one-m2oj/{productReceiveCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+    // deprecated
+    // @GetMapping("/one-m2oj/{productReceiveCid}")
+    // public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+    //     Message message = new Message();
+
+    //     message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search one api for receive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/{productReceiveId}</b>
+     * 
+     * @param params : Map[String, Object] [objectType]
+     */
+    // Unused API
+    @GetMapping("/{productReceiveId}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveId") UUID productReceiveId, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
+        message.setData(productReceiveBusinessService.searchOne(productReceiveId, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -67,11 +91,50 @@ public class ProductReceiveApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list</b>
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    // deprecated
+    // @GetMapping("/list")
+    // public ResponseEntity<?> searchList() {
+    //     Message message = new Message();
+
+    //     message.setData(productReceiveBusinessService.searchList());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search list api for receive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
+     * <p>
+     * 모든 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
+     */
+    // deprecated
+    // @GetMapping("/list-m2oj")
+    // public ResponseEntity<?> searchListM2OJ() {
+    //     Message message = new Message();
+
+    //     message.setData(productReceiveBusinessService.searchListM2OJ());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Search list api for receive.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-receive/all</b>
+     * 
+     * @param params : Map[String, Object] [objectType]
+     */
+    // Unused API
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchList());
+        message.setData(productReceiveBusinessService.searchAll(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -83,29 +146,31 @@ public class ProductReceiveApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list/{productOptionCid}</b>
      */
-    @GetMapping("/list/{productOptionCid}")
-    public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
-        Message message = new Message();
+    // deprecated
+    // @GetMapping("/list/{productOptionCid}")
+    // public ResponseEntity<?> searchListByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid) {
+    //     Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
-     * Search list api for receive.
+     * Search api for receive matching option cid.
      * <p>
-     * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
-     * <p>
-     * 모든 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
+     * <b>GET : API URL => /api/v1/product-receive/batch/{productOptionCid}</b>
+     * 
+     * @param params : Map[String, Object] [objectType]
      */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
+    // Unused API
+    @GetMapping("/batch/{productOptionCid}")
+    public ResponseEntity<?> searchBatchByOptionCid(@PathVariable(value = "productOptionCid") Integer productOptionCid, @RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(productReceiveBusinessService.searchListM2OJ());
+        message.setData(productReceiveBusinessService.searchBatchByOptionCid(productOptionCid, params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -117,7 +182,26 @@ public class ProductReceiveApiController {
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/one</b>
      */
-    @PostMapping("/one")
+    // deprecated
+    // @PostMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
+    //     Message message = new Message();
+
+    //     productReceiveBusinessService.createOne(productReceiveGetDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Create one api for receive.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-receive</b>
+     */
+    // Unused API
+    @PostMapping("")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();
@@ -134,12 +218,29 @@ public class ProductReceiveApiController {
      * <p>
      * <b>POST : API URL => /api/v1/product-receive/list</b>
      */
-    @PostMapping("/list")
+    // @PostMapping("/list")
+    // @PermissionRole
+    // public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    //     Message message = new Message();
+
+    //     productReceiveBusinessService.createList(productReceiveGetDtos);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Create list api for receive.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-receive/batch</b>
+     */
+    @PostMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> createList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public ResponseEntity<?> createBatch(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.createList(productReceiveGetDtos);
+        productReceiveBusinessService.createBatch(productReceiveGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -151,12 +252,33 @@ public class ProductReceiveApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
      */
-    @DeleteMapping("/one/{productReceiveCid}")
+    // deprecated
+    // @DeleteMapping("/one/{productReceiveCid}")
+    // @PermissionRole
+    // public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+    //     Message message = new Message();
+
+    //     productReceiveBusinessService.destroyOne(productReceiveCid);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Destroy( Delete or Remove ) one api for receive.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/product-receive/{productReceiveId}</b>
+     * 
+     * @param productReceiveId : UUID
+     */
+    // Unused API
+    @DeleteMapping("/{productReceiveId}")
     @PermissionRole
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productReceiveId") UUID productReceiveId) {
         Message message = new Message();
 
-        productReceiveBusinessService.destroyOne(productReceiveCid);
+        productReceiveBusinessService.destroyOne(productReceiveId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -168,7 +290,27 @@ public class ProductReceiveApiController {
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive/one</b>
      */
-    @PutMapping("/one")
+    // deprecated
+    // @PutMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
+    //     Message message = new Message();
+
+    //     productReceiveBusinessService.changeOne(receiveDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Change one api for receive.
+     * <p>
+     * <b>PUT : API URL => /api/v1/product-receive</b>
+     * 
+     * @param receiveDto : ProductReceiveGetDto
+     */
+    @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> changeOne(@RequestBody ProductReceiveGetDto receiveDto) {
         Message message = new Message();
@@ -184,13 +326,16 @@ public class ProductReceiveApiController {
      * Change list api for receive.
      * <p>
      * <b>PUT : API URL => /api/v1/product-receive/list</b>
+     * 
+     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      */
-    @PutMapping("/list")
+    // Unused API
+    @PutMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> changeList(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
+    public ResponseEntity<?> changeBatch(@RequestBody List<ProductReceiveGetDto> productReceiveGetDtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.changeList(productReceiveGetDtos);
+        productReceiveBusinessService.changeBatch(productReceiveGetDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -202,7 +347,28 @@ public class ProductReceiveApiController {
      * <p>
      * <b>PATCH : API URL => /api/v1/product-receive/one</b>
      */
-    @PatchMapping("/one")
+    // deprecated
+    // @PatchMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
+    //     Message message = new Message();
+
+    //     productReceiveBusinessService.patchOne(productReceiveGetDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    /**
+     * Patch one api for receive.
+     * <p>
+     * <b>PATCH : API URL => /api/v1/product-receive</b>
+     * 
+     * @param productReceiveGetDto : ProductReceiveGetDto
+     */
+    // Unused API
+    @PatchMapping("")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
         Message message = new Message();

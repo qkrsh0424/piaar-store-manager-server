@@ -50,7 +50,7 @@ public class ErpOrderHeaderBusinessService {
      * @see ErpOrderHeaderService#findAll
      * @see ErpOrderHeaderDto#toDto
      */
-    public List<ErpOrderHeaderDto> searchList() {
+    public List<ErpOrderHeaderDto> searchAll() {
         List<ErpOrderHeaderEntity> entities = erpOrderHeaderService.findAll();
         List<ErpOrderHeaderDto> dtos = entities.stream().map(entity -> ErpOrderHeaderDto.toDto(entity)).collect(Collectors.toList());
         return dtos;

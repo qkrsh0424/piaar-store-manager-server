@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
@@ -29,6 +30,7 @@ public class ProductOptionService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionCustomJdbc productOptionCustomJdbc;
 
+    // Deprecated
     public ProductOptionEntity searchOne(Integer productOptionCid) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
 
@@ -39,7 +41,17 @@ public class ProductOptionService {
         }
     }
 
-    public List<ProductOptionEntity> searchList() {
+    public ProductOptionEntity searchOne(UUID id) {
+        Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(id);
+        
+        if (productOptionEntityOpt.isPresent()) {
+            return productOptionEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
+    }
+
+    public List<ProductOptionEntity> searchAll() {
         return productOptionRepository.findAll();
     }
 
@@ -52,8 +64,19 @@ public class ProductOptionService {
      * @return ProductOptionProj
      * @see ProductOptionRepository#searchOneM2OJ
      */
+    // Deprecated
     public ProductOptionProj searchOneM2OJ(Integer productOptionCid) {
         Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.searchOneM2OJ(productOptionCid);
+
+        if(productOptionProjOpt.isPresent()) {
+            return productOptionProjOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
+    }
+
+    public ProductOptionProj searchOneM2OJ(UUID id) {
+        Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.searchOneM2OJ(id);
 
         if(productOptionProjOpt.isPresent()) {
             return productOptionProjOpt.get();
@@ -158,6 +181,7 @@ public class ProductOptionService {
                 }
             });
         }
+
         return productOptionGetDtos;
     }
 
@@ -169,8 +193,14 @@ public class ProductOptionService {
         productOptionRepository.saveAll(entities);
     }
 
-    public void destroyOne(Integer productOptionCid) {
-        productOptionRepository.findById(productOptionCid).ifPresent(productOption -> {
+    // public void destroyOne(Integer productOptionCid) {
+    //     productOptionRepository.findById(productOptionCid).ifPresent(productOption -> {
+    //         productOptionRepository.delete(productOption);
+    //     });
+    // }
+
+    public void destroyOne(UUID productOptionId) {
+        productOptionRepository.findById(productOptionId).ifPresent(productOption -> {
             productOptionRepository.delete(productOption);
         });
     }

@@ -29,19 +29,18 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items</b>
+     * <b>GET : API URL => /api/v2/erp-order-items/batch</b>
      *
-     * @param params : Map::String, Object::
+     * @param params : Map::String, Object:: [objectType, ...]
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchList
      */
-    @GetMapping("")
-    public ResponseEntity<?> searchAll(@RequestParam Map<String, Object> params) {
+    @GetMapping("/batch")
+    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchAll(params));
+        message.setData(erpOrderItemBusinessService.searchBatch(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -51,9 +50,9 @@ public class ErpOrderItemApiV2 {
     /**
      * Search erp order item.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/action-refresh</b>
+     * <b>POST : API URL => /api/v2/erp-order-items/action-refresh</b>
      * 
-     * @param params : Map::String, Object::
+     * @param params : Map::String, Object:: [objectType, ...]
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByIds
      */
@@ -72,16 +71,14 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/search</b>
+     * <b>GET : API URL => /api/v1/erp-order-items/batch/page</b>
      *
-     * @param params   : Map::String, Object::
+     * @param params   : Map::String, Object:: [objectType, ...]
      * @param pageable : Pageable
-     * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
-    @GetMapping("/search")
+    @GetMapping("/batch/page")
     public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 50) Pageable pageable) {
         Message message = new Message();
 
@@ -94,23 +91,23 @@ public class ErpOrderItemApiV2 {
 
     /**
      * Search erp order item.
-     * Mapping by option code.
      * <p>
-     * <b>GET : API URL => /api/v1/erp-order-items/batch/search</b>
+     * <b>GET : API URL => /api/v2/erp-order-items/batch/search</b>
      * 
      * @param params   : Map::String, Object::
      * @param pageable : Pageable
      * @return ResponseEntity(message, HttpStatus)
      * @see ErpOrderItemBusinessService#searchBatchByPaging
      */
-    @GetMapping("/batch/search")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
+    // deprecated
+    // @GetMapping("/batch/search")
+    // public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
 
-        message.setData(erpOrderItemBusinessService.searchList(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(erpOrderItemBusinessService.searchList(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 }

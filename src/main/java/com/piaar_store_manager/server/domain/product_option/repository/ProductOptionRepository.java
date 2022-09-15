@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.product_option.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Tuple;
 
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
+    
+    Optional<ProductOptionEntity> findById(UUID id);
 
     /**
      * cid값에 대응하는 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category
@@ -23,6 +26,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
      * @param cid : Integer
      * @return ProductOptionProj
      */
+    // Deprecated
     @Query(
         "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
         "JOIN ProductEntity p ON p.cid=po.productCid\n"+
@@ -31,6 +35,15 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "WHERE po.cid=:cid"
     )
     Optional<ProductOptionProj> searchOneM2OJ(Integer cid);
+
+    @Query(
+        "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
+        "JOIN ProductEntity p ON p.cid=po.productCid\n"+
+        "JOIN UserEntity u ON po.createdBy = u.id\n"+
+        "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
+        "WHERE po.id=:id"
+    )
+    Optional<ProductOptionProj> searchOneM2OJ(UUID id);
 
     // FIX : Added "ORDER BY" query for product_option.created_at ASC
     /**

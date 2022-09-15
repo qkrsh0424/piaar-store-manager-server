@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.erp_sales_header.dto.ErpSalesHeaderDto;
 import com.piaar_store_manager.server.domain.erp_sales_header.entity.ErpSalesHeaderEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -46,10 +45,10 @@ public class ErpSalesHeaderBusinessService {
      * 저장된 erp sales header를 모두 조회한다.
      *
      * @return ErpOrderHeaderDto
-     * @see ErpOrderHeaderService#findAll
-     * @see ErpOrderHeaderDto#toDto
+     * @see ErpSalesHeaderService#findAll
+     * @see ErpSalesHeaderDto#toDto
      */
-    public List<ErpSalesHeaderDto> searchList() {
+    public List<ErpSalesHeaderDto> searchAll() {
         List<ErpSalesHeaderEntity> entities = erpSalesHeaderService.findAll();
         List<ErpSalesHeaderDto> dtos = entities.stream().map(entity -> ErpSalesHeaderDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
@@ -63,7 +62,7 @@ public class ErpSalesHeaderBusinessService {
      * @param headerDto : ErpSalesHeaderDto
      * @see ErpSalesHeaderBusinessService#searchOne
      * @see CustomDateUtils#getCurrentDateTime
-     * @see ErpSalesHeaderDto#toDto
+     * @see ErpSalesHeaderEntity#toEntity
      */
     public void updateOne(ErpSalesHeaderDto headerDto) {
         ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerDto.getId());
@@ -75,7 +74,16 @@ public class ErpSalesHeaderBusinessService {
 
         erpSalesHeaderService.saveAndModify(ErpSalesHeaderEntity.toEntity(dto));
     }
-
+  
+    /**
+     * <b>DB Delete Related Method</b>
+     * <p>
+     * erp release complete header을 제거한다.
+     * 
+     * @param headerId : UUID
+     * @see ErpSalesHeaderService#searchOne
+     * @see ErpSalesHeaderService#deleteOne
+     */
     public void deleteOne(UUID headerId) {
         ErpSalesHeaderEntity entity = erpSalesHeaderService.searchOne(headerId);
         erpSalesHeaderService.deleteOne(entity);

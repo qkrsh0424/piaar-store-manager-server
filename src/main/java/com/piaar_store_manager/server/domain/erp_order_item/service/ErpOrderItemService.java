@@ -94,7 +94,7 @@ public class ErpOrderItemService {
     }
 
     public Page<ErpOrderItemProj> findReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable) {
-        return erpOrderItemRepository.qfindReleaseItemM2OJByPage(params, pageable);
+        return erpOrderItemRepository.qfindAllOfReleaseItemM2OJByPage(params, pageable);
     }
 
     /**
@@ -154,6 +154,5 @@ public class ErpOrderItemService {
     public List<ErpOrderItemEntity> getEntities(List<ErpOrderItemDto> itemDtos) {
         List<UUID> ids = itemDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         return erpOrderItemRepository.qfindAllByIdList(ids);
-
     }
 }

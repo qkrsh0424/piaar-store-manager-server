@@ -29,4 +29,8 @@ public class OptionPackageBusinessService {
         List<OptionPackageDto> dtos = entities.stream().map(entity -> OptionPackageDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }
+
+    public void deleteBatchByParentOptionId(UUID parentOptionId) {
+        optionPackageService.deleteBatchByParentOptionId(parentOptionId);
+    }
 }

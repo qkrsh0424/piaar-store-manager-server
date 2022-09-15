@@ -13,7 +13,7 @@ import com.piaar_store_manager.server.domain.product_category.repository.Product
 public class ProductCategoryService {
     private final ProductCategoryRepository productCategoryRepository;
 
-    public List<ProductCategoryEntity> searchList(){
+    public List<ProductCategoryEntity> searchAll(){
         return productCategoryRepository.findAll();
     }
 }

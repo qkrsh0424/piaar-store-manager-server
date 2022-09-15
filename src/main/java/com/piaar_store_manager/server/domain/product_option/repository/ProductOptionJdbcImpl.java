@@ -24,8 +24,6 @@ public class ProductOptionJdbcImpl implements ProductOptionCustomJdbc {
         StringBuilder sql = new StringBuilder();
 
         // 파라미터로 넘어온 searchEndDate값은 [YYYY-MM-DDT14:59:00]로 넘어온다
-        // LocalDateTime endDate = searchEndDate.with(LocalTime.MAX).minusHours(9);
-        // LocalDateTime startDate = endDate.minusDays(6).with(LocalTime.MIN).minusHours(9);
         LocalDateTime endDate = searchEndDate;
         LocalDateTime startDate = endDate.minusDays(7).plusMinutes(1);
 
