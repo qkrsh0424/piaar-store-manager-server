@@ -259,7 +259,7 @@ public class ProductApiController {
      * <p>
      * <b>PATCH : API URL => /api/v1/product/one</b>
      */
-    @PatchMapping("/one")
+    @PatchMapping("")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductGetDto productGetDto) {
         Message message = new Message();

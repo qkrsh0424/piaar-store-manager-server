@@ -303,22 +303,19 @@ public class ProductOptionBusinessService {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity optionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
-        optionEntity
-                .setCode(productOptionDto.getCode())
-                .setNosUniqueCode(productOptionDto.getNosUniqueCode())
+        optionEntity.setCode(productOptionDto.getCode())
                 .setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName())
                 .setSalesPrice(productOptionDto.getSalesPrice())
                 .setStockUnit(productOptionDto.getStockUnit())
-                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
+                .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                 .setStatus(productOptionDto.getStatus())
                 .setMemo(productOptionDto.getMemo())
+                .setImageUrl(productOptionDto.getImageUrl())
+                .setImageFileName(productOptionDto.getImageFileName())
+                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .setReleaseLocation(productOptionDto.getReleaseLocation())
                 .setProductCid(productOptionDto.getProductCid())
-                .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
-                .setColor(productOptionDto.getColor())
-                .setUnitCny(productOptionDto.getUnitCny()).setUnitKrw(productOptionDto.getUnitKrw())
-                .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                 .setPackageYn(productOptionDto.getPackageYn())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                 .setUpdatedBy(USER_ID);
@@ -350,20 +347,18 @@ public class ProductOptionBusinessService {
          */
         productOptionEntity
                 .setCode(productOptionGetDto.getCode())
-                .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
                 .setDefaultName(productOptionGetDto.getDefaultName())
                 .setManagementName(productOptionGetDto.getManagementName())
                 .setSalesPrice(productOptionGetDto.getSalesPrice())
                 .setStockUnit(productOptionGetDto.getStockUnit())
-                .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
+                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
                 .setStatus(productOptionGetDto.getStatus())
                 .setMemo(productOptionGetDto.getMemo())
+                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .setReleaseLocation(productOptionGetDto.getReleaseLocation())
                 .setProductCid(productOptionGetDto.getProductCid())
-                .setImageUrl(productOptionGetDto.getImageUrl()).setImageFileName(productOptionGetDto.getImageFileName())
-                .setColor(productOptionGetDto.getColor())
-                .setUnitCny(productOptionGetDto.getUnitCny()).setUnitKrw(productOptionGetDto.getUnitKrw())
-                .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
+                .setImageUrl(productOptionGetDto.getImageUrl())
+                .setImageFileName(productOptionGetDto.getImageFileName())
                 .setPackageYn(productOptionGetDto.getPackageYn())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                 .setUpdatedBy(USER_ID);
@@ -398,9 +393,6 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getCode() != null) {
             productOptionEntity.setCode(productOptionDto.getCode());
         }
-        if (productOptionDto.getNosUniqueCode() != null) {
-            productOptionEntity.setNosUniqueCode(productOptionDto.getNosUniqueCode());
-        }
         if (productOptionDto.getDefaultName() != null) {
             productOptionEntity.setDefaultName(productOptionDto.getDefaultName());
         }
@@ -425,23 +417,14 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getReleaseLocation() != null) {
             productOptionEntity.setReleaseLocation(productOptionDto.getReleaseLocation());
         }
-        if (productOptionDto.getProductCid() != null) {
-            productOptionEntity.setProductCid(productOptionDto.getProductCid());
-        }
         if (productOptionDto.getImageUrl() != null) {
             productOptionEntity.setImageUrl(productOptionDto.getImageUrl());
         }
         if (productOptionDto.getImageFileName() != null) {
             productOptionEntity.setImageFileName(productOptionDto.getImageFileName());
         }
-        if (productOptionDto.getColor() != null) {
-            productOptionEntity.setColor(productOptionDto.getColor());
-        }
-        if (productOptionDto.getUnitCny() != null) {
-            productOptionEntity.setUnitCny(productOptionDto.getUnitCny());
-        }
-        if (productOptionDto.getUnitKrw() != null) {
-            productOptionEntity.setUnitKrw(productOptionDto.getUnitKrw());
+        if (productOptionDto.getProductCid() != null) {
+            productOptionEntity.setProductCid(productOptionDto.getProductCid());
         }
         if (productOptionDto.getTotalPurchasePrice() != null) {
             productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());

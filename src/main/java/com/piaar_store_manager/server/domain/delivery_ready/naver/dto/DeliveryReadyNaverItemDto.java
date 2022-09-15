@@ -147,7 +147,6 @@ public class DeliveryReadyNaverItemDto {
         private String optionMemo;  // viewResDto에만 있는 항목
         private String sender;
         private String senderContact1;
-        private String optionNosUniqueCode;
         private String releaseMemo;
         private String receiveMemo;
 
@@ -160,7 +159,6 @@ public class DeliveryReadyNaverItemDto {
                 .optionManagementName(itemViewProj.getOptionManagementName())
                 .optionStockUnit(itemViewProj.getOptionStockUnit())
                 .optionMemo(itemViewProj.getOptionMemo())
-                .optionNosUniqueCode(itemViewProj.getOptionNosUniqueCode())
                 .build();
 
             return dto;

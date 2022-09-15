@@ -11,7 +11,6 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,23 +24,24 @@ public class ProductGetDto {
     private UUID id;
     private String code;
     private String manufacturingCode;
-    private String naverProductCode;
+    private String managementNumber;
     private String defaultName;
     private String managementName;
     private String imageUrl;
     private String imageFileName;
     private String purchaseUrl;
     private String memo;
-    private String hsCode;
-    private String style;
-    private String tariffRate;
-    private Integer defaultWidth;
-    private Integer defaultLength;
-    private Integer defaultHeight;
-    private Integer defaultQuantity;
-    private Integer defaultWeight;
+    // private String hsCode;
+    // private String style;
+    // private String tariffRate;
+    // private Integer defaultWidth;
+    // private Integer defaultLength;
+    // private Integer defaultHeight;
+    // private Integer defaultQuantity;
+    // private Integer defaultWeight;
     private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
+    private UUID productDetailPageId;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
@@ -64,24 +64,25 @@ public class ProductGetDto {
             .id(entity.getId())
             .code(entity.getCode())
             .manufacturingCode(entity.getManufacturingCode())
-            .naverProductCode(entity.getNaverProductCode())
+            .managementNumber(entity.getManagementNumber())
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
             .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
-            .hsCode(entity.getHsCode())
-            .tariffRate(entity.getTariffRate())
-            .style(entity.getStyle())
-            .tariffRate(entity.getTariffRate())
-            .defaultWidth(entity.getDefaultWidth())
-            .defaultLength(entity.getDefaultLength())
-            .defaultHeight(entity.getDefaultHeight())
-            .defaultQuantity(entity.getDefaultQuantity())
-            .defaultWeight(entity.getDefaultWeight())
+            // .hsCode(entity.getHsCode())
+            // .tariffRate(entity.getTariffRate())
+            // .style(entity.getStyle())
+            // .tariffRate(entity.getTariffRate())
+            // .defaultWidth(entity.getDefaultWidth())
+            // .defaultLength(entity.getDefaultLength())
+            // .defaultHeight(entity.getDefaultHeight())
+            // .defaultQuantity(entity.getDefaultQuantity())
+            // .defaultWeight(entity.getDefaultWeight())
             .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
+            .productDetailPageId(entity.getProductDetailPageId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())

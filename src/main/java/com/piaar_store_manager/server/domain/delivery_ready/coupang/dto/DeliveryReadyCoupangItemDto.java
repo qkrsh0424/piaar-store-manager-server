@@ -133,7 +133,6 @@ public class DeliveryReadyCoupangItemDto {
         private String optionMemo;
         private String sender;
         private String senderContact1;
-        private String optionNosUniqueCode;
         private String releaseMemo;
         private String receiveMemo;
 
@@ -146,7 +145,6 @@ public class DeliveryReadyCoupangItemDto {
                 .optionManagementName(itemViewProj.getOptionManagementName())
                 .optionStockUnit(itemViewProj.getOptionStockUnit())
                 .optionMemo(itemViewProj.getOptionMemo())
-                .optionNosUniqueCode(itemViewProj.getOptionNosUniqueCode())
                 .build();
             return dto;
         }

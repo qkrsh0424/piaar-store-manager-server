@@ -1037,8 +1037,8 @@ public class DeliveryReadyCoupangApiController {
             cell.setCellValue(dtos.get(i).getCoupangOptionId());
             cell = row.createCell(15);
             cell.setCellValue(dtos.get(i).getOptionInfo());
-            cell = row.createCell(16);
-            cell.setCellValue(dtos.get(i).getOptionNosUniqueCode());
+            // cell = row.createCell(16);
+            // cell.setCellValue(dtos.get(i).getOptionNosUniqueCode());
             cell = row.createCell(17);
             cell.setCellValue(dtos.get(i).getReceiverContact1());
             cell = row.createCell(18);

@@ -259,14 +259,15 @@ public class ProductBusinessService {
 
         ProductEntity productEntity = productService.searchOne(productDto.getCid());
         productEntity.setCode(productDto.getCode()).setManufacturingCode(productDto.getManufacturingCode())
-                .setNaverProductCode(productDto.getNaverProductCode()).setDefaultName(productDto.getDefaultName())
+                .setManagementNumber(productDto.getManagementNumber()).setDefaultName(productDto.getDefaultName())
                 .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
                 .setImageFileName(productDto.getImageFileName()).setPurchaseUrl(productDto.getPurchaseUrl()).setMemo(productDto.getMemo())
-                .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
-                .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
-                .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
-                .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
+                // .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
+                // .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
+                // .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
+                // .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
                 .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
+                .setProductDetailPageId(productDto.getProductDetailPageId())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setStockManagement(productDto.getStockManagement())
                 .setProductCategoryCid(productDto.getProductCategoryCid());
@@ -298,7 +299,8 @@ public class ProductBusinessService {
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        // ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
 
         if (productDto.getCode() != null) {
             productEntity.setCode(productDto.getCode());
@@ -306,9 +308,12 @@ public class ProductBusinessService {
         if (productDto.getManufacturingCode() != null) {
             productEntity.setManufacturingCode(productDto.getManufacturingCode());
         }
-        if (productDto.getNaverProductCode() != null) {
-            productEntity.setNaverProductCode(productDto.getNaverProductCode());
+        if (productDto.getManagementNumber() != null) {
+            productEntity.setManagementNumber(productDto.getManagementNumber());
         }
+        // if (productDto.getNaverProductCode() != null) {
+        //     productEntity.setNaverProductCode(productDto.getNaverProductCode());
+        // }
         if (productDto.getDefaultName() != null) {
             productEntity.setDefaultName(productDto.getDefaultName());
         }
@@ -327,32 +332,35 @@ public class ProductBusinessService {
         if (productDto.getMemo() != null) {
             productEntity.setMemo(productDto.getMemo());
         }
-        if (productDto.getHsCode() != null) {
-            productEntity.setHsCode(productDto.getHsCode());
-        }
-        if (productDto.getStyle() != null) {
-            productEntity.setStyle(productDto.getStyle());
-        }
-        if (productDto.getTariffRate() != null) {
-            productEntity.setTariffRate(productDto.getTariffRate());
-        }
-        if (productDto.getDefaultWidth() != null) {
-            productEntity.setDefaultWidth(productDto.getDefaultWidth());
-        }
-        if (productDto.getDefaultLength() != null) {
-            productEntity.setDefaultLength(productDto.getDefaultLength());
-        }
-        if (productDto.getDefaultHeight() != null) {
-            productEntity.setDefaultHeight(productDto.getDefaultHeight());
-        }
-        if (productDto.getDefaultQuantity() != null) {
-            productEntity.setDefaultQuantity(productDto.getDefaultQuantity());
-        }
-        if (productDto.getDefaultWeight() != null) {
-            productEntity.setDefaultWeight(productDto.getDefaultWeight());
-        }
+        // if (productDto.getHsCode() != null) {
+        //     productEntity.setHsCode(productDto.getHsCode());
+        // }
+        // if (productDto.getStyle() != null) {
+        //     productEntity.setStyle(productDto.getStyle());
+        // }
+        // if (productDto.getTariffRate() != null) {
+        //     productEntity.setTariffRate(productDto.getTariffRate());
+        // }
+        // if (productDto.getDefaultWidth() != null) {
+        //     productEntity.setDefaultWidth(productDto.getDefaultWidth());
+        // }
+        // if (productDto.getDefaultLength() != null) {
+        //     productEntity.setDefaultLength(productDto.getDefaultLength());
+        // }
+        // if (productDto.getDefaultHeight() != null) {
+        //     productEntity.setDefaultHeight(productDto.getDefaultHeight());
+        // }
+        // if (productDto.getDefaultQuantity() != null) {
+        //     productEntity.setDefaultQuantity(productDto.getDefaultQuantity());
+        // }
+        // if (productDto.getDefaultWeight() != null) {
+        //     productEntity.setDefaultWeight(productDto.getDefaultWeight());
+        // }
         if (productDto.getDefaultTotalPurchasePrice() != null) {
             productEntity.setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice());
+        }
+        if (productDto.getProductDetailPageId() != null) {
+            productEntity.setProductDetailPageId(productDto.getProductDetailPageId());   
         }
         if (productDto.getStockManagement() != null) {
             productEntity.setStockManagement(productDto.getStockManagement());

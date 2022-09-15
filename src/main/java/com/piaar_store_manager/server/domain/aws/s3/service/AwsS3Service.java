@@ -29,11 +29,13 @@ public class AwsS3Service {
     public void putObject(AwsS3ReqDto reqDto) {
         ObjectMetadata objMeta = new ObjectMetadata();
         objMeta.setContentLength(reqDto.getFile().getSize());
+        objMeta.setContentType(reqDto.getFile().getContentType());
 
         try{
             // S3 업로드
             s3Client = awsS3Configuration.getS3Client();
-            s3Client.putObject(new PutObjectRequest(reqDto.getUploadPath(), reqDto.getFileName(), reqDto.getFile().getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
+            // s3Client.putObject(new PutObjectRequest(reqDto.getUploadPath(), reqDto.getFileName(), reqDto.getFile().getInputStream(), objMeta).withCannedAcl(CannedAccessControlList.PublicRead));
+            s3Client.putObject(new PutObjectRequest(reqDto.getUploadPath(), reqDto.getFileName(), reqDto.getFile().getInputStream(), objMeta));
         } catch (IOException e) {
             throw new IllegalStateException();
         }

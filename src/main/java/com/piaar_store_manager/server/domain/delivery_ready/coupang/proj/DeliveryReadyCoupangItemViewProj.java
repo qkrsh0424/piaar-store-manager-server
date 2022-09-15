@@ -10,5 +10,4 @@ public interface DeliveryReadyCoupangItemViewProj {
     Integer getOptionStockUnit();
     String getOptionMemo();
     String getProdManagementName();
-    String getOptionNosUniqueCode();
 }

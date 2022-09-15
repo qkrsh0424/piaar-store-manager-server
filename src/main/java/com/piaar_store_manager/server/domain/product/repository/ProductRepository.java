@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
+    Optional<ProductEntity> findById(UUID id);
     
     /**
      * cid값에 대응되는 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
