@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.product_option.service;
+package com.piaar_store_manager.server.domain.product_option.service.strategy.impl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
+import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_option.service.strategy.search.SearchStrategy;
 import com.piaar_store_manager.server.domain.product_option.type.ProductOptionObjectType;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
@@ -51,7 +52,7 @@ public class ProductOptionBasicStrategyImpl implements SearchStrategy {
 
     @Override
     public <T> List<T> searchBatchByProductCid(Integer optionCid) {
-        List<ProductOptionEntity> entities = productOptionService.searchListByProductCid(optionCid);
+        List<ProductOptionEntity> entities = productOptionService.searchBatchByProductCid(optionCid);
         List<ProductOptionGetDto> dtos = productOptionService.searchStockUnit(entities);
         return dtos.stream().map(dto -> (T) dto).collect(Collectors.toList());
     }

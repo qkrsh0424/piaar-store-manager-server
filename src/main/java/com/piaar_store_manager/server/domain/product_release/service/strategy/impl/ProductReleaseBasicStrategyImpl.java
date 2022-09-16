@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.product_release.service;
+package com.piaar_store_manager.server.domain.product_release.service.strategy.impl;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.product_release.service.strategy.search.SearchStrategy;
 import com.piaar_store_manager.server.domain.product_release.type.ProductReleaseObjectType;
 

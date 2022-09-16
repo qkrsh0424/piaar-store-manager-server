@@ -25,9 +25,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
         "SELECT p AS product, u AS user, pc AS category FROM ProductEntity p\n"+
         "JOIN UserEntity u ON p.createdBy = u.id\n"+
         "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"+
-        "WHERE p.cid=:cid"
+        "WHERE p.id=:id"
     )
-    Optional<ProductProj> searchOneM2OJ(Integer cid);
+    Optional<ProductProj> searchOneM2OJ(UUID id);
 
     /**
      * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.

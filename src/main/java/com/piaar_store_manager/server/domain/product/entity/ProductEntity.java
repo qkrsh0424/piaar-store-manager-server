@@ -71,38 +71,6 @@ public class ProductEntity {
     @Column(name = "memo")
     private String memo;
 
-    // @Setter
-    // @Column(name = "hs_code")
-    // private String hsCode;
-
-    // @Setter
-    // @Column(name = "style")
-    // private String style;
-
-    // @Setter
-    // @Column(name = "tariff_rate")
-    // private String tariffRate;
-
-    // @Setter
-    // @Column(name = "default_width")
-    // private Integer defaultWidth;
-
-    // @Setter
-    // @Column(name = "default_length")
-    // private Integer defaultLength;
-
-    // @Setter
-    // @Column(name = "default_height")
-    // private Integer defaultHeight;
-
-    // @Setter
-    // @Column(name = "default_quantity")
-    // private Integer defaultQuantity;
-
-    // @Setter
-    // @Column(name = "default_weight")
-    // private Integer defaultWeight;
-
     @Setter
     @Column(name = "default_total_purchase_price")
     private Integer defaultTotalPurchasePrice;
@@ -158,15 +126,6 @@ public class ProductEntity {
             .imageFileName(productDto.getImageFileName())
             .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
-            // .hsCode(productDto.getHsCode())
-            // .tariffRate(productDto.getTariffRate())
-            // .style(productDto.getStyle())
-            // .tariffRate(productDto.getTariffRate())
-            // .defaultWidth(productDto.getDefaultWidth())
-            // .defaultLength(productDto.getDefaultLength())
-            // .defaultHeight(productDto.getDefaultHeight())
-            // .defaultQuantity(productDto.getDefaultQuantity())
-            // .defaultWeight(productDto.getDefaultWeight())
             .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
             .stockManagement(productDto.getStockManagement())
             .productDetailPageId(productDto.getProductDetailPageId())

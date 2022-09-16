@@ -354,7 +354,7 @@ public class ProductOptionBusinessService {
                 .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
                 .setStatus(productOptionGetDto.getStatus())
                 .setMemo(productOptionGetDto.getMemo())
-                .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
+                .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
                 .setReleaseLocation(productOptionGetDto.getReleaseLocation())
                 .setProductCid(productOptionGetDto.getProductCid())
                 .setImageUrl(productOptionGetDto.getImageUrl())

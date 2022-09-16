@@ -37,7 +37,11 @@ public class ProductService {
         }
     }
 
-    public List<ProductEntity> searchList() {
+    // public List<ProductEntity> searchList() {
+    //     return productRepository.findAll();
+    // }
+
+    public List<ProductEntity> searchAll() {
         return productRepository.findAll();
     }
 
@@ -50,8 +54,17 @@ public class ProductService {
      * @return ProductProj
      * @see ProductRepository#searchOneM2OJ
      */
-    public ProductProj searchOneM2OJ(Integer productCid) {
-        Optional<ProductProj> productProjOpt = productRepository.searchOneM2OJ(productCid);
+    // public ProductProj searchOneM2OJ(Integer productCid) {
+    //     Optional<ProductProj> productProjOpt = productRepository.searchOneM2OJ(productCid);
+
+    //     if(productProjOpt.isPresent()) {
+    //         return productProjOpt.get();
+    //     } else {
+    //         throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+    //     }
+    // }
+    public ProductProj searchOneM2OJ(UUID productId) {
+        Optional<ProductProj> productProjOpt = productRepository.searchOneM2OJ(productId);
 
         if(productProjOpt.isPresent()) {
             return productProjOpt.get();
@@ -75,12 +88,12 @@ public class ProductService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * categoryCid에 대응하는 product 데이터를 모두 조회한다.
+     * category cid에 대응하는 product 데이터를 모두 조회한다.
      *
      * @return List::ProductEntity::
-     * @see ProductRepository#findByProductCategoryCid
+     * @see ProductRepository#findByCategoryCid
      */
-    public List<ProductEntity> searchListByCategory(Integer categoryCid) {
+    public List<ProductEntity> searchBatchByCategoryCid(Integer categoryCid) {
         return productRepository.findByProductCategoryCid(categoryCid);
     }
 
@@ -96,9 +109,7 @@ public class ProductService {
         productRepository.saveAll(entities);
     }
 
-    public void destroyOne(Integer productCid) {
-        productRepository.findById(productCid).ifPresent(product -> {
-            productRepository.delete(product);
-        });
+    public void destroyOne(ProductEntity product) {
+        productRepository.delete(product);
     }
 }
