@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -9,8 +10,7 @@ import com.piaar_store_manager.server.domain.option_package.entity.OptionPackage
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductProj;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.product.service.strategy.search.ProductSearchContext;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -31,162 +31,43 @@ public class ProductBusinessService {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    public ProductGetDto searchOne(Integer productCid) {
-        ProductEntity entity = productService.searchOne(productCid);
-        return ProductGetDto.toDto(entity);
+    private final ProductSearchContext productSearchContext;
+
+    public <T> T searchOne(UUID productId, Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productSearchContext.setSearchStrategy(objectType);
+
+        T dto = productSearchContext.searchOne(productId);
+        return dto;
     }
 
-    public List<ProductGetDto> searchList() {
-        List<ProductEntity> entities = productService.searchList();
-        List<ProductGetDto> dtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
+    public <T> List<T> searchAll(Map<String,Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productSearchContext.setSearchStrategy(objectType);
+
+        List<T> dtos = productSearchContext.searchAll();
         return dtos;
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productCid에 대응하는 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     *
-     * @param productCid : Integer
-     * @see ProductService#searchOneM2OJ
-     */
-    public ProductGetDto.ManyToOneJoin searchOneM2OJ(Integer productCid) {
-        ProductProj productProj = productService.searchOneM2OJ(productCid);
-        ProductGetDto.ManyToOneJoin productM2OJDto = ProductGetDto.ManyToOneJoin.toDto(productProj);
-        return productM2OJDto;
-    }
+    public <T> List<T> searchBatchOfManagedStock(Map<String, Object> params) {
+        String objectType = params.get("objectType") != null ? params.get("objectType").toString() : "basic";
+        productSearchContext.setSearchStrategy(objectType);
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productCid에 대응하는 product, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @param productCid : Integer
-     * @see ProductService#searchOneM2OJ
-     * @see ProductOptionService#searchListByProductCid
-     */
-    public ProductGetDto.FullJoin searchOneFJ(Integer productCid) {
-        ProductProj productProj = productService.searchOneM2OJ(productCid);
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProductCid(productCid);
-        List<ProductOptionGetDto> optionDtos = optionEntities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
-
-        ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(productProj);
-        productFJDto.setOptions(optionDtos);
-        return productFJDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * categortyCid에 대응하는 product를 조회한다.
-     *
-     * @see ProductService#searchListByCategory
-     */
-    public List<ProductGetDto> searchListByCategory(Integer categoryCid) {
-        List<ProductEntity> entities = productService.searchListByCategory(categoryCid);
-        List<ProductGetDto> productDtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
-        return productDtos;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 product 조회, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     */
-    public List<ProductGetDto.ManyToOneJoin> searchListM2OJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        List<ProductGetDto.ManyToOneJoin> productM2OJDto = productProjs.stream().map(proj -> ProductGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return productM2OJDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     * @see ProductOptionService#searchListByProductCids
-     */
-    public List<ProductGetDto.FullJoin> searchListFJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        List<Integer> productCids = productProjs.stream().map(r -> r.getProduct().getCid()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductCids(productCids);
-
-        // option setting
-        List<ProductGetDto.FullJoin> productFJDtos = productProjs.stream().map(r -> {
-            List<ProductOptionGetDto> optionDtos = optionGetDtos.stream().filter(option -> r.getProduct().getCid().equals(option.getProductCid())).collect(Collectors.toList());
-
-            ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(r);
-            productFJDto.setOptions(optionDtos);
-            return productFJDto;
-        }).collect(Collectors.toList());
-        return productFJDtos;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 재고관리 여부가 true인 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     * @see ProductOptionService#searchListByProductCids
-     */
-    public List<ProductGetDto.FullJoin> searchStockListFJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        // 재고관리 상품 추출
-        List<ProductProj> stockManagementProductProjs = productProjs.stream().filter(proj -> proj.getProduct().getStockManagement()).collect(Collectors.toList());
-        List<Integer> productCids = stockManagementProductProjs.stream().map(proj -> proj.getProduct().getCid()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductCids(productCids);
-
-        // option setting
-        List<ProductGetDto.FullJoin> productFJDtos = stockManagementProductProjs.stream().map(r -> {
-            List<ProductOptionGetDto> optionDtos = optionGetDtos.stream().filter(option -> r.getProduct().getCid().equals(option.getProductCid())).collect(Collectors.toList());
-
-            ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(r);
-            productFJDto.setOptions(optionDtos);
-            return productFJDto;
-        }).collect(Collectors.toList());
-        return productFJDtos;
-    }
-
-    @Transactional
-    public void createOne(ProductGetDto productGetDto) {
-        UUID USER_ID = userService.getUserId();
-
-        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
-                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
-
-        ProductEntity entity = ProductEntity.toEntity(productGetDto);
-    }
-
-    @Transactional
-    public void createList(List<ProductGetDto> productGetDto) {
-        UUID USER_ID = userService.getUserId();
-
-        List<ProductEntity> productEntities = productGetDto.stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
-                    .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
-
-            return ProductEntity.toEntity(r);
-        }).collect(Collectors.toList());
-
-        productService.saveListAndModify(productEntities);
+        List<T> dtos = productSearchContext.searchBatchOfManagedStock();
+        return dtos;
     }
 
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * 단일 product 등록, 해당 product에 포함된 option을 함께 등록하고
-     * 해당 option에 포함된 option package를 함께 등록한다.
+     * 단일 product 생성, 해당 product에 포함된 option과 option에 포함된 package를 함께 생성한다.
      *
      * @see ProductService#saveAndGet
      * @see ProductOptionService#saveListAndModify
      * @see OptionPackageService#saveListAndModify
      */
     @Transactional
-    public void createPAO(ProductGetDto.CreateReq reqDto) {
+    public void createOne(ProductGetDto.CreateReq reqDto) {
         UUID USER_ID = userService.getUserId();
 
         // Save Product
@@ -201,11 +82,8 @@ public class ProductBusinessService {
                     .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
 
             // 패키지 상품 여부
-            if (reqDto.getPackageDtos().size() > 0) {
-                r.setPackageYn("y");
-            } else {
-                r.setPackageYn("n");
-            }
+            String packageYn = reqDto.getPackageDtos().size() > 0 ? "y" : "n";
+            r.setPackageYn(packageYn);
 
             // 옵션에 totalPurchasePrice가 입력되지 않았다면 상품의 defaultTotalPurchasePrice로 setting
             if (r.getTotalPurchasePrice() == 0) {
@@ -232,29 +110,31 @@ public class ProductBusinessService {
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * createPAO를 반복하여 실행한다.
+     * createOne를 반복하여 실행한다.
      *
-     * @see ProductBusinessService#createPAO
+     * @see ProductBusinessService#createOne
      */
     @Transactional
-    public void createPAOList(List<ProductGetDto.CreateReq> productCreateReqDtos) {
-        productCreateReqDtos.stream().forEach(r -> this.createPAO(r));
+    public void createBatch(List<ProductGetDto.CreateReq> productCreateReqDtos) {
+        productCreateReqDtos.stream().forEach(r -> this.createOne(r));
     }
 
-    public void destroyOne(Integer productCid) {
-        productService.destroyOne(productCid);
+    @Transactional
+    public void destroyOne(UUID productId) {
+        ProductEntity entity = productService.searchOne(productId);
+        productService.destroyOne(entity);
     }
 
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * 단일 product수정, product의 매입총합계에 따라 하위 option들의 매입총합계도 함께 수정한다.
+     * 단일 product수정, product의 매입총합계에 따라 하위 option들의 매입총합계를 함께 수정한다.
      *
      * @see ProductService#saveAndModify
-     * @see ProductOptionService#createList
+     * @see ProductOptionService#saveListAndModify
      */
     @Transactional
-    public void changePAO(ProductGetDto productDto) {
+    public void changeOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
         ProductEntity productEntity = productService.searchOne(productDto.getCid());
@@ -262,10 +142,6 @@ public class ProductBusinessService {
                 .setManagementNumber(productDto.getManagementNumber()).setDefaultName(productDto.getDefaultName())
                 .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
                 .setImageFileName(productDto.getImageFileName()).setPurchaseUrl(productDto.getPurchaseUrl()).setMemo(productDto.getMemo())
-                // .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
-                // .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
-                // .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
-                // .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
                 .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
                 .setProductDetailPageId(productDto.getProductDetailPageId())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
@@ -275,7 +151,7 @@ public class ProductBusinessService {
         productService.saveAndModify(productEntity);
 
         // 옵션들의 매입총합계를 변경한다.
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProductCid(productEntity.getCid());
+        List<ProductOptionEntity> optionEntities = productOptionService.searchBatchByProductCid(productEntity.getCid());
         optionEntities.stream().forEach(r -> r.setTotalPurchasePrice(productEntity.getDefaultTotalPurchasePrice()));
 
         productOptionService.saveListAndModify(optionEntities);
@@ -284,14 +160,14 @@ public class ProductBusinessService {
     /**
      * <b>DB Update Related Method</b>
      * <p>
-     * changeOne를 반복하여 실행한다.
+     * changeOne을 반복하여 실행한다.
      *
      * @see ProductBusinessService#changeOne
      */
     @Transactional
-    public void changePAOList(List<ProductGetDto.CreateReq> productCreateReqDtos) {
+    public void changeBatch(List<ProductGetDto.CreateReq> productCreateReqDtos) {
         productCreateReqDtos.stream().forEach(req -> {
-            this.changePAO(req.getProductDto());
+            this.changeOne(req.getProductDto());
         });
     }
 
@@ -299,7 +175,6 @@ public class ProductBusinessService {
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        // ProductEntity productEntity = productService.searchOne(productDto.getCid());
         ProductEntity productEntity = productService.searchOne(productDto.getId());
 
         if (productDto.getCode() != null) {
@@ -311,9 +186,6 @@ public class ProductBusinessService {
         if (productDto.getManagementNumber() != null) {
             productEntity.setManagementNumber(productDto.getManagementNumber());
         }
-        // if (productDto.getNaverProductCode() != null) {
-        //     productEntity.setNaverProductCode(productDto.getNaverProductCode());
-        // }
         if (productDto.getDefaultName() != null) {
             productEntity.setDefaultName(productDto.getDefaultName());
         }
@@ -332,30 +204,6 @@ public class ProductBusinessService {
         if (productDto.getMemo() != null) {
             productEntity.setMemo(productDto.getMemo());
         }
-        // if (productDto.getHsCode() != null) {
-        //     productEntity.setHsCode(productDto.getHsCode());
-        // }
-        // if (productDto.getStyle() != null) {
-        //     productEntity.setStyle(productDto.getStyle());
-        // }
-        // if (productDto.getTariffRate() != null) {
-        //     productEntity.setTariffRate(productDto.getTariffRate());
-        // }
-        // if (productDto.getDefaultWidth() != null) {
-        //     productEntity.setDefaultWidth(productDto.getDefaultWidth());
-        // }
-        // if (productDto.getDefaultLength() != null) {
-        //     productEntity.setDefaultLength(productDto.getDefaultLength());
-        // }
-        // if (productDto.getDefaultHeight() != null) {
-        //     productEntity.setDefaultHeight(productDto.getDefaultHeight());
-        // }
-        // if (productDto.getDefaultQuantity() != null) {
-        //     productEntity.setDefaultQuantity(productDto.getDefaultQuantity());
-        // }
-        // if (productDto.getDefaultWeight() != null) {
-        //     productEntity.setDefaultWeight(productDto.getDefaultWeight());
-        // }
         if (productDto.getDefaultTotalPurchasePrice() != null) {
             productEntity.setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice());
         }

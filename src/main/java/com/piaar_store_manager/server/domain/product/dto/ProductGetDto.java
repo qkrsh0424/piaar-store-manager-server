@@ -31,14 +31,6 @@ public class ProductGetDto {
     private String imageFileName;
     private String purchaseUrl;
     private String memo;
-    // private String hsCode;
-    // private String style;
-    // private String tariffRate;
-    // private Integer defaultWidth;
-    // private Integer defaultLength;
-    // private Integer defaultHeight;
-    // private Integer defaultQuantity;
-    // private Integer defaultWeight;
     private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
     private UUID productDetailPageId;
@@ -71,15 +63,6 @@ public class ProductGetDto {
             .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
-            // .hsCode(entity.getHsCode())
-            // .tariffRate(entity.getTariffRate())
-            // .style(entity.getStyle())
-            // .tariffRate(entity.getTariffRate())
-            // .defaultWidth(entity.getDefaultWidth())
-            // .defaultLength(entity.getDefaultLength())
-            // .defaultHeight(entity.getDefaultHeight())
-            // .defaultQuantity(entity.getDefaultQuantity())
-            // .defaultWeight(entity.getDefaultWeight())
             .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
             .productDetailPageId(entity.getProductDetailPageId())

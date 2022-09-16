@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.product_receive.service;
+package com.piaar_store_manager.server.domain.product_receive.service.strategy.impl;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
 import com.piaar_store_manager.server.domain.product_receive.service.strategy.search.SearchStrategy;
 import com.piaar_store_manager.server.domain.product_receive.type.ProductReceiveObjectType;
 

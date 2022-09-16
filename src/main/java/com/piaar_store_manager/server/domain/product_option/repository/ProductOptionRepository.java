@@ -98,7 +98,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "SELECT po FROM ProductOptionEntity po\n" +
         "WHERE po.productCid IN :productCids"
     )
-    List<ProductOptionEntity> searchListByProductCids(List<Integer> productCids);
+    List<ProductOptionEntity> findAllByProductCids(List<Integer> productCids);
 
     /**
      * 다중 ProductOption cid에 대응하는 옵션데이터의 재고수량을 계산한다.

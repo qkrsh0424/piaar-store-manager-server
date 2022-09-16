@@ -106,7 +106,7 @@ public class ProductOptionService {
      * @return List::ProductOptionGetDto::
      * @see ProductOptionRepository#findByProductCid
      */
-    public List<ProductOptionEntity> searchListByProductCid(Integer productCid) {
+    public List<ProductOptionEntity> searchBatchByProductCid(Integer productCid) {
         return productOptionRepository.findByProductCid(productCid);
     }
 
@@ -130,11 +130,11 @@ public class ProductOptionService {
      *
      * @param productCids : List::Integer::
      * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#searchListByProductCids
+     * @see ProductOptionRepository#searchBatchByProductCids
      * @see ProductOptionService#searchStockUnit
      */
-    public List<ProductOptionGetDto> searchListByProductCids(List<Integer> productCids) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.searchListByProductCids(productCids);
+    public List<ProductOptionGetDto> searchBatchByProductCids(List<Integer> productCids) {
+        List<ProductOptionEntity> productOptionEntities = productOptionRepository.findAllByProductCids(productCids);
         List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
         return productOptionGetDtos;
     }
