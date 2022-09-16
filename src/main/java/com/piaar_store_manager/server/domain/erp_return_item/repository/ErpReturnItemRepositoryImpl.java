@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
@@ -18,10 +19,14 @@ import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -73,7 +78,7 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
             .limit(pageable.getPageSize());
         
         try {
-            // this.sortPagedData(customQuery, pageable);
+            this.sortPagedData(customQuery, pageable);
         } catch(QueryException e) {
             throw new CustomInvalidDataException(e.getMessage());
         }
@@ -105,6 +110,53 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
         return result.getResults();
     }
 
+    private void sortPagedData(JPQLQuery customQuery, Pageable pageable) {
+        for (Sort.Order o : pageable.getSort()) {
+            PathBuilder erpReturnItemBuilder = new PathBuilder(qErpReturnItemEntity.getType(), qErpReturnItemEntity.getMetadata());
+            PathBuilder erpOrderItemBuilder = new PathBuilder(qErpOrderItemEntity.getType(), qErpOrderItemEntity.getMetadata());
+            PathBuilder productBuilder = new PathBuilder(qProductEntity.getType(), qProductEntity.getMetadata());
+            PathBuilder productOptionBuilder = new PathBuilder(qProductOptionEntity.getType(), qProductOptionEntity.getMetadata());
+            PathBuilder productCategoryBuilder = new PathBuilder(qProductCategoryEntity.getType(), qProductCategoryEntity.getMetadata());
+
+            if(o.getProperty().toString().startsWith("order_")) {
+                String matchedColumnName = o.getProperty().toString().replace("order_", "");
+                switch (matchedColumnName) {
+                    case "categoryName":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productCategoryBuilder.get("name")));
+                        break;
+                    case "prodManagementName":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productBuilder.get("managementName")));
+                        break;
+                    case "prodDefaultName":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productBuilder.get("defaultName")));
+                        break;
+                    case "optionManagementName":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("managementName")));
+                        break;
+                    case "optionReleaseLocation":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("releaseLocation")));
+                    case "optionDefaultName":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("defaultName")));
+                        break;
+                    case "optionStockUnit":
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productOptionBuilder.get("stockUnit")));
+                        break;
+                    default:
+                        if(CustomFieldUtils.getFieldByName(qErpOrderItemEntity, matchedColumnName) == null) {
+                            throw new QueryException("올바른 데이터가 아닙니다.");
+                        }
+                        customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, erpOrderItemBuilder.get(matchedColumnName)));
+                }
+            } else {
+                if(CustomFieldUtils.getFieldByName(qErpReturnItemEntity, o.getProperty().toString()) == null) {
+                    throw new QueryException("올바른 데이터가 아닙니다.");
+                }
+                customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, erpReturnItemBuilder.get(o.getProperty())));
+            }
+            customQuery.orderBy(qErpOrderItemEntity.cid.desc());
+        }
+    }
+    
     private BooleanExpression eqCollectYn(Map<String, Object> params) {
         String collectYn = params.get("collectYn") == null ? null : params.get("collectYn").toString();
 
