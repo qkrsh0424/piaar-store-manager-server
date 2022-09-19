@@ -170,6 +170,58 @@ public class ErpReturnItemBusinessService {
     }
 
     @Transactional
+    public void changeBatchForCollectCompleteYn(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getCollectCompleteYn().equals("n")) {
+                    entity.setCollectCompleteYn("n");
+                    entity.setCollectCompleteAt(null);
+                    
+                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
+                    // entity.setReleaseYn("n");
+                    // entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setCollectCompleteYn("y");
+                entity.setCollectCompleteAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpReturnItemService.saveListAndModify(entities);
+    }
+
+    @Transactional
+    public void changeBatchForReturnCompleteYn(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getReturnCompleteYn().equals("n")) {
+                    entity.setReturnCompleteYn("n");
+                    entity.setReturnCompleteAt(null);
+                    
+                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
+                    // entity.setReleaseYn("n");
+                    // entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setReturnCompleteYn("y");
+                entity.setReturnCompleteAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpReturnItemService.saveListAndModify(entities);
+    }
+
+    @Transactional
     public void deleteBatch(List<ErpReturnItemDto> itemDtos) {
         List<UUID> itemIds = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
         erpReturnItemService.deleteBatch(itemIds);

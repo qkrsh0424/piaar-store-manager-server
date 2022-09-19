@@ -51,6 +51,30 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
 
+    @PatchMapping("/batch/collect-complete-yn")
+    @PermissionRole
+    public void changeBatchForCollectCompleteYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeBatchForCollectCompleteYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+    
+    @PatchMapping("/batch/return-complete-yn")
+    @PermissionRole
+    public void changeBatchForReturnCompleteYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeBatchForReturnCompleteYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
     @PostMapping("/batch-delete")
     @PermissionRole
     public void deleteBatch(@RequestBody List<ErpReturnItemDto> itemDtos) {
