@@ -374,7 +374,6 @@ public class ErpOrderItemBusinessService {
                 }
                 if (!duplication) {
                     newItems.add(duplicationCheckItem);
-                    System.out.println(duplicationCheckItem);
                 }
             }
         }
