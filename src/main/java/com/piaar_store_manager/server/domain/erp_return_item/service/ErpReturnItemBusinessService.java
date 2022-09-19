@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
+import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
+import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemService;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.erp_return_item.dto.ErpReturnItemDto;
 import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
@@ -20,6 +22,8 @@ import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemP
 import com.piaar_store_manager.server.domain.erp_return_item.vo.ErpReturnItemVo;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -32,6 +36,8 @@ import lombok.RequiredArgsConstructor;
 public class ErpReturnItemBusinessService {
     private final ErpReturnItemService erpReturnItemService;
     private final ProductOptionService productOptionService;
+    private final ProductReleaseService productReleaseService;
+    private final ErpOrderItemService erpOrderItemService;
     private final UserService userService;
 
     /*
@@ -40,6 +46,15 @@ public class ErpReturnItemBusinessService {
     @Transactional
     public void createBatch(List<ErpReturnItemDto> erpReturnItemDtos) {
         UUID USER_ID = userService.getUserId();
+
+        List<UUID> orderItemIds = erpReturnItemDtos.stream().map(dto -> dto.getErpOrderItemId()).collect(Collectors.toList());
+        // erpOrderItem 조회, 재고 미반영데이터 검사
+        List<ErpOrderItemEntity> erpOrderItems = erpOrderItemService.findAllByIdList(orderItemIds);
+        erpOrderItems.forEach(item -> {
+            if(item.getStockReflectYn().equals("n")) {
+                throw new CustomInvalidDataException("재고 미반영 데이터는 반품데이터로 설정할 수 없습니다.");
+            }
+        });
 
         // 반품데이터
         erpReturnItemDtos.forEach(dto -> {
@@ -76,6 +91,7 @@ public class ErpReturnItemBusinessService {
                 .holdAt(dto.getHoldAt())
                 .returnRejectYn("n")
                 .returnRejectAt(dto.getReturnRejectAt())
+                .defectiveYn("n")
                 .erpOrderItemId(dto.getErpOrderItemId())
                 .build();
 
@@ -201,6 +217,11 @@ public class ErpReturnItemBusinessService {
         List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
+            // 반품거절 데이터는 처리완료로 옮길 수 없다.
+            if(entity.getReturnRejectYn().equals("y")) {
+                throw new CustomInvalidDataException("반품거절 데이터는 처리완료 상태로 설정할 수 없습니다.");
+            }
+
             if (entity.getId().equals(dto.getId())) {
 
                 if (dto.getReturnCompleteYn().equals("n")) {
@@ -215,6 +236,58 @@ public class ErpReturnItemBusinessService {
 
                 entity.setReturnCompleteYn("y");
                 entity.setReturnCompleteAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpReturnItemService.saveListAndModify(entities);
+    }
+    
+    @Transactional
+    public void changeBatchForHoldYn(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getHoldYn().equals("n")) {
+                    entity.setHoldYn("n");
+                    entity.setHoldAt(null);
+                    
+                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
+                    // entity.setReleaseYn("n");
+                    // entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setHoldYn("y");
+                entity.setHoldAt(CustomDateUtils.getCurrentDateTime());
+            }
+        }));
+
+        erpReturnItemService.saveListAndModify(entities);
+    }
+
+    @Transactional
+    public void changeBatchForReturnRejectYn(List<ErpReturnItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
+        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getReturnRejectYn().equals("n")) {
+                    entity.setReturnRejectYn("n");
+                    entity.setReturnRejectAt(null);
+                    
+                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
+                    // entity.setReleaseYn("n");
+                    // entity.setReleaseAt(null);
+                    return;
+                }
+
+                entity.setReturnRejectYn("y");
+                entity.setReturnRejectAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 
@@ -238,5 +311,25 @@ public class ErpReturnItemBusinessService {
                     .setReturnReasonDetail(dto.getReturnReasonDetail());
             }
         }));
+    }
+
+    @Transactional
+    public void actionReflectDefective(ErpReturnItemDto itemDto, Map<String, Object> params) {
+        ErpReturnItemEntity returnItemEntity = erpReturnItemService.searchOne(itemDto.getId());
+        returnItemEntity.setDefectiveYn("y");
+
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        ProductReleaseEntity releaseEntity = productReleaseService.findByErpOrderItemId(itemDto.getErpOrderItemId());
+        releaseEntity.setMemo(memo);
+    }
+
+    @Transactional
+    public void actionCancelDefective(ErpReturnItemDto itemDto, Map<String, Object> params) {
+        ErpReturnItemEntity returnItemEntity = erpReturnItemService.searchOne(itemDto.getId());
+        returnItemEntity.setDefectiveYn("n");
+
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        ProductReleaseEntity releaseEntity = productReleaseService.findByErpOrderItemId(itemDto.getErpOrderItemId());
+        releaseEntity.setMemo(memo);
     }
 }

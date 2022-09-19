@@ -1,16 +1,12 @@
 package com.piaar_store_manager.server.domain.product_release.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
@@ -25,12 +21,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductReleaseBusinessService {
     private final ProductReleaseService productReleaseService;
-    private final ProductOptionService productOptionService;
-    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     public ProductReleaseGetDto searchOne(Integer productReleaseCid) {
         ProductReleaseEntity entity = productReleaseService.searchOne(productReleaseCid);
+        ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
+        return dto;
+    }
+
+    public ProductReleaseGetDto searchOneByErpOrderItemId(UUID erpOrderId) {
+        ProductReleaseEntity entity = productReleaseService.searchOneByErpOrderItemId(erpOrderId);
         ProductReleaseGetDto dto = ProductReleaseGetDto.toDto(entity);
         return dto;
     }

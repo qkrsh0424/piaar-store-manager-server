@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseCustomJdbc;
@@ -21,11 +20,20 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductReleaseService {
     private final ProductReleaseRepository productReleaseRepository;
-    private final ProductOptionService productOptionService;
     private final ProductReleaseCustomJdbc productReleaseCustomJdbc;
 
     public ProductReleaseEntity searchOne(Integer productReleaseCid) {
         Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findById(productReleaseCid);
+
+        if (releaseEntityOpt.isPresent()) {
+            return releaseEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+
+    public ProductReleaseEntity searchOneByErpOrderItemId(UUID erpOrderItemId) {
+        Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findByErpOrderItemId(erpOrderItemId);
 
         if (releaseEntityOpt.isPresent()) {
             return releaseEntityOpt.get();
@@ -138,5 +146,15 @@ public class ProductReleaseService {
         // userService.userManagerRoleCheck();
         
         productReleaseRepository.deleteByErpOrderItemIds(erpOrderItemIds);
+    }
+
+    public ProductReleaseEntity findByErpOrderItemId(UUID orderItemId) {
+        Optional<ProductReleaseEntity> entityOpt = productReleaseRepository.findByErpOrderItemId(orderItemId);
+
+        if(entityOpt.isPresent()) {
+            return entityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
     }
 }

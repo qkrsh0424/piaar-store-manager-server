@@ -39,11 +39,11 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 "(cid, id, waybill_number, courier, transport_type, delivery_charge_return_yn, delivery_charge_return_type, receive_location, " +
                 "return_reason_type, return_reason_detail, management_memo1, management_memo2, management_memo3, management_memo4, management_memo5, " +
                 "created_at, created_by, collect_yn, collect_at, collect_complete_yn, collect_complete_at, return_complete_yn, return_complete_at, hold_yn, hold_at, " +
-                "return_reject_yn, return_reject_at, erp_order_item_id)" +
+                "return_reject_yn, return_reject_at, defective_yn, erp_order_item_id)" +
                 "VALUES" + 
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                " ?, ?, ?, ?, ?, ?, ?, ?)";
+                " ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -76,7 +76,8 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(25, entity.getHoldAt());
                 ps.setObject(26, entity.getReturnRejectYn());
                 ps.setObject(27, entity.getReturnRejectAt());
-                ps.setObject(28, entity.getErpOrderItemId().toString());
+                ps.setObject(28, entity.getDefectiveYn());
+                ps.setObject(29, entity.getErpOrderItemId().toString());
             }
 
             @Override

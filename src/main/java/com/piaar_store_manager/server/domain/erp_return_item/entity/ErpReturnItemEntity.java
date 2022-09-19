@@ -138,6 +138,10 @@ public class ErpReturnItemEntity {
     @Column(name = "return_reject_at")
     private LocalDateTime returnRejectAt;
 
+    @Setter
+    @Column(name = "defective_yn", columnDefinition = "n")
+    private String defectiveYn;
+
     @Type(type = "uuid-char")
     @Column(name = "erp_order_item_id")
     private UUID erpOrderItemId;

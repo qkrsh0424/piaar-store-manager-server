@@ -1,14 +1,17 @@
 package com.piaar_store_manager.server.domain.erp_return_item.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
@@ -75,6 +78,30 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
 
+    @PatchMapping("/batch/hold-yn")
+    @PermissionRole
+    public void changeBatchForHoldYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeBatchForHoldYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
+    @PatchMapping("/batch/return-reject-yn")
+    @PermissionRole
+    public void changeBatchForReturnRejectYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeBatchForReturnRejectYn(itemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
     @PostMapping("/batch-delete")
     @PermissionRole
     public void deleteBatch(@RequestBody List<ErpReturnItemDto> itemDtos) {
@@ -97,5 +124,31 @@ public class ErpReturnItemSocket {
         message.setMessage("success");
 
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
+    @PatchMapping("/defective/action-reflect")
+    @PermissionRole
+    public ResponseEntity<?> actionReflectDefective(@RequestBody ErpReturnItemDto itemDto, @RequestParam Map<String, Object> params){
+        Message message = new Message();
+
+        erpReturnItemBusinessService.actionReflectDefective(itemDto, params);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/defective/action-cancel")
+    @PermissionRole
+    public ResponseEntity<?> actionCancelDefective(@RequestBody ErpReturnItemDto itemDto, @RequestParam Map<String, Object> params){
+        Message message = new Message();
+
+        erpReturnItemBusinessService.actionCancelDefective(itemDto, params);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
     }
 }

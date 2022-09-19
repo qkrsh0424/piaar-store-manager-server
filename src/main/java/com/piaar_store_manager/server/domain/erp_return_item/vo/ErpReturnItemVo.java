@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
-import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
@@ -55,6 +53,7 @@ public class ErpReturnItemVo {
     private String returnRejectYn;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime returnRejectAt;
+    private String defectiveYn;
     private UUID erpOrderItemId;
     private ErpOrderItemVo erpOrderItem;
 
@@ -91,6 +90,7 @@ public class ErpReturnItemVo {
             .holdAt(proj.getErpReturnItem().getHoldAt())
             .returnRejectYn(proj.getErpReturnItem().getReturnRejectYn())
             .returnRejectAt(proj.getErpReturnItem().getReturnRejectAt())
+            .defectiveYn(proj.getErpReturnItem().getDefectiveYn())
             .erpOrderItemId(proj.getErpReturnItem().getErpOrderItemId())
             .erpOrderItem(erpOrderItemVo)
             .build();
