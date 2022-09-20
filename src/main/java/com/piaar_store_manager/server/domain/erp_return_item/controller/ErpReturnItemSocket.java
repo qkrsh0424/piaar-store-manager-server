@@ -151,4 +151,30 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @PatchMapping("/stock/action-reflect")
+    @PermissionRole
+    public ResponseEntity<?> actionReflectStock(@RequestBody ErpReturnItemDto itemDto, @RequestParam Map<String, Object> params){
+        Message message = new Message();
+
+        erpReturnItemBusinessService.actionReflectStock(itemDto, params);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/stock/action-cancel")
+    @PermissionRole
+    public ResponseEntity<?> actionCancelStock(@RequestBody ErpReturnItemDto itemDto){
+        Message message = new Message();
+
+        erpReturnItemBusinessService.actionCancelStock(itemDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

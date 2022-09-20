@@ -142,6 +142,10 @@ public class ErpReturnItemEntity {
     @Column(name = "defective_yn", columnDefinition = "n")
     private String defectiveYn;
 
+    @Setter
+    @Column(name = "stock_reflect_yn", columnDefinition = "n")
+    private String stockReflectYn;
+
     @Type(type = "uuid-char")
     @Column(name = "erp_order_item_id")
     private UUID erpOrderItemId;

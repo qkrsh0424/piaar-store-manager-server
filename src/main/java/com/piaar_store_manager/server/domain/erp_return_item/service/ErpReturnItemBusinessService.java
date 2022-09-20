@@ -1,9 +1,14 @@
 package com.piaar_store_manager.server.domain.erp_return_item.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -20,8 +25,13 @@ import com.piaar_store_manager.server.domain.erp_return_item.dto.ErpReturnItemDt
 import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.erp_return_item.vo.ErpReturnItemVo;
+import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -38,6 +48,8 @@ public class ErpReturnItemBusinessService {
     private final ProductOptionService productOptionService;
     private final ProductReleaseService productReleaseService;
     private final ErpOrderItemService erpOrderItemService;
+    private final ProductReceiveService productReceiveService;
+    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     /*
@@ -92,6 +104,7 @@ public class ErpReturnItemBusinessService {
                 .returnRejectYn("n")
                 .returnRejectAt(dto.getReturnRejectAt())
                 .defectiveYn("n")
+                .stockReflectYn("n")
                 .erpOrderItemId(dto.getErpOrderItemId())
                 .build();
 
@@ -298,6 +311,16 @@ public class ErpReturnItemBusinessService {
     public void deleteBatch(List<ErpReturnItemDto> itemDtos) {
         List<UUID> itemIds = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
         erpReturnItemService.deleteBatch(itemIds);
+
+        // erpOrderItem의 returnYn을 n으로 변경한다.
+        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getErpOrderItemId).collect(Collectors.toList());
+        List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> {
+            entity.setReturnYn("n");
+        });
+
+        erpOrderItemService.saveListAndModify(entities);
     }
 
     @Transactional
@@ -319,8 +342,8 @@ public class ErpReturnItemBusinessService {
         returnItemEntity.setDefectiveYn("y");
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
-        ProductReleaseEntity releaseEntity = productReleaseService.findByErpOrderItemId(itemDto.getErpOrderItemId());
-        releaseEntity.setMemo(memo);
+        List<ProductReleaseEntity> releaseEntities = productReleaseService.findByErpOrderItemIds(Arrays.asList(itemDto.getErpOrderItemId()));
+        releaseEntities.forEach(entity -> entity.setMemo(memo));
     }
 
     @Transactional
@@ -329,7 +352,94 @@ public class ErpReturnItemBusinessService {
         returnItemEntity.setDefectiveYn("n");
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
-        ProductReleaseEntity releaseEntity = productReleaseService.findByErpOrderItemId(itemDto.getErpOrderItemId());
-        releaseEntity.setMemo(memo);
+        List<ProductReleaseEntity> releaseEntities = productReleaseService.findByErpOrderItemIds(Arrays.asList(itemDto.getErpOrderItemId()));
+        releaseEntities.forEach(entity -> entity.setMemo(memo));
+    }
+
+    // 단일 재고 반영 (입고 등록)
+    @Transactional
+    public void actionReflectStock(ErpReturnItemDto returnItem, Map<String, Object> params) {
+        ErpReturnItemEntity erpReturnItemEntity = erpReturnItemService.searchOne(returnItem.getId());
+        ErpOrderItemEntity erpOrderItemEntity = erpOrderItemService.searchOne(erpReturnItemEntity.getErpOrderItemId());
+        List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
+
+        if(erpOrderItemEntity.getReleaseOptionCode().isEmpty()) {
+            return;    
+        }
+
+        ProductOptionEntity optionEntity = productOptionService.findOneByCode(erpOrderItemEntity.getReleaseOptionCode());
+        
+        if(optionEntity == null) {
+            return;
+        }
+
+        if(optionEntity.getPackageYn().equals("n")) {
+            receiveEntities.add(this.reflectStockUnit(erpReturnItemEntity, optionEntity, params));
+        }else if(optionEntity.getPackageYn().equals("y")) {
+            receiveEntities.addAll(this.reflectStockUnitOfPackageOption(erpReturnItemEntity, optionEntity, params));
+        }
+
+        productReceiveService.bulkInsert(receiveEntities);
+    }
+
+    public ProductReceiveEntity reflectStockUnit(ErpReturnItemEntity returnItem, ProductOptionEntity option, Map<String, Object> params) {
+        UUID USER_ID = userService.getUserId();
+        
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        Integer unit = params.get("unit") == null ? 0 : Integer.parseInt(params.get("unit").toString());
+        ProductReceiveEntity receiveEntity = ProductReceiveEntity.builder()
+            .id(UUID.randomUUID())
+            .receiveUnit(unit)
+            .memo(memo)
+            .createdAt(LocalDateTime.now())
+            .createdBy(USER_ID)
+            .productOptionCid(option.getCid())
+            .productOptionId(option.getId())
+            .erpOrderItemId(returnItem.getErpOrderItemId())
+            .build();
+
+        returnItem.setStockReflectYn("y");
+        return receiveEntity;
+    }
+
+    public List<ProductReceiveEntity> reflectStockUnitOfPackageOption(ErpReturnItemEntity returnItem, ProductOptionEntity optionEntity, Map<String, Object> params) {
+        UUID USER_ID = userService.getUserId();
+
+        String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+        Integer unit = params.get("unit") == null ? 0 : Integer.parseInt(params.get("unit").toString());
+        
+        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+        List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
+
+        optionPackageEntities.forEach(option -> {
+            ProductReceiveEntity receiveEntity = ProductReceiveEntity.builder()
+                .id(UUID.randomUUID())
+                .receiveUnit(unit * option.getPackageUnit())
+                .memo(memo)
+                .createdAt(LocalDateTime.now())
+                .createdBy(USER_ID)
+                .productOptionCid(option.getOriginOptionCid())
+                .productOptionId(option.getOriginOptionId())
+                .erpOrderItemId(returnItem.getErpOrderItemId())
+                .build();
+
+            receiveEntities.add(receiveEntity);
+        });
+
+        returnItem.setStockReflectYn("y");
+        return receiveEntities;
+    }
+
+    @Transactional
+    public void actionCancelStock(ErpReturnItemDto itemDto) {
+        if(itemDto.getStockReflectYn().equals("n")) {
+            return;
+        }
+
+        ErpReturnItemEntity erpReturnItemEntity = erpReturnItemService.searchOne(itemDto.getId());
+        erpReturnItemEntity.setStockReflectYn("n");
+    
+
+        productReceiveService.deleteByErpOrderItemIds(Arrays.asList(erpReturnItemEntity.getErpOrderItemId()));
     }
 }

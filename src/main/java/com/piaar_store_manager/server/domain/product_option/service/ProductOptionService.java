@@ -206,11 +206,11 @@ public class ProductOptionService {
      * @param optionCode : String
      * @return Integer
      */
-    public Integer findOptionCidByCode(String optionCode) {
+    public ProductOptionEntity findOneByCode(String optionCode) {
         Optional<ProductOptionEntity> optionEntityOpt = productOptionRepository.findByCode(optionCode);
         
         if(optionEntityOpt.isPresent()) {
-            return optionEntityOpt.get().getCid();
+            return optionEntityOpt.get();
         }else{
             throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
         }

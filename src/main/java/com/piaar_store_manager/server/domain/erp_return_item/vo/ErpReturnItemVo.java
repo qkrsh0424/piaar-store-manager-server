@@ -54,6 +54,7 @@ public class ErpReturnItemVo {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime returnRejectAt;
     private String defectiveYn;
+    private String stockReflectYn;
     private UUID erpOrderItemId;
     private ErpOrderItemVo erpOrderItem;
 
@@ -91,6 +92,7 @@ public class ErpReturnItemVo {
             .returnRejectYn(proj.getErpReturnItem().getReturnRejectYn())
             .returnRejectAt(proj.getErpReturnItem().getReturnRejectAt())
             .defectiveYn(proj.getErpReturnItem().getDefectiveYn())
+            .stockReflectYn(proj.getErpReturnItem().getStockReflectYn())
             .erpOrderItemId(proj.getErpReturnItem().getErpOrderItemId())
             .erpOrderItem(erpOrderItemVo)
             .build();

@@ -896,11 +896,12 @@ public class ErpOrderItemBusinessService {
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
         count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities, memo));
-        count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities));
+        count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities, memo));
         return count.get();
     }
 
     public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities, String memo) {
+        UUID USER_ID = userService.getUserId();
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -915,7 +916,7 @@ public class ErpOrderItemBusinessService {
                     releaseEntity.setReleaseUnit(orderItemEntity.getUnit());
                     releaseEntity.setMemo(memo);
                     releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-                    releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                    releaseEntity.setCreatedBy(USER_ID);
                     releaseEntity.setProductOptionCid(optionEntity.getCid());
                     releaseEntity.setProductOptionId(optionEntity.getId());
 
@@ -929,7 +930,8 @@ public class ErpOrderItemBusinessService {
         return count.get();
     }
 
-    public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities) {
+    public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities, String memo) {
+        UUID USER_ID = userService.getUserId();
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -949,9 +951,9 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setId(UUID.randomUUID());
                             releaseEntity.setErpOrderItemId(orderItemEntity.getId());
                             releaseEntity.setReleaseUnit(orderItemEntity.getUnit() * option.getPackageUnit());
-                            releaseEntity.setMemo("");
+                            releaseEntity.setMemo(memo);
                             releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-                            releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                            releaseEntity.setCreatedBy(USER_ID);
                             releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
 

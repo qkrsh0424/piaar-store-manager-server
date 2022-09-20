@@ -45,5 +45,6 @@ public class ErpReturnItemDto {
     private String returnRejectYn;
     private LocalDateTime returnRejectAt;
     private String defectiveYn;
+    private String stockReflectYn;
     private UUID erpOrderItemId;
 }

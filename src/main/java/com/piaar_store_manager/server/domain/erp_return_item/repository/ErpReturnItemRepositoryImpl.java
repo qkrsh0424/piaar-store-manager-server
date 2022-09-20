@@ -29,6 +29,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -72,6 +73,7 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                 qProductCategoryEntity.as("productCategory")
             ))
             .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params))
+            .where(lkSearchCondition(params))
             .where(withinDateRange(params))
             .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
             .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))     // 반품상태에서 출고 옵션코드로 데이터를 조회한다
@@ -188,6 +190,57 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
             return qErpReturnItemEntity.returnCompleteAt.between(startDate, endDate);
         } else {
             throw new CustomInvalidDataException("상세조건이 올바르지 않습니다.");
+        }
+    }
+
+    private BooleanExpression lkSearchCondition(Map<String, Object> params) {
+        String columnName = params.get("searchColumnName") == null ? null : params.get("searchColumnName").toString();
+        String searchQuery = params.get("searchQuery") == null ? null : params.get("searchQuery").toString();
+        if (columnName == null || searchQuery == null) {
+            return null;
+        }
+
+        try {
+            StringPath columnNameStringPath = null;
+            System.out.println(columnName);
+            if (columnName.startsWith("order_")) {
+                String matchedColumnName = columnName.replace("order_", "");
+                switch (matchedColumnName) {
+                    case "categoryName":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductCategoryEntity, "name");
+                        break;
+                    case "prodManagementName":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductEntity, "managementName");
+                        break;
+                    case "prodDefaultName":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductEntity, "defaultName");
+                        break;
+                    case "optionManagementName":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "managementName");
+                        break;
+                    case "optionReleaseLocation":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "releaseLocation");
+                        break;
+                    case "optionDefaultName":
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "defaultName");
+                        break;
+                    default:
+                        if (CustomFieldUtils.getFieldByName(qErpOrderItemEntity, matchedColumnName) == null) {
+                            throw new QueryException("올바른 데이터가 아닙니다.");
+                        }
+                        columnNameStringPath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, matchedColumnName);
+                }
+            } else {
+                if (CustomFieldUtils.getFieldByName(qErpReturnItemEntity, columnName) == null) {
+                    throw new QueryException("올바른 데이터가 아닙니다.");
+                }
+                columnNameStringPath = CustomFieldUtils.getFieldValue(qErpReturnItemEntity, columnName);
+            }
+            return columnNameStringPath.contains(searchQuery);
+        } catch (ClassCastException e) {
+            throw new CustomInvalidDataException("허용된 데이터 타입이 아닙니다.");
+        } catch (QueryException e) {
+            throw new CustomInvalidDataException(e.getMessage());
         }
     }
 

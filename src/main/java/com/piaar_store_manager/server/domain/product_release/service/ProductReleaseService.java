@@ -33,13 +33,9 @@ public class ProductReleaseService {
     }
 
     public ProductReleaseEntity searchOneByErpOrderItemId(UUID erpOrderItemId) {
-        Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findByErpOrderItemId(erpOrderItemId);
+        List<ProductReleaseEntity> releaseEntities = productReleaseRepository.findByErpOrderItemId(erpOrderItemId);
 
-        if (releaseEntityOpt.isPresent()) {
-            return releaseEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
+        return releaseEntities.stream().findFirst().get();
     }
 
     public List<ProductReleaseEntity> searchList() {
@@ -148,13 +144,7 @@ public class ProductReleaseService {
         productReleaseRepository.deleteByErpOrderItemIds(erpOrderItemIds);
     }
 
-    public ProductReleaseEntity findByErpOrderItemId(UUID orderItemId) {
-        Optional<ProductReleaseEntity> entityOpt = productReleaseRepository.findByErpOrderItemId(orderItemId);
-
-        if(entityOpt.isPresent()) {
-            return entityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
-        }
+    public List<ProductReleaseEntity> findByErpOrderItemIds(List<UUID> orderItemIds) {
+        return productReleaseRepository.findByErpOrderItemIds(orderItemIds);
     }
 }
