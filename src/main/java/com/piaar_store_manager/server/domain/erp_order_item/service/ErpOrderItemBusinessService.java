@@ -309,6 +309,8 @@ public class ErpOrderItemBusinessService {
                             .setReleaseOptionCode(r.getOptionCode())
                             .setReleaseYn("n")
                             .setStockReflectYn("n")
+                            .setReturnYn("n")
+                            .setExchangeYn("n")
                             .setCreatedAt(CustomDateUtils.getCurrentDateTime())
                             .setCreatedBy(USER_ID);
 
