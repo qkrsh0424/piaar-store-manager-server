@@ -72,7 +72,8 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                 qProductOptionEntity.as("productOption"),
                 qProductCategoryEntity.as("productCategory")
             ))
-            .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params))
+            .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params)
+                , eqStockReflectYn(params), eqDefectiveYn(params), eqReturnRejectYn(params))
             .where(lkSearchCondition(params))
             .where(withinDateRange(params))
             .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
@@ -105,7 +106,8 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                         )
                 )                
                 .where(qErpReturnItemEntity.id.in(idList))
-                .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params))
+                .where(eqCollectYn(params), eqCollectCompleteYn(params), eqReturnCompleteYn(params)
+                    , eqStockReflectYn(params), eqDefectiveYn(params), eqReturnRejectYn(params))
                 .where(withinDateRange(params))
                 .leftJoin(qErpOrderItemEntity).on(qErpReturnItemEntity.erpOrderItemId.eq(qErpOrderItemEntity.id))
                 .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.releaseOptionCode.eq(qProductOptionEntity.code))
@@ -271,6 +273,36 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
             return null;
         } else {
             return qErpReturnItemEntity.returnCompleteYn.eq(returnCompleteYn);
+        }
+    }
+
+    private BooleanExpression eqStockReflectYn(Map<String, Object> params) {
+        String stockReflectYn = params.get("stockReflectYn") == null ? null : params.get("stockReflectYn").toString();
+
+        if (stockReflectYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.stockReflectYn.eq(stockReflectYn);
+        }
+    }
+
+    private BooleanExpression eqDefectiveYn(Map<String, Object> params) {
+        String defectiveYn = params.get("defectiveYn") == null ? null : params.get("defectiveYn").toString();
+
+        if (defectiveYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.defectiveYn.eq(defectiveYn);
+        }
+    }
+
+    private BooleanExpression eqReturnRejectYn(Map<String, Object> params) {
+        String returnRejectYn = params.get("returnRejectYn") == null ? null : params.get("returnRejectYn").toString();
+
+        if (returnRejectYn == null) {
+            return null;
+        } else {
+            return qErpReturnItemEntity.returnRejectYn.eq(returnRejectYn);
         }
     }
 }
