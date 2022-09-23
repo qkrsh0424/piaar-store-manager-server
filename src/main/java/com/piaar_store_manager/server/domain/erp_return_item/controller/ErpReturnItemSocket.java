@@ -3,9 +3,12 @@ package com.piaar_store_manager.server.domain.erp_return_item.controller;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,6 +25,7 @@ import com.piaar_store_manager.server.domain.message.Message;
 
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/ws/v1/erp-return-items")
 @RequiredLogin
@@ -32,7 +36,7 @@ public class ErpReturnItemSocket {
 
     @PostMapping("/batch")
     @PermissionRole
-    public void createBatch(@RequestBody List<ErpReturnItemDto> erpReturnItemDtos) {
+    public void createBatch(@RequestBody @Valid List<ErpReturnItemDto> erpReturnItemDtos) {
         Message message = new Message();
 
         erpReturnItemBusinessService.createBatch(erpReturnItemDtos);
@@ -119,7 +123,7 @@ public class ErpReturnItemSocket {
 
     @PatchMapping("/batch/return-reason")
     @PermissionRole
-    public void changeBatchForReturnReason(@RequestBody List<ErpReturnItemDto> itemDtos) {
+    public void changeBatchForReturnReason(@RequestBody @Valid List<ErpReturnItemDto> itemDtos) {
         Message message = new Message();
 
         erpReturnItemBusinessService.changeBatchForReturnReason(itemDtos);
