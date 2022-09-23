@@ -296,16 +296,13 @@ public class ErpReturnItemBusinessService {
     }
 
     @Transactional
-    public void changeBatchForReturnReason(List<ErpReturnItemDto> itemDtos) {
-        List<ErpReturnItemEntity> entities = erpReturnItemService.getEntities(itemDtos);
+    public void changeForReturnReason(ErpReturnItemDto itemDto) {
+        ErpReturnItemEntity entity = erpReturnItemService.searchOne(itemDto.getId());
 
-//        Dirty Checking update
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-                entity.setReturnReasonType(dto.getReturnReasonType())
-                    .setReturnReasonDetail(dto.getReturnReasonDetail());
-            }
-        }));
+        entity.setReturnReasonType(itemDto.getReturnReasonType())
+            .setReturnReasonDetail(itemDto.getReturnReasonDetail());
+
+        erpReturnItemService.saveAndModify(entity);
     }
 
     @Transactional

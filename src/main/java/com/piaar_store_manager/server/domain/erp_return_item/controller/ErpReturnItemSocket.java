@@ -121,12 +121,12 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
-    @PatchMapping("/batch/return-reason")
+    @PatchMapping("/return-reason")
     @PermissionRole
-    public void changeBatchForReturnReason(@RequestBody @Valid List<ErpReturnItemDto> itemDtos) {
+    public void changeForReturnReason(@RequestBody @Valid ErpReturnItemDto itemDto) {
         Message message = new Message();
 
-        erpReturnItemBusinessService.changeBatchForReturnReason(itemDtos);
+        erpReturnItemBusinessService.changeForReturnReason(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
