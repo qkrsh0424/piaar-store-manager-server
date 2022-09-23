@@ -13,13 +13,19 @@ import javax.persistence.Table;
 
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "product_receive")
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Accessors(chain = true)
 public class ProductReceiveEntity {
     
@@ -48,6 +54,15 @@ public class ProductReceiveEntity {
     @Column(name = "product_option_cid")
     private Integer productOptionCid;
 
+    @Type(type = "uuid-char")
+    @Column(name = "product_option_id")
+    private UUID productOptionId;
+
+    @Type(type ="uuid-char")
+    @Column(name = "erp_order_item_id")
+    private UUID erpOrderItemId;
+
+
     /**
      * <b>Convert Method</b>
      * <p>
@@ -58,14 +73,16 @@ public class ProductReceiveEntity {
      * @return ProductReceiveEntity
      */
     public static ProductReceiveEntity toEntity(ProductReceiveGetDto dto) {
-        ProductReceiveEntity entity = new ProductReceiveEntity();
-
-        entity.setId(UUID.randomUUID())
-              .setReceiveUnit(dto.getReceiveUnit())
-              .setMemo(dto.getMemo())
-              .setCreatedAt(dto.getCreatedAt())
-              .setCreatedBy(dto.getCreatedBy())
-              .setProductOptionCid(dto.getProductOptionCid());
+        ProductReceiveEntity entity = ProductReceiveEntity.builder()
+            .id(UUID.randomUUID())
+            .receiveUnit(dto.getReceiveUnit())
+            .memo(dto.getMemo())
+            .createdAt(dto.getCreatedAt())
+            .createdBy(dto.getCreatedBy())
+            .productOptionCid(dto.getProductOptionCid())
+            .productOptionId(dto.getProductOptionId())
+            .erpOrderItemId(dto.getErpOrderItemId())
+            .build();
 
         return entity;
     }

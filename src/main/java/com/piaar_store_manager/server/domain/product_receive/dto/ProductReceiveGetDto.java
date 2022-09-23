@@ -31,6 +31,8 @@ public class ProductReceiveGetDto {
     private LocalDateTime createdAt;
     private UUID createdBy;
     private Integer productOptionCid;
+    private UUID productOptionId;
+    private UUID erpOrderItemId;
 
     /**
      * <b>Convert Method</b>
@@ -49,6 +51,8 @@ public class ProductReceiveGetDto {
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .productOptionCid(entity.getProductOptionCid())
+            .productOptionId(entity.getProductOptionId())
+            .erpOrderItemId(entity.getErpOrderItemId())
             .build();
 
         return dto;

@@ -21,7 +21,6 @@ import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDt
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomExcelFileRequiredPwdException;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -310,6 +309,8 @@ public class ErpOrderItemBusinessService {
                             .setReleaseOptionCode(r.getOptionCode())
                             .setReleaseYn("n")
                             .setStockReflectYn("n")
+                            .setReturnYn("n")
+                            .setExchangeYn("n")
                             .setCreatedAt(CustomDateUtils.getCurrentDateTime())
                             .setCreatedBy(USER_ID);
 
@@ -592,6 +593,26 @@ public class ErpOrderItemBusinessService {
         erpOrderItemService.saveListAndModify(entities);
     }
 
+    @Transactional
+    public void changeBatchForReturnYn(List<ErpOrderItemDto> itemDtos) {
+        List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
+        List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
+
+        entities.forEach(entity -> itemDtos.forEach(dto -> {
+            if (entity.getId().equals(dto.getId())) {
+
+                if (dto.getReturnYn().equals("n")) {
+                    entity.setReturnYn("n");
+                    return;
+                }
+
+                entity.setReturnYn("y");
+            }
+        }));
+
+        erpOrderItemService.saveListAndModify(entities);
+    }
+
     /**
      * <b>Data Delete Related Method</b>
      * <p>
@@ -673,12 +694,19 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemEntity> entities = erpOrderItemService.getEntities(itemDtos);
 
 //        Dirty Checking update
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-                entity.setOptionCode(dto.getOptionCode())
-                        .setReleaseOptionCode(dto.getOptionCode());
+        entities.forEach(entity -> {
+            // 재고반영 데이터 제한
+            if (entity.getStockReflectYn().equals("y")) {
+                throw new CustomInvalidDataException("재고반영된 데이터는 옵션코드를 변경할 수 없습니다.");
             }
-        }));
+
+            itemDtos.forEach(dto -> {
+                if (entity.getId().equals(dto.getId())) {
+                    entity.setOptionCode(dto.getOptionCode())
+                            .setReleaseOptionCode(dto.getOptionCode());
+                }
+            });
+        });
     }
 
     /**
@@ -695,15 +723,22 @@ public class ErpOrderItemBusinessService {
     public void changeBatchForReleaseOptionCode(List<ErpOrderItemDto> itemDtos) {
         List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
-
+        
         /*
         Dirty Checking update
          */
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-                entity.setReleaseOptionCode(dto.getReleaseOptionCode());
+        entities.forEach(entity -> {
+            // 재고반영 데이터 제한
+            if (entity.getStockReflectYn().equals("y")) {
+                throw new CustomInvalidDataException("재고반영된 데이터는 출고옵션코드를 변경할 수 없습니다.");
             }
-        }));
+
+            itemDtos.forEach(dto -> {
+                if (entity.getId().equals(dto.getId())) {
+                    entity.setReleaseOptionCode(dto.getReleaseOptionCode());
+                }
+            });
+        });
     }
 
     /**
@@ -876,11 +911,12 @@ public class ErpOrderItemBusinessService {
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
         count.addAndGet(this.reflectStockUnit(erpOrderItemEntities, originOptionEntities, memo));
-        count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities));
+        count.addAndGet(this.reflectStockUnitOfPackageOption(erpOrderItemEntities, parentOptionEntities, memo));
         return count.get();
     }
 
     public int reflectStockUnit(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> originOptionEntities, String memo) {
+        UUID USER_ID = userService.getUserId();
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -895,7 +931,7 @@ public class ErpOrderItemBusinessService {
                     releaseEntity.setReleaseUnit(orderItemEntity.getUnit());
                     releaseEntity.setMemo(memo);
                     releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-                    releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                    releaseEntity.setCreatedBy(USER_ID);
                     releaseEntity.setProductOptionCid(optionEntity.getCid());
                     releaseEntity.setProductOptionId(optionEntity.getId());
 
@@ -909,7 +945,8 @@ public class ErpOrderItemBusinessService {
         return count.get();
     }
 
-    public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities) {
+    public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities, String memo) {
+        UUID USER_ID = userService.getUserId();
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
 
@@ -929,9 +966,9 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setId(UUID.randomUUID());
                             releaseEntity.setErpOrderItemId(orderItemEntity.getId());
                             releaseEntity.setReleaseUnit(orderItemEntity.getUnit() * option.getPackageUnit());
-                            releaseEntity.setMemo("");
+                            releaseEntity.setMemo(memo);
                             releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-                            releaseEntity.setCreatedBy(orderItemEntity.getCreatedBy());
+                            releaseEntity.setCreatedBy(USER_ID);
                             releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
 

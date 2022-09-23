@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEntity, Integer>{
-    
+
    /**
      * cid값에 대응되는 release, release와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
      *
@@ -97,4 +97,13 @@ public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEn
             "WHERE rs.erpOrderItemId IN :ids"
     )
     void deleteByErpOrderItemIds(List<UUID> ids);
+
+    List<ProductReleaseEntity> findByErpOrderItemId(UUID erpOrderItemId);
+
+    @Query(
+        "SELECT pl\n" + 
+        "FROM ProductReleaseEntity pl\n" + 
+        "WHERE pl.erpOrderItemId IN :erpOrderItemIds"
+    )
+    List<ProductReleaseEntity> findByErpOrderItemIds(List<UUID> erpOrderItemIds);
 }

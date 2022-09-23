@@ -211,6 +211,14 @@ public class ErpOrderItemEntity {
     @Column(name = "stock_reflect_yn", columnDefinition = "n")
     private String stockReflectYn;
 
+    @Setter
+    @Column(name = "return_yn", columnDefinition = "n")
+    private String returnYn;
+
+    @Setter
+    @Column(name = "exchange_yn", columnDefinition = "n")
+    private String exchangeYn;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -264,6 +272,8 @@ public class ErpOrderItemEntity {
                 .releaseYn(dto.getReleaseYn())
                 .releaseAt(dto.getReleaseAt())
                 .stockReflectYn(dto.getStockReflectYn())
+                .returnYn(dto.getReturnYn())
+                .exchangeYn(dto.getExchangeYn())
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
                 .build();

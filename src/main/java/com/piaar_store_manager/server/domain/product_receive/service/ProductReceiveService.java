@@ -3,9 +3,11 @@ package com.piaar_store_manager.server.domain.product_receive.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
+import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveCustomJdbc;
 import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductReceiveService {
     private final ProductReceiveRepository productReceiveRepository;
+    private final ProductReceiveCustomJdbc productReceiveCustomJdbc;
 
     public ProductReceiveEntity searchOne(Integer productReceiveCid) {
         Optional<ProductReceiveEntity> receiveEntityOpt = productReceiveRepository.findById(productReceiveCid);
@@ -117,5 +120,21 @@ public class ProductReceiveService {
         productReceiveRepository.findById(productReceiveCid).ifPresent(receive -> {
             productReceiveRepository.delete(receive);
         });
+    }
+
+    public void bulkInsert(List<ProductReceiveEntity> entities){
+        // access check
+        // userService.userLoginCheck();
+        // userService.userManagerRoleCheck();
+        
+        productReceiveCustomJdbc.jdbcBulkInsert(entities);
+    }
+
+    public void deleteByErpOrderItemIds(List<UUID> erpOrderItemIds){
+        // access check
+        // userService.userLoginCheck();
+        // userService.userManagerRoleCheck();
+        
+        productReceiveRepository.deleteByErpOrderItemIds(erpOrderItemIds);
     }
 }

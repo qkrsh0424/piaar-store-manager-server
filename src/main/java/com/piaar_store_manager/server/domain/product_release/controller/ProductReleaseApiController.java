@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.product_release.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
@@ -38,6 +39,17 @@ public class ProductReleaseApiController {
         Message message = new Message();
 
         message.setData(productReleaseBusinessService.searchOne(productReleaseCid));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @GetMapping("/erp-order-item/{erpOrderItemId}")
+    public ResponseEntity<?> searchOneByErpOrderItemId(@PathVariable(value = "erpOrderItemId") UUID erpOrderItemId) {
+        Message message = new Message();
+
+        message.setData(productReleaseBusinessService.searchOneByErpOrderItemId(erpOrderItemId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
