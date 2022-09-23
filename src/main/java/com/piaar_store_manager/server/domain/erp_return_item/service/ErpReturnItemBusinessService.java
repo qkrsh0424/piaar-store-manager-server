@@ -289,6 +289,10 @@ public class ErpReturnItemBusinessService {
         List<UUID> itemIds = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
         erpReturnItemService.deleteBatch(itemIds);
 
+        // erpReturnItem에 대응되는 product receive 데이터 batchDelete
+        List<UUID> orderItemIds = itemDtos.stream().map(ErpReturnItemDto::getErpOrderItemId).collect(Collectors.toList());
+        productReceiveService.deleteByErpOrderItemIds(orderItemIds);
+
         // erpOrderItem의 returnYn을 n으로 변경한다.
         List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getErpOrderItemId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
