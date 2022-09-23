@@ -91,18 +91,6 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
 
-    @PatchMapping("/batch/hold-yn")
-    @PermissionRole
-    public void changeBatchForHoldYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
-        Message message = new Message();
-
-        erpReturnItemBusinessService.changeBatchForHoldYn(itemDtos);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
-    }
-
     @PatchMapping("/batch/return-reject-yn")
     @PermissionRole
     public void changeBatchForReturnRejectYn(@RequestBody List<ErpReturnItemDto> itemDtos) {

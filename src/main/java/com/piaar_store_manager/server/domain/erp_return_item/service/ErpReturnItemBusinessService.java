@@ -80,7 +80,6 @@ public class ErpReturnItemBusinessService {
                 .waybillNumber(dto.getWaybillNumber())
                 .courier(dto.getCourier())
                 .transportType(dto.getTransportType())
-                .deliveryChargeReturnYn("n")
                 .deliveryChargeReturnType(dto.getDeliveryChargeReturnType())
                 .receiveLocation(dto.getReceiveLocation())
                 .returnReasonType(dto.getReturnReasonType())
@@ -98,8 +97,6 @@ public class ErpReturnItemBusinessService {
                 .collectCompleteAt(dto.getCollectCompleteAt())
                 .returnCompleteYn("n")
                 .returnCompleteAt(dto.getReturnCompleteAt())
-                .holdYn("n")
-                .holdAt(dto.getHoldAt())
                 .returnRejectYn("n")
                 .returnRejectAt(dto.getReturnRejectAt())
                 .defectiveYn("n")
@@ -159,7 +156,6 @@ public class ErpReturnItemBusinessService {
             .setWaybillNumber(dto.getWaybillNumber())
             .setCourier(dto.getCourier())
             .setTransportType(dto.getTransportType())
-            .setDeliveryChargeReturnYn(dto.getDeliveryChargeReturnYn())
             .setDeliveryChargeReturnType(dto.getDeliveryChargeReturnType())
             .setReceiveLocation(dto.getReceiveLocation())
             .setReturnReasonType(dto.getReturnReasonType())
@@ -203,8 +199,12 @@ public class ErpReturnItemBusinessService {
         List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
+            // 불량상품 및 재고반영 데이터 제한
+            if(entity.getReturnRejectYn().equals("y")) {
+                throw new CustomInvalidDataException("번퓸거절 데이터는 상태를 변경할 수 없습니다.");
+            }
 
+            if (entity.getId().equals(dto.getId())) {
                 if (dto.getCollectCompleteYn().equals("n")) {
                     entity.setCollectCompleteYn("n");
                     entity.setCollectCompleteAt(null);
@@ -231,8 +231,9 @@ public class ErpReturnItemBusinessService {
         entities.forEach(entity -> itemDtos.forEach(dto -> {
             // 반품거절 데이터 제한
             if(entity.getReturnRejectYn().equals("y")) {
-                throw new CustomInvalidDataException("반품거절 데이터는 처리완료 상태로 설정할 수 없습니다.");
+                throw new CustomInvalidDataException("반품거절 데이터는 상태를 변경할 수 없습니다.");
             }
+            // 불량상품 및 재고반영 데이터 제한
             if(entity.getDefectiveYn().equals("y") || entity.getStockReflectYn().equals("y")) {
                 throw new CustomInvalidDataException("불량상품 및 재고반영된 데이터는 상태를 변경할 수 없습니다.");
             }
@@ -251,32 +252,6 @@ public class ErpReturnItemBusinessService {
 
                 entity.setReturnCompleteYn("y");
                 entity.setReturnCompleteAt(CustomDateUtils.getCurrentDateTime());
-            }
-        }));
-
-        erpReturnItemService.saveListAndModify(entities);
-    }
-    
-    @Transactional
-    public void changeBatchForHoldYn(List<ErpReturnItemDto> itemDtos) {
-        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
-        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
-
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-
-                if (dto.getHoldYn().equals("n")) {
-                    entity.setHoldYn("n");
-                    entity.setHoldAt(null);
-                    
-                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
-                    // entity.setReleaseYn("n");
-                    // entity.setReleaseAt(null);
-                    return;
-                }
-
-                entity.setHoldYn("y");
-                entity.setHoldAt(CustomDateUtils.getCurrentDateTime());
             }
         }));
 

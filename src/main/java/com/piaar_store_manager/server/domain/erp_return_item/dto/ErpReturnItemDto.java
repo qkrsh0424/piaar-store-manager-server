@@ -22,7 +22,6 @@ public class ErpReturnItemDto {
     private String waybillNumber;
     private String courier;
     private String transportType;
-    private String deliveryChargeReturnYn;
     private String deliveryChargeReturnType;
     private String receiveLocation;
     private String returnReasonType;
@@ -40,8 +39,6 @@ public class ErpReturnItemDto {
     private LocalDateTime collectCompleteAt;
     private String returnCompleteYn;
     private LocalDateTime returnCompleteAt;
-    private String holdYn;
-    private LocalDateTime holdAt;
     private String returnRejectYn;
     private LocalDateTime returnRejectAt;
     private String defectiveYn;

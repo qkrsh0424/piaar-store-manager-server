@@ -53,7 +53,6 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(3, entity.getWaybillNumber());
                 ps.setObject(4, entity.getCourier());
                 ps.setObject(5, entity.getTransportType());
-                ps.setObject(6, entity.getDeliveryChargeReturnYn());
                 ps.setObject(7, entity.getDeliveryChargeReturnType());
                 ps.setObject(8, entity.getReceiveLocation());
                 ps.setObject(9, entity.getReturnReasonType());
@@ -71,8 +70,6 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(21, entity.getCollectCompleteAt());
                 ps.setObject(22, entity.getReturnCompleteYn());
                 ps.setObject(23, entity.getReturnCompleteAt());
-                ps.setObject(24, entity.getHoldYn());
-                ps.setObject(25, entity.getHoldAt());
                 ps.setObject(26, entity.getReturnRejectYn());
                 ps.setObject(27, entity.getReturnRejectAt());
                 ps.setObject(28, entity.getDefectiveYn());

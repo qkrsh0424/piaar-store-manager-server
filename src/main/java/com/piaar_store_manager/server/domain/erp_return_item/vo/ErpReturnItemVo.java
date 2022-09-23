@@ -25,7 +25,6 @@ public class ErpReturnItemVo {
     private String waybillNumber;
     private String courier;
     private String transportType;
-    private String deliveryChargeReturnYn;
     private String deliveryChargeReturnType;
     private String receiveLocation;
     private String returnReasonType;
@@ -47,9 +46,6 @@ public class ErpReturnItemVo {
     private String returnCompleteYn;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime returnCompleteAt;
-    private String holdYn;
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    private LocalDateTime holdAt;
     private String returnRejectYn;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     private LocalDateTime returnRejectAt;
@@ -69,7 +65,6 @@ public class ErpReturnItemVo {
             .waybillNumber(proj.getErpReturnItem().getWaybillNumber())
             .courier(proj.getErpReturnItem().getCourier())
             .transportType(proj.getErpReturnItem().getTransportType())
-            .deliveryChargeReturnYn(proj.getErpReturnItem().getDeliveryChargeReturnYn())
             .deliveryChargeReturnType(proj.getErpReturnItem().getDeliveryChargeReturnType())
             .receiveLocation(proj.getErpReturnItem().getReceiveLocation())
             .returnReasonType(proj.getErpReturnItem().getReturnReasonType())
@@ -87,8 +82,6 @@ public class ErpReturnItemVo {
             .collectCompleteAt(proj.getErpReturnItem().getCollectCompleteAt())
             .returnCompleteYn(proj.getErpReturnItem().getReturnCompleteYn())
             .returnCompleteAt(proj.getErpReturnItem().getReturnCompleteAt())
-            .holdYn(proj.getErpReturnItem().getHoldYn())
-            .holdAt(proj.getErpReturnItem().getHoldAt())
             .returnRejectYn(proj.getErpReturnItem().getReturnRejectYn())
             .returnRejectAt(proj.getErpReturnItem().getReturnRejectAt())
             .defectiveYn(proj.getErpReturnItem().getDefectiveYn())

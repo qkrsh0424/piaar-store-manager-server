@@ -52,10 +52,6 @@ public class ErpReturnItemEntity {
     private String transportType;
     
     @Setter
-    @Column(name = "delivery_charge_return_yn")
-    private String deliveryChargeReturnYn;
-    
-    @Setter
     @Column(name = "delivery_charge_return_type")
     private String deliveryChargeReturnType;
 
@@ -121,14 +117,6 @@ public class ErpReturnItemEntity {
     @Setter
     @Column(name = "return_complete_at")
     private LocalDateTime returnCompleteAt;
-
-    @Setter
-    @Column(name = "hold_yn", columnDefinition = "n")
-    private String holdYn;
-
-    @Setter
-    @Column(name = "hold_at")
-    private LocalDateTime holdAt;
 
     @Setter
     @Column(name = "return_reject_yn", columnDefinition = "n")

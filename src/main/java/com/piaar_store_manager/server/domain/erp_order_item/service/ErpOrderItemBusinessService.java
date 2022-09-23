@@ -695,12 +695,19 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemEntity> entities = erpOrderItemService.getEntities(itemDtos);
 
 //        Dirty Checking update
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-                entity.setOptionCode(dto.getOptionCode())
-                        .setReleaseOptionCode(dto.getOptionCode());
+        entities.forEach(entity -> {
+            // 재고반영 데이터 제한
+            if (entity.getStockReflectYn().equals("y")) {
+                throw new CustomInvalidDataException("재고반영된 데이터는 옵션코드를 변경할 수 없습니다.");
             }
-        }));
+
+            itemDtos.forEach(dto -> {
+                if (entity.getId().equals(dto.getId())) {
+                    entity.setOptionCode(dto.getOptionCode())
+                            .setReleaseOptionCode(dto.getOptionCode());
+                }
+            });
+        });
     }
 
     /**
@@ -717,15 +724,22 @@ public class ErpOrderItemBusinessService {
     public void changeBatchForReleaseOptionCode(List<ErpOrderItemDto> itemDtos) {
         List<UUID> idList = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
         List<ErpOrderItemEntity> entities = erpOrderItemService.findAllByIdList(idList);
-
+        
         /*
         Dirty Checking update
          */
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-                entity.setReleaseOptionCode(dto.getReleaseOptionCode());
+        entities.forEach(entity -> {
+            // 재고반영 데이터 제한
+            if (entity.getStockReflectYn().equals("y")) {
+                throw new CustomInvalidDataException("재고반영된 데이터는 출고옵션코드를 변경할 수 없습니다.");
             }
-        }));
+
+            itemDtos.forEach(dto -> {
+                if (entity.getId().equals(dto.getId())) {
+                    entity.setReleaseOptionCode(dto.getReleaseOptionCode());
+                }
+            });
+        });
     }
 
     /**
