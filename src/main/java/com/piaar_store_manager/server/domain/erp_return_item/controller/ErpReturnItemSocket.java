@@ -49,7 +49,7 @@ public class ErpReturnItemSocket {
 
     @PutMapping("")
     @PermissionRole
-    public void updateOne(@RequestBody ErpReturnItemDto itemDto) {
+    public void updateOne(@RequestBody @Valid ErpReturnItemDto itemDto) {
         Message message = new Message();
 
         erpReturnItemBusinessService.updateOne(itemDto);
