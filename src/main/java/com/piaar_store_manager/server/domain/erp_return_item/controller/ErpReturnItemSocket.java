@@ -30,6 +30,19 @@ public class ErpReturnItemSocket {
     private final ErpReturnItemBusinessService erpReturnItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;
 
+    @PostMapping("/batch")
+    @PermissionRole
+    public void createBatch(@RequestBody List<ErpReturnItemDto> erpReturnItemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.createBatch(erpReturnItemDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setSocketMemo("[반품 접수] 에 추가된 데이터가 있습니다.");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
     @PutMapping("")
     @PermissionRole
     public void updateOne(@RequestBody ErpReturnItemDto itemDto) {
@@ -111,7 +124,9 @@ public class ErpReturnItemSocket {
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
+        // erp return item 제거 및 erp order item의 returnYn 수정
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+        messagingTemplate.convertAndSend("/topic/erp.erp-order-item", message);
     }
 
     @PatchMapping("/batch/return-reason")

@@ -62,6 +62,9 @@ public class ErpReturnItemBusinessService {
             if(item.getStockReflectYn().equals("n")) {
                 throw new CustomInvalidDataException("재고 미반영 데이터는 반품데이터로 설정할 수 없습니다.");
             }
+            if(item.getReturnYn().equals("y")) {
+                throw new CustomInvalidDataException("이미 반품접수된 상품이 존재합니다.");
+            }
         });
 
         // 반품데이터
@@ -226,9 +229,12 @@ public class ErpReturnItemBusinessService {
         List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
 
         entities.forEach(entity -> itemDtos.forEach(dto -> {
-            // 반품거절 데이터는 처리완료로 옮길 수 없다.
+            // 반품거절 데이터 제한
             if(entity.getReturnRejectYn().equals("y")) {
                 throw new CustomInvalidDataException("반품거절 데이터는 처리완료 상태로 설정할 수 없습니다.");
+            }
+            if(entity.getDefectiveYn().equals("y") || entity.getStockReflectYn().equals("y")) {
+                throw new CustomInvalidDataException("불량상품 및 재고반영된 데이터는 상태를 변경할 수 없습니다.");
             }
 
             if (entity.getId().equals(dto.getId())) {
@@ -335,6 +341,11 @@ public class ErpReturnItemBusinessService {
     @Transactional
     public void actionReflectDefective(ErpReturnItemDto itemDto, Map<String, Object> params) {
         ErpReturnItemEntity returnItemEntity = erpReturnItemService.searchOne(itemDto.getId());
+
+        if(returnItemEntity.getStockReflectYn().equals("y")) {
+            throw new CustomInvalidDataException("재고반영된 데이터는 불량상품으로 등록할 수 없습니다.");
+        }
+
         returnItemEntity.setDefectiveYn("y");
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
@@ -361,6 +372,9 @@ public class ErpReturnItemBusinessService {
 
         if(erpOrderItemEntity.getReleaseOptionCode().isEmpty()) {
             return;    
+        }
+        if(erpReturnItemEntity.getDefectiveYn().equals("y")) {
+            throw new CustomInvalidDataException("불량상품으로 등록된 데이터는 재고반영할 수 없습니다.");
         }
 
         ProductOptionEntity optionEntity = productOptionService.findOneByCode(erpOrderItemEntity.getReleaseOptionCode());
