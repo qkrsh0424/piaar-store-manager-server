@@ -36,6 +36,10 @@ public class ErpReturnItemService {
         }
     }
 
+    public void saveAndModify(ErpReturnItemEntity entity) {
+        erpReturnItemRepository.save(entity);
+    }
+    
     public void saveListAndModify(List<ErpReturnItemEntity> entities) {
         erpReturnItemRepository.saveAll(entities);
     }

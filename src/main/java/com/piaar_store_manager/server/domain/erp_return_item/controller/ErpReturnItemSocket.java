@@ -34,12 +34,12 @@ public class ErpReturnItemSocket {
     private final ErpReturnItemBusinessService erpReturnItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping("/batch")
+    @PostMapping("")
     @PermissionRole
-    public void createBatch(@RequestBody @Valid List<ErpReturnItemDto> erpReturnItemDtos) {
+    public void createOne(@RequestBody @Valid ErpReturnItemDto itemDto) {
         Message message = new Message();
 
-        erpReturnItemBusinessService.createBatch(erpReturnItemDtos);
+        erpReturnItemBusinessService.createOne(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setSocketMemo("[반품 접수] 에 추가된 데이터가 있습니다.");

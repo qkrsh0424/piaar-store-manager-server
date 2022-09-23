@@ -52,62 +52,53 @@ public class ErpReturnItemBusinessService {
      * 반품 데이터는 직접 등록이 존재하지 않는다. erp 출고데이터 -> 반품데이터 생성.
      */
     @Transactional
-    public void createBatch(List<ErpReturnItemDto> erpReturnItemDtos) {
+    public void createOne(ErpReturnItemDto returnItemDto) {
         UUID USER_ID = userService.getUserId();
+        ErpOrderItemEntity orderItemEntity = erpOrderItemService.searchOne(returnItemDto.getErpOrderItemId());
 
-        List<UUID> orderItemIds = erpReturnItemDtos.stream().map(dto -> dto.getErpOrderItemId()).collect(Collectors.toList());
         // erpOrderItem 조회, 재고 미반영데이터 검사
-        List<ErpOrderItemEntity> erpOrderItems = erpOrderItemService.findAllByIdList(orderItemIds);
-        erpOrderItems.forEach(item -> {
-            if(item.getStockReflectYn().equals("n")) {
-                throw new CustomInvalidDataException("재고 미반영 데이터는 반품데이터로 설정할 수 없습니다.");
-            }
-            if(item.getReturnYn().equals("y")) {
-                throw new CustomInvalidDataException("이미 반품접수된 상품이 존재합니다.");
-            }
-        });
+        if (orderItemEntity.getStockReflectYn().equals("n")) {
+            throw new CustomInvalidDataException("재고 미반영 데이터는 반품데이터로 설정할 수 없습니다.");
+        }
 
-        // 반품데이터
-        erpReturnItemDtos.forEach(dto -> {
-            if(dto.getReturnReasonType() == null || dto.getReturnReasonType().isBlank()) {
-                throw new CustomInvalidDataException("반품 요청 사유는 필수값입니다.");
-            }
-        });
+        if (orderItemEntity.getReturnYn().equals("y")) {
+            throw new CustomInvalidDataException("이미 반품접수된 상품입니다.");
+        }
 
-        List<ErpReturnItemEntity> entities = erpReturnItemDtos.stream().map(dto -> {
-            ErpReturnItemEntity entity = ErpReturnItemEntity.builder()
+        if (returnItemDto.getReturnReasonType() == null || returnItemDto.getReturnReasonType().isBlank()) {
+            throw new CustomInvalidDataException("반품 요청 사유는 필수값입니다.");
+        }
+
+        ErpReturnItemEntity entity = ErpReturnItemEntity.builder()
                 .id(UUID.randomUUID())
-                .waybillNumber(dto.getWaybillNumber())
-                .courier(dto.getCourier())
-                .transportType(dto.getTransportType())
-                .deliveryChargeReturnType(dto.getDeliveryChargeReturnType())
-                .receiveLocation(dto.getReceiveLocation())
-                .returnReasonType(dto.getReturnReasonType())
-                .returnReasonDetail(dto.getReturnReasonDetail())
-                .managementMemo1(dto.getManagementMemo1())
-                .managementMemo2(dto.getManagementMemo2())
-                .managementMemo3(dto.getManagementMemo3())
-                .managementMemo4(dto.getManagementMemo4())
-                .managementMemo5(dto.getManagementMemo5())
+                .waybillNumber(returnItemDto.getWaybillNumber())
+                .courier(returnItemDto.getCourier())
+                .transportType(returnItemDto.getTransportType())
+                .deliveryChargeReturnType(returnItemDto.getDeliveryChargeReturnType())
+                .receiveLocation(returnItemDto.getReceiveLocation())
+                .returnReasonType(returnItemDto.getReturnReasonType())
+                .returnReasonDetail(returnItemDto.getReturnReasonDetail())
+                .managementMemo1(returnItemDto.getManagementMemo1())
+                .managementMemo2(returnItemDto.getManagementMemo2())
+                .managementMemo3(returnItemDto.getManagementMemo3())
+                .managementMemo4(returnItemDto.getManagementMemo4())
+                .managementMemo5(returnItemDto.getManagementMemo5())
                 .createdAt(LocalDateTime.now())
                 .createdBy(USER_ID)
                 .collectYn("n")
-                .collectAt(dto.getCollectAt())
+                .collectAt(returnItemDto.getCollectAt())
                 .collectCompleteYn("n")
-                .collectCompleteAt(dto.getCollectCompleteAt())
+                .collectCompleteAt(returnItemDto.getCollectCompleteAt())
                 .returnCompleteYn("n")
-                .returnCompleteAt(dto.getReturnCompleteAt())
+                .returnCompleteAt(returnItemDto.getReturnCompleteAt())
                 .returnRejectYn("n")
-                .returnRejectAt(dto.getReturnRejectAt())
+                .returnRejectAt(returnItemDto.getReturnRejectAt())
                 .defectiveYn("n")
                 .stockReflectYn("n")
-                .erpOrderItemId(dto.getErpOrderItemId())
+                .erpOrderItemId(returnItemDto.getErpOrderItemId())
                 .build();
 
-            return entity;
-        }).collect(Collectors.toList());
-
-        erpReturnItemService.bulkInsert(entities);
+        erpReturnItemService.saveAndModify(entity);
     }
 
     public Page<ErpReturnItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
