@@ -95,12 +95,12 @@ public class ErpReturnItemSocket {
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
 
-    @PatchMapping("/batch/return-reject-yn")
+    @PatchMapping("/return-reject-yn")
     @PermissionRole
-    public void changeBatchForReturnRejectYn(@RequestBody List<ErpReturnItemDto> itemDtos) {
+    public void changeForReturnRejectYn(@RequestBody ErpReturnItemDto itemDto) {
         Message message = new Message();
 
-        erpReturnItemBusinessService.changeBatchForReturnRejectYn(itemDtos);
+        erpReturnItemBusinessService.changeForReturnRejectYn(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

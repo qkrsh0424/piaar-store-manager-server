@@ -599,9 +599,9 @@ public class ErpOrderItemBusinessService {
 
         if(itemDto.getReturnYn().equals("n")) {
             entity.setReturnYn("n");
-            return;
+        }else {
+            entity.setReturnYn("y");
         }
-        entity.setReturnYn("y");
     }
 
     /**

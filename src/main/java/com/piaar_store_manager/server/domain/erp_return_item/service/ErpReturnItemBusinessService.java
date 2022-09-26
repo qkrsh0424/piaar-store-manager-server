@@ -250,29 +250,15 @@ public class ErpReturnItemBusinessService {
     }
 
     @Transactional
-    public void changeBatchForReturnRejectYn(List<ErpReturnItemDto> itemDtos) {
-        List<UUID> idList = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
-        List<ErpReturnItemEntity> entities = erpReturnItemService.findAllByIdList(idList);
-
-        entities.forEach(entity -> itemDtos.forEach(dto -> {
-            if (entity.getId().equals(dto.getId())) {
-
-                if (dto.getReturnRejectYn().equals("n")) {
-                    entity.setReturnRejectYn("n");
-                    entity.setReturnRejectAt(null);
-                    
-                    // TODO :: 수거중, 수거완료, 처리완료는 각 상태별로 존재하는 데이터가 중복되지 않는다. 따라서 수거완료처리만 하면됨.
-                    // entity.setReleaseYn("n");
-                    // entity.setReleaseAt(null);
-                    return;
-                }
-
-                entity.setReturnRejectYn("y");
-                entity.setReturnRejectAt(CustomDateUtils.getCurrentDateTime());
-            }
-        }));
-
-        erpReturnItemService.saveListAndModify(entities);
+    public void changeForReturnRejectYn(ErpReturnItemDto itemDto) {
+        ErpReturnItemEntity entity = erpReturnItemService.searchOne(itemDto.getId());
+        
+        if(itemDto.getReturnRejectYn().equals("n")) {
+            entity.setReturnRejectYn("n").setReturnRejectAt(null);
+        }else {
+            entity.setReturnRejectYn("y").setReturnRejectAt(CustomDateUtils.getCurrentDateTime());
+        }
+        erpReturnItemService.saveAndModify(entity);
     }
 
     @Transactional
