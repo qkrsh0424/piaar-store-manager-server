@@ -188,6 +188,8 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
             return qErpReturnItemEntity.collectAt.between(startDate, endDate);
         } else if (periodType.equals("collected")) {
             return qErpReturnItemEntity.collectCompleteAt.between(startDate, endDate);
+        } else if (periodType.equals("rejected")) {
+            return qErpReturnItemEntity.returnRejectAt.between(startDate, endDate);
         } else if (periodType.equals("completed")) {
             return qErpReturnItemEntity.returnCompleteAt.between(startDate, endDate);
         } else {
