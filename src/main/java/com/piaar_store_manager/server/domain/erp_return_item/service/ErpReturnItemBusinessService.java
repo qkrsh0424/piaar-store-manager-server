@@ -440,4 +440,12 @@ public class ErpReturnItemBusinessService {
         entity.setDeliveryChargeReturnYn(itemDto.getDeliveryChargeReturnYn());
         erpReturnItemService.saveAndModify(entity);
     }
+
+    @Transactional
+    public void changeForDeliveryChargeReturnType(ErpReturnItemDto itemDto) {
+        ErpReturnItemEntity entity = erpReturnItemService.searchOne(itemDto.getId());
+        
+        entity.setDeliveryChargeReturnType(itemDto.getDeliveryChargeReturnType());
+        erpReturnItemService.saveAndModify(entity);
+    }
 }

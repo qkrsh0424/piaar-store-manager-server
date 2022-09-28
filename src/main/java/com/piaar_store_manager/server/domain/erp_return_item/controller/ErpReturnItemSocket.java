@@ -196,4 +196,16 @@ public class ErpReturnItemSocket {
 
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
+
+    @PatchMapping("/delivery-charge-return-type")
+    @PermissionRole
+    public void changeForDeliveryChargeReturnType(@RequestBody ErpReturnItemDto itemDto) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeForDeliveryChargeReturnType(itemDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
 }
