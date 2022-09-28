@@ -26,18 +26,36 @@ public class ProductOptionStockCycleDto {   // w1: 최근 1주, w2: w1 전 1주,
     Integer stockForW1;
     Integer releaseForW1;
     Integer receiveForW1;
+
     Integer releaseForW2;
     Integer receiveForW2;
+
     Integer releaseForW3;
     Integer receiveForW3;
+
     Integer releaseForW4;
     Integer receiveForW4;
+
     Integer releaseForW5;
     Integer receiveForW5;
+
     Integer releaseForW6;
     Integer receiveForW6;
+
     Integer releaseForW7;
     Integer receiveForW7;
+
+    Integer releaseForW8;
+    Integer receiveForW8;
+
+    Integer releaseForW9;
+    Integer receiveForW9;
+
+    Integer releaseForW10;
+    Integer receiveForW10;
+
+    Integer releaseForW11;
+    Integer receiveForW11;
 
     @Getter
     @ToString
@@ -67,6 +85,14 @@ public class ProductOptionStockCycleDto {   // w1: 최근 1주, w2: w1 전 1주,
                 .receiveForW6(rs.getInt("receiveForW6"))
                 .releaseForW7(rs.getInt("releaseForW7"))
                 .receiveForW7(rs.getInt("receiveForW7"))
+                .releaseForW8(rs.getInt("releaseForW8"))
+                .receiveForW8(rs.getInt("receiveForW8"))
+                .releaseForW9(rs.getInt("releaseForW9"))
+                .receiveForW9(rs.getInt("receiveForW9"))
+                .releaseForW10(rs.getInt("releaseForW10"))
+                .receiveForW10(rs.getInt("receiveForW10"))
+                .releaseForW11(rs.getInt("releaseForW11"))
+                .receiveForW11(rs.getInt("receiveForW11"))
                 .build();
 
             return dto;

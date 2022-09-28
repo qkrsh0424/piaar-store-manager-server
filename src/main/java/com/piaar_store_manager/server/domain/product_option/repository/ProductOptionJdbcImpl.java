@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductOptionJdbcImpl implements ProductOptionCustomJdbc {
     private final JdbcTemplate jdbcTemplate;
-    private final int TOTAL_WEEK = 7;
+    private final int TOTAL_WEEK = 11;
 
     @Override
     public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer categoryCid) {
