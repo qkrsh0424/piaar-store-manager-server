@@ -36,9 +36,9 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
     
     private int batchInsert(int batchCount, List<ErpReturnItemEntity> subItems) {
         String sql = "INSERT INTO erp_return_item" + 
-                "(cid, id, waybill_number, courier, transport_type, delivery_charge_return_yn, delivery_charge_return_type, receive_location, return_reason_type, return_reason_detail, " + 
+                "(cid, id, waybill_number, courier, transport_type, delivery_charge_return_type, delivery_charge_return_yn, receive_location, return_reason_type, return_reason_detail, " + 
                 "management_memo1, management_memo2, management_memo3, management_memo4, management_memo5, created_at, created_by, collect_yn, collect_at, collect_complete_yn, " + 
-                "collect_complete_at, return_complete_yn, return_complete_at, hold_yn, hold_at, return_reject_yn, return_reject_at, defective_yn, stock_reflect_yn, erp_order_item_id)" +
+                "collect_complete_at, return_complete_yn, return_complete_at, return_reject_yn, return_reject_at, defective_yn, stock_reflect_yn, erp_order_item_id)" +
                 "VALUES" + 
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
@@ -53,7 +53,8 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(3, entity.getWaybillNumber());
                 ps.setObject(4, entity.getCourier());
                 ps.setObject(5, entity.getTransportType());
-                ps.setObject(7, entity.getDeliveryChargeReturnType());
+                ps.setObject(6, entity.getDeliveryChargeReturnType());
+                ps.setObject(7, entity.getDeliveryChargeReturnYn());
                 ps.setObject(8, entity.getReceiveLocation());
                 ps.setObject(9, entity.getReturnReasonType());
                 ps.setObject(10, entity.getReturnReasonDetail());
@@ -70,11 +71,11 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 ps.setObject(21, entity.getCollectCompleteAt());
                 ps.setObject(22, entity.getReturnCompleteYn());
                 ps.setObject(23, entity.getReturnCompleteAt());
-                ps.setObject(26, entity.getReturnRejectYn());
-                ps.setObject(27, entity.getReturnRejectAt());
-                ps.setObject(28, entity.getDefectiveYn());
-                ps.setObject(29, entity.getStockReflectYn());
-                ps.setObject(30, entity.getErpOrderItemId().toString());
+                ps.setObject(24, entity.getReturnRejectYn());
+                ps.setObject(25, entity.getReturnRejectAt());
+                ps.setObject(26, entity.getDefectiveYn());
+                ps.setObject(27, entity.getStockReflectYn());
+                ps.setObject(28, entity.getErpOrderItemId().toString());
             }
 
             @Override

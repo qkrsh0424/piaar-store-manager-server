@@ -34,12 +34,12 @@ public class ErpReturnItemSocket {
     private final ErpReturnItemBusinessService erpReturnItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @PostMapping("")
+    @PostMapping("/return-product-image")
     @PermissionRole
-    public void createOne(@RequestBody @Valid ErpReturnItemDto itemDto) {
+    public void createErpReturnItemAndReturnProductImage(@RequestBody @Valid ErpReturnItemDto.CreateReq itemDto) {
         Message message = new Message();
 
-        erpReturnItemBusinessService.createOne(itemDto);
+        erpReturnItemBusinessService.createErpReturnItemAndReturnProductImage(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setSocketMemo("[반품 접수] 에 추가된 데이터가 있습니다.");
@@ -183,5 +183,17 @@ public class ErpReturnItemSocket {
 
         messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
         return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("/delivery-charge-return-yn")
+    @PermissionRole
+    public void changeForDeliveryChargeReturnYn(@RequestBody ErpReturnItemDto itemDto) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.changeForDeliveryChargeReturnYn(itemDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
     }
 }

@@ -26,6 +26,7 @@ public class ErpReturnItemVo {
     private String courier;
     private String transportType;
     private String deliveryChargeReturnType;
+    private String deliveryChargeReturnYn;
     private String receiveLocation;
     private String returnReasonType;
     private String returnReasonDetail;
@@ -66,6 +67,7 @@ public class ErpReturnItemVo {
             .courier(proj.getErpReturnItem().getCourier())
             .transportType(proj.getErpReturnItem().getTransportType())
             .deliveryChargeReturnType(proj.getErpReturnItem().getDeliveryChargeReturnType())
+            .deliveryChargeReturnYn(proj.getErpReturnItem().getDeliveryChargeReturnYn())
             .receiveLocation(proj.getErpReturnItem().getReceiveLocation())
             .returnReasonType(proj.getErpReturnItem().getReturnReasonType())
             .returnReasonDetail(proj.getErpReturnItem().getReturnReasonDetail())

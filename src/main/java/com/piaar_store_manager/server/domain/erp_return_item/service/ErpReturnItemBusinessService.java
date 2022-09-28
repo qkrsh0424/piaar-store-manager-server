@@ -30,6 +30,8 @@ import com.piaar_store_manager.server.domain.product_receive.entity.ProductRecei
 import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.return_product_image.entity.ReturnProductImageEntity;
+import com.piaar_store_manager.server.domain.return_product_image.service.ReturnProductImageService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -46,13 +48,16 @@ public class ErpReturnItemBusinessService {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductReceiveService productReceiveService;
     private final OptionPackageService optionPackageService;
+    private final ReturnProductImageService returnProductImageService;
     private final UserService userService;
 
     /*
      * 반품 데이터는 직접 등록이 존재하지 않는다. erp 출고데이터 -> 반품데이터 생성.
      */
     @Transactional
-    public void createOne(ErpReturnItemDto returnItemDto) {
+    public void createErpReturnItemAndReturnProductImage(ErpReturnItemDto.CreateReq returnItemReqDto) {
+        ErpReturnItemDto returnItemDto = returnItemReqDto.getEroReturnItemDto();
+
         UUID USER_ID = userService.getUserId();
         ErpOrderItemEntity orderItemEntity = erpOrderItemService.searchOne(returnItemDto.getErpOrderItemId());
 
@@ -69,12 +74,14 @@ public class ErpReturnItemBusinessService {
             throw new CustomInvalidDataException("반품 요청 사유는 필수값입니다.");
         }
 
+        // 반품 데이터 생성
         ErpReturnItemEntity entity = ErpReturnItemEntity.builder()
                 .id(UUID.randomUUID())
                 .waybillNumber(returnItemDto.getWaybillNumber())
                 .courier(returnItemDto.getCourier())
                 .transportType(returnItemDto.getTransportType())
                 .deliveryChargeReturnType(returnItemDto.getDeliveryChargeReturnType())
+                .deliveryChargeReturnYn("n")
                 .receiveLocation(returnItemDto.getReceiveLocation())
                 .returnReasonType(returnItemDto.getReturnReasonType())
                 .returnReasonDetail(returnItemDto.getReturnReasonDetail())
@@ -99,6 +106,26 @@ public class ErpReturnItemBusinessService {
                 .build();
 
         erpReturnItemService.saveAndModify(entity);
+
+        if (returnItemReqDto.getImageDtos() != null) {
+            // 반품 상품 이미지 등록
+            UUID erpReturnItemId = entity.getId();
+            List<ReturnProductImageEntity> imageEntities = returnItemReqDto.getImageDtos().stream().map(dto -> {
+                ReturnProductImageEntity imageEntity = ReturnProductImageEntity.builder()
+                        .id(UUID.randomUUID())
+                        .imageUrl(dto.getImageUrl())
+                        .imageFileName(dto.getImageFileName())
+                        .createdAt(LocalDateTime.now())
+                        .createdBy(USER_ID)
+                        .productOptionId(dto.getProductOptionId())
+                        .erpReturnItemId(erpReturnItemId)
+                        .build();
+
+                return imageEntity;
+            }).collect(Collectors.toList());
+
+            returnProductImageService.saveListAndModify(imageEntities);
+        }
     }
 
     public Page<ErpReturnItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
@@ -404,5 +431,13 @@ public class ErpReturnItemBusinessService {
     
 
         productReceiveService.deleteByErpOrderItemIds(Arrays.asList(erpReturnItemEntity.getErpOrderItemId()));
+    }
+
+    @Transactional
+    public void changeForDeliveryChargeReturnYn(ErpReturnItemDto itemDto) {
+        ErpReturnItemEntity entity = erpReturnItemService.searchOne(itemDto.getId());
+        
+        entity.setDeliveryChargeReturnYn(itemDto.getDeliveryChargeReturnYn());
+        erpReturnItemService.saveAndModify(entity);
     }
 }

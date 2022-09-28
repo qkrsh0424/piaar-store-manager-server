@@ -1,11 +1,14 @@
 package com.piaar_store_manager.server.domain.erp_return_item.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import com.piaar_store_manager.server.domain.return_product_image.dto.ReturnProductImageDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +38,8 @@ public class ErpReturnItemDto {
     
     @Size(max = 10)
     private String deliveryChargeReturnType;
+
+    private String deliveryChargeReturnYn;
     
     @Size(max = 50)
     private String receiveLocation;
@@ -75,4 +80,18 @@ public class ErpReturnItemDto {
     private String defectiveYn;
     private String stockReflectYn;
     private UUID erpOrderItemId;
+
+    /**
+     * 반품 데이터 & 반품 상품 이미지 생성 시 넘어오는 객체. erp return item. 그 하위 데이터 return product image로 구성된 객체
+     */
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateReq {
+        ErpReturnItemDto eroReturnItemDto;
+        List<ReturnProductImageDto> imageDtos;
+    }
 }
