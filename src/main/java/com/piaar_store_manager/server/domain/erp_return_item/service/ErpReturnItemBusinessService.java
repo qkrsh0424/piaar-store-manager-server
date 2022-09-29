@@ -56,7 +56,7 @@ public class ErpReturnItemBusinessService {
      */
     @Transactional
     public void createErpReturnItemAndReturnProductImage(ErpReturnItemDto.CreateReq returnItemReqDto) {
-        ErpReturnItemDto returnItemDto = returnItemReqDto.getEroReturnItemDto();
+        ErpReturnItemDto returnItemDto = returnItemReqDto.getErpReturnItemDto();
 
         UUID USER_ID = userService.getUserId();
         ErpOrderItemEntity orderItemEntity = erpOrderItemService.searchOne(returnItemDto.getErpOrderItemId());

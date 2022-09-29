@@ -91,7 +91,7 @@ public class ErpReturnItemDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateReq {
-        ErpReturnItemDto eroReturnItemDto;
+        ErpReturnItemDto erpReturnItemDto;
         List<ReturnProductImageDto> imageDtos;
     }
 }
