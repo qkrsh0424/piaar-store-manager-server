@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
@@ -19,28 +18,22 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalesAnalysisItemDto {
-    private String salesProdManagementName;
-    private String salesOptionManagementName;
+    private String salesProdDefaultName;
+    private String salesOptionDefaultName;
     private String salesOptionCode;
     private String salesProdImageUrl;
-    private Integer naverSalesUnit;
-    private Integer coupangSalesUnit;
     private Integer erpSalesUnit;
     
     private String categoryName;
-    @Setter
-    private Integer totalSalesUnit;
     private Integer salesOptionPrice;   // DB에서 가져오는 값이 아닌 직접 구하는 값
     private UUID salesProductId;
 
     public static SalesAnalysisItemDto toDto(SalesAnalysisItemProj proj) {
         SalesAnalysisItemDto dto = SalesAnalysisItemDto.builder()
-            .salesProdManagementName(proj.getProduct().getManagementName())
-            .salesOptionManagementName(proj.getProductOption().getManagementName())
+            .salesProdDefaultName(proj.getProduct().getDefaultName())
+            .salesOptionDefaultName(proj.getProductOption().getDefaultName())
             .salesOptionCode(proj.getProductOption().getCode())
             .salesProdImageUrl(proj.getProduct().getImageUrl())
-            .naverSalesUnit(proj.getDeliveryReadyNaverSalesUnit())
-            .coupangSalesUnit(proj.getDeliveryReadyCoupangSalesUnit())
             .erpSalesUnit(proj.getErpSalesUnit())
             .salesOptionPrice(proj.getProductOption().getSalesPrice())
             .categoryName(proj.getProductCategory().getName())

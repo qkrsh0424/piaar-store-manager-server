@@ -9,7 +9,5 @@ public interface SalesAnalysisItemProj {
     ProductOptionEntity getProductOption();
     ProductCategoryEntity getProductCategory();
     
-    Integer getDeliveryReadyNaverSalesUnit();
-    Integer getDeliveryReadyCoupangSalesUnit();
     Integer getErpSalesUnit();
 }
