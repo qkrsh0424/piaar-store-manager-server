@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.dto.ErpDownloadExcelHeaderDto;
 import com.piaar_store_manager.server.domain.erp_download_excel_header.service.ErpDownloadExcelHeaderBusinessService;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpDownloadOrderItemDto;
+import com.piaar_store_manager.server.domain.excel_form.waybill.WaybillExcelFormManager;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.utils.StaticErpItemDataUtils;
 
@@ -298,20 +299,9 @@ public class ErpDownloadExcelHeaderApi {
 
         row = sheet.createRow(rowNum++);
 
-        cell = row.createCell(0);
-        cell.setCellValue("수취인명");
-        cell = row.createCell(1);
-        // cell.setCellValue("!운송코드");
-        cell.setCellValue("전화번호1");
-        cell = row.createCell(2);
-        cell.setCellValue("운송장번호");
-        cell = row.createCell(3);
-        cell.setCellValue("배송방식");
-        cell = row.createCell(4);
-        cell.setCellValue("택배사");
-
-
-        for (int i = 0; i < 5; i++) {
+        for(int i = 0; i < WaybillExcelFormManager.ALLOWED_CELL_SIZE; i++) {
+            cell = row.createCell(i);
+            cell.setCellValue(WaybillExcelFormManager.HEADER_NAMES.get(i));
             sheet.autoSizeColumn(i);
         }
 

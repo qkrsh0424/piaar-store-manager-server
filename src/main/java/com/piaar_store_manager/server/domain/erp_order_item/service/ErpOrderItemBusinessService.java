@@ -828,17 +828,18 @@ public class ErpOrderItemBusinessService {
     @Transactional
     public int changeBatchForWaybill(List<ErpOrderItemDto> erpOrderItemDtos, List<WaybillExcelFormDto> waybillExcelFormDtos) {
         /*
-        수취인명 별 운임번호 분해작업
+        운송코드 별 운임번호 분해작업
          */
         List<WaybillExcelFormDto> dismantledWaybillExcelFormDtos = new ArrayList<>();
         waybillExcelFormDtos.forEach(r -> {
-            // List<String> freightCodes = List.of(r.getFreightCode().split(","));
-            List<String> receiverContactList = List.of(r.getReceiverContact1().split(","));
+            List<String> freightCodes = List.of(r.getFreightCode().split(","));
+            // List<String> receiverContactList = List.of(r.getReceiverContact1().split(","));
 
-            receiverContactList.forEach(receiverContact -> {
+            freightCodes.forEach(code -> {
                 WaybillExcelFormDto dto = new WaybillExcelFormDto();
                 dto.setReceiver(r.getReceiver());
-                dto.setReceiverContact1(receiverContact);
+                dto.setFreightCode(code);
+                dto.setReceiverContact1(r.getReceiverContact1());
                 dto.setWaybillNumber(r.getWaybillNumber());
                 dto.setTransportType(r.getTransportType());
                 dto.setCourier(r.getCourier());
@@ -859,9 +860,11 @@ public class ErpOrderItemBusinessService {
          * 업데이트 완료된건 카운팅
          */
         erpOrderItemEntities.forEach(erpOrderItemEntity -> {
-            String matchingData = erpOrderItemEntity.getReceiver() + erpOrderItemEntity.getReceiverContact1();
+            String matchingData = erpOrderItemEntity.getFreightCode();
+            // String matchingData = erpOrderItemEntity.getReceiver() + erpOrderItemEntity.getReceiverContact1();
             dismantledWaybillExcelFormDtos.forEach(waybillExcelFormDto -> {
-                String matchedData = waybillExcelFormDto.getReceiver() + waybillExcelFormDto.getReceiverContact1();
+                String matchedData = erpOrderItemEntity.getFreightCode();
+                // String matchedData = waybillExcelFormDto.getReceiver() + waybillExcelFormDto.getReceiverContact1();
                 if (matchingData.equals(matchedData)) {
                     erpOrderItemEntity.setWaybillNumber(waybillExcelFormDto.getWaybillNumber());
                     erpOrderItemEntity.setTransportType(waybillExcelFormDto.getTransportType());

@@ -9,7 +9,7 @@ import com.piaar_store_manager.server.utils.CustomFieldUtils;
 public class WaybillExcelFormManager {
     public static List<String> HEADER_NAMES = Arrays.asList(
             "수취인명",
-            // "!운송코드",
+            "!운송코드",
             "전화번호1",
             "운송장번호",
             "배송방식",

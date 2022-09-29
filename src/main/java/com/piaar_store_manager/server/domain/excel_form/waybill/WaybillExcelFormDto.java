@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 public class WaybillExcelFormDto {
     private String receiver;
-    // private String freightCode;
+    private String freightCode;
     private String receiverContact1;
     private String waybillNumber;
     private String transportType;
