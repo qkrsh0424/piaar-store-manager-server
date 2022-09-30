@@ -903,7 +903,6 @@ public class ErpOrderItemBusinessService {
             });
         });
 
-        erpOrderItemService.saveListAndModify(erpOrderItemEntities);
         return updatedCount.get();
     }
 
