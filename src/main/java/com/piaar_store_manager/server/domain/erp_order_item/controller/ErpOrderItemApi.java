@@ -429,7 +429,7 @@ public class ErpOrderItemApi {
             cell.setCellValue(cellName);
         }
 
-        // 출 리스트 다운로드 데이터
+        // 출고 리스트 다운로드 데이터
         for(int i = 0; i < itemDtos.size(); i++) {
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
