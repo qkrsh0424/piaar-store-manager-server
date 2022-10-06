@@ -11,9 +11,10 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import javax.validation.constraints.Size;
 
 @Data
 @Accessors(chain = true)
@@ -21,26 +22,42 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductGetDto {
+    // private Integer cid;
+    // private UUID id;
+    // private String code;
+    // // private String manufacturingCode;
+    // // private String naverProductCode;
+    // private String defaultName;
+    // private String managementName;
+    // private String imageUrl;
+    // private String imageFileName;
+    // private String purchaseUrl;
+    // private String memo;
+    // // private String hsCode;
+    // // private String style;
+    // // private String tariffRate;
+    // // private Integer defaultWidth;
+    // // private Integer defaultLength;
+    // // private Integer defaultHeight;
+    // // private Integer defaultQuantity;
+    // // private Integer defaultWeight;
+    // // private Integer defaultTotalPurchasePrice;
+    // private Boolean stockManagement;
+    // private LocalDateTime createdAt;
+    // private UUID createdBy;
+    // private LocalDateTime updatedAt;
+    // private UUID updatedBy;
+    // private Integer productCategoryCid;
+
     private Integer cid;
     private UUID id;
     private String code;
-    private String manufacturingCode;
-    private String naverProductCode;
     private String defaultName;
     private String managementName;
     private String imageUrl;
     private String imageFileName;
     private String purchaseUrl;
     private String memo;
-    private String hsCode;
-    private String style;
-    private String tariffRate;
-    private Integer defaultWidth;
-    private Integer defaultLength;
-    private Integer defaultHeight;
-    private Integer defaultQuantity;
-    private Integer defaultWeight;
-    private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
     private LocalDateTime createdAt;
     private UUID createdBy;
@@ -63,30 +80,30 @@ public class ProductGetDto {
             .cid(entity.getCid())
             .id(entity.getId())
             .code(entity.getCode())
-            .manufacturingCode(entity.getManufacturingCode())
-            .naverProductCode(entity.getNaverProductCode())
+            // .manufacturingCode(entity.getManufacturingCode())
+            // .naverProductCode(entity.getNaverProductCode())
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
             .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
-            .hsCode(entity.getHsCode())
-            .tariffRate(entity.getTariffRate())
-            .style(entity.getStyle())
-            .tariffRate(entity.getTariffRate())
-            .defaultWidth(entity.getDefaultWidth())
-            .defaultLength(entity.getDefaultLength())
-            .defaultHeight(entity.getDefaultHeight())
-            .defaultQuantity(entity.getDefaultQuantity())
-            .defaultWeight(entity.getDefaultWeight())
-            .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
+            // .hsCode(entity.getHsCode())
+            // .tariffRate(entity.getTariffRate())
+            // .style(entity.getStyle())
+            // .tariffRate(entity.getTariffRate())
+            // .defaultWidth(entity.getDefaultWidth())
+            // .defaultLength(entity.getDefaultLength())
+            // .defaultHeight(entity.getDefaultHeight())
+            // .defaultQuantity(entity.getDefaultQuantity())
+            // .defaultWeight(entity.getDefaultWeight())
+            // .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
+            .productCategoryCid(entity.getProductCategoryCid())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
-            .productCategoryCid(entity.getProductCategoryCid())
             .build();
 
         return productDto;
@@ -165,5 +182,20 @@ public class ProductGetDto {
         ProductGetDto productDto;
         List<ProductOptionGetDto> optionDtos;
         List<OptionPackageDto> packageDtos;
+    }
+
+    /*
+     * [221005] FEAT  
+     * 상품 & 옵션 생성 시 넘어오는 객체. product, product 하위 데이터 option.
+     */
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CreateProductAndOption {
+        ProductGetDto product;
+        List<ProductOptionGetDto> options;
     }
 }

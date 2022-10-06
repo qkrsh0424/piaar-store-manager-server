@@ -39,8 +39,8 @@ public class ProductOptionEntity {
     @Column(name = "code")
     private String code;
 
-    @Column(name = "nos_unique_code")
-    private String nosUniqueCode;
+    // @Column(name = "nos_unique_code")
+    // private String nosUniqueCode;
 
     @Column(name = "default_name")
     private String defaultName;
@@ -66,26 +66,29 @@ public class ProductOptionEntity {
     @Column(name = "release_location")
     private String releaseLocation;
 
-    @Column(name = "image_url")
-    private String imageUrl;
+    // @Column(name = "image_url")
+    // private String imageUrl;
 
-    @Column(name = "image_file_name")
-    private String imageFileName;
+    // @Column(name = "image_file_name")
+    // private String imageFileName;
 
-    @Column(name = "color")
-    private String color;
+    // @Column(name = "color")
+    // private String color;
 
-    @Column(name = "unit_cny")
-    private String unitCny;
+    // @Column(name = "unit_cny")
+    // private String unitCny;
 
-    @Column(name = "unit_krw")
-    private String unitKrw;
+    // @Column(name = "unit_krw")
+    // private String unitKrw;
 
     @Column(name = "package_yn", columnDefinition = "n")
     private String packageYn;
 
     @Column(name = "safety_stock_unit")
     private Integer safetyStockUnit;
+
+    @Column(name = "product_cid")
+    private Integer productCid;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -100,9 +103,6 @@ public class ProductOptionEntity {
     @Type(type = "uuid-char")
     @Column(name = "updated_by")
     private UUID updatedBy;
-
-    @Column(name = "product_cid")
-    private Integer productCid;
 
     @Transient
     private Integer receivedSum;
@@ -128,7 +128,7 @@ public class ProductOptionEntity {
                 // .id(UUID.randomUUID())
                 .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
-                .nosUniqueCode(productOptionDto.getNosUniqueCode())
+                // .nosUniqueCode(productOptionDto.getNosUniqueCode())
                 .defaultName(productOptionDto.getDefaultName())
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
@@ -137,11 +137,11 @@ public class ProductOptionEntity {
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
                 .releaseLocation(productOptionDto.getReleaseLocation())
-                .imageUrl(productOptionDto.getImageUrl())
-                .imageFileName(productOptionDto.getImageFileName())
-                .color(productOptionDto.getColor())
-                .unitCny(productOptionDto.getUnitCny())
-                .unitKrw(productOptionDto.getUnitKrw())
+                // .imageUrl(productOptionDto.getImageUrl())
+                // .imageFileName(productOptionDto.getImageFileName())
+                // .color(productOptionDto.getColor())
+                // .unitCny(productOptionDto.getUnitCny())
+                // .unitKrw(productOptionDto.getUnitKrw())
                 .packageYn(productOptionDto.getPackageYn())
                 .safetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .createdAt(productOptionDto.getCreatedAt())

@@ -28,7 +28,7 @@ public class ProductOptionGetDto {
     private Integer cid;
     private UUID id;
     private String code;
-    private String nosUniqueCode;
+    // private String nosUniqueCode;
     private String defaultName;
     private String managementName;
     private Integer salesPrice;
@@ -37,22 +37,23 @@ public class ProductOptionGetDto {
     private String status;
     private String memo;
     private String releaseLocation;
-    private String imageUrl;
-    private String imageFileName;
-    private String color;
-    private String unitCny;
-    private String unitKrw;
+    // private String imageUrl;
+    // private String imageFileName;
+    // private String color;
+    // private String unitCny;
+    // private String unitKrw;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
     private UUID updatedBy;
     private Integer productCid;
     private UUID productId;
+    private String packageYn;
+    private Integer safetyStockUnit;
+    
     private Integer releasedSumUnit;
     private Integer receivedSumUnit;
     private Integer stockSumUnit;
-    private String packageYn;
-    private Integer safetyStockUnit;
 
     /**
      * <b>Convert Method</b>
@@ -69,7 +70,7 @@ public class ProductOptionGetDto {
                 .cid(entity.getCid())
                 .id(entity.getId())
                 .code(entity.getCode())
-                .nosUniqueCode(entity.getNosUniqueCode())
+                // .nosUniqueCode(entity.getNosUniqueCode())
                 .defaultName(entity.getDefaultName())
                 .managementName(entity.getManagementName())
                 .salesPrice(entity.getSalesPrice())
@@ -78,11 +79,11 @@ public class ProductOptionGetDto {
                 .status(entity.getStatus())
                 .memo(entity.getMemo())
                 .releaseLocation(entity.getReleaseLocation())
-                .imageUrl(entity.getImageUrl())
-                .imageFileName(entity.getImageFileName())
-                .color(entity.getColor())
-                .unitCny(entity.getUnitCny())
-                .unitKrw(entity.getUnitKrw())
+                // .imageUrl(entity.getImageUrl())
+                // .imageFileName(entity.getImageFileName())
+                // .color(entity.getColor())
+                // .unitCny(entity.getUnitCny())
+                // .unitKrw(entity.getUnitKrw())
                 .packageYn(entity.getPackageYn())
                 .safetyStockUnit(entity.getSafetyStockUnit())
                 .createdAt(entity.getCreatedAt())

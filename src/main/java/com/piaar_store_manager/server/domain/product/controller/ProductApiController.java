@@ -166,23 +166,23 @@ public class ProductApiController {
      * <p>
      * <b>POST : API URL => /api/v1/product/list</b>
      */
-    @PostMapping("/list")
-    @PermissionRole
-    public ResponseEntity<?> createList(@RequestBody List<ProductGetDto.CreateReq> productCreateReqDtos) {
-        Message message = new Message();
+    // @PostMapping("/list")
+    // @PermissionRole
+    // public ResponseEntity<?> createList(@RequestBody List<ProductGetDto.CreateReq> productCreateReqDtos) {
+    //     Message message = new Message();
 
-        try {
-            productBusinessService.createPAOList(productCreateReqDtos);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (DataIntegrityViolationException e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-            message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
-        }
+    //     try {
+    //         productBusinessService.createPAOList(productCreateReqDtos);
+    //         message.setStatus(HttpStatus.OK);
+    //         message.setMessage("success");
+    //     } catch (DataIntegrityViolationException e) {
+    //         message.setStatus(HttpStatus.BAD_REQUEST);
+    //         message.setMessage("error");
+    //         message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
+    //     }
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Create one api for product.
@@ -191,12 +191,25 @@ public class ProductApiController {
      * <p>
      * 단일 product, product 하위의 다중 option, option 하위의 다중 package를 등록한다.
      */
-    @PostMapping("/one")
+    // @PostMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> createOne(@RequestBody ProductGetDto.CreateReq productCreateReqDto) {
+    //     Message message = new Message();
+
+    //     productBusinessService.createPAO(productCreateReqDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    //  [221005] FEAT
+    @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createOne(@RequestBody ProductGetDto.CreateReq productCreateReqDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody ProductGetDto.CreateProductAndOption createDto) {
         Message message = new Message();
 
-        productBusinessService.createPAO(productCreateReqDto);
+        productBusinessService.createProductAndOptions(createDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
