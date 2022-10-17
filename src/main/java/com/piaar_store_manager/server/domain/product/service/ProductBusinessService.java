@@ -18,6 +18,9 @@ import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -180,6 +183,37 @@ public class ProductBusinessService {
         });
 
         return productDtos;
+    }
+
+    // 22.10.17 NEW
+    public Page<ProductGetDto.FullJoin> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        Page<ProductFJProj> pages = productService.findAllFJByPage(params, pageable);
+        List<ProductFJProj> projs = pages.getContent();
+        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+
+        // option setting
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
+        productDtos.forEach(dto -> {
+            if(dto.getOptions() != null) {
+                List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
+                optionEntities.addAll(entities);
+            }
+        });
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+
+        // option stockSumUnit setting
+        productDtos.forEach(dto -> {
+            dto.getOptions().forEach(optionDto -> {
+                optionEntities.forEach(optionEntity -> {
+                    if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
+                        optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
+                        return;
+                    }
+                });
+            });
+        });
+
+        return new PageImpl<>(productDtos, pageable, pages.getTotalElements());
     }
 
     @Transactional

@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
@@ -18,6 +21,7 @@ import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
@@ -85,6 +89,51 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         // QueryResults<ProductFJProj> result = customQuery.fetchResults();
         // return result.getResults();
         return projs;
+    }
+
+    @Override
+    public Page<ProductFJProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
+        JPQLQuery customQuery = query.from(qProductEntity)
+            .select(
+                qProductEntity.cid
+            )
+            .where(eqStockManagement(params))
+            .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
+            .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
+            .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
+            .join(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
+            .groupBy(qProductEntity.cid)
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            ;
+
+        List<Integer> productCids = customQuery.fetch();
+        Long totalCount = customQuery.fetchCount();
+
+        List<ProductFJProj> projs = query.from(qProductEntity)
+            .where(eqStockManagement(params))
+            .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
+            .where(qProductEntity.cid.in(productCids))
+            .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
+            .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
+            .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
+            .transform(
+                GroupBy.groupBy(qProductEntity.cid)
+                    .list(
+                        Projections.fields(
+                            ProductFJProj.class,
+                            qProductEntity.as("product"),
+                            qProductCategoryEntity.as("category"),
+                            GroupBy.set(
+                                qProductOptionEntity
+                            ).as("options"),
+                            qUserEntity.as("user")
+                        )
+                    )
+            )
+            ;
+
+        return new PageImpl<ProductFJProj>(projs, pageable, totalCount);
     }
 
     private BooleanExpression eqStockManagement(Map<String, Object> params) {

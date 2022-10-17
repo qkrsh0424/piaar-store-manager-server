@@ -1,6 +1,9 @@
 package com.piaar_store_manager.server.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -95,5 +98,9 @@ public class ProductService {
 
     public List<ProductFJProj> findAllFJ(Map<String, Object> params) {
         return productRepository.qfindAllFJ(params);
+    }
+
+    public Page<ProductFJProj> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qfindAllFJByPage(params, pageable);
     }
 }
