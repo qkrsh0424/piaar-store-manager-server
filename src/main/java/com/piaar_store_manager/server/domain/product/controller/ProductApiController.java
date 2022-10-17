@@ -7,12 +7,12 @@ import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.service.ProductBusinessService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -155,6 +155,19 @@ public class ProductApiController {
         Message message = new Message();
 
         message.setData(productBusinessService.searchStockListFJ());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // 22.10.11 FEAT
+    // 재고관리 페이지에서 조회할 데이터
+    @GetMapping("/batch/stock")
+    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(productBusinessService.searchBatch(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

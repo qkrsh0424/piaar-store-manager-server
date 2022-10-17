@@ -244,7 +244,8 @@ public class ProductOptionBusinessService {
                 // .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                 .setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName())
-                .setSalesPrice(productOptionDto.getSalesPrice()).setStockUnit(productOptionDto.getStockUnit())
+                .setSalesPrice(productOptionDto.getSalesPrice())
+                // .setStockUnit(productOptionDto.getStockUnit())
                 .setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice())
                 .setStatus(productOptionDto.getStatus()).setMemo(productOptionDto.getMemo())
                 // .setImageUrl(productOptionDto.getImageUrl()).setImageFileName(productOptionDto.getImageFileName())
@@ -285,7 +286,8 @@ public class ProductOptionBusinessService {
                 // .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
                 .setDefaultName(productOptionGetDto.getDefaultName())
                 .setManagementName(productOptionGetDto.getManagementName())
-                .setSalesPrice(productOptionGetDto.getSalesPrice()).setStockUnit(productOptionGetDto.getStockUnit())
+                .setSalesPrice(productOptionGetDto.getSalesPrice())
+                // .setStockUnit(productOptionGetDto.getStockUnit())
                 .setTotalPurchasePrice(productOptionGetDto.getTotalPurchasePrice())
                 .setStatus(productOptionGetDto.getStatus())
                 .setReleaseLocation(productOptionGetDto.getReleaseLocation())
@@ -340,9 +342,9 @@ public class ProductOptionBusinessService {
         if (productOptionDto.getTotalPurchasePrice() != null) {
             productOptionEntity.setTotalPurchasePrice(productOptionDto.getTotalPurchasePrice());
         }
-        if (productOptionDto.getStockUnit() != null) {
-            productOptionEntity.setStockUnit(productOptionDto.getStockUnit());
-        }
+        // if (productOptionDto.getStockUnit() != null) {
+        //     productOptionEntity.setStockUnit(productOptionDto.getStockUnit());
+        // }
         if (productOptionDto.getStatus() != null) {
             productOptionEntity.setStatus(productOptionDto.getStatus());
         }

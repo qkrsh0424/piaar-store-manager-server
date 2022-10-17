@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProductRepository extends JpaRepository<ProductEntity, Integer> {
+public interface ProductRepository extends JpaRepository<ProductEntity, Integer>, ProductRepositoryCustom {
     
     /**
      * cid값에 대응되는 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.

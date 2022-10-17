@@ -133,7 +133,7 @@ public class ProductOptionEntity {
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
                 .totalPurchasePrice(productOptionDto.getTotalPurchasePrice())
-                .stockUnit(productOptionDto.getStockUnit())
+                // .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
                 .releaseLocation(productOptionDto.getReleaseLocation())

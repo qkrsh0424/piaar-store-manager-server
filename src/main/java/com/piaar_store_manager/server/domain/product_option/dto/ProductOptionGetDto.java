@@ -32,7 +32,7 @@ public class ProductOptionGetDto {
     private String defaultName;
     private String managementName;
     private Integer salesPrice;
-    private Integer stockUnit;
+    // private Integer stockUnit;
     private Integer totalPurchasePrice;     // 추가된 항목
     private String status;
     private String memo;
@@ -75,7 +75,7 @@ public class ProductOptionGetDto {
                 .managementName(entity.getManagementName())
                 .salesPrice(entity.getSalesPrice())
                 .totalPurchasePrice(entity.getTotalPurchasePrice())
-                .stockUnit(entity.getStockUnit())
+                // .stockUnit(entity.getStockUnit())
                 .status(entity.getStatus())
                 .memo(entity.getMemo())
                 .releaseLocation(entity.getReleaseLocation())

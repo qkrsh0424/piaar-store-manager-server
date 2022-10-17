@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product.dto;
 
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -13,8 +14,7 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-
-import javax.validation.constraints.Size;
+import java.util.stream.Collectors;
 
 @Data
 @Accessors(chain = true)
@@ -163,6 +163,22 @@ public class ProductGetDto {
                     .product(product)
                     .category(category)
                     .user(user)
+                    .build();
+
+            return dto;
+        }
+
+        public static FullJoin toDto(ProductFJProj proj) {
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            UserGetDto user = UserGetDto.toDto(proj.getUser());
+            List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
+
+            FullJoin dto = FullJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .user(user)
+                    .options(options)
                     .build();
 
             return dto;

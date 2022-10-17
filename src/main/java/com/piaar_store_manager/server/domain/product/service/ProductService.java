@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product.repository.ProductRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
@@ -89,5 +91,9 @@ public class ProductService {
         productRepository.findById(productCid).ifPresent(product -> {
             productRepository.delete(product);
         });
+    }
+
+    public List<ProductFJProj> findAllFJ(Map<String, Object> params) {
+        return productRepository.qfindAllFJ(params);
     }
 }

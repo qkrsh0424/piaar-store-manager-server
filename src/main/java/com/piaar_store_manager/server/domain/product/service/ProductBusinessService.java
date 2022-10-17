@@ -1,14 +1,15 @@
 package com.piaar_store_manager.server.domain.product.service;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
@@ -149,6 +150,36 @@ public class ProductBusinessService {
             return productFJDto;
         }).collect(Collectors.toList());
         return productFJDtos;
+    }
+
+    // 22.10.11 NEW
+    public List<ProductGetDto.FullJoin> searchBatch(Map<String, Object> params) {
+        List<ProductFJProj> projs = productService.findAllFJ(params);
+        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+
+        // option setting
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
+        productDtos.forEach(dto -> {
+            if(dto.getOptions() != null) {
+                List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
+                optionEntities.addAll(entities);
+            }
+        });
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+
+        // option stockSumUnit setting
+        productDtos.forEach(dto -> {
+            dto.getOptions().forEach(optionDto -> {
+                optionEntities.forEach(optionEntity -> {
+                    if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
+                        optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
+                        return;
+                    }
+                });
+            });
+        });
+
+        return productDtos;
     }
 
     @Transactional
