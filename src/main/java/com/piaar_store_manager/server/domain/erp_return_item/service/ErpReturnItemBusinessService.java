@@ -81,7 +81,7 @@ public class ErpReturnItemBusinessService {
                 .courier(returnItemDto.getCourier())
                 .transportType(returnItemDto.getTransportType())
                 .deliveryChargeReturnType(returnItemDto.getDeliveryChargeReturnType())
-                .deliveryChargeReturnYn("n")
+                .deliveryChargeReturnYn(returnItemDto.getDeliveryChargeReturnYn())
                 .receiveLocation(returnItemDto.getReceiveLocation())
                 .returnReasonType(returnItemDto.getReturnReasonType())
                 .returnReasonDetail(returnItemDto.getReturnReasonDetail())
@@ -442,10 +442,10 @@ public class ErpReturnItemBusinessService {
     }
 
     @Transactional
-    public void changeForDeliveryChargeReturnType(ErpReturnItemDto itemDto) {
+    public void changeForDeliveryChargeReturnTypeAndReturnYn(ErpReturnItemDto itemDto) {
         ErpReturnItemEntity entity = erpReturnItemService.searchOne(itemDto.getId());
         
-        entity.setDeliveryChargeReturnType(itemDto.getDeliveryChargeReturnType());
+        entity.setDeliveryChargeReturnType(itemDto.getDeliveryChargeReturnType()).setDeliveryChargeReturnYn(itemDto.getDeliveryChargeReturnYn());
         erpReturnItemService.saveAndModify(entity);
     }
 }

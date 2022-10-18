@@ -199,10 +199,10 @@ public class ErpReturnItemSocket {
 
     @PatchMapping("/delivery-charge-return-type")
     @PermissionRole
-    public void changeForDeliveryChargeReturnType(@RequestBody ErpReturnItemDto itemDto) {
+    public void changeForDeliveryChargeReturnTypeAndReturnYn(@RequestBody ErpReturnItemDto itemDto) {
         Message message = new Message();
 
-        erpReturnItemBusinessService.changeForDeliveryChargeReturnType(itemDto);
+        erpReturnItemBusinessService.changeForDeliveryChargeReturnTypeAndReturnYn(itemDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
