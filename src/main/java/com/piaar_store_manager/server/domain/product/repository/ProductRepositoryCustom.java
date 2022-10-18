@@ -7,10 +7,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 
 @Repository
 public interface ProductRepositoryCustom {
-    List<ProductFJProj> qfindAllFJ(Map<String, Object> params);
-    Page<ProductFJProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable);
+    List<ProductManagementProj> qfindAllFJ(Map<String, Object> params);
+    Page<ProductManagementProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable);
 }

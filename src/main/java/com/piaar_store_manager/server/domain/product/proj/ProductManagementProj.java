@@ -5,7 +5,6 @@ import java.util.Set;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.user.entity.UserEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,9 +17,8 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductFJProj {
+public class ProductManagementProj {
     private ProductEntity product;
     private ProductCategoryEntity category;
     private Set<ProductOptionEntity> options;
-    private UserEntity user;
 }

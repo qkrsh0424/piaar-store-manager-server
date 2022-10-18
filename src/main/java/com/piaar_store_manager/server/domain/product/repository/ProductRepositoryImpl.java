@@ -2,15 +2,17 @@ package com.piaar_store_manager.server.domain.product.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.user.entity.QUserEntity;
@@ -18,8 +20,12 @@ import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.group.GroupBy;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -41,32 +47,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ProductFJProj> qfindAllFJ(Map<String, Object> params) {
-        // JPQLQuery customQuery = query.from(qProductEntity)
-        //     // .select(Projections.fields(ProductFJProj.class,
-        //     //     qProductEntity.as("product"),
-        //     //     qProductOptionEntity.as("option"),
-        //     //     qProductCategoryEntity.as("category"),
-        //     //     qUserEntity.as("user")
-        //     // ))
-        //     .select(
-        //         qProductEntity.cid
-        //     )
-        //     .where(eqStockManagement(params))
-        //     .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
-        //     .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
-        //     .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
-        //     .join(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-        //     .groupBy(qProductEntity.cid)
-        //     ;
-
-        // List<Integer> productCids = customQuery.fetch();
-        // Long totalCount = customQuery.fetchCount();
-
-        List<ProductFJProj> projs = query.from(qProductEntity)
+    public List<ProductManagementProj> qfindAllFJ(Map<String, Object> params) {
+        List<ProductManagementProj> projs = query.from(qProductEntity)
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
-            // .where(qProductEntity.cid.in(productCids))
             .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
             .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
@@ -74,7 +58,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 GroupBy.groupBy(qProductEntity.cid)
                     .list(
                         Projections.fields(
-                            ProductFJProj.class,
+                            ProductManagementProj.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
                             GroupBy.set(
@@ -86,20 +70,17 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             )
             ;
 
-        // QueryResults<ProductFJProj> result = customQuery.fetchResults();
-        // return result.getResults();
         return projs;
     }
 
     @Override
-    public Page<ProductFJProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
+    public Page<ProductManagementProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qProductEntity)
             .select(
                 qProductEntity.cid
             )
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
-            .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
             .join(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
             .groupBy(qProductEntity.cid)
@@ -107,33 +88,54 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             .limit(pageable.getPageSize())
             ;
 
+        try {
+            this.sortPagedData(customQuery, pageable);
+        } catch (QueryException e) {
+            throw new CustomInvalidDataException(e.getMessage());
+        }
+
         List<Integer> productCids = customQuery.fetch();
         Long totalCount = customQuery.fetchCount();
 
-        List<ProductFJProj> projs = query.from(qProductEntity)
+        List<ProductManagementProj> projs = query.from(qProductEntity)
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
             .where(qProductEntity.cid.in(productCids))
-            .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
+            .orderBy(this.orderByProductCids(productCids))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
             .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
             .transform(
                 GroupBy.groupBy(qProductEntity.cid)
                     .list(
                         Projections.fields(
-                            ProductFJProj.class,
+                            ProductManagementProj.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
                             GroupBy.set(
                                 qProductOptionEntity
-                            ).as("options"),
-                            qUserEntity.as("user")
+                            ).as("options")
                         )
                     )
             )
             ;
 
-        return new PageImpl<ProductFJProj>(projs, pageable, totalCount);
+        return new PageImpl<ProductManagementProj>(projs, pageable, totalCount);
+    }
+
+    private OrderSpecifier<?> orderByProductCids(List<Integer> productCids) {
+        // qProductEntity.cid를 productCids 순서로 정렬한다
+        return Expressions.stringTemplate("FIELD({0}, {1})", qProductEntity.cid, productCids).asc();
+    }
+
+    private void sortPagedData(JPQLQuery customQuery, Pageable pageable) {
+        for (Sort.Order o : pageable.getSort()) {
+            PathBuilder productBuilder = new PathBuilder(qProductEntity.getType(), qProductEntity.getMetadata());
+
+            if(CustomFieldUtils.getFieldByName(qProductEntity, o.getProperty().toString()) == null) {
+                throw new QueryException("올바른 데이터가 아닙니다.");
+            }
+            customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, productBuilder.get(o.getProperty())));
+        }
     }
 
     private BooleanExpression eqStockManagement(Map<String, Object> params) {

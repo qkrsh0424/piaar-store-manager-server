@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
@@ -21,6 +21,7 @@ import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -157,63 +158,47 @@ public class ProductBusinessService {
 
     // 22.10.11 NEW
     public List<ProductGetDto.FullJoin> searchBatch(Map<String, Object> params) {
-        List<ProductFJProj> projs = productService.findAllFJ(params);
+        List<ProductManagementProj> projs = productService.findAllFJ(params);
         List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
 
-        // option setting
-        List<ProductOptionEntity> optionEntities = new ArrayList<>();
-        productDtos.forEach(dto -> {
-            if(dto.getOptions() != null) {
-                List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
-                optionEntities.addAll(entities);
-            }
-        });
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
-
-        // option stockSumUnit setting
-        productDtos.forEach(dto -> {
-            dto.getOptions().forEach(optionDto -> {
-                optionEntities.forEach(optionEntity -> {
-                    if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
-                        optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
-                        return;
-                    }
-                });
-            });
-        });
-
+        this.setOptionStockSumUnit(productDtos);
         return productDtos;
     }
 
     // 22.10.17 NEW
     public Page<ProductGetDto.FullJoin> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        Page<ProductFJProj> pages = productService.findAllFJByPage(params, pageable);
-        List<ProductFJProj> projs = pages.getContent();
+        Page<ProductManagementProj> pages = productService.findAllFJByPage(params, pageable);
+        List<ProductManagementProj> projs = pages.getContent();
         List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
 
         // option setting
-        List<ProductOptionEntity> optionEntities = new ArrayList<>();
-        productDtos.forEach(dto -> {
-            if(dto.getOptions() != null) {
-                List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
-                optionEntities.addAll(entities);
-            }
-        });
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
-
-        // option stockSumUnit setting
-        productDtos.forEach(dto -> {
-            dto.getOptions().forEach(optionDto -> {
-                optionEntities.forEach(optionEntity -> {
-                    if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
-                        optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
-                        return;
-                    }
-                });
-            });
-        });
-
+        this.setOptionStockSumUnit(productDtos);
         return new PageImpl<>(productDtos, pageable, pages.getTotalElements());
+    }
+
+    // 옵션 입출고 수량 계산. 옵션의 재고수량을 수정
+    public void setOptionStockSumUnit(List<ProductGetDto.FullJoin> productDtos) {
+         // option setting
+         List<ProductOptionEntity> optionEntities = new ArrayList<>();
+         productDtos.forEach(dto -> {
+             if(dto.getOptions() != null) {
+                 List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
+                 optionEntities.addAll(entities);
+             }
+         });
+         productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+ 
+         // option stockSumUnit setting
+         productDtos.forEach(dto -> {
+             dto.getOptions().forEach(optionDto -> {
+                 optionEntities.forEach(optionEntity -> {
+                     if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
+                         optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
+                         return;
+                     }
+                 });
+             });
+         });
     }
 
     @Transactional

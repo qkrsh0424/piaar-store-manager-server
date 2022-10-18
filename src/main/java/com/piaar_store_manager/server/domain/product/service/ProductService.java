@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductFJProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product.repository.ProductRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
@@ -96,11 +96,11 @@ public class ProductService {
         });
     }
 
-    public List<ProductFJProj> findAllFJ(Map<String, Object> params) {
+    public List<ProductManagementProj> findAllFJ(Map<String, Object> params) {
         return productRepository.qfindAllFJ(params);
     }
 
-    public Page<ProductFJProj> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
+    public Page<ProductManagementProj> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
         return productRepository.qfindAllFJByPage(params, pageable);
     }
 }
