@@ -181,7 +181,7 @@ public class ProductApiController {
     // 22.10.17 FEAT
     // 재고관리 페이지에서 조회할 데이터 - 페이징처리
     @GetMapping("/batch/stock/page")
-    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
         Message message = new Message();
 
         message.setData(productBusinessService.searchBatchByPaging(params, pageable));
