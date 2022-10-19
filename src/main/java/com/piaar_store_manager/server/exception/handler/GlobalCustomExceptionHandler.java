@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.stream.Collectors;
+
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
@@ -99,7 +102,8 @@ public class GlobalCustomExceptionHandler {
         Message message = new Message();
         message.setStatus(HttpStatus.BAD_REQUEST);
         message.setMessage("data_valid_error");
-        message.setMemo(e.getMessage());
+        String messageTemplate = e.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.toList()).toString();
+        message.setMemo(messageTemplate);
 
         return new ResponseEntity<>(message, message.getStatus());
     }
@@ -111,7 +115,8 @@ public class GlobalCustomExceptionHandler {
         Message message = new Message();
         message.setStatus(HttpStatus.BAD_REQUEST);
         message.setMessage("data_valid_error");
-        message.setMemo(e.getFieldError().getField() + " : " + e.getFieldError().getDefaultMessage());
+        // message.setMemo(e.getFieldError().getField() + " : " + e.getFieldError().getDefaultMessage());
+        message.setMemo(e.getFieldError().getDefaultMessage());
 
         return new ResponseEntity<>(message, message.getStatus());
     }

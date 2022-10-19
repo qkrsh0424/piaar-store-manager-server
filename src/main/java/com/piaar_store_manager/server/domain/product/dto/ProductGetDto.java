@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 @Data
 @Accessors(chain = true)
 @Builder
@@ -49,13 +53,25 @@ public class ProductGetDto {
     // private UUID updatedBy;
     // private Integer productCategoryCid;
 
-    private Integer cid;
+    // private Integer cid;
+
     private UUID id;
+
+    @Size(max = 20, message = "'상품코드'는 20자 이내로 입력해주세요.")
     private String code;
+
+    @NotBlank(message = "'상품명'을 입력해주세요.")
+    @Size(max = 100, message = "'상품명'은 100자 이내로 입력해주세요.")
     private String defaultName;
+
+    @Size(max = 100, message = "'상품설명'은 100자 이내로 입력해주세요.")
     private String managementName;
+
     private String imageUrl;
+    
+    @Size(max = 100, message = "'이미지 파일명'은 100자 이내로 입력해주세요.")
     private String imageFileName;
+
     private String purchaseUrl;
     private String memo;
     private Boolean stockManagement;
@@ -77,7 +93,7 @@ public class ProductGetDto {
         if(entity == null) return null;
         
         ProductGetDto productDto = ProductGetDto.builder()
-            .cid(entity.getCid())
+            // .cid(entity.getCid())
             .id(entity.getId())
             .code(entity.getCode())
             // .manufacturingCode(entity.getManufacturingCode())
@@ -209,7 +225,9 @@ public class ProductGetDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateProductAndOption {
+        @Valid
         ProductGetDto product;
+        @Valid
         List<ProductOptionGetDto> options;
     }
 }

@@ -25,11 +25,11 @@ import com.piaar_store_manager.server.domain.message.Message;
 
 import lombok.RequiredArgsConstructor;
 
-@Validated
 @RestController
 @RequestMapping("/ws/v1/erp-return-items")
 @RequiredLogin
 @RequiredArgsConstructor
+@Validated
 public class ErpReturnItemSocket {
     private final ErpReturnItemBusinessService erpReturnItemBusinessService;
     private final SimpMessagingTemplate messagingTemplate;

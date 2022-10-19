@@ -13,11 +13,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.Valid;
+
+@Validated
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor
@@ -236,7 +240,7 @@ public class ProductApiController {
     //  [221005] FEAT
     @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createProductAndOptions(@RequestBody ProductGetDto.CreateProductAndOption createDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.CreateProductAndOption createDto) {
         Message message = new Message();
 
         productBusinessService.createProductAndOptions(createDto);

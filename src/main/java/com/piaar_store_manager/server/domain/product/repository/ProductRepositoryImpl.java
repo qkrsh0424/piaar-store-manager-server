@@ -2,7 +2,6 @@ package com.piaar_store_manager.server.domain.product.repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -123,7 +122,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private OrderSpecifier<?> orderByProductCids(List<Integer> productCids) {
-        // qProductEntity.cid를 productCids 순서로 정렬한다
+        // qProductEntity.cid를 정렬된 productCids 순서로 정렬한다.
         return Expressions.stringTemplate("FIELD({0}, {1})", qProductEntity.cid, productCids).asc();
     }
 

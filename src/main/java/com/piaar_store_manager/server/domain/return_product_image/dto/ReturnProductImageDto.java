@@ -3,6 +3,9 @@ package com.piaar_store_manager.server.domain.return_product_image.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import com.piaar_store_manager.server.domain.return_product_image.entity.ReturnProductImageEntity;
 
 import lombok.AllArgsConstructor;
@@ -22,6 +25,9 @@ import lombok.experimental.Accessors;
 public class ReturnProductImageDto {
     private UUID id;
     private String imageUrl;
+
+    @NotBlank(message = "'이미지 파일명'을 입력해주세요.")
+    @Size(max = 100, message = "'이미지 파일명'은 100자 이내로 입력해주세요.")
     private String imageFileName;
     private LocalDateTime createdAt;
     private UUID createdBy;

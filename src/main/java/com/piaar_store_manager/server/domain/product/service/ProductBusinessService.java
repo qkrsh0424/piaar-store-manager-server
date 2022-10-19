@@ -21,7 +21,6 @@ import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +36,8 @@ public class ProductBusinessService {
     private final UserService userService;
 
     public ProductGetDto searchOne(Integer productCid) {
+        // TODO :: cid -> id로 변경하자
+        // ProductEntity entity = productService.searchOne(id);
         ProductEntity entity = productService.searchOne(productCid);
         return ProductGetDto.toDto(entity);
     }
@@ -336,7 +337,7 @@ public class ProductBusinessService {
     public void changePAO(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
         productEntity.setCode(productDto.getCode())
                 // .setManufacturingCode(productDto.getManufacturingCode())
                 // .setNaverProductCode(productDto.getNaverProductCode())
@@ -379,7 +380,7 @@ public class ProductBusinessService {
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
 
         if (productDto.getCode() != null) {
             productEntity.setCode(productDto.getCode());
