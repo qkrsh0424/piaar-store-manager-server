@@ -300,7 +300,8 @@ public class ProductBusinessService {
                     .setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                     .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                     .setPackageYn("n")
-                    .setProductCid(savedEntity.getCid());
+                    .setProductCid(savedEntity.getCid())
+                    .setProductId(savedEntity.getId());
             return ProductOptionEntity.toEntity(r);
         }).collect(Collectors.toList());
 

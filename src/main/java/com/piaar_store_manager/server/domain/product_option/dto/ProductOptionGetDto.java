@@ -143,6 +143,7 @@ public class ProductOptionGetDto {
                 .updatedAt(entity.getUpdatedAt())
                 .updatedBy(entity.getUpdatedBy())
                 .productCid(entity.getProductCid())
+                .productId(entity.getProductId())
                 .build();
 
         return dto;

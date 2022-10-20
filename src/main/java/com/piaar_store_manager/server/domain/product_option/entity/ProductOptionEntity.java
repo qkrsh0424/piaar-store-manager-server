@@ -95,6 +95,10 @@ public class ProductOptionEntity {
     @Column(name = "product_cid")
     private Integer productCid;
 
+    @Type(type = "uuid-char")
+    @Column(name = "product_id")
+    private UUID productId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -130,23 +134,15 @@ public class ProductOptionEntity {
     public static ProductOptionEntity toEntity(ProductOptionGetDto productOptionDto) {
         ProductOptionEntity productOptionEntity = ProductOptionEntity.builder()
                 .cid(productOptionDto.getCid())
-                // .id(UUID.randomUUID())
                 .id(productOptionDto.getId())
                 .code(productOptionDto.getCode())
-                // .nosUniqueCode(productOptionDto.getNosUniqueCode())
                 .defaultName(productOptionDto.getDefaultName())
                 .managementName(productOptionDto.getManagementName())
                 .salesPrice(productOptionDto.getSalesPrice())
                 .totalPurchasePrice(productOptionDto.getTotalPurchasePrice())
-                // .stockUnit(productOptionDto.getStockUnit())
                 .status(productOptionDto.getStatus())
                 .memo(productOptionDto.getMemo())
                 .releaseLocation(productOptionDto.getReleaseLocation())
-                // .imageUrl(productOptionDto.getImageUrl())
-                // .imageFileName(productOptionDto.getImageFileName())
-                // .color(productOptionDto.getColor())
-                // .unitCny(productOptionDto.getUnitCny())
-                // .unitKrw(productOptionDto.getUnitKrw())
                 .packageYn(productOptionDto.getPackageYn())
                 .safetyStockUnit(productOptionDto.getSafetyStockUnit())
                 .createdAt(productOptionDto.getCreatedAt())
@@ -154,6 +150,7 @@ public class ProductOptionEntity {
                 .updatedAt(productOptionDto.getUpdatedAt())
                 .updatedBy(productOptionDto.getUpdatedBy())
                 .productCid(productOptionDto.getProductCid())
+                .productId(productOptionDto.getProductId())
                 .build();
 
         return productOptionEntity;
