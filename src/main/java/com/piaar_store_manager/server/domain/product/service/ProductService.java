@@ -101,8 +101,8 @@ public class ProductService {
         productRepository.saveAll(entities);
     }
 
-    public void destroyOne(Integer productCid) {
-        productRepository.findById(productCid).ifPresent(product -> {
+    public void destroyOne(UUID productId) {
+        productRepository.findById(productId).ifPresent(product -> {
             productRepository.delete(product);
         });
     }
@@ -113,5 +113,9 @@ public class ProductService {
 
     public Page<ProductManagementProj> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
         return productRepository.qfindAllFJByPage(params, pageable);
+    }
+
+    public ProductManagementProj qSelectProductAndOptions(UUID productId) {
+        return productRepository.qSelectProductAndOptions(productId);
     }
 }

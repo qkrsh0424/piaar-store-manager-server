@@ -241,7 +241,8 @@ public class ProductOptionBusinessService {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity optionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
-        optionEntity.setCode(productOptionDto.getCode())
+        optionEntity
+                // .setCode(productOptionDto.getCode())
                 // .setNosUniqueCode(productOptionDto.getNosUniqueCode())
                 .setDefaultName(productOptionDto.getDefaultName())
                 .setManagementName(productOptionDto.getManagementName())
@@ -254,8 +255,8 @@ public class ProductOptionBusinessService {
                 // .setUnitKrw(productOptionDto.getUnitKrw())
                 .setPackageYn(productOptionDto.getPackageYn())
                 .setSafetyStockUnit(productOptionDto.getSafetyStockUnit())
-                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
-                .setProductCid(productOptionDto.getProductCid());
+                .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
+                // .setProductCid(productOptionDto.getProductCid());
 
         productOptionService.saveAndModify(optionEntity);
     }
@@ -283,7 +284,7 @@ public class ProductOptionBusinessService {
         영속성 업데이트
          */
         productOptionEntity
-                .setCode(productOptionGetDto.getCode())
+                // .setCode(productOptionGetDto.getCode())
                 // .setNosUniqueCode(productOptionGetDto.getNosUniqueCode())
                 .setDefaultName(productOptionGetDto.getDefaultName())
                 .setManagementName(productOptionGetDto.getManagementName())
@@ -299,8 +300,8 @@ public class ProductOptionBusinessService {
                 .setPackageYn(productOptionGetDto.getPackageYn())
                 .setSafetyStockUnit(productOptionGetDto.getSafetyStockUnit())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
-                .setUpdatedBy(USER_ID)
-                .setProductCid(productOptionGetDto.getProductCid());
+                .setUpdatedBy(USER_ID);
+                // .setProductCid(productOptionGetDto.getProductCid());
 
         // 패키지 상품 여부
         if(reqDto.getPackageDtos().size() > 0) {
@@ -325,9 +326,9 @@ public class ProductOptionBusinessService {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity productOptionEntity = productOptionService.searchOne(productOptionDto.getCid());
 
-        if (productOptionDto.getCode() != null) {
-            productOptionEntity.setCode(productOptionDto.getCode());
-        }
+        // if (productOptionDto.getCode() != null) {
+        //     productOptionEntity.setCode(productOptionDto.getCode());
+        // }
         // if (productOptionDto.getNosUniqueCode() != null) {
         //     productOptionEntity.setNosUniqueCode(productOptionDto.getNosUniqueCode());
         // }
@@ -367,9 +368,9 @@ public class ProductOptionBusinessService {
         // if (productOptionDto.getUnitKrw() != null) {
         //     productOptionEntity.setUnitKrw(productOptionDto.getUnitKrw());
         // }
-        if (productOptionDto.getProductCid() != null) {
-            productOptionEntity.setProductCid(productOptionDto.getProductCid());
-        }
+        // if (productOptionDto.getProductCid() != null) {
+        //     productOptionEntity.setProductCid(productOptionDto.getProductCid());
+        // }
         if (productOptionDto.getSafetyStockUnit() != null) {
             productOptionEntity.setSafetyStockUnit(productOptionDto.getSafetyStockUnit());
         }

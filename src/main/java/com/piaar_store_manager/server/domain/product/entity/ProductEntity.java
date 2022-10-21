@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -24,6 +27,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 public class ProductEntity {
 
     @Id
@@ -35,7 +40,7 @@ public class ProductEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Setter
+    // @Setter
     @Column(name = "code")
     private String code;
 

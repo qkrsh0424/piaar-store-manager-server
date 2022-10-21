@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.validation.Valid;
 
@@ -240,10 +241,35 @@ public class ProductApiController {
     //  [221005] FEAT
     @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.CreateProductAndOption createDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
         Message message = new Message();
 
         productBusinessService.createProductAndOptions(createDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // [221021] FEAT
+    @PutMapping("/options")
+    @PermissionRole
+    public ResponseEntity<?> updateProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
+        Message message = new Message();
+
+        productBusinessService.updateProductAndOptions(createDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // [221021] FEAT
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> searchProductAndOptions(@PathVariable(value = "productId") UUID productId) {
+        Message message = new Message();
+
+        message.setData(productBusinessService.searchProductAndOptions(productId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -255,9 +281,20 @@ public class ProductApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/product/one/{productId}</b>
      */
-    @PermissionRole(role = "ROLE_SUPERADMIN")
-    @DeleteMapping("/one/{productId}")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
+    // @PermissionRole(role = "ROLE_SUPERADMIN")
+    // @DeleteMapping("/one/{productId}")
+    // public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
+    //     Message message = new Message();
+
+    //     productBusinessService.destroyOne(productId);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+    // @PermissionRole(role = "ROLE_SUPERADMIN")
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") UUID productId) {
         Message message = new Message();
 
         productBusinessService.destroyOne(productId);

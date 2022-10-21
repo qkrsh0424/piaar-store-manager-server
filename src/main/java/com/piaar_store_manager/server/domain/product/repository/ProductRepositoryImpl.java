@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -119,6 +120,32 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             ;
 
         return new PageImpl<ProductManagementProj>(projs, pageable, totalCount);
+    }
+
+    @Override
+    public ProductManagementProj qSelectProductAndOptions(UUID productId) {
+        ProductManagementProj proj = query.from(qProductEntity)
+            .where(qProductEntity.id.eq(productId))
+            .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
+            .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
+            .transform(
+                GroupBy.groupBy(qProductEntity.cid)
+                    .list(
+                        Projections.fields(
+                            ProductManagementProj.class,
+                            qProductEntity.as("product"),
+                            qProductCategoryEntity.as("category"),
+                            GroupBy.set(
+                                qProductOptionEntity
+                            ).as("options")
+                        )
+                    )
+            ).get(0)
+            ;
+
+        // TODO :: 예외처리
+
+        return proj;
     }
 
     private OrderSpecifier<?> orderByProductCids(List<Integer> productCids) {

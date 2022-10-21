@@ -3,14 +3,17 @@ package com.piaar_store_manager.server.domain.product_option.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Tuple;
+import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -75,6 +78,8 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
      */
     List<ProductOptionEntity> findByProductCid(Integer productCid);
 
+    List<ProductOptionEntity> findByProductId(UUID productId);
+
     /**
      * 다중 Product cid에 대응하는 상품옵션 데이터를 모두 조회한다.
      * 
@@ -125,4 +130,12 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         + "ORDER BY erpSalesUnit DESC"
     )
     List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime date1, LocalDateTime date2);
+
+    @Modifying
+    @Transactional
+    @Query(
+        "DELETE FROM ProductOptionEntity po\n"
+        + "WHERE po.id IN :ids"
+    )
+    void deleteBatch(List<UUID> ids);
 }

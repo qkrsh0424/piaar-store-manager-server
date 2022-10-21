@@ -224,10 +224,22 @@ public class ProductGetDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreateProductAndOption {
+    public static class ProductAndOptions {
         @Valid
         ProductGetDto product;
         @Valid
         List<ProductOptionGetDto> options;
+
+        public static ProductAndOptions toDto(ProductManagementProj proj) {
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
+
+            ProductAndOptions dto = ProductAndOptions.builder()
+                    .product(product)
+                    .options(options)
+                    .build();
+
+            return dto;
+        }
     }
 }

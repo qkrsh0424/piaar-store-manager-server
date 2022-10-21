@@ -1,5 +1,6 @@
 package com.piaar_store_manager.server.domain.product.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -284,7 +285,7 @@ public class ProductBusinessService {
      * [221005] FEAT
      */
     @Transactional
-    public void createProductAndOptions(ProductGetDto.CreateProductAndOption reqDto) {
+    public void createProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
         UUID USER_ID = userService.getUserId();
 
         // Save Product
@@ -309,6 +310,106 @@ public class ProductBusinessService {
         productOptionService.saveListAndModify(entities);
     }
 
+    /*
+     * [221017] FEAT
+     */
+    @Transactional
+    public void updateProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
+        UUID USER_ID = userService.getUserId();
+        ProductGetDto PRODUCT = reqDto.getProduct();
+
+        /*
+         * Update Product
+         */
+        ProductEntity savedProductEntity = productService.searchOne(PRODUCT.getId());
+        savedProductEntity.setDefaultName(PRODUCT.getDefaultName())
+                    .setManagementName(PRODUCT.getManagementName())
+                    .setImageUrl(PRODUCT.getImageUrl())
+                    .setImageFileName(PRODUCT.getImageFileName())
+                    .setPurchaseUrl(PRODUCT.getPurchaseUrl())
+                    .setMemo(PRODUCT.getMemo())
+                    .setStockManagement(PRODUCT.getStockManagement())
+                    .setProductCategoryCid(PRODUCT.getProductCategoryCid())
+                    .setUpdatedAt(LocalDateTime.now())
+                    .setUpdatedBy(USER_ID);
+
+        reqDto.getOptions().forEach(r -> r.setProductCid(savedProductEntity.getCid()).setProductId(savedProductEntity.getId()));
+        this.updateProductOptions(reqDto);
+    }
+
+    public void updateProductOptions(ProductGetDto.ProductAndOptions reqDto) {
+        // 기존 저장된 옵션
+        List<ProductOptionEntity> originOptions = productOptionService.searchListByProductId(reqDto.getProduct().getId());
+        List<UUID> originOptionIds = originOptions.stream().map(r -> r.getId()).collect(Collectors.toList());
+        
+        List<UUID> reqOptionIds = reqDto.getOptions().stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<UUID> newOptionIds = reqOptionIds.stream().filter(option -> !originOptionIds.contains(option)).collect(Collectors.toList());
+        
+        // 변경된 옵션
+        this.changeOriginOptions(reqDto.getOptions(), originOptions);
+        // 새로 추가된 옵션
+        this.createNewOptions(reqDto.getOptions(), newOptionIds);
+        // 삭제된 옵션
+        this.deleteSavedOptions(originOptions, reqOptionIds);
+    }
+
+    public void changeOriginOptions(List<ProductOptionGetDto> reqOptions, List<ProductOptionEntity> originOptions) {
+        UUID USER_ID = userService.getUserId();
+
+        reqOptions.forEach(reqOption -> {
+            originOptions.forEach(entity -> {
+                if(reqOption.getId().equals(entity.getId())){
+                    entity.setDefaultName(reqOption.getDefaultName())
+                        .setManagementName(reqOption.getManagementName())
+                        .setSalesPrice(reqOption.getSalesPrice())
+                        .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
+                        .setStatus(reqOption.getStatus())
+                        .setMemo(reqOption.getMemo())
+                        .setReleaseLocation(reqOption.getReleaseLocation())
+                        .setSafetyStockUnit(reqOption.getSafetyStockUnit())
+                        .setUpdatedAt(LocalDateTime.now())
+                        .setUpdatedBy(USER_ID);
+                }
+            });
+        });
+
+        productOptionService.saveListAndModify(originOptions);
+    }
+
+    public void createNewOptions(List<ProductOptionGetDto> reqOptions, List<UUID> newOptionIds) {
+        UUID USER_ID = userService.getUserId();
+
+        List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
+            .filter(r -> newOptionIds.contains(r.getId()))
+            .map(r -> {
+                r.setCode(CustomUniqueKeyUtils.generateKey())
+                    .setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+                    .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+                
+                return ProductOptionEntity.toEntity(r);
+            }).collect(Collectors.toList());
+
+        productOptionService.saveListAndModify(newOptionEntities);
+    }
+
+    public void deleteSavedOptions(List<ProductOptionEntity> savedOptions, List<UUID> reqOptionIds) {
+        List<UUID> deletedIds = savedOptions.stream()
+            .filter(r -> !reqOptionIds.contains(r.getId()))
+            .map(r -> r.getId()).collect(Collectors.toList());
+
+        if(deletedIds.size() != 0) {
+            productOptionService.deleteBatch(deletedIds);
+        }
+    }
+
+    /*
+     * [221017] FEAT
+     */
+    public ProductGetDto.ProductAndOptions searchProductAndOptions(UUID productId) {
+        ProductManagementProj proj = productService.qSelectProductAndOptions(productId);
+        return ProductGetDto.ProductAndOptions.toDto(proj);
+    }
+
     /**
      * <b>DB Insert Related Method</b>
      * <p>
@@ -321,8 +422,8 @@ public class ProductBusinessService {
     //     productCreateReqDtos.stream().forEach(r -> this.createPAO(r));
     // }
 
-    public void destroyOne(Integer productCid) {
-        productService.destroyOne(productCid);
+    public void destroyOne(UUID productId) {
+        productService.destroyOne(productId);
     }
 
     /**
@@ -339,7 +440,8 @@ public class ProductBusinessService {
         UUID USER_ID = userService.getUserId();
 
         ProductEntity productEntity = productService.searchOne(productDto.getId());
-        productEntity.setCode(productDto.getCode())
+        productEntity
+                // .setCode(productDto.getCode())
                 // .setManufacturingCode(productDto.getManufacturingCode())
                 // .setNaverProductCode(productDto.getNaverProductCode())
                 .setDefaultName(productDto.getDefaultName())
@@ -383,9 +485,9 @@ public class ProductBusinessService {
 
         ProductEntity productEntity = productService.searchOne(productDto.getId());
 
-        if (productDto.getCode() != null) {
-            productEntity.setCode(productDto.getCode());
-        }
+        // if (productDto.getCode() != null) {
+        //     productEntity.setCode(productDto.getCode());
+        // }
         // if (productDto.getManufacturingCode() != null) {
         //     productEntity.setManufacturingCode(productDto.getManufacturingCode());
         // }

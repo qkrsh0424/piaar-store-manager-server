@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
@@ -85,6 +86,11 @@ public class ProductOptionService {
      */
     public List<ProductOptionEntity> searchListByProductCid(Integer productCid) {
         return productOptionRepository.findByProductCid(productCid);
+    }
+
+    // [221021] FEAT
+    public List<ProductOptionEntity> searchListByProductId(UUID productId) {
+        return productOptionRepository.findByProductId(productId);
     }
 
     /**
@@ -173,6 +179,10 @@ public class ProductOptionService {
         productOptionRepository.findById(productOptionCid).ifPresent(productOption -> {
             productOptionRepository.delete(productOption);
         });
+    }
+
+    public void deleteBatch(List<UUID> ids) {
+        productOptionRepository.deleteBatch(ids);
     }
 
     /**
