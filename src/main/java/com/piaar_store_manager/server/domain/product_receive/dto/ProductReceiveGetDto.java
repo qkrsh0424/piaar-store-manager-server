@@ -9,12 +9,15 @@ import com.piaar_store_manager.server.domain.product_category.dto.ProductCategor
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
+import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProjection;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Builder
@@ -115,6 +118,32 @@ public class ProductReceiveGetDto {
                     .product(product)
                     .option(option)
                     .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelatedProductAndProductOption {
+        ProductReceiveGetDto productReceive;
+        ProductOptionGetDto productOption;
+        ProductGetDto product;
+
+        public static RelatedProductAndProductOption toDto(ProductReceiveProjection.RelatedProductAndProductOption proj) {
+            ProductReceiveGetDto productReceive = ProductReceiveGetDto.toDto(proj.getProductReceive());
+            ProductOptionGetDto productOption = ProductOptionGetDto.toDto(proj.getProductOption());
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+
+            RelatedProductAndProductOption dto = RelatedProductAndProductOption.builder()
+                .productReceive(productReceive)
+                .productOption(productOption)
+                .product(product)
+                .build();
 
             return dto;
         }

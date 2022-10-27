@@ -11,19 +11,21 @@ import lombok.experimental.Accessors;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 
-import org.springframework.validation.annotation.Validated;
-
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
+import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 
 @Data
@@ -193,5 +195,35 @@ public class ProductOptionGetDto {
     public static class CreateReq {
         ProductOptionGetDto optionDto;
         List<OptionPackageDto> packageDtos;
+    }
+
+    /**
+     * 재고관리 페이지 - 입출고현황 확인 시 반환하는 객체.
+     */
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelatedProductReceiveAndProductRelease {
+        List<ProductReceiveGetDto.RelatedProductAndProductOption> productReceive;
+        List<ProductReleaseGetDto.RelatedProductAndProductOption> productRelease;
+
+
+        public static RelatedProductReceiveAndProductRelease toDto(ProductOptionProjection.RelatedProductReceiveAndProductRelease proj) {
+            List<ProductReceiveGetDto.RelatedProductAndProductOption> productReceive = proj.getProductReceive().stream().map(r -> ProductReceiveGetDto.RelatedProductAndProductOption.toDto(r)).collect(Collectors.toList());
+            List<ProductReleaseGetDto.RelatedProductAndProductOption> productRelease = proj.getProductRelease().stream().map(r -> ProductReleaseGetDto.RelatedProductAndProductOption.toDto(r)).collect(Collectors.toList());
+
+
+            RelatedProductReceiveAndProductRelease dto = RelatedProductReceiveAndProductRelease.builder()
+                .productRelease(productRelease)
+                .productReceive(productReceive)
+                .build();
+
+            return dto;
+        }
+
+
     }
 }

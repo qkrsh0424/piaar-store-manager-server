@@ -9,6 +9,7 @@ import com.piaar_store_manager.server.domain.product_category.dto.ProductCategor
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
+import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProjection;
 import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 
 import lombok.AllArgsConstructor;
@@ -120,6 +121,32 @@ public class ProductReleaseGetDto {
                     .product(product)
                     .option(option)
                     .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelatedProductAndProductOption {
+        ProductReleaseGetDto productRelease;
+        ProductOptionGetDto productOption;
+        ProductGetDto product;
+
+        public static RelatedProductAndProductOption toDto(ProductReleaseProjection.RelatedProductAndProductOption proj) {
+            ProductReleaseGetDto productRelease = ProductReleaseGetDto.toDto(proj.getProductRelease());
+            ProductOptionGetDto productOption = ProductOptionGetDto.toDto(proj.getProductOption());
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+
+            RelatedProductAndProductOption dto = RelatedProductAndProductOption.builder()
+                .productRelease(productRelease)
+                .productOption(productOption)
+                .product(product)
+                .build();
 
             return dto;
         }

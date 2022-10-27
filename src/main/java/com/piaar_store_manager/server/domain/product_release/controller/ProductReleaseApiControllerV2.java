@@ -1,12 +1,12 @@
-package com.piaar_store_manager.server.domain.product_receive.controller;
+package com.piaar_store_manager.server.domain.product_release.controller;
 
 import java.util.List;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveBusinessServiceV2;
+import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
+import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseBusinessServiceV2;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,23 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v2/product-receive")
+@RequestMapping("/api/v2/product-release")
 @RequiredArgsConstructor
 @RequiredLogin
-public class ProductReceiveApiControllerV2 {
-    private final ProductReceiveBusinessServiceV2 productReceiveBusinessService;
+public class ProductReleaseApiControllerV2 {
+    private final ProductReleaseBusinessServiceV2 productReleaseBusinessService;
 
     /**
-     * Create list api for receive.
+     * Create list api for release.
      * <p>
-     * <b>POST : API URL => /api/v1/product-receive/list</b>
+     * <b>POST : API URL => /api/v1/product-release/list</b>
      */
     @PostMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> createBatch(@RequestBody List<ProductReceiveGetDto> dtos) {
+    public ResponseEntity<?> createBatch(@RequestBody List<ProductReleaseGetDto> dtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.createBatch(dtos);
+        productReleaseBusinessService.createBatch(dtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

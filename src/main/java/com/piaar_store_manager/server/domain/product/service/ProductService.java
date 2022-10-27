@@ -107,6 +107,13 @@ public class ProductService {
         });
     }
 
+    public void destroyOne(ProductEntity product) {
+        // productRepository.findById(productId).ifPresent(product -> {
+        //     productRepository.delete(product);
+        // });
+        productRepository.delete(product);
+    }
+
     public List<ProductManagementProj> findAllFJ(Map<String, Object> params) {
         return productRepository.qfindAllFJ(params);
     }

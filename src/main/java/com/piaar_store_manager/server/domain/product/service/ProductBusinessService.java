@@ -422,8 +422,13 @@ public class ProductBusinessService {
     //     productCreateReqDtos.stream().forEach(r -> this.createPAO(r));
     // }
 
+    // public void destroyOne(UUID productId) {
+    //     productService.destroyOne(productId);
+    // }
+
     public void destroyOne(UUID productId) {
-        productService.destroyOne(productId);
+       ProductEntity productEntity = productService.searchOne(productId);
+       productService.destroyOne(productEntity);
     }
 
     /**

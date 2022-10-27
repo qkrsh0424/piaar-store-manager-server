@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDto;
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
@@ -30,6 +31,7 @@ public class SubOptionCodeBusinessService {
         subOptionCodeService.destroyOne(subOptionCodeId);
     }
 
+    @Transactional
     public void createOne(SubOptionCodeDto dto) {
         UUID USER_ID = userService.getUserId();
         if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
@@ -40,7 +42,7 @@ public class SubOptionCodeBusinessService {
         subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
-            .id(dto.getId())
+            .id(UUID.randomUUID())
             .subOptionCode(dto.getSubOptionCode())
             .memo(dto.getMemo())
             .productOptionId(dto.getProductOptionId())

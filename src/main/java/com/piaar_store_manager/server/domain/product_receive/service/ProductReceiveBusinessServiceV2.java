@@ -6,10 +6,8 @@ import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
-import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
@@ -25,12 +23,7 @@ public class ProductReceiveBusinessServiceV2 {
     /**
      * <b>DB Insert Related Method</b>
      * <p>
-     * 다중 receive등록.
-     * receive로 넘어온 productOptionCid로 option 데이터를 조회한다.
-     * 1) - option의 packageYn이 n인 상품은 receive 데이터를 바로 생성,
-     * 2) - option의 packageYn이 y인 상품은 package를 구성하는 option을 찾아 receive 데이터 생성.
-     * 
-     * FIX => 세트상품 여부와 관계없이 현재 선택된 옵션에 대한 입고 데이터 추가.
+     * 입고데이터 다중 등록.
      *
      * @param productReceiveGetDtos : List::ProductReceiveGetDto::
      * @see ProductReceiveService#saveAndModify

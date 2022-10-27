@@ -23,7 +23,7 @@ import javax.validation.Valid;
 
 @Validated
 @RestController
-@RequestMapping("/api/v2/product")
+@RequestMapping("/api/v2/products")
 @RequiredArgsConstructor
 @RequiredLogin
 public class ProductApiControllerV2 {
