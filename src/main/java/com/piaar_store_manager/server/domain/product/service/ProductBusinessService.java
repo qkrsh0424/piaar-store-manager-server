@@ -188,6 +188,7 @@ public class ProductBusinessService {
                  optionEntities.addAll(entities);
              }
          });
+
          productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
  
          // option stockSumUnit setting

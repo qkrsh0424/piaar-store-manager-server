@@ -9,6 +9,7 @@ import com.piaar_store_manager.server.domain.option_package.entity.OptionPackage
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
         "SELECT op FROM OptionPackageEntity op\n"
         + "WHERE op.parentOptionId =:parentOptionId"
     )
-    List<OptionPackageEntity> findAllByParentOptionId(UUID parentOptionId);
+    List<OptionPackageEntity> findAllByParentOptionId(@Param("parentOptionId") UUID parentOptionId);
 
     /**
      * parentOptionIdList에 대응되는 option package 데이터를 모두 조회한다. (다중 옵션에 대한 패키지 리스트 조회)
@@ -52,5 +53,5 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
             "DELETE FROM OptionPackageEntity  op\n"
             + "WHERE op.parentOptionId = :parentOptionId"
     )
-    void deleteBatchByParentOptionId(UUID parentOptionId);
+    void deleteBatchByParentOptionId(@Param("parentOptionId") UUID parentOptionId);
 }

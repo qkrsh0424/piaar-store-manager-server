@@ -32,6 +32,11 @@ public class OptionPackageService {
         return optionPackageRepository.findAllByParentOptionId(parentOptionId);
     }
 
+    // [221029] NEW
+    public List<OptionPackageEntity> searchBatchByParentOptionId(UUID parentOptionId) {
+        return optionPackageRepository.findAllByParentOptionId(parentOptionId);
+    }
+
     /**
      * <b></b>
      * <p>

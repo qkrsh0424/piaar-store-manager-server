@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionBusinessServiceV2;
 
@@ -34,6 +35,24 @@ public class ProductOptionApiControllerV2 {
         Message message = new Message();
     
         message.setData(productOptionBusinessService.searchBatchStockStatus(optionIds, params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    /**
+     * Search list api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
+     * <p>
+     * 모든 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category을 함께 조회한다.
+     */
+    @GetMapping("/all-m2oj")
+    public ResponseEntity<?> searchAllM2OJ() {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchAllM2OJ());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

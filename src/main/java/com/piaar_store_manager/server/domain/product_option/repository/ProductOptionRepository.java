@@ -15,11 +15,14 @@ import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisIt
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
-
+    
+    Optional<ProductOptionEntity> findById(UUID id);
+    
     /**
      * cid값에 대응하는 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category
      * 
@@ -104,7 +107,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
                 "(SELECT SUM(prl.release_unit) FROM product_release prl WHERE po.cid=prl.product_option_cid) AS releasedSum, \n" + 
                 "(SELECT SUM(prc.receive_unit) FROM product_receive prc WHERE po.cid=prc.product_option_cid) AS receivedSum \n" +
                 "FROM product_option po WHERE po.cid IN :optionCids", nativeQuery = true)
-    List<Tuple> sumStockUnitByOption(List<Integer> optionCids);
+    List<Tuple> sumStockUnitByOption(@Param("optionCids") List<Integer> optionCids);
 
     @Query(
         "SELECT po FROM ProductOptionEntity po\n" +

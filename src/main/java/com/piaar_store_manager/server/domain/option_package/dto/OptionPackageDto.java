@@ -6,12 +6,14 @@ import java.util.UUID;
 import javax.persistence.Table;
 
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Getter
@@ -24,6 +26,9 @@ public class OptionPackageDto {
     private UUID id;
     private Integer packageUnit;
     private String originOptionCode;
+    private String originOptionDefaultName;
+
+    @Setter
     private Integer originOptionCid;
     private UUID originOptionId;
     
@@ -55,6 +60,7 @@ public class OptionPackageDto {
             .id(entity.getId())
             .packageUnit(entity.getPackageUnit())
             .originOptionCode(entity.getOriginOptionCode())
+            .originOptionDefaultName(entity.getOriginOptionDefaultName())
             .originOptionCid(entity.getOriginOptionCid())
             .originOptionId(entity.getOriginOptionId())
             .createdAt(entity.getCreatedAt())

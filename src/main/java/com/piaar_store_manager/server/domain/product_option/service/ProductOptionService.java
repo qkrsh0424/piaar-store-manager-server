@@ -42,6 +42,17 @@ public class ProductOptionService {
         }
     }
 
+    // [221028] FEAT
+    public ProductOptionEntity searchOne(UUID id) {
+        Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(id);
+
+        if (productOptionEntityOpt.isPresent()) {
+            return productOptionEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
+    }
+
     public List<ProductOptionEntity> searchList() {
         return productOptionRepository.findAll();
     }

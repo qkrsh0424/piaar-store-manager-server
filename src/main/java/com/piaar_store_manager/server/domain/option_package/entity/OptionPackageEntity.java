@@ -41,6 +41,10 @@ public class OptionPackageEntity {
     @Column(name = "origin_option_code")
     private String originOptionCode;
 
+    @Setter
+    @Column(name = "origin_option_default_name")
+    private String originOptionDefaultName;
+
     @Column(name = "origin_option_cid")
     private Integer originOptionCid;
 
@@ -83,6 +87,7 @@ public class OptionPackageEntity {
             .id(dto.getId())
             .packageUnit(dto.getPackageUnit())
             .originOptionCode(dto.getOriginOptionCode())
+            .originOptionDefaultName(dto.getOriginOptionDefaultName())
             .originOptionCid(dto.getOriginOptionCid())
             .originOptionId(dto.getOriginOptionId())
             .createdAt(dto.getCreatedAt())

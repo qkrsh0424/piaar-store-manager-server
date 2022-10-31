@@ -61,8 +61,11 @@ public class SubOptionCodeBusinessService {
             throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
         }
 
-        // 중복체크
-        subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+        // 동일한 옵션코드로 등록 하지 않는 경우
+        if(!entity.getSubOptionCode().equals(dto.getSubOptionCode())){
+            // 중복체크
+            subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+        }
         
         entity.setSubOptionCode(dto.getSubOptionCode()).setMemo(dto.getMemo()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
 
