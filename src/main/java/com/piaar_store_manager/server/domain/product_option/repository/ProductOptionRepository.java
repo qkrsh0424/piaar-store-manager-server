@@ -93,7 +93,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "SELECT po FROM ProductOptionEntity po\n" +
         "WHERE po.productCid IN :productCids"
     )
-    List<ProductOptionEntity> searchListByProductCids(List<Integer> productCids);
+    List<ProductOptionEntity> searchListByProductCids(@Param("productCids") List<Integer> productCids);
 
     /**
      * 다중 ProductOption cid에 대응하는 옵션데이터의 재고수량을 계산한다.
@@ -113,7 +113,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "SELECT po FROM ProductOptionEntity po\n" +
         "WHERE po.cid IN :cids"
     )
-    List<ProductOptionEntity> findAllByCids(List<Integer> cids);
+    List<ProductOptionEntity> findAllByCids(@Param("cids") List<Integer> cids);
 
     /**
      * 상품의 정보들을 모두 추출한다.
@@ -132,7 +132,7 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         + "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"
         + "ORDER BY erpSalesUnit DESC"
     )
-    List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime date1, LocalDateTime date2);
+    List<SalesAnalysisItemProj> findSalesAnalysisItem(@Param("date1") LocalDateTime date1, @Param("date2") LocalDateTime date2);
 
     @Modifying
     @Transactional
@@ -140,5 +140,5 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         "DELETE FROM ProductOptionEntity po\n"
         + "WHERE po.id IN :ids"
     )
-    void deleteBatch(List<UUID> ids);
+    void deleteBatch(@Param("ids") List<UUID> ids);
 }

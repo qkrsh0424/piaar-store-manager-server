@@ -6,7 +6,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 
@@ -31,7 +30,6 @@ public class ProductOptionBusinessServiceV2 {
     public ProductOptionGetDto.RelatedProductReceiveAndProductRelease searchBatchStockStatus(List<UUID> optionIds, Map<String,Object> params) {
         ProductOptionProjection.RelatedProductReceiveAndProductRelease proj = productOptionService.qSearchBatchStockStatus(optionIds, params);
         ProductOptionGetDto.RelatedProductReceiveAndProductRelease stockStatusDto = ProductOptionGetDto.RelatedProductReceiveAndProductRelease.toDto(proj);
-        // return statusDto;
         return stockStatusDto;
     }
 

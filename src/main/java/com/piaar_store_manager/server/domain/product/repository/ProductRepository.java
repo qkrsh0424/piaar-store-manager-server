@@ -9,6 +9,7 @@ import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -28,7 +29,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
         "JOIN ProductCategoryEntity pc ON p.productCategoryCid = pc.cid\n"+
         "WHERE p.cid=:cid"
     )
-    Optional<ProductProj> searchOneM2OJ(Integer cid);
+    Optional<ProductProj> searchOneM2OJ(@Param("cid") Integer cid);
 
     /**
      * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
@@ -50,5 +51,5 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Integer>
      * @param productCategoryCid : Integer
      * @return List::ProductEntity::
      */
-    List<ProductEntity> findByProductCategoryCid(Integer productCategoryCid);
+    List<ProductEntity> findByProductCategoryCid(@Param("productCategoryCid") Integer productCategoryCid);
 }

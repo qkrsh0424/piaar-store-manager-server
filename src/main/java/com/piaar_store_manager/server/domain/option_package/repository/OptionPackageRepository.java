@@ -40,7 +40,7 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
         "SELECT op FROM OptionPackageEntity op\n"
         + "WHERE op.parentOptionId IN :parentOptionIdList"
     )
-    List<OptionPackageEntity> findAllByParentOptionIdList(List<UUID> parentOptionIdList);
+    List<OptionPackageEntity> findAllByParentOptionIdList(@Param("parentOptionIdList") List<UUID> parentOptionIdList);
 
     /**
      * parentOptionId에 대응되는 option package 데이터를 모두 제거한다. (단일 옵션에 대한 패키지 리스트 전체 제거))

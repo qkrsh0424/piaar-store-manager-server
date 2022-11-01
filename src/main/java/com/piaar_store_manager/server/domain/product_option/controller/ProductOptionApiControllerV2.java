@@ -28,10 +28,10 @@ public class ProductOptionApiControllerV2 {
      * <p>
      * 모든 option 조회, 해당 option의 startDate와 endDate기간 사이에 등록된 receive(입고), release(출고) 데이터를 조회한다.
      * 
-     * @params Map::String, Object:: [startDate, endDate, optionIds]
+     * @params Map::String, Object:: [startDate, endDate]
      */
-    @GetMapping("/batch/stock/status/{optionIds}")
-    public ResponseEntity<?> searchBatchStockStatus(@PathVariable(name = "optionIds") List<UUID> optionIds, @RequestParam Map<String, Object> params) {
+    @PostMapping("/batch/stock/status")
+    public ResponseEntity<?> searchBatchStockStatus(@RequestParam Map<String, Object> params, @RequestBody List<UUID> optionIds) {
         Message message = new Message();
     
         message.setData(productOptionBusinessService.searchBatchStockStatus(optionIds, params));
