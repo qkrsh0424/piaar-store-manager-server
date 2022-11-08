@@ -962,7 +962,7 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setMemo(memo);
                             releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
                             releaseEntity.setCreatedBy(USER_ID);
-                            releaseEntity.setProductOptionCid(option.getOriginOptionCid());
+                            // releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
 
                             orderItemEntity.setStockReflectYn("y");

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -31,9 +32,16 @@ public class OptionPackageBusinessServiceV2 {
      * @return List::OptionPackageDto::
      * @see OptionPackageService#searchBatchByParentOptionId
      */
-    public List<OptionPackageDto> searchBatchByParentOptionId(UUID parentOptionId) {
-        List<OptionPackageEntity> entities = optionPackageService.searchBatchByParentOptionId(parentOptionId);
-        List<OptionPackageDto> dtos = entities.stream().map(entity -> OptionPackageDto.toDto(entity)).collect(Collectors.toList());
+    // public List<OptionPackageDto> searchBatchByParentOptionId(UUID parentOptionId) {
+    //     List<OptionPackageEntity> entities = optionPackageService.searchBatchByParentOptionId(parentOptionId);
+    //     List<OptionPackageDto> dtos = entities.stream().map(entity -> OptionPackageDto.toDto(entity)).collect(Collectors.toList());
+    //     return dtos;
+    // }
+
+    // 221108 NEW
+    public List<OptionPackageDto.RelatedOriginOption> searchBatchByParentOptionId(UUID parentOptionId) {
+        List<OptionPackageProjection.RelatedProductOption> projs = optionPackageService.searchBatchByParentOptionId2(parentOptionId);
+        List<OptionPackageDto.RelatedOriginOption> dtos = projs.stream().map(proj -> OptionPackageDto.RelatedOriginOption.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 

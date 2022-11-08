@@ -43,6 +43,12 @@ public class ProductBusinessService {
         return ProductGetDto.toDto(entity);
     }
 
+    // 22.11.08 FEAT
+    public ProductGetDto searchOne(UUID id) {
+        ProductEntity entity = productService.searchOne(id);
+        return ProductGetDto.toDto(entity);
+    }
+
     public List<ProductGetDto> searchList() {
         List<ProductEntity> entities = productService.searchList();
         List<ProductGetDto> dtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
@@ -313,6 +319,7 @@ public class ProductBusinessService {
 
     /*
      * [221017] FEAT
+     * TODO :: 제거
      */
     @Transactional
     public void updateProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
@@ -338,6 +345,7 @@ public class ProductBusinessService {
         this.updateProductOptions(reqDto);
     }
 
+    // TODO :: 제거
     public void updateProductOptions(ProductGetDto.ProductAndOptions reqDto) {
         // 기존 저장된 옵션
         List<ProductOptionEntity> originOptions = productOptionService.searchListByProductId(reqDto.getProduct().getId());
@@ -359,17 +367,17 @@ public class ProductBusinessService {
 
         reqOptions.forEach(reqOption -> {
             originOptions.forEach(entity -> {
-                if(reqOption.getId().equals(entity.getId())){
+                if (reqOption.getId().equals(entity.getId())) {
                     entity.setDefaultName(reqOption.getDefaultName())
-                        .setManagementName(reqOption.getManagementName())
-                        .setSalesPrice(reqOption.getSalesPrice())
-                        .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
-                        .setStatus(reqOption.getStatus())
-                        .setMemo(reqOption.getMemo())
-                        .setReleaseLocation(reqOption.getReleaseLocation())
-                        .setSafetyStockUnit(reqOption.getSafetyStockUnit())
-                        .setUpdatedAt(LocalDateTime.now())
-                        .setUpdatedBy(USER_ID);
+                            .setManagementName(reqOption.getManagementName())
+                            .setSalesPrice(reqOption.getSalesPrice())
+                            .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
+                            .setStatus(reqOption.getStatus())
+                            .setMemo(reqOption.getMemo())
+                            .setReleaseLocation(reqOption.getReleaseLocation())
+                            .setSafetyStockUnit(reqOption.getSafetyStockUnit())
+                            .setUpdatedAt(LocalDateTime.now())
+                            .setUpdatedBy(USER_ID);
                 }
             });
         });
@@ -401,6 +409,26 @@ public class ProductBusinessService {
         if(deletedIds.size() != 0) {
             productOptionService.deleteBatch(deletedIds);
         }
+    }
+
+    @Transactional
+    public void updateOne(ProductGetDto dto) {
+        UUID USER_ID = userService.getUserId();
+
+        /*
+         * Update Product
+         */
+        ProductEntity savedProductEntity = productService.searchOne(dto.getId());
+        savedProductEntity.setDefaultName(dto.getDefaultName())
+                .setManagementName(dto.getManagementName())
+                .setImageUrl(dto.getImageUrl())
+                .setImageFileName(dto.getImageFileName())
+                .setPurchaseUrl(dto.getPurchaseUrl())
+                .setMemo(dto.getMemo())
+                .setStockManagement(dto.getStockManagement())
+                .setProductCategoryCid(dto.getProductCategoryCid())
+                .setUpdatedAt(LocalDateTime.now())
+                .setUpdatedBy(USER_ID);
     }
 
     /*

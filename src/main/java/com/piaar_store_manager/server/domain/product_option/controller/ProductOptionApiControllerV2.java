@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionBusinessServiceV2;
 
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.Valid;
+
 @RestController
-@RequestMapping("/api/v2/product-option")
+@RequestMapping("/api/v2/product-options")
 @RequiredArgsConstructor
 @RequiredLogin
 public class ProductOptionApiControllerV2 {
@@ -53,6 +56,30 @@ public class ProductOptionApiControllerV2 {
         Message message = new Message();
 
         message.setData(productOptionBusinessService.searchAllM2OJ());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // 221108 FEAT
+    @GetMapping("/batch/{productId}")
+    public ResponseEntity<?> searchBatchByProductId(@PathVariable UUID productId) {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchBatchByProductId(productId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // 221108 FEAT
+    @PutMapping("/batch/{productId}")
+    public ResponseEntity<?> updateBatch(@PathVariable UUID productId, @RequestBody @Valid List<ProductOptionGetDto> optionDtos) {
+        Message message = new Message();
+
+        productOptionBusinessService.updateBatch(productId, optionDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

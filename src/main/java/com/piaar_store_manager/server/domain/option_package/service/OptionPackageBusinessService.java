@@ -25,7 +25,7 @@ public class OptionPackageBusinessService {
      * @see OptionPackageService#searchListByParentOptionId
      */
     public List<OptionPackageDto> searchListByParentOptionId(UUID parentOptionId) {
-        List<OptionPackageEntity> entities = optionPackageService.searchListByParentOptionId(parentOptionId);
+        List<OptionPackageEntity> entities = optionPackageService.searchBatchByParentOptionId(parentOptionId);
         List<OptionPackageDto> dtos = entities.stream().map(entity -> OptionPackageDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }

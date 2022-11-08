@@ -69,29 +69,31 @@ public class ProductApiControllerV2 {
     }
 
     // [221021] FEAT
-    @PutMapping("/options")
-    @PermissionRole
-    public ResponseEntity<?> updateProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
-        Message message = new Message();
-
-        productBusinessService.updateProductAndOptions(createDto);
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    // TODO :: 제거 -> product 수정, options 수정을 분리함.
+//    @PutMapping("/options")
+//    @PermissionRole
+//    public ResponseEntity<?> updateProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
+//        Message message = new Message();
+//
+//        productBusinessService.updateProductAndOptions(createDto);
+//        message.setStatus(HttpStatus.OK);
+//        message.setMessage("success");
+//
+//        return new ResponseEntity<>(message, message.getStatus());
+//    }
 
     // [221021] FEAT
-    @GetMapping("/{productId}")
-    public ResponseEntity<?> searchProductAndOptions(@PathVariable(value = "productId") UUID productId) {
-        Message message = new Message();
-
-        message.setData(productBusinessService.searchProductAndOptions(productId));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    // TODO :: 제거 -> product 수정, options 수정을 분리함. 조회 시 이 api 불필요.
+//    @GetMapping("/{productId}")
+//    public ResponseEntity<?> searchProductAndOptions(@PathVariable(value = "productId") UUID productId) {
+//        Message message = new Message();
+//
+//        message.setData(productBusinessService.searchProductAndOptions(productId));
+//        message.setStatus(HttpStatus.OK);
+//        message.setMessage("success");
+//
+//        return new ResponseEntity<>(message, message.getStatus());
+//    }
 
     //  [221025] FEAT
     @PermissionRole(role = "ROLE_SUPERADMIN")
@@ -100,6 +102,31 @@ public class ProductApiControllerV2 {
         Message message = new Message();
 
         productBusinessService.destroyOne(productId);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // 221108 FEAT
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> searchOne(@PathVariable(value = "productId") UUID productId) {
+        Message message = new Message();
+
+        message.setData(productBusinessService.searchOne(productId));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // 221108 FEAT
+    @PutMapping("")
+    @PermissionRole
+    public ResponseEntity<?> updateOne(@RequestBody @Valid ProductGetDto dto) {
+        Message message = new Message();
+
+        productBusinessService.updateOne(dto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

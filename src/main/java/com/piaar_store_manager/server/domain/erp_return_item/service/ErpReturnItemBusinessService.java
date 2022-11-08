@@ -411,7 +411,7 @@ public class ErpReturnItemBusinessService {
                 .memo(memo)
                 .createdAt(LocalDateTime.now())
                 .createdBy(USER_ID)
-                .productOptionCid(option.getOriginOptionCid())
+                // .productOptionCid(option.getOriginOptionCid())
                 .productOptionId(option.getOriginOptionId())
                 .erpOrderItemId(returnItem.getErpOrderItemId())
                 .build();

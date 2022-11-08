@@ -6,7 +6,7 @@ import java.util.UUID;
 import javax.persistence.Table;
 
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,11 +25,11 @@ import lombok.experimental.Accessors;
 public class OptionPackageDto {
     private UUID id;
     private Integer packageUnit;
-    private String originOptionCode;
-    private String originOptionDefaultName;
+    // private String originOptionCode;
+    // private String originOptionDefaultName;
 
-    @Setter
-    private Integer originOptionCid;
+    // @Setter
+    // private Integer originOptionCid;
     private UUID originOptionId;
     
     @Setter
@@ -59,9 +59,9 @@ public class OptionPackageDto {
         OptionPackageDto dto = OptionPackageDto.builder()
             .id(entity.getId())
             .packageUnit(entity.getPackageUnit())
-            .originOptionCode(entity.getOriginOptionCode())
-            .originOptionDefaultName(entity.getOriginOptionDefaultName())
-            .originOptionCid(entity.getOriginOptionCid())
+            // .originOptionCode(entity.getOriginOptionCode())
+            // .originOptionDefaultName(entity.getOriginOptionDefaultName())
+            // .originOptionCid(entity.getOriginOptionCid())
             .originOptionId(entity.getOriginOptionId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
@@ -71,5 +71,44 @@ public class OptionPackageDto {
             .build();
 
         return dto;
+    }
+    
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelatedOriginOption {
+        // option package
+        private UUID id;
+        private Integer packageUnit;
+        private UUID originOptionId;
+        private LocalDateTime createdAt;
+        private UUID createdBy;
+        private LocalDateTime updatedAt;
+        private UUID updatedBy;
+        private UUID parentOptionId;
+
+        // origin option
+        private String originOptionCode;
+        private String originOptionDefaultName;
+
+        public static RelatedOriginOption toDto(OptionPackageProjection.RelatedProductOption proj) {
+            RelatedOriginOption dto = RelatedOriginOption.builder()
+                .id(proj.getOptionPackage().getId())
+                .packageUnit(proj.getOptionPackage().getPackageUnit())
+                .originOptionId(proj.getOptionPackage().getOriginOptionId())
+                .createdAt(proj.getOptionPackage().getCreatedAt())
+                .createdBy(proj.getOptionPackage().getCreatedBy())
+                .updatedAt(proj.getOptionPackage().getUpdatedAt())
+                .updatedBy(proj.getOptionPackage().getUpdatedBy())
+                .parentOptionId(proj.getOptionPackage().getParentOptionId())
+                .originOptionCode(proj.getProductOption().getCode())
+                .originOptionDefaultName(proj.getProductOption().getDefaultName())
+                .build();
+
+            return dto;
+        }
     }
 }
