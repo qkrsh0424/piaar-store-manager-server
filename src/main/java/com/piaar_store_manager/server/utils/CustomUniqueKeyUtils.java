@@ -48,7 +48,23 @@ public class CustomUniqueKeyUtils {
         return l;
     }
 
+    // total : 'CA' + 10 random number
     public static String getRandomNumeric(int length) {
         return RandomStringUtils.randomNumeric(length);
+    }
+
+    public static String generateCategoryCode() {
+        int[] NUMBER_BOUND = {49, 57};     // asci 49~57 => number 1~9
+
+        int targetLength = 10;
+        Random random = new Random();
+        String randomNumber = random.ints(NUMBER_BOUND[0], NUMBER_BOUND[1])
+                            .limit(targetLength)
+                            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                            .toString();
+
+        String generatedCode = "CA" + randomNumber;
+        
+        return generatedCode;
     }
 }
