@@ -2,61 +2,55 @@ package com.piaar_store_manager.server.utils;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class CustomUniqueKeyUtils {
-//    total : 18 characters
-    public static String generateKey() {
+    /**
+     * total 18 characters
+     * dateKey: 4
+     * nanoTimeKey: 10
+     * randomKey: 4
+     * @return
+     */
+    public static String generateCode18(){
+        String dateKey = getDateKey();
+        String nanoTimeKey = getNanoTimeKey();
+        String randomKey = getRandomKey(4);
+
         StringBuilder sb = new StringBuilder();
-
-        String prefix = "p";
-        String randomStr = CustomUniqueKeyUtils.getRandomAlphanumeric(1);
-        String yymmddStr = Long.toString(CustomUniqueKeyUtils.getYYMMDD(), 36);
-        String nanoTimeStr = Long.toString(CustomUniqueKeyUtils.getNanoTime(), 16);
-
-        sb.append(prefix.substring(0,1));
-        sb.append(randomStr.substring(0,1));
-        sb.append(yymmddStr.substring(0,4));
-        sb.append(nanoTimeStr.substring(0,12));
+        sb
+                .append(dateKey)
+                .append(nanoTimeKey)
+                .append(randomKey)
+        ;
 
         return sb.toString();
     }
 
-//    total : 18 characters
-    public static String generateKey(String prefix) {
+    /**
+     * total 20 characters
+     * dateKey: 4
+     * nanoTimeKey: 10
+     * randomKey: 6
+     * @return
+     */
+    public static String generateCode20(){
+        String dateKey = getDateKey();
+        String nanoTimeKey = getNanoTimeKey();
+        String randomKey = getRandomKey(6);
+
         StringBuilder sb = new StringBuilder();
-
-        String randomStr = CustomUniqueKeyUtils.getRandomAlphanumeric(1);
-        String yymmddStr = Long.toString(CustomUniqueKeyUtils.getYYMMDD(), 36);
-        String nanoTimeStr = Long.toString(CustomUniqueKeyUtils.getNanoTime(), 16);
-
-        sb.append(prefix.substring(0,1));
-        sb.append(randomStr.substring(0,1));
-        sb.append(yymmddStr.substring(0,4));
-        sb.append(nanoTimeStr.substring(0,12));
+        sb
+                .append(dateKey)
+                .append(nanoTimeKey)
+                .append(randomKey)
+        ;
 
         return sb.toString();
-    }
-
-    public static String generateCategoryCode() {
-        String key = generateKey("c");
-
-        return key;
-    }
-
-    public static String generateProductCode(){
-        String key = generateKey("p");
-
-        return key;
-    }
-
-    public static String generateOptionCode(){
-        String key = generateKey("o");
-
-        return key;
     }
 
     // total : 4 random characters => upper case, lower case, Number 1~9
@@ -106,26 +100,37 @@ public class CustomUniqueKeyUtils {
     //     return generatedCode;
     // }
 
+    private static String getDateKey(){
+        Long yymmdd = getYYMMDD();
+
+        return Long.toString(yymmdd, 36);
+    }
+
     private static Long getYYMMDD(){
         return Long.parseLong(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd")));
     }
-    
-    private static Long getCurrentMillis() {
-        Long l = System.currentTimeMillis();
-        return l;
+
+    private static String getNanoTimeKey(){
+        Long nano = getNanoTime();
+        String nanoPlus = String.valueOf(nano + 100000000000000L);
+        String nanoPlusShorts = nanoPlus.substring(0, nanoPlus.length()-3);
+        String radixNanoPlusShorts = Long.toString(Long.parseLong(nanoPlusShorts), 16);
+
+        return radixNanoPlusShorts;
     }
 
     private static Long getNanoTime() {
-        Long l = LocalTime.now().toNanoOfDay();
+        Long l = LocalTime.now(ZoneId.of("UTC")).toNanoOfDay();
 
         return l;
     }
 
-    private static String getRandomNumeric(int length) {
-        return RandomStringUtils.randomNumeric(length);
+    private static String getRandomKey(int length){
+        return getRandomAlphanumeric(length);
     }
 
     private static String getRandomAlphanumeric(int length){
+
         return RandomStringUtils.randomAlphanumeric(length).toLowerCase();
     }
 }

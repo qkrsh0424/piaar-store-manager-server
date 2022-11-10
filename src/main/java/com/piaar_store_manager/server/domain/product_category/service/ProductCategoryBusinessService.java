@@ -32,7 +32,7 @@ public class ProductCategoryBusinessService {
 
         ProductCategoryEntity entity = ProductCategoryEntity.builder()
             .id(UUID.randomUUID())
-            .code(CustomUniqueKeyUtils.generateCategoryCode())
+            .code(CustomUniqueKeyUtils.generateCode18())
             .name(dto.getName())
             .createdAt(LocalDateTime.now())
             .createdBy(USER_ID)

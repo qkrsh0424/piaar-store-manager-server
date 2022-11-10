@@ -103,7 +103,7 @@ public class ProductOptionBusinessServiceV2 {
         List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
                 .filter(r -> newOptionIds.contains(r.getId()))
                 .map(r -> {
-                    r.setCode(CustomUniqueKeyUtils.generateOptionCode())
+                    r.setCode(CustomUniqueKeyUtils.generateCode18())
                             .setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
                             .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
 

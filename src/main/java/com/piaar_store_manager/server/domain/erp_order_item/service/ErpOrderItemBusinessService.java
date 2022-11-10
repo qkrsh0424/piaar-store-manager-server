@@ -303,7 +303,7 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemEntity> orderItemEntities = newOrderItemDtos.stream()
                 .map(r -> {
                     r.setId(UUID.randomUUID())
-                            .setUniqueCode(CustomUniqueKeyUtils.generateKey())
+                            .setUniqueCode(CustomUniqueKeyUtils.generateCode18())
                             .setFreightCode(CustomUniqueKeyUtils.generateFreightCode())
                             .setSalesYn("n")
                             .setReleaseOptionCode(r.getOptionCode())
