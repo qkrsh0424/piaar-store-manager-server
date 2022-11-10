@@ -33,4 +33,8 @@ public class ProductCategoryService {
     public void saveAndModify(ProductCategoryEntity entity) {
         productCategoryRepository.save(entity);
     }
+
+    public void deleteOne(ProductCategoryEntity entity) {
+        productCategoryRepository.delete(entity);
+    }
 }

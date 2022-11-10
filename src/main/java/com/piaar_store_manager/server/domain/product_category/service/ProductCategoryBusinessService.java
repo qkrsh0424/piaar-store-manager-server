@@ -55,4 +55,10 @@ public class ProductCategoryBusinessService {
 
         entity.setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
     }
+
+    @Transactional
+    public void deleteOne(UUID id) {
+        ProductCategoryEntity entity = productCategoryService.searchOne(id);
+        productCategoryService.deleteOne(entity);
+    }
 }

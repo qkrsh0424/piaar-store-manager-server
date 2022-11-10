@@ -209,7 +209,7 @@ public class ProductOptionBusinessService {
         UUID USER_ID = userService.getUserId();
 
         ProductOptionGetDto optionGetDto = reqDto.getOptionDto()
-                .setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                .setCode(CustomUniqueKeyUtils.generateOptionCode()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
             .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         // 패키지 상품 여부

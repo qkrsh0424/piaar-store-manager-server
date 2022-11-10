@@ -214,7 +214,7 @@ public class ProductBusinessService {
     public void createOne(ProductGetDto productGetDto) {
         UUID USER_ID = userService.getUserId();
 
-        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+        productGetDto.setCode(CustomUniqueKeyUtils.generateProductCode()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity entity = ProductEntity.toEntity(productGetDto);
@@ -225,7 +225,7 @@ public class ProductBusinessService {
         UUID USER_ID = userService.getUserId();
 
         List<ProductEntity> productEntities = productGetDto.stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+            r.setCode(CustomUniqueKeyUtils.generateProductCode()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                     .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
             return ProductEntity.toEntity(r);
@@ -297,14 +297,14 @@ public class ProductBusinessService {
 
         // Save Product
         reqDto.getProduct()
-                .setCode(CustomUniqueKeyUtils.generateKey())
+                .setCode(CustomUniqueKeyUtils.generateProductCode())
                 .setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProduct()));
 
         List<ProductOptionEntity> entities = reqDto.getOptions().stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey())
+            r.setCode(CustomUniqueKeyUtils.generateOptionCode())
                     .setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                     .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                     .setPackageYn("n")
@@ -391,7 +391,7 @@ public class ProductBusinessService {
         List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
             .filter(r -> newOptionIds.contains(r.getId()))
             .map(r -> {
-                r.setCode(CustomUniqueKeyUtils.generateKey())
+                r.setCode(CustomUniqueKeyUtils.generateOptionCode())
                     .setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
                     .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
                 

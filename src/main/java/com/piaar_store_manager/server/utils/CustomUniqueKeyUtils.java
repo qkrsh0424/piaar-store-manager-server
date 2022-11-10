@@ -1,24 +1,62 @@
 package com.piaar_store_manager.server.utils;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
 public class CustomUniqueKeyUtils {
-//    total : 18 characters => splitCode(1) + currentMillisecondsString(8) + nanoTime(8) + randomString(1)
+//    total : 18 characters
     public static String generateKey() {
         StringBuilder sb = new StringBuilder();
-        String splitCode = "p";
-        String currentMillisStr = Long.toString(getCurrentMillis(), 36).substring(0,8);
-        String nanoTimeStr = Long.toString(getNanoTime(), 36).substring(0,8);
-        String randomNumericStr = getRandomNumeric(1);
 
-        sb.append(splitCode);
-        sb.append(randomNumericStr);
-        sb.append(currentMillisStr);
-        sb.append(nanoTimeStr);
+        String prefix = "p";
+        String randomStr = CustomUniqueKeyUtils.getRandomAlphanumeric(1);
+        String yymmddStr = Long.toString(CustomUniqueKeyUtils.getYYMMDD(), 36);
+        String nanoTimeStr = Long.toString(CustomUniqueKeyUtils.getNanoTime(), 16);
+
+        sb.append(prefix.substring(0,1));
+        sb.append(randomStr.substring(0,1));
+        sb.append(yymmddStr.substring(0,4));
+        sb.append(nanoTimeStr.substring(0,12));
 
         return sb.toString();
+    }
+
+//    total : 18 characters
+    public static String generateKey(String prefix) {
+        StringBuilder sb = new StringBuilder();
+
+        String randomStr = CustomUniqueKeyUtils.getRandomAlphanumeric(1);
+        String yymmddStr = Long.toString(CustomUniqueKeyUtils.getYYMMDD(), 36);
+        String nanoTimeStr = Long.toString(CustomUniqueKeyUtils.getNanoTime(), 16);
+
+        sb.append(prefix.substring(0,1));
+        sb.append(randomStr.substring(0,1));
+        sb.append(yymmddStr.substring(0,4));
+        sb.append(nanoTimeStr.substring(0,12));
+
+        return sb.toString();
+    }
+
+    public static String generateCategoryCode() {
+        String key = generateKey("c");
+
+        return key;
+    }
+
+    public static String generateProductCode(){
+        String key = generateKey("p");
+
+        return key;
+    }
+
+    public static String generateOptionCode(){
+        String key = generateKey("o");
+
+        return key;
     }
 
     // total : 4 random characters => upper case, lower case, Number 1~9
@@ -38,33 +76,56 @@ public class CustomUniqueKeyUtils {
         return generatedCode;
     }
 
-    public static Long getCurrentMillis() {
+    // public static Long getCurrentMillis() {
+    //     Long l = System.currentTimeMillis();
+    //     return l;
+    // }
+
+    // public static Long getNanoTime() {
+    //     Long l = System.nanoTime();
+    //     return l;
+    // }
+
+    // public static String getRandomNumeric(int length) {
+    //     return RandomStringUtils.randomNumeric(length);
+    // }
+        
+    // // total : 'CA' + 10 random number
+    // public static String generateCategoryCode() {
+    //     int[] NUMBER_BOUND = {49, 57};     // asci 49~57 => number 1~9
+
+    //     int targetLength = 10;
+    //     Random random = new Random();
+    //     String randomNumber = random.ints(NUMBER_BOUND[0], NUMBER_BOUND[1])
+    //                         .limit(targetLength)
+    //                         .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+    //                         .toString();
+
+    //     String generatedCode = "CA" + randomNumber;
+        
+    //     return generatedCode;
+    // }
+
+    private static Long getYYMMDD(){
+        return Long.parseLong(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMdd")));
+    }
+    
+    private static Long getCurrentMillis() {
         Long l = System.currentTimeMillis();
         return l;
     }
 
-    public static Long getNanoTime() {
-        Long l = System.nanoTime();
+    private static Long getNanoTime() {
+        Long l = LocalTime.now().toNanoOfDay();
+
         return l;
     }
 
-    // total : 'CA' + 10 random number
-    public static String getRandomNumeric(int length) {
+    private static String getRandomNumeric(int length) {
         return RandomStringUtils.randomNumeric(length);
     }
 
-    public static String generateCategoryCode() {
-        int[] NUMBER_BOUND = {49, 57};     // asci 49~57 => number 1~9
-
-        int targetLength = 10;
-        Random random = new Random();
-        String randomNumber = random.ints(NUMBER_BOUND[0], NUMBER_BOUND[1])
-                            .limit(targetLength)
-                            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                            .toString();
-
-        String generatedCode = "CA" + randomNumber;
-        
-        return generatedCode;
+    private static String getRandomAlphanumeric(int length){
+        return RandomStringUtils.randomAlphanumeric(length).toLowerCase();
     }
 }
