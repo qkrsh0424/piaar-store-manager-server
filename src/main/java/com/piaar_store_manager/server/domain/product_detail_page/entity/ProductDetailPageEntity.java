@@ -53,6 +53,10 @@ public class ProductDetailPageEntity {
     @Column(name = "image_file_name")
     private String imageFileName;
 
+    @Type(type = "uuid-char")
+    @Column(name = "product_id")
+    private UUID productId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -60,9 +64,14 @@ public class ProductDetailPageEntity {
     @Column(name = "created_by")
     private UUID createdBy;
 
+    @Setter
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @Setter
     @Type(type = "uuid-char")
-    @Column(name = "product_id")
-    private UUID productId;
+    @Column(name = "updated_by")
+    private UUID updatedBy;
 
     public static ProductDetailPageEntity toEntity(ProductDetailPageDto dto) {
         ProductDetailPageEntity entity = ProductDetailPageEntity.builder()
@@ -70,9 +79,11 @@ public class ProductDetailPageEntity {
             .title(dto.getTitle())
             .imageUrl(dto.getImageUrl())
             .imageFileName(dto.getImageFileName())
+            .productId(dto.getProductId())
             .createdAt(dto.getCreatedAt())
             .createdBy(dto.getCreatedBy())
-            .productId(dto.getProductId())
+            .updatedAt(dto.getUpdatedAt())
+            .updatedBy(dto.getUpdatedBy())
             .build();
 
         return entity;

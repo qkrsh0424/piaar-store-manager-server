@@ -21,9 +21,11 @@ public class ProductDetailPageDto {
     private String title;
     private String imageUrl;
     private String imageFileName;
+    private UUID productId;
     private LocalDateTime createdAt;
     private UUID createdBy;
-    private UUID productId;
+    private LocalDateTime updatedAt;
+    private UUID updatedBy;
 
     public static ProductDetailPageDto toDto(ProductDetailPageEntity entity) {
         ProductDetailPageDto dto = ProductDetailPageDto.builder()
@@ -31,9 +33,11 @@ public class ProductDetailPageDto {
             .title(entity.getTitle())
             .imageUrl(entity.getImageUrl())
             .imageFileName(entity.getImageFileName())
+            .productId(entity.getProductId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
-            .productId(entity.getProductId())
+            .updatedAt(entity.getUpdatedAt())
+            .updatedBy(entity.getUpdatedBy())
             .build();
 
         return dto;
