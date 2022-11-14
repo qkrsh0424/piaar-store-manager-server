@@ -53,8 +53,7 @@ public class ProductGetDto {
     // private UUID updatedBy;
     // private Integer productCategoryCid;
 
-    // private Integer cid;
-
+    private Integer cid;
     private UUID id;
 
     @Size(max = 20, message = "'상품코드'는 20자 이내로 입력해주세요.")
@@ -93,7 +92,7 @@ public class ProductGetDto {
         if(entity == null) return null;
         
         ProductGetDto productDto = ProductGetDto.builder()
-            // .cid(entity.getCid())
+            .cid(entity.getCid())
             .id(entity.getId())
             .code(entity.getCode())
             // .manufacturingCode(entity.getManufacturingCode())
