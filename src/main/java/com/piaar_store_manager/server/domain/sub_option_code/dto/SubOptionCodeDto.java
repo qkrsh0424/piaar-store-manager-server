@@ -29,6 +29,7 @@ public class SubOptionCodeDto {
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
+    private UUID updatedBy;
 
     public static SubOptionCodeDto toDto(SubOptionCodeEntity entity) {
         SubOptionCodeDto dto = SubOptionCodeDto.builder()
@@ -40,6 +41,7 @@ public class SubOptionCodeDto {
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
+            .updatedBy(entity.getUpdatedBy())
             .build();
         return dto;
     }

@@ -67,8 +67,8 @@ public class ProductOptionEntity {
     @Column(name = "total_purchase_price")
     private Integer totalPurchasePrice;
 
-    @Column(name = "stock_unit")
-    private Integer stockUnit;
+    // @Column(name = "stock_unit")
+    // private Integer stockUnit;
 
     @Setter
     @Column(name = "status")

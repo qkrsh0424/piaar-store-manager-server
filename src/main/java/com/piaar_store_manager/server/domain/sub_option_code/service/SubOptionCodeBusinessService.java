@@ -50,12 +50,15 @@ public class SubOptionCodeBusinessService {
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
             .updatedAt(CustomDateUtils.getCurrentDateTime())
+            .updatedBy(USER_ID)
             .build();
 
         subOptionCodeService.saveAndModify(entity);
     }
 
     public void updateOne(SubOptionCodeDto dto) {
+        UUID USER_ID = userService.getUserId();
+        
         SubOptionCodeEntity entity = subOptionCodeService.searchOne(dto.getId());
         if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
             throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
@@ -67,7 +70,10 @@ public class SubOptionCodeBusinessService {
             subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
         }
         
-        entity.setSubOptionCode(dto.getSubOptionCode()).setMemo(dto.getMemo()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+        entity.setSubOptionCode(dto.getSubOptionCode())
+            .setMemo(dto.getMemo())
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
+            .setUpdatedBy(USER_ID);
 
         subOptionCodeService.saveAndModify(entity);
     }

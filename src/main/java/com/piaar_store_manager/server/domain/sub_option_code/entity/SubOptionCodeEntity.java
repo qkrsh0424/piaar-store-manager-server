@@ -58,4 +58,8 @@ public class SubOptionCodeEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Type(type = "uuid-char")
+    @Column(name = "updated_by")
+    private UUID updatedBy;
 }
