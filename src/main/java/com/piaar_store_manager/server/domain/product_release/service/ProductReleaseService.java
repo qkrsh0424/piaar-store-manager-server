@@ -2,11 +2,13 @@ package com.piaar_store_manager.server.domain.product_release.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
+import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProjection;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseCustomJdbc;
 import com.piaar_store_manager.server.domain.product_release.repository.ProductReleaseRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
@@ -27,6 +29,16 @@ public class ProductReleaseService {
 
         if (releaseEntityOpt.isPresent()) {
             return releaseEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+
+    public ProductReleaseEntity searchOne(UUID releaseId) {
+        Optional<ProductReleaseEntity> entityOpt = productReleaseRepository.findById(releaseId);
+
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
@@ -146,5 +158,9 @@ public class ProductReleaseService {
 
     public List<ProductReleaseEntity> findByErpOrderItemIds(List<UUID> orderItemIds) {
         return productReleaseRepository.findByErpOrderItemIds(orderItemIds);
+    }
+
+    public List<ProductReleaseProjection.RelatedProductAndProductOption> qSearchBatchByOptionIds(List<UUID> optionIds, Map<String, Object> params) {
+        return productReleaseRepository.qSearchBatchByOptionIds(optionIds, params);
     }
 }

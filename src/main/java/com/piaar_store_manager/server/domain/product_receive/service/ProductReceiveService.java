@@ -2,11 +2,13 @@ package com.piaar_store_manager.server.domain.product_receive.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
+import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProjection;
 import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveCustomJdbc;
 import com.piaar_store_manager.server.domain.product_receive.repository.ProductReceiveRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
@@ -27,6 +29,16 @@ public class ProductReceiveService {
 
         if (receiveEntityOpt.isPresent()) {
             return receiveEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+
+    public ProductReceiveEntity searchOne(UUID receiveId) {
+        Optional<ProductReceiveEntity> entityOpt = productReceiveRepository.findById(receiveId);
+
+        if (entityOpt.isPresent()) {
+            return entityOpt.get();
         } else {
             throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
         }
@@ -136,5 +148,9 @@ public class ProductReceiveService {
         // userService.userManagerRoleCheck();
         
         productReceiveRepository.deleteByErpOrderItemIds(erpOrderItemIds);
+    }
+
+    public List<ProductReceiveProjection.RelatedProductAndProductOption> qSearchBatchByOptionIds(List<UUID> optionIds, Map<String, Object> params) {
+        return productReceiveRepository.qSearchBatchByOptionIds(optionIds, params);
     }
 }

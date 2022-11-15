@@ -46,8 +46,8 @@ public class SubOptionCodeEntity {
     @Column(name = "product_option_id")
     private UUID productOptionId;
 
-    @Column(name = "product_option_code")
-    private String productOptionCode;
+    // @Column(name = "product_option_code")
+    // private String productOptionCode;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 
 @Repository
-public interface SubOptionCodeRepository extends JpaRepository<SubOptionCodeEntity, Integer>{
+public interface SubOptionCodeRepository extends JpaRepository<SubOptionCodeEntity, Integer>, SubOptionCodeRepositoryCustom {
     List<SubOptionCodeEntity> findByProductOptionId(UUID productOptionId);
     Optional<SubOptionCodeEntity> findById(UUID id);
     Optional<SubOptionCodeEntity> findBySubOptionCode(String subOptionCode);

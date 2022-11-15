@@ -1,6 +1,8 @@
 package com.piaar_store_manager.server.domain.product_receive.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
@@ -11,9 +13,11 @@ import com.piaar_store_manager.server.domain.product_receive.service.ProductRece
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -34,6 +38,29 @@ public class ProductReceiveApiControllerV2 {
         Message message = new Message();
 
         productReceiveBusinessService.createBatch(dtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/batch/status")
+    public ResponseEntity<?> searchBatchByOptionIds(@RequestParam Map<String, Object> params, @RequestBody List<UUID> optionIds) {
+        Message message = new Message();
+    
+        message.setData(productReceiveBusinessService.searchBatchByOptionIds(optionIds, params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PatchMapping("")
+    @PermissionRole
+    public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {
+        Message message = new Message();
+
+        productReceiveBusinessService.patchOne(productReceiveGetDto);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

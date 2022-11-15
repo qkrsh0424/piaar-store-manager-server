@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.product_receive.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -8,6 +9,7 @@ import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
 import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
+import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProjection;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
@@ -48,5 +50,23 @@ public class ProductReceiveBusinessServiceV2 {
         }).collect(Collectors.toList());
 
         productReceiveService.saveListAndModify(productReceiveEntities);
+    }
+
+    public List<ProductReceiveGetDto.RelatedProductAndProductOption> searchBatchByOptionIds(List<UUID> optionIds, Map<String,Object> params) {
+        List<ProductReceiveProjection.RelatedProductAndProductOption> projs = productReceiveService.qSearchBatchByOptionIds(optionIds, params);
+        List<ProductReceiveGetDto.RelatedProductAndProductOption> dtos = projs.stream().map(proj -> ProductReceiveGetDto.RelatedProductAndProductOption.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+
+    @Transactional
+    public void patchOne(ProductReceiveGetDto receiveDto) {
+        ProductReceiveEntity receiveEntity = productReceiveService.searchOne(receiveDto.getId());
+
+        if (receiveDto.getReceiveUnit() != null) {
+            receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
+        }
+        if (receiveDto.getMemo() != null) {
+            receiveEntity.setMemo(receiveDto.getMemo());
+        }
     }
 }

@@ -172,29 +172,29 @@ public class ProductApiController {
 
     // 22.10.11 FEAT
     // 재고관리 페이지에서 조회할 데이터
-    @GetMapping("/batch/stock")
-    public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
+    // @GetMapping("/batch/stock")
+    // public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
 
-        message.setData(productBusinessService.searchBatch(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productBusinessService.searchBatch(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
-    // 22.10.17 FEAT
-    // 재고관리 페이지에서 조회할 데이터 - 페이징처리
-    @GetMapping("/batch/stock/page")
-    public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
-        Message message = new Message();
+    // // 22.10.17 FEAT
+    // // 재고관리 페이지에서 조회할 데이터 - 페이징처리
+    // @GetMapping("/batch/stock/page")
+    // public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
+    //     Message message = new Message();
 
-        message.setData(productBusinessService.searchBatchByPaging(params, pageable));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productBusinessService.searchBatchByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Create list api for product.

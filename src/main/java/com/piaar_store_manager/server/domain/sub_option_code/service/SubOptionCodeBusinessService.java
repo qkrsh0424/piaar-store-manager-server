@@ -46,7 +46,7 @@ public class SubOptionCodeBusinessService {
             .subOptionCode(dto.getSubOptionCode())
             .memo(dto.getMemo())
             .productOptionId(dto.getProductOptionId())
-            .productOptionCode(dto.getProductOptionCode())
+            // .productOptionCode(dto.getProductOptionCode())
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
             .updatedAt(CustomDateUtils.getCurrentDateTime())

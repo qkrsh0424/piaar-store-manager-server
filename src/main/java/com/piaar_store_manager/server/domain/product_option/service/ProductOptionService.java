@@ -118,6 +118,11 @@ public class ProductOptionService {
         return productOptionRepository.findAllByCids(cids);
     }
 
+    // 221115 FEAT
+    public List<ProductOptionEntity> searchListByIds(List<UUID> ids) {
+        return productOptionRepository.findAllByIds(ids);
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>

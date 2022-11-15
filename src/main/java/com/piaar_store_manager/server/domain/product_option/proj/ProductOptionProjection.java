@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
+// TODO :: 제거
 public class ProductOptionProjection {
 
     @Getter

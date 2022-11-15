@@ -30,10 +30,9 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+// TODO :: 제거
 @Repository
 public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCustom {
     private final JPAQueryFactory query;
@@ -99,6 +98,7 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
         return result.getResults();
     }
 
+    // TODO :: 사용하지 않는 메서드
     @Override
     public RelatedProductReceiveAndProductRelease qSearchBatchStockStatus(List<UUID> optionIds, Map<String, Object> params) {
         List<ProductReceiveProjection.RelatedProductAndProductOption> productReceiveProjs = query.from(qProductOptionEntity)

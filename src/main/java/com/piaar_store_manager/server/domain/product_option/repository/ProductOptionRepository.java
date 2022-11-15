@@ -115,6 +115,13 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     )
     List<ProductOptionEntity> findAllByCids(List<Integer> cids);
 
+    // 221115 FEAT
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" +
+        "WHERE po.id IN :ids"
+    )
+    List<ProductOptionEntity> findAllByIds(List<UUID> ids);
+
     /**
      * 상품의 정보들을 모두 추출한다.
      * 네이버, 쿠팡, 피아르의 발주된 상품 수량을 조회한다.

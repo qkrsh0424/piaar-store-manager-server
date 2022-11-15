@@ -15,7 +15,9 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEntity, Integer>{
+public interface ProductReleaseRepository extends JpaRepository<ProductReleaseEntity, Integer>, ProductReleaseRepositoryCustom {
+
+    Optional<ProductReleaseEntity> findById(UUID id);
 
    /**
      * cid값에 대응되는 release, release와 Many To One Join(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
