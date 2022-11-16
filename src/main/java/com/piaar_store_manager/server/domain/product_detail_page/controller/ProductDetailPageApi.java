@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.product_detail_page.dto.ProductDetailPageDto;
@@ -38,6 +39,7 @@ public class ProductDetailPageApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PermissionRole
     @PostMapping("")
     public ResponseEntity<?> createOne(@RequestBody ProductDetailPageDto dto) {
         Message message = new Message();
@@ -49,6 +51,7 @@ public class ProductDetailPageApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PermissionRole
     @DeleteMapping("/{pageId}")
     public ResponseEntity<?> deleteOne(@PathVariable(value = "pageId") UUID pageId) {
         Message message = new Message();
@@ -60,6 +63,7 @@ public class ProductDetailPageApi {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PermissionRole
     @PutMapping("")
     public ResponseEntity<?> updateOne(@RequestBody ProductDetailPageDto dto) {
         Message message = new Message();

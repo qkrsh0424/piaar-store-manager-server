@@ -20,8 +20,8 @@ public class ProductCategoryBusinessService {
     private final ProductCategoryService productCategoryService;
     private final UserService userService;
 
-    public List<ProductCategoryGetDto> searchList(){
-        List<ProductCategoryEntity> productCategoryEntities = productCategoryService.searchList();
+    public List<ProductCategoryGetDto> searchAll(){
+        List<ProductCategoryEntity> productCategoryEntities = productCategoryService.searchAll();
         List<ProductCategoryGetDto> productCategoryGetDtos = productCategoryEntities.stream().map(entity -> ProductCategoryGetDto.toDto(entity)).collect(Collectors.toList());
         return productCategoryGetDtos;
     }

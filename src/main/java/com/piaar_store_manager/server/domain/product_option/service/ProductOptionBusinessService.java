@@ -13,16 +13,9 @@ import com.piaar_store_manager.server.domain.option_package.entity.OptionPackage
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
-import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockStatusDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.product_receive.dto.ProductReceiveGetDto;
-import com.piaar_store_manager.server.domain.product_receive.entity.ProductReceiveEntity;
-import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProj;
 import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
-import com.piaar_store_manager.server.domain.product_release.dto.ProductReleaseGetDto;
-import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
-import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProj;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -96,92 +89,6 @@ public class ProductOptionBusinessService {
         List<ProductOptionEntity> entities = productOptionService.searchListByProductCid(productCid);
         List<ProductOptionGetDto> dtos = entities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
         return dtos;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * optionCid에 대응하는 옵션의 release(출고) 데이터를 모두 조회한다.
-     * optionCid에 대응하는 옵션의 receive(입고) 데이터를 모두 조회한다.
-     * 입출고 데이터를 이용해 ProductOptionStatusDto 생성한다.
-     *
-     * @param optionCid : Integer
-     * @return ProductOptionStatusDto
-     * @see ProductReleaseService#searchListByOptionCid
-     * @see ProductReceiveService#searchListByOptionCid
-     */
-    public ProductOptionStockStatusDto searchStockStatus(Integer optionCid) {
-        List<ProductReleaseEntity> releaseEntities = productReleaseService.searchListByOptionCid(optionCid);
-        List<ProductReceiveEntity> receiveEntities = productReceiveService.searchListByOptionCid(optionCid);
-        
-        List<ProductReleaseGetDto> releaseDtos = releaseEntities.stream().map(entity -> ProductReleaseGetDto.toDto(entity)).collect(Collectors.toList());
-        List<ProductReceiveGetDto> receiveDtos = receiveEntities.stream().map(entity -> ProductReceiveGetDto.toDto(entity)).collect(Collectors.toList());
-
-        ProductOptionStockStatusDto statusDto = ProductOptionStockStatusDto.builder()
-            .productRelease(releaseDtos)
-            .productReceive(receiveDtos)
-            .build();
-
-        return statusDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * release(출고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * receive(입고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * 입출고 데이터를 이용해 ProductOptionGetDto.JoinReceiveAndRelease 생성한다.
-     * TODO :: refactor전에 사용하던 api. 제거해야하는 메서드
-     *
-     * @return ProductOptionGetDto.JoinReceiveAndRelease
-     * @see ProductReleaseService#searchListM2OJ
-     * @see ProductReceiveService#searchListM2OJ
-     */
-    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus() {
-        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ();
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ();
-        
-        List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-        List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-
-        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
-            .productReceive(receiveDtos)
-            .productRelease(releaseDtos)
-            .build();
-
-        return statusDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * startDate와 endDate기간 사이에 등록된 모든 release(출고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * startDate와 endDate기간 사이에 등록된 모든 receive(입고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * 입출고 데이터를 이용해 ProductOptionGetDto.JoinReceiveAndRelease 생성한다.
-     *
-     * @return ProductOptionGetDto.JoinReceiveAndRelease
-     * @see ProductReleaseService#searchListM2OJ
-     * @see ProductReceiveService#searchListM2OJ
-     */
-    public ProductOptionStockStatusDto.JoinReceiveAndRelease searchAllStockStatus(Map<String,Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
-        
-        List<ProductReleaseProj> releaseProjs = productReleaseService.searchListM2OJ(startDate, endDate);
-        List<ProductReceiveProj> receiveProjs = productReceiveService.searchListM2OJ(startDate, endDate);
-
-        List<ProductReceiveGetDto.JoinProdAndOption> receiveDtos = receiveProjs.stream().map(proj -> ProductReceiveGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-        List<ProductReleaseGetDto.JoinProdAndOption> releaseDtos = releaseProjs.stream().map(proj -> ProductReleaseGetDto.JoinProdAndOption.toDto(proj)).collect(Collectors.toList());
-
-        ProductOptionStockStatusDto.JoinReceiveAndRelease statusDto = ProductOptionStockStatusDto.JoinReceiveAndRelease.builder()
-            .productReceive(receiveDtos)
-            .productRelease(releaseDtos)
-            .build();
-
-        return statusDto;
     }
 
     // TODO :: product cid, product id 설정

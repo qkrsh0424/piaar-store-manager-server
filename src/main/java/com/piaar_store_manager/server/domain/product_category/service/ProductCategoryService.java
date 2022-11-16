@@ -26,7 +26,7 @@ public class ProductCategoryService {
         }
     }
 
-    public List<ProductCategoryEntity> searchList(){
+    public List<ProductCategoryEntity> searchAll(){
         return productCategoryRepository.findAll();
     }
 

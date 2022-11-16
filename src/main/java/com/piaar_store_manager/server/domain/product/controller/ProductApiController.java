@@ -8,16 +8,12 @@ import com.piaar_store_manager.server.domain.product.service.ProductBusinessServ
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.validation.Valid;
@@ -292,7 +288,8 @@ public class ProductApiController {
 
     //     return new ResponseEntity<>(message, message.getStatus());
     // }
-    // @PermissionRole(role = "ROLE_SUPERADMIN")
+    
+    @PermissionRole(role = "ROLE_SUPERADMIN")
     @DeleteMapping("/{productId}")
     public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") UUID productId) {
         Message message = new Message();

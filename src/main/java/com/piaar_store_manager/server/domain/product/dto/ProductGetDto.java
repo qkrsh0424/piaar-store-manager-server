@@ -26,32 +26,6 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductGetDto {
-    // private Integer cid;
-    // private UUID id;
-    // private String code;
-    // // private String manufacturingCode;
-    // // private String naverProductCode;
-    // private String defaultName;
-    // private String managementName;
-    // private String imageUrl;
-    // private String imageFileName;
-    // private String purchaseUrl;
-    // private String memo;
-    // // private String hsCode;
-    // // private String style;
-    // // private String tariffRate;
-    // // private Integer defaultWidth;
-    // // private Integer defaultLength;
-    // // private Integer defaultHeight;
-    // // private Integer defaultQuantity;
-    // // private Integer defaultWeight;
-    // // private Integer defaultTotalPurchasePrice;
-    // private Boolean stockManagement;
-    // private LocalDateTime createdAt;
-    // private UUID createdBy;
-    // private LocalDateTime updatedAt;
-    // private UUID updatedBy;
-    // private Integer productCategoryCid;
 
     private Integer cid;
     private UUID id;
@@ -95,24 +69,12 @@ public class ProductGetDto {
             .cid(entity.getCid())
             .id(entity.getId())
             .code(entity.getCode())
-            // .manufacturingCode(entity.getManufacturingCode())
-            // .naverProductCode(entity.getNaverProductCode())
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
             .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
-            // .hsCode(entity.getHsCode())
-            // .tariffRate(entity.getTariffRate())
-            // .style(entity.getStyle())
-            // .tariffRate(entity.getTariffRate())
-            // .defaultWidth(entity.getDefaultWidth())
-            // .defaultLength(entity.getDefaultLength())
-            // .defaultHeight(entity.getDefaultHeight())
-            // .defaultQuantity(entity.getDefaultQuantity())
-            // .defaultWeight(entity.getDefaultWeight())
-            // .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
             .productCategoryCid(entity.getProductCategoryCid())
             .createdAt(entity.getCreatedAt())

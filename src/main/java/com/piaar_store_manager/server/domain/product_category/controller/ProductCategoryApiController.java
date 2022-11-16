@@ -33,11 +33,11 @@ public class ProductCategoryApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product-category/list</b>
      */
-    @GetMapping("/list")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
-        message.setData(productCategoryBusinessService.searchList());
+        message.setData(productCategoryBusinessService.searchAll());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -69,7 +69,7 @@ public class ProductCategoryApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PermissionRole
+    @PermissionRole(role = "ROLE_SUPERADMIN")
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteOne(@PathVariable(value = "categoryId") UUID id) {
         Message message = new Message();

@@ -30,7 +30,7 @@ public class ProductApiControllerV2 {
     private final ProductBusinessService productBusinessService;
 
     // 22.10.11 FEAT
-    // 재고관리 페이지에서 조회할 데이터
+    // 재고관리 페이지에서 조회할 데이터 - 페이징처리 X
     @GetMapping("/batch/stock")
     public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -43,7 +43,7 @@ public class ProductApiControllerV2 {
     }
 
     // 22.10.17 FEAT
-    // 재고관리 페이지에서 조회할 데이터 - 페이징처리
+    // 재고관리 페이지에서 조회할 데이터 - 페이징처리 O
     @GetMapping("/batch/stock/page")
     public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
         Message message = new Message();
