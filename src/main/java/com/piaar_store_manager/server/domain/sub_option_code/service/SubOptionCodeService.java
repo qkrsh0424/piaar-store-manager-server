@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
+import com.piaar_store_manager.server.domain.sub_option_code.proj.SubOptionCodeProjection;
 import com.piaar_store_manager.server.domain.sub_option_code.repository.SubOptionCodeRepository;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 
@@ -51,5 +52,9 @@ public class SubOptionCodeService {
         if(entityOpt.isPresent()) {
             throw new CustomInvalidDataException("이미 등록된 대체코드입니다. 다시 시도해주세요.");
         }
+    }
+
+    public List<SubOptionCodeProjection.RelatedProductOption> qSearchAll() {
+        return subOptionCodeRepository.qSearchAll();
     }
 }

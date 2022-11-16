@@ -5,6 +5,7 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionSto
 import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionCustomJdbc;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
@@ -18,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.persistence.Tuple;
@@ -31,6 +34,17 @@ public class ProductOptionService {
 
     public ProductOptionEntity searchOne(Integer productOptionCid) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
+
+        if (productOptionEntityOpt.isPresent()) {
+            return productOptionEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
+        }
+    }
+
+    // [221028] FEAT
+    public ProductOptionEntity searchOne(UUID id) {
+        Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(id);
 
         if (productOptionEntityOpt.isPresent()) {
             return productOptionEntityOpt.get();
@@ -87,6 +101,11 @@ public class ProductOptionService {
         return productOptionRepository.findByProductCid(productCid);
     }
 
+    // [221021] FEAT
+    public List<ProductOptionEntity> searchListByProductId(UUID productId) {
+        return productOptionRepository.findByProductId(productId);
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>
@@ -97,6 +116,11 @@ public class ProductOptionService {
      */
     public List<ProductOptionEntity> searchListByCids(List<Integer> cids) {
         return productOptionRepository.findAllByCids(cids);
+    }
+
+    // 221115 FEAT
+    public List<ProductOptionEntity> searchListByIds(List<UUID> ids) {
+        return productOptionRepository.findAllByIds(ids);
     }
 
     /**
@@ -173,6 +197,10 @@ public class ProductOptionService {
         productOptionRepository.findById(productOptionCid).ifPresent(productOption -> {
             productOptionRepository.delete(productOption);
         });
+    }
+
+    public void deleteBatch(List<UUID> ids) {
+        productOptionRepository.deleteBatch(ids);
     }
 
     /**
@@ -275,5 +303,9 @@ public class ProductOptionService {
 
     public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
         return productOptionCustomJdbc.searchStockStatusByWeek(searchEndDate, productCid);
+    }
+
+    public ProductOptionProjection.RelatedProductReceiveAndProductRelease qSearchBatchStockStatus(List<UUID> optionIds, Map<String, Object> params) {
+        return productOptionRepository.qSearchBatchStockStatus(optionIds, params);
     }
 }

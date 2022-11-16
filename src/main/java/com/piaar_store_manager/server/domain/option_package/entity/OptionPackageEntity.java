@@ -37,12 +37,16 @@ public class OptionPackageEntity {
     @Column(name = "package_unit")
     private Integer packageUnit;
 
-    @Setter
-    @Column(name = "origin_option_code")
-    private String originOptionCode;
+    // @Setter
+    // @Column(name = "origin_option_code")
+    // private String originOptionCode;
 
-    @Column(name = "origin_option_cid")
-    private Integer originOptionCid;
+    // @Setter
+    // @Column(name = "origin_option_default_name")
+    // private String originOptionDefaultName;
+
+    // @Column(name = "origin_option_cid")
+    // private Integer originOptionCid;
 
     @Setter
     @Type(type = "uuid-char")
@@ -82,8 +86,9 @@ public class OptionPackageEntity {
         OptionPackageEntity entity = OptionPackageEntity.builder()
             .id(dto.getId())
             .packageUnit(dto.getPackageUnit())
-            .originOptionCode(dto.getOriginOptionCode())
-            .originOptionCid(dto.getOriginOptionCid())
+            // .originOptionCode(dto.getOriginOptionCode())
+            // .originOptionDefaultName(dto.getOriginOptionDefaultName())
+            // .originOptionCid(dto.getOriginOptionCid())
             .originOptionId(dto.getOriginOptionId())
             .createdAt(dto.getCreatedAt())
             .createdBy(dto.getCreatedBy())

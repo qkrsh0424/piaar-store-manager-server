@@ -18,7 +18,7 @@ import com.piaar_store_manager.server.domain.product_option.service.ProductOptio
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDto;
-import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
+import com.piaar_store_manager.server.domain.sub_option_code.proj.SubOptionCodeProjection;
 import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCodeService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.exception.CustomExcelFileUploadException;
@@ -111,7 +111,7 @@ public class ErpOrderItemBusinessService {
         }
 
         // subOptionCode의 superOptionCode값을 추출해 ProductOptionCode항목에 대입.
-        this.updateOptionCodeBySubOptionCode(vos);
+        // this.updateOptionCodeBySubOptionCode(vos);
         return vos;
     }
 
@@ -164,7 +164,7 @@ public class ErpOrderItemBusinessService {
         }
 
         // subOptionCode의 superOptionCode값을 추출해 ProductOptionCode항목에 대입.
-        this.updateOptionCodeBySubOptionCode(vos);
+        // this.updateOptionCodeBySubOptionCode(vos);
         return vos;
     }
 
@@ -271,22 +271,70 @@ public class ErpOrderItemBusinessService {
     /**
     판매채널 옵션코드 항목에 입력된 값을 대체옵션관리코드를 확인해 업데이트한다.
      */
-    public void updateOptionCodeBySubOptionCode(List<ErpOrderItemVo.ExcelVo> vos) {
+    // public void updateOptionCodeBySubOptionCode(List<ErpOrderItemVo.ExcelVo> vos) {
+    //     // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다
+    //     // 있으면 super_option_code를 optionCode에 대입
+    //     List<SubOptionCodeEntity> subOptionEntities = subOptionCodeService.findAll();
+    //     List<SubOptionCodeDto> subOptionCodeDtos = subOptionEntities.stream().map(entity -> SubOptionCodeDto.toDto(entity)).collect(Collectors.toList());
+                
+    //     // TODO :: projection을 사용하자
+    //     List<UUID> optionIds = subOptionCodeDtos.stream().map(r -> r.getProductOptionId()).collect(Collectors.toList());
+    //     List<ProductOptionEntity> optionEntities = productOptionService.searchListByIds(optionIds);
+
+    //     List<SubOptionCodeDto.MatchedOptionCode> matchedSubOptionDtos = new ArrayList<>();
+    //     subOptionCodeDtos.forEach(subOptionCode -> {
+    //         optionEntities.forEach(optionEntity -> {
+    //             if(subOptionCode.getProductOptionId().equals(optionEntity.getId())) {
+    //                 SubOptionCodeDto.MatchedOptionCode matchedSubOption = SubOptionCodeDto.MatchedOptionCode.builder()
+    //                     .id(subOptionCode.getId())
+    //                     .subOptionCode(subOptionCode.getSubOptionCode())
+    //                     .memo(subOptionCode.getMemo())
+    //                     .productOptionId(subOptionCode.getProductOptionId())
+    //                     .productOptionCode(optionEntity.getCode())
+    //                     .createdAt(subOptionCode.getCreatedAt())
+    //                     .createdBy(subOptionCode.getCreatedBy())
+    //                     .updatedAt(subOptionCode.getUpdatedAt())
+    //                     .build();
+
+    //                 matchedSubOptionDtos.add(matchedSubOption);
+    //             }
+    //         });
+    //     });
+        
+
+    //     // vos를 돌면서 channelOptionCode를 확인해 옵션코드에 대응되는 값을 '피아르옵션코드'항목에 세팅.
+    //    vos.forEach(vo -> {
+    //         if(vo.getOptionCode().equals("")) {
+    //             matchedSubOptionDtos.forEach(subOptionCode -> {
+    //                 Object channelOptionCode = vo.getChannelOptionCode();
+    //                 if(channelOptionCode != null
+    //                      && !channelOptionCode.equals("") 
+    //                      && channelOptionCode.equals(subOptionCode.getSubOptionCode())) {
+    //                     vo.setOptionCode(subOptionCode.getProductOptionCode());
+    //                 }
+    //             });
+    //         }
+    //     });
+    // }
+
+    // 221115 : 기존, 엑셀 업로드 시점에 실행 -> 변경후, 엑셀 주문데이터 저장 시점에 실행
+    // '판매채널 옵션코드' 항목을 확인해 대체옵션코드와 대응되는 데이터가 존재하면 피아르 옵션코드를 변경시킨다.
+    public void updateOptionCodeBySubOptionCode(List<ErpOrderItemDto> itemDtos) {
         // 판매채널 옵션코드 항목을 sub_option_code테이블에서 찾는다
         // 있으면 super_option_code를 optionCode에 대입
-        List<SubOptionCodeEntity> subOptionEntities = subOptionCodeService.findAll();
-        List<SubOptionCodeDto> subOptionCodeDtos = subOptionEntities.stream().map(entity -> SubOptionCodeDto.toDto(entity)).collect(Collectors.toList());
+        List<SubOptionCodeProjection.RelatedProductOption> subOptionProjs = subOptionCodeService.qSearchAll();
+        List<SubOptionCodeDto.RelatedProductOption> subOptionDtos = subOptionProjs.stream().map(proj -> SubOptionCodeDto.RelatedProductOption.toDto(proj)).collect(Collectors.toList());
 
-        // vos를 돌면서 channelOptionCode를 확인해 옵션코드에 대응되는 값을 '피아르옵션코드'항목에 세팅.
-       vos.forEach(vo -> {
-            if(vo.getOptionCode().equals("")) {
-                subOptionCodeDtos.forEach(subOptionCode -> {
-                    Object channelOptionCode = vo.getChannelOptionCode();
+        // dtos를 돌면서 channelOptionCode를 확인해 옵션코드에 대응되는 값을 '피아르옵션코드'항목에 세팅.
+        itemDtos.forEach(dto -> {
+            if(dto.getOptionCode().equals("")) { 
+                subOptionDtos.forEach(dtos -> {
+                    Object channelOptionCode = dto.getChannelOptionCode();
                     if(channelOptionCode != null
-                         && !channelOptionCode.equals("") 
-                         && channelOptionCode.equals(subOptionCode.getSubOptionCode())) {
-                        vo.setOptionCode(subOptionCode.getProductOptionCode());
-                    }
+                        && !channelOptionCode.equals("")
+                        && channelOptionCode.equals(dtos.getSubOptionCode().getSubOptionCode())) {
+                            dto.setOptionCode(dtos.getProductOption().getCode());
+                        }
                 });
             }
         });
@@ -296,6 +344,7 @@ public class ErpOrderItemBusinessService {
     public void createBatch(List<ErpOrderItemDto> orderItemDtos) {
         UUID USER_ID = userService.getUserId();
         List<ErpOrderItemDto> newOrderItemDtos = this.itemDuplicationCheck(orderItemDtos);
+        this.updateOptionCodeBySubOptionCode(newOrderItemDtos);
 
         // String 타입의 데이터들의 앞뒤 공백을 제거한다
         this.convertToStripedDto(newOrderItemDtos);
@@ -303,7 +352,7 @@ public class ErpOrderItemBusinessService {
         List<ErpOrderItemEntity> orderItemEntities = newOrderItemDtos.stream()
                 .map(r -> {
                     r.setId(UUID.randomUUID())
-                            .setUniqueCode(CustomUniqueKeyUtils.generateKey())
+                            .setUniqueCode(CustomUniqueKeyUtils.generateCode18())
                             .setFreightCode(CustomUniqueKeyUtils.generateFreightCode())
                             .setSalesYn("n")
                             .setReleaseOptionCode(r.getOptionCode())
@@ -962,7 +1011,7 @@ public class ErpOrderItemBusinessService {
                             releaseEntity.setMemo(memo);
                             releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
                             releaseEntity.setCreatedBy(USER_ID);
-                            releaseEntity.setProductOptionCid(option.getOriginOptionCid());
+                            // releaseEntity.setProductOptionCid(option.getOriginOptionCid());
                             releaseEntity.setProductOptionId(option.getOriginOptionId());
 
                             orderItemEntity.setStockReflectYn("y");

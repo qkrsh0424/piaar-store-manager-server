@@ -288,6 +288,9 @@ public class ErpReturnItemBusinessService {
         erpReturnItemService.saveAndModify(entity);
     }
 
+    /**
+     * Erp Order Item이 제거될 때, Erp Return Item도 함께 제거되어야 한다.
+     */
     @Transactional
     public void deleteBatch(List<ErpReturnItemDto> itemDtos) {
         List<UUID> itemIds = itemDtos.stream().map(ErpReturnItemDto::getId).collect(Collectors.toList());
@@ -408,7 +411,7 @@ public class ErpReturnItemBusinessService {
                 .memo(memo)
                 .createdAt(LocalDateTime.now())
                 .createdBy(USER_ID)
-                .productOptionCid(option.getOriginOptionCid())
+                // .productOptionCid(option.getOriginOptionCid())
                 .productOptionId(option.getOriginOptionId())
                 .erpOrderItemId(returnItem.getErpOrderItemId())
                 .build();

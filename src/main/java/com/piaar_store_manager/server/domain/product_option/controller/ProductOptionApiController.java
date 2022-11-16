@@ -112,16 +112,16 @@ public class ProductOptionApiController {
      * <p>
      * optionCid에 대응하는 option의 모든 receive(입고), release(출고) 데이터를 조회한다.
      */
-    @GetMapping("/stock/status/{optionCid}")
-    public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
-        Message message = new Message();
+    // @GetMapping("/stock/status/{optionCid}")
+    // public ResponseEntity<?> searchStockStatus(@PathVariable(value = "optionCid") Integer optionCid) {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchStockStatus(optionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchStockStatus(optionCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api of status(release & receive) for product option.
@@ -130,16 +130,16 @@ public class ProductOptionApiController {
      * <p>
      * 모든 option 조회, 해당 option의 모든 receive(입고), release(출고) 데이터를 조회한다.
      */
-    @GetMapping("/stock/status/list")
-    public ResponseEntity<?> searchAllStockStatus() {
-        Message message = new Message();
+    // @GetMapping("/stock/status/list")
+    // public ResponseEntity<?> searchAllStockStatus() {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchAllStockStatus());
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchAllStockStatus());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api of status(release & receive) for product option.
@@ -148,16 +148,16 @@ public class ProductOptionApiController {
      * <p>
      * 모든 option 조회, 해당 option의 startDate와 endDate기간 사이에 등록된 receive(입고), release(출고) 데이터를 조회한다.
      */
-    @GetMapping("/stock/status")
-    public ResponseEntity<?> searchAllStockStatus(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
+    // @GetMapping("/stock/status")
+    // public ResponseEntity<?> searchAllStockStatus(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchAllStockStatus(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productOptionBusinessService.searchAllStockStatus(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Create one api for product option.

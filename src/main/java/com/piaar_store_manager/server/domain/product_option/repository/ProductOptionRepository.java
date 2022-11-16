@@ -3,20 +3,26 @@ package com.piaar_store_manager.server.domain.product_option.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.persistence.Tuple;
+import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
-
+    
+    Optional<ProductOptionEntity> findById(UUID id);
+    
     /**
      * cid값에 대응하는 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category
      * 
@@ -75,6 +81,8 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
      */
     List<ProductOptionEntity> findByProductCid(Integer productCid);
 
+    List<ProductOptionEntity> findByProductId(UUID productId);
+
     /**
      * 다중 Product cid에 대응하는 상품옵션 데이터를 모두 조회한다.
      * 
@@ -107,6 +115,13 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
     )
     List<ProductOptionEntity> findAllByCids(List<Integer> cids);
 
+    // 221115 FEAT
+    @Query(
+        "SELECT po FROM ProductOptionEntity po\n" +
+        "WHERE po.id IN :ids"
+    )
+    List<ProductOptionEntity> findAllByIds(List<UUID> ids);
+
     /**
      * 상품의 정보들을 모두 추출한다.
      * 네이버, 쿠팡, 피아르의 발주된 상품 수량을 조회한다.
@@ -125,4 +140,12 @@ public interface ProductOptionRepository extends JpaRepository<ProductOptionEnti
         + "ORDER BY erpSalesUnit DESC"
     )
     List<SalesAnalysisItemProj> findSalesAnalysisItem(LocalDateTime date1, LocalDateTime date2);
+
+    @Modifying
+    @Transactional
+    @Query(
+        "DELETE FROM ProductOptionEntity po\n"
+        + "WHERE po.id IN :ids"
+    )
+    void deleteBatch(List<UUID> ids);
 }

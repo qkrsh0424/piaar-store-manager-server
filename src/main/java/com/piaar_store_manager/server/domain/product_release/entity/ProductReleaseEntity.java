@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.product_release.entity;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 import javax.persistence.Column;

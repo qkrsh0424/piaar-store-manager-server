@@ -1,5 +1,8 @@
 package com.piaar_store_manager.server.domain.product_category.dto;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +18,14 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class ProductCategoryGetDto {
     private Integer cid;
-    private String id;
+    private UUID id;
+    private String code;
     private String name;
+    private LocalDateTime createdAt;
+    private UUID createdBy;
+    private LocalDateTime updatedAt;
+    private UUID updatedBy;
+
 
     /**
      * <b>Convert Method</b>
@@ -32,7 +41,12 @@ public class ProductCategoryGetDto {
         ProductCategoryGetDto dto = ProductCategoryGetDto.builder()
                 .cid(entity.getCid())
                 .id(entity.getId())
+                .code(entity.getCode())
                 .name(entity.getName())
+                .createdAt(entity.getCreatedAt())
+                .createdBy(entity.getCreatedBy())
+                .updatedAt(entity.getUpdatedAt())
+                .updatedBy(entity.getUpdatedBy())
                 .build();
     
         return dto;

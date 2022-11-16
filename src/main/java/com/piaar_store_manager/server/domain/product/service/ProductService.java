@@ -1,12 +1,18 @@
 package com.piaar_store_manager.server.domain.product.service;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product.repository.ProductRepository;
 import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
@@ -18,6 +24,16 @@ public class ProductService {
 
     public ProductEntity searchOne(Integer productCid) {
         Optional<ProductEntity> productEntityOpt = productRepository.findById(productCid);
+
+        if (productEntityOpt.isPresent()) {
+            return productEntityOpt.get();
+        } else {
+            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
+        }
+    }
+    
+    public ProductEntity searchOne(UUID id) {
+        Optional<ProductEntity> productEntityOpt = productRepository.findById(id);
 
         if (productEntityOpt.isPresent()) {
             return productEntityOpt.get();
@@ -85,9 +101,28 @@ public class ProductService {
         productRepository.saveAll(entities);
     }
 
-    public void destroyOne(Integer productCid) {
-        productRepository.findById(productCid).ifPresent(product -> {
+    public void destroyOne(UUID productId) {
+        productRepository.findById(productId).ifPresent(product -> {
             productRepository.delete(product);
         });
+    }
+
+    public void destroyOne(ProductEntity product) {
+        // productRepository.findById(productId).ifPresent(product -> {
+        //     productRepository.delete(product);
+        // });
+        productRepository.delete(product);
+    }
+
+    public List<ProductManagementProj> findAllFJ(Map<String, Object> params) {
+        return productRepository.qfindAllFJ(params);
+    }
+
+    public Page<ProductManagementProj> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
+        return productRepository.qfindAllFJByPage(params, pageable);
+    }
+
+    public ProductManagementProj qSelectProductAndOptions(UUID productId) {
+        return productRepository.qSelectProductAndOptions(productId);
     }
 }

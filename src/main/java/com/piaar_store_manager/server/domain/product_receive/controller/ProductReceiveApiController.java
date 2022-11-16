@@ -29,40 +29,6 @@ public class ProductReceiveApiController {
     private final ProductReceiveBusinessService productReceiveBusinessService;
 
     /**
-     * Search one api for receive.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-receive/one/{productReceiveCid}</b>
-     */
-    @GetMapping("/one/{productReceiveCid}")
-    public ResponseEntity<?> searchOne(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
-        Message message = new Message();
-
-        message.setData(productReceiveBusinessService.searchOne(productReceiveCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search list api for receive.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-receive/one-m2oj/{productReceiveCid}</b>
-     * <p>
-     * productReceiveCid에 대응하는 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     */
-    @GetMapping("/one-m2oj/{productReceiveCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReceiveCid") Integer productReceiveCid) {
-        Message message = new Message();
-
-        message.setData(productReceiveBusinessService.searchOneM2OJ(productReceiveCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
      * Search list api for receive.
      * <p>
      * <b>GET : API URL => /api/v1/product-receive/list</b>
@@ -88,24 +54,6 @@ public class ProductReceiveApiController {
         Message message = new Message();
 
         message.setData(productReceiveBusinessService.searchListByOptionCid(productOptionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search list api for receive.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-receive/list-m2oj</b>
-     * <p>
-     * 모든 receive, receive와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
-        Message message = new Message();
-
-        message.setData(productReceiveBusinessService.searchListM2OJ());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

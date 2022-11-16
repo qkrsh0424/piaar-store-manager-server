@@ -57,24 +57,6 @@ public class ProductReleaseApiController {
     }
 
     /**
-     * Search one api for release.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-release/one-m2oj/{productReleaseCid}</b>
-     * <p>
-     * productReleaseCid에 대응하는 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     */
-    @GetMapping("/one-m2oj/{productReleaseCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productReleaseCid") Integer productReleaseCid) {
-        Message message = new Message();
-
-        message.setData(productReleaseBusinessService.searchOneM2OJ(productReleaseCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
      * Search list api for release.
      * <p>
      * <b>GET : API URL => /api/v1/product-release/list</b>
@@ -100,24 +82,6 @@ public class ProductReleaseApiController {
         Message message = new Message();
 
         message.setData(productReleaseBusinessService.searchListByOptionCid(productOptionCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search list api for release.
-     * <p>
-     * <b>GET : API URL => /api/v1/product-release/list-m2oj</b>
-     * <p>
-     * 모든 release, release와 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, option, category, user를 함께 조회한다.
-     */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
-        Message message = new Message();
-
-        message.setData(productReleaseBusinessService.searchListM2OJ());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -14,7 +17,6 @@ import javax.persistence.*;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -25,6 +27,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
+@DynamicUpdate
 public class ProductEntity {
 
     @Id
@@ -36,17 +40,17 @@ public class ProductEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Setter
+    // @Setter
     @Column(name = "code")
     private String code;
 
-    @Setter
-    @Column(name = "manufacturing_code")
-    private String manufacturingCode;
+    // @Setter
+    // @Column(name = "manufacturing_code")
+    // private String manufacturingCode;
     
-    @Setter
-    @Column(name = "naver_product_code")
-    private String naverProductCode;
+    // @Setter
+    // @Column(name = "naver_product_code")
+    // private String naverProductCode;
 
     @Setter
     @Column(name = "default_name")
@@ -72,45 +76,49 @@ public class ProductEntity {
     @Column(name = "memo")
     private String memo;
 
-    @Setter
-    @Column(name = "hs_code")
-    private String hsCode;
+    // @Setter
+    // @Column(name = "hs_code")
+    // private String hsCode;
 
-    @Setter
-    @Column(name = "style")
-    private String style;
+    // @Setter
+    // @Column(name = "style")
+    // private String style;
 
-    @Setter
-    @Column(name = "tariff_rate")
-    private String tariffRate;
+    // @Setter
+    // @Column(name = "tariff_rate")
+    // private String tariffRate;
 
-    @Setter
-    @Column(name = "default_width")
-    private Integer defaultWidth;
+    // @Setter
+    // @Column(name = "default_width")
+    // private Integer defaultWidth;
 
-    @Setter
-    @Column(name = "default_length")
-    private Integer defaultLength;
+    // @Setter
+    // @Column(name = "default_length")
+    // private Integer defaultLength;
 
-    @Setter
-    @Column(name = "default_height")
-    private Integer defaultHeight;
+    // @Setter
+    // @Column(name = "default_height")
+    // private Integer defaultHeight;
 
-    @Setter
-    @Column(name = "default_quantity")
-    private Integer defaultQuantity;
+    // @Setter
+    // @Column(name = "default_quantity")
+    // private Integer defaultQuantity;
 
-    @Setter
-    @Column(name = "default_weight")
-    private Integer defaultWeight;
+    // @Setter
+    // @Column(name = "default_weight")
+    // private Integer defaultWeight;
 
-    @Setter
-    @Column(name = "default_total_purchase_price")
-    private Integer defaultTotalPurchasePrice;
+    // @Setter
+    // @Column(name = "default_total_purchase_price")
+    // private Integer defaultTotalPurchasePrice;
 
     @Setter
     @Column(name = "stock_management")
     private Boolean stockManagement;
+    
+    @Setter
+    @Column(name = "product_category_cid")
+    private Integer productCategoryCid;
 
     @Setter
     @Column(name = "created_at")
@@ -130,10 +138,6 @@ public class ProductEntity {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
-    @Setter
-    @Column(name = "product_category_cid")
-    private Integer productCategoryCid;
-
     /**
      * <b>Convert Method</b>
      * <p>
@@ -146,30 +150,30 @@ public class ProductEntity {
         ProductEntity entity = ProductEntity.builder()
             .id(UUID.randomUUID())
             .code(productDto.getCode())
-            .manufacturingCode(productDto.getManufacturingCode())
-            .naverProductCode(productDto.getNaverProductCode())
+            // .manufacturingCode(productDto.getManufacturingCode())
+            // .naverProductCode(productDto.getNaverProductCode())
             .defaultName(productDto.getDefaultName())
             .managementName(productDto.getManagementName())
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
             .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
-            .hsCode(productDto.getHsCode())
-            .tariffRate(productDto.getTariffRate())
-            .style(productDto.getStyle())
-            .tariffRate(productDto.getTariffRate())
-            .defaultWidth(productDto.getDefaultWidth())
-            .defaultLength(productDto.getDefaultLength())
-            .defaultHeight(productDto.getDefaultHeight())
-            .defaultQuantity(productDto.getDefaultQuantity())
-            .defaultWeight(productDto.getDefaultWeight())
-            .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
+            // .hsCode(productDto.getHsCode())
+            // .tariffRate(productDto.getTariffRate())
+            // .style(productDto.getStyle())
+            // .tariffRate(productDto.getTariffRate())
+            // .defaultWidth(productDto.getDefaultWidth())
+            // .defaultLength(productDto.getDefaultLength())
+            // .defaultHeight(productDto.getDefaultHeight())
+            // .defaultQuantity(productDto.getDefaultQuantity())
+            // .defaultWeight(productDto.getDefaultWeight())
+            // .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
             .stockManagement(productDto.getStockManagement())
+            .productCategoryCid(productDto.getProductCategoryCid())
             .createdAt(productDto.getCreatedAt())
             .createdBy(productDto.getCreatedBy())
             .updatedAt(productDto.getUpdatedAt())
             .updatedBy(productDto.getUpdatedBy())
-            .productCategoryCid(productDto.getProductCategoryCid())
             .build();
 
         return entity;

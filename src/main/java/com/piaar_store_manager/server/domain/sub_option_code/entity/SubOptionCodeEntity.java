@@ -46,8 +46,8 @@ public class SubOptionCodeEntity {
     @Column(name = "product_option_id")
     private UUID productOptionId;
 
-    @Column(name = "product_option_code")
-    private String productOptionCode;
+    // @Column(name = "product_option_code")
+    // private String productOptionCode;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -58,4 +58,8 @@ public class SubOptionCodeEntity {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Type(type = "uuid-char")
+    @Column(name = "updated_by")
+    private UUID updatedBy;
 }

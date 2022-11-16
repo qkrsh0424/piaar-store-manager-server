@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.piaar_store_manager.server.domain.sub_option_code.dto.SubOptionCodeDto;
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
@@ -30,6 +31,7 @@ public class SubOptionCodeBusinessService {
         subOptionCodeService.destroyOne(subOptionCodeId);
     }
 
+    @Transactional
     public void createOne(SubOptionCodeDto dto) {
         UUID USER_ID = userService.getUserId();
         if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
@@ -40,29 +42,38 @@ public class SubOptionCodeBusinessService {
         subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
-            .id(dto.getId())
+            .id(UUID.randomUUID())
             .subOptionCode(dto.getSubOptionCode())
             .memo(dto.getMemo())
             .productOptionId(dto.getProductOptionId())
-            .productOptionCode(dto.getProductOptionCode())
+            // .productOptionCode(dto.getProductOptionCode())
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
             .updatedAt(CustomDateUtils.getCurrentDateTime())
+            .updatedBy(USER_ID)
             .build();
 
         subOptionCodeService.saveAndModify(entity);
     }
 
     public void updateOne(SubOptionCodeDto dto) {
+        UUID USER_ID = userService.getUserId();
+        
         SubOptionCodeEntity entity = subOptionCodeService.searchOne(dto.getId());
         if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
             throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
         }
 
-        // 중복체크
-        subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+        // 동일한 옵션코드로 등록 하지 않는 경우
+        if(!entity.getSubOptionCode().equals(dto.getSubOptionCode())){
+            // 중복체크
+            subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+        }
         
-        entity.setSubOptionCode(dto.getSubOptionCode()).setMemo(dto.getMemo()).setUpdatedAt(CustomDateUtils.getCurrentDateTime());
+        entity.setSubOptionCode(dto.getSubOptionCode())
+            .setMemo(dto.getMemo())
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
+            .setUpdatedBy(USER_ID);
 
         subOptionCodeService.saveAndModify(entity);
     }

@@ -1,14 +1,16 @@
 package com.piaar_store_manager.server.domain.product.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
@@ -17,6 +19,9 @@ import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +37,15 @@ public class ProductBusinessService {
     private final UserService userService;
 
     public ProductGetDto searchOne(Integer productCid) {
+        // TODO :: cid -> id로 변경하자
+        // ProductEntity entity = productService.searchOne(id);
         ProductEntity entity = productService.searchOne(productCid);
+        return ProductGetDto.toDto(entity);
+    }
+
+    // 22.11.08 FEAT
+    public ProductGetDto searchOne(UUID id) {
+        ProductEntity entity = productService.searchOne(id);
         return ProductGetDto.toDto(entity);
     }
 
@@ -151,11 +164,57 @@ public class ProductBusinessService {
         return productFJDtos;
     }
 
+    // 22.10.11 NEW
+    public List<ProductGetDto.FullJoin> searchBatch(Map<String, Object> params) {
+        List<ProductManagementProj> projs = productService.findAllFJ(params);
+        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+
+        this.setOptionStockSumUnit(productDtos);
+        return productDtos;
+    }
+
+    // 22.10.17 NEW
+    public Page<ProductGetDto.FullJoin> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        Page<ProductManagementProj> pages = productService.findAllFJByPage(params, pageable);
+        List<ProductManagementProj> projs = pages.getContent();
+        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+
+        // option setting
+        this.setOptionStockSumUnit(productDtos);
+        return new PageImpl<>(productDtos, pageable, pages.getTotalElements());
+    }
+
+    // 옵션 입출고 수량 계산. 옵션의 재고수량을 수정
+    public void setOptionStockSumUnit(List<ProductGetDto.FullJoin> productDtos) {
+         // option setting
+         List<ProductOptionEntity> optionEntities = new ArrayList<>();
+         productDtos.forEach(dto -> {
+             if(dto.getOptions() != null) {
+                 List<ProductOptionEntity> entities = dto.getOptions().stream().map(r -> ProductOptionEntity.toEntity(r)).collect(Collectors.toList());
+                 optionEntities.addAll(entities);
+             }
+         });
+
+         productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+ 
+         // option stockSumUnit setting
+         productDtos.forEach(dto -> {
+             dto.getOptions().forEach(optionDto -> {
+                 optionEntities.forEach(optionEntity -> {
+                     if(!optionDto.getCode().isEmpty() && optionDto.getCode().equals(optionEntity.getCode())) {
+                         optionDto.setStockSumUnit(optionEntity.getStockSumUnit());
+                         return;
+                     }
+                 });
+             });
+         });
+    }
+
     @Transactional
     public void createOne(ProductGetDto productGetDto) {
         UUID USER_ID = userService.getUserId();
 
-        productGetDto.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+        productGetDto.setCode(CustomUniqueKeyUtils.generateCode18()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
         ProductEntity entity = ProductEntity.toEntity(productGetDto);
@@ -166,7 +225,7 @@ public class ProductBusinessService {
         UUID USER_ID = userService.getUserId();
 
         List<ProductEntity> productEntities = productGetDto.stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+            r.setCode(CustomUniqueKeyUtils.generateCode18()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                     .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
             return ProductEntity.toEntity(r);
@@ -185,48 +244,199 @@ public class ProductBusinessService {
      * @see ProductOptionService#saveListAndModify
      * @see OptionPackageService#saveListAndModify
      */
+    // @Transactional
+    // public void createPAO(ProductGetDto.CreateReq reqDto) {
+    //     UUID USER_ID = userService.getUserId();
+
+    //     // Save Product
+    //     reqDto.getProductDto().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+    //             .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
+
+    //     ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProductDto()));
+    //     ProductGetDto savedProductDto = ProductGetDto.toDto(savedEntity);
+
+    //     List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
+    //         r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+    //                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
+
+    //         // 패키지 상품 여부
+    //         if (reqDto.getPackageDtos().size() > 0) {
+    //             r.setPackageYn("y");
+    //         } else {
+    //             r.setPackageYn("n");
+    //         }
+
+    //         // 옵션에 totalPurchasePrice가 입력되지 않았다면 상품의 defaultTotalPurchasePrice로 setting
+    //         if (r.getTotalPurchasePrice() == 0) {
+    //             r.setTotalPurchasePrice(savedProductDto.getDefaultTotalPurchasePrice());
+    //         }
+
+    //         return ProductOptionEntity.toEntity(r);
+    //     }).collect(Collectors.toList());
+
+    //     // Save ProductOption
+    //     productOptionService.saveListAndModify(entities);
+
+    //     List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
+    //         r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+    //                 .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+
+    //         return OptionPackageEntity.toEntity(r);
+    //     }).collect(Collectors.toList());
+
+    //     // Save OptionPackage
+    //     optionPackageService.saveListAndModify(optionPackageEntities);
+    // }
+
+    /**
+     * [221005] FEAT
+     */
     @Transactional
-    public void createPAO(ProductGetDto.CreateReq reqDto) {
+    public void createProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
         UUID USER_ID = userService.getUserId();
 
         // Save Product
-        reqDto.getProductDto().setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+        reqDto.getProduct()
+                .setCode(CustomUniqueKeyUtils.generateCode18())
+                .setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
-        ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProductDto()));
-        ProductGetDto savedProductDto = ProductGetDto.toDto(savedEntity);
+        ProductEntity savedEntity = productService.saveAndGet(ProductEntity.toEntity(reqDto.getProduct()));
 
-        List<ProductOptionEntity> entities = reqDto.getOptionDtos().stream().map(r -> {
-            r.setCode(CustomUniqueKeyUtils.generateKey()).setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
-                    .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID).setProductCid(savedProductDto.getCid());
-
-            // 패키지 상품 여부
-            if (reqDto.getPackageDtos().size() > 0) {
-                r.setPackageYn("y");
-            } else {
-                r.setPackageYn("n");
-            }
-
-            // 옵션에 totalPurchasePrice가 입력되지 않았다면 상품의 defaultTotalPurchasePrice로 setting
-            if (r.getTotalPurchasePrice() == 0) {
-                r.setTotalPurchasePrice(savedProductDto.getDefaultTotalPurchasePrice());
-            }
-
+        List<ProductOptionEntity> entities = reqDto.getOptions().stream().map(r -> {
+            r.setCode(CustomUniqueKeyUtils.generateCode18())
+                    .setCreatedAt(CustomDateUtils.getCurrentDateTime()).setCreatedBy(USER_ID)
+                    .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
+                    .setPackageYn("n")
+                    .setProductCid(savedEntity.getCid())
+                    .setProductId(savedEntity.getId());
             return ProductOptionEntity.toEntity(r);
         }).collect(Collectors.toList());
 
         // Save ProductOption
         productOptionService.saveListAndModify(entities);
+    }
 
-        List<OptionPackageEntity> optionPackageEntities = reqDto.getPackageDtos().stream().map(r -> {
-            r.setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
+    /*
+     * [221017] FEAT
+     * TODO :: 제거
+     */
+    @Transactional
+    public void updateProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
+        UUID USER_ID = userService.getUserId();
+        ProductGetDto PRODUCT = reqDto.getProduct();
+
+        /*
+         * Update Product
+         */
+        ProductEntity savedProductEntity = productService.searchOne(PRODUCT.getId());
+        savedProductEntity.setDefaultName(PRODUCT.getDefaultName())
+                    .setManagementName(PRODUCT.getManagementName())
+                    .setImageUrl(PRODUCT.getImageUrl())
+                    .setImageFileName(PRODUCT.getImageFileName())
+                    .setPurchaseUrl(PRODUCT.getPurchaseUrl())
+                    .setMemo(PRODUCT.getMemo())
+                    .setStockManagement(PRODUCT.getStockManagement())
+                    .setProductCategoryCid(PRODUCT.getProductCategoryCid())
+                    .setUpdatedAt(LocalDateTime.now())
+                    .setUpdatedBy(USER_ID);
+
+        reqDto.getOptions().forEach(r -> r.setProductCid(savedProductEntity.getCid()).setProductId(savedProductEntity.getId()));
+        this.updateProductOptions(reqDto);
+    }
+
+    // TODO :: 제거
+    public void updateProductOptions(ProductGetDto.ProductAndOptions reqDto) {
+        // 기존 저장된 옵션
+        List<ProductOptionEntity> originOptions = productOptionService.searchListByProductId(reqDto.getProduct().getId());
+        List<UUID> originOptionIds = originOptions.stream().map(r -> r.getId()).collect(Collectors.toList());
+        
+        List<UUID> reqOptionIds = reqDto.getOptions().stream().map(r -> r.getId()).collect(Collectors.toList());
+        List<UUID> newOptionIds = reqOptionIds.stream().filter(option -> !originOptionIds.contains(option)).collect(Collectors.toList());
+        
+        // 변경된 옵션
+        this.changeOriginOptions(reqDto.getOptions(), originOptions);
+        // 새로 추가된 옵션
+        this.createNewOptions(reqDto.getOptions(), newOptionIds);
+        // 삭제된 옵션
+        this.deleteSavedOptions(originOptions, reqOptionIds);
+    }
+
+    public void changeOriginOptions(List<ProductOptionGetDto> reqOptions, List<ProductOptionEntity> originOptions) {
+        UUID USER_ID = userService.getUserId();
+
+        reqOptions.forEach(reqOption -> {
+            originOptions.forEach(entity -> {
+                if (reqOption.getId().equals(entity.getId())) {
+                    entity.setDefaultName(reqOption.getDefaultName())
+                            .setManagementName(reqOption.getManagementName())
+                            .setSalesPrice(reqOption.getSalesPrice())
+                            .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
+                            .setStatus(reqOption.getStatus())
+                            .setMemo(reqOption.getMemo())
+                            .setReleaseLocation(reqOption.getReleaseLocation())
+                            .setSafetyStockUnit(reqOption.getSafetyStockUnit())
+                            .setUpdatedAt(LocalDateTime.now())
+                            .setUpdatedBy(USER_ID);
+                }
+            });
+        });
+
+        productOptionService.saveListAndModify(originOptions);
+    }
+
+    public void createNewOptions(List<ProductOptionGetDto> reqOptions, List<UUID> newOptionIds) {
+        UUID USER_ID = userService.getUserId();
+
+        List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
+            .filter(r -> newOptionIds.contains(r.getId()))
+            .map(r -> {
+                r.setCode(CustomUniqueKeyUtils.generateCode18())
+                    .setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
                     .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+                
+                return ProductOptionEntity.toEntity(r);
+            }).collect(Collectors.toList());
 
-            return OptionPackageEntity.toEntity(r);
-        }).collect(Collectors.toList());
+        productOptionService.saveListAndModify(newOptionEntities);
+    }
 
-        // Save OptionPackage
-        optionPackageService.saveListAndModify(optionPackageEntities);
+    public void deleteSavedOptions(List<ProductOptionEntity> savedOptions, List<UUID> reqOptionIds) {
+        List<UUID> deletedIds = savedOptions.stream()
+            .filter(r -> !reqOptionIds.contains(r.getId()))
+            .map(r -> r.getId()).collect(Collectors.toList());
+
+        if(deletedIds.size() != 0) {
+            productOptionService.deleteBatch(deletedIds);
+        }
+    }
+
+    @Transactional
+    public void updateOne(ProductGetDto dto) {
+        UUID USER_ID = userService.getUserId();
+
+        /*
+         * Update Product
+         */
+        ProductEntity savedProductEntity = productService.searchOne(dto.getId());
+        savedProductEntity.setDefaultName(dto.getDefaultName())
+                .setManagementName(dto.getManagementName())
+                .setImageUrl(dto.getImageUrl())
+                .setImageFileName(dto.getImageFileName())
+                .setPurchaseUrl(dto.getPurchaseUrl())
+                .setMemo(dto.getMemo())
+                .setStockManagement(dto.getStockManagement())
+                .setProductCategoryCid(dto.getProductCategoryCid())
+                .setUpdatedAt(LocalDateTime.now())
+                .setUpdatedBy(USER_ID);
+    }
+
+    /*
+     * [221017] FEAT
+     */
+    public ProductGetDto.ProductAndOptions searchProductAndOptions(UUID productId) {
+        ProductManagementProj proj = productService.qSelectProductAndOptions(productId);
+        return ProductGetDto.ProductAndOptions.toDto(proj);
     }
 
     /**
@@ -236,13 +446,10 @@ public class ProductBusinessService {
      *
      * @see ProductBusinessService#createPAO
      */
-    @Transactional
-    public void createPAOList(List<ProductGetDto.CreateReq> productCreateReqDtos) {
-        productCreateReqDtos.stream().forEach(r -> this.createPAO(r));
-    }
 
-    public void destroyOne(Integer productCid) {
-        productService.destroyOne(productCid);
+    public void destroyOne(UUID productId) {
+       ProductEntity productEntity = productService.searchOne(productId);
+       productService.destroyOne(productEntity);
     }
 
     /**
@@ -253,31 +460,21 @@ public class ProductBusinessService {
      * @see ProductService#saveAndModify
      * @see ProductOptionService#createList
      */
+    // TODO :: 수정해야함
     @Transactional
     public void changePAO(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
-        productEntity.setCode(productDto.getCode()).setManufacturingCode(productDto.getManufacturingCode())
-                .setNaverProductCode(productDto.getNaverProductCode()).setDefaultName(productDto.getDefaultName())
-                .setManagementName(productDto.getManagementName()).setImageUrl(productDto.getImageUrl())
-                .setImageFileName(productDto.getImageFileName()).setPurchaseUrl(productDto.getPurchaseUrl()).setMemo(productDto.getMemo())
-                .setHsCode(productDto.getHsCode()).setStyle(productDto.getStyle())
-                .setTariffRate(productDto.getTariffRate()).setDefaultWidth(productDto.getDefaultWidth())
-                .setDefaultLength(productDto.getDefaultLength()).setDefaultHeight(productDto.getDefaultHeight())
-                .setDefaultQuantity(productDto.getDefaultQuantity()).setDefaultWeight(productDto.getDefaultWeight())
-                .setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
+        productEntity
+                .setDefaultName(productDto.getDefaultName()).setManagementName(productDto.getManagementName())
+                .setImageUrl(productDto.getImageUrl()).setImageFileName(productDto.getImageFileName())
+                .setPurchaseUrl(productDto.getPurchaseUrl()).setMemo(productDto.getMemo())
                 .setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID)
                 .setStockManagement(productDto.getStockManagement())
                 .setProductCategoryCid(productDto.getProductCategoryCid());
 
         productService.saveAndModify(productEntity);
-
-        // 옵션들의 매입총합계를 변경한다.
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProductCid(productEntity.getCid());
-        optionEntities.stream().forEach(r -> r.setTotalPurchasePrice(productEntity.getDefaultTotalPurchasePrice()));
-
-        productOptionService.saveListAndModify(optionEntities);
     }
 
     /**
@@ -298,17 +495,8 @@ public class ProductBusinessService {
     public void patchOne(ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
-        ProductEntity productEntity = productService.searchOne(productDto.getCid());
+        ProductEntity productEntity = productService.searchOne(productDto.getId());
 
-        if (productDto.getCode() != null) {
-            productEntity.setCode(productDto.getCode());
-        }
-        if (productDto.getManufacturingCode() != null) {
-            productEntity.setManufacturingCode(productDto.getManufacturingCode());
-        }
-        if (productDto.getNaverProductCode() != null) {
-            productEntity.setNaverProductCode(productDto.getNaverProductCode());
-        }
         if (productDto.getDefaultName() != null) {
             productEntity.setDefaultName(productDto.getDefaultName());
         }
@@ -326,33 +514,6 @@ public class ProductBusinessService {
         }
         if (productDto.getMemo() != null) {
             productEntity.setMemo(productDto.getMemo());
-        }
-        if (productDto.getHsCode() != null) {
-            productEntity.setHsCode(productDto.getHsCode());
-        }
-        if (productDto.getStyle() != null) {
-            productEntity.setStyle(productDto.getStyle());
-        }
-        if (productDto.getTariffRate() != null) {
-            productEntity.setTariffRate(productDto.getTariffRate());
-        }
-        if (productDto.getDefaultWidth() != null) {
-            productEntity.setDefaultWidth(productDto.getDefaultWidth());
-        }
-        if (productDto.getDefaultLength() != null) {
-            productEntity.setDefaultLength(productDto.getDefaultLength());
-        }
-        if (productDto.getDefaultHeight() != null) {
-            productEntity.setDefaultHeight(productDto.getDefaultHeight());
-        }
-        if (productDto.getDefaultQuantity() != null) {
-            productEntity.setDefaultQuantity(productDto.getDefaultQuantity());
-        }
-        if (productDto.getDefaultWeight() != null) {
-            productEntity.setDefaultWeight(productDto.getDefaultWeight());
-        }
-        if (productDto.getDefaultTotalPurchasePrice() != null) {
-            productEntity.setDefaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice());
         }
         if (productDto.getStockManagement() != null) {
             productEntity.setStockManagement(productDto.getStockManagement());

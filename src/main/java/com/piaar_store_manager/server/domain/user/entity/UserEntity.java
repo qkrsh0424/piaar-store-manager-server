@@ -92,10 +92,11 @@ public class UserEntity {
                 break;
         }
 
-        if(allowedAccessLevel >= roleAccessLevel) {
-            return true;
-        }else {
-            return false;
-        }
+        // if(allowedAccessLevel >= roleAccessLevel) {
+        //     return true;
+        // }else {
+        //     return false;
+        // }
+        return allowedAccessLevel >= roleAccessLevel;
     }
 }

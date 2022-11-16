@@ -7,13 +7,18 @@ import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.service.ProductBusinessService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
+import javax.validation.Valid;
+
+@Validated
 @RestController
 @RequestMapping("/api/v1/product")
 @RequiredArgsConstructor
@@ -161,28 +166,54 @@ public class ProductApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    // 22.10.11 FEAT
+    // 재고관리 페이지에서 조회할 데이터
+    // @GetMapping("/batch/stock")
+    // public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(productBusinessService.searchBatch(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    // // 22.10.17 FEAT
+    // // 재고관리 페이지에서 조회할 데이터 - 페이징처리
+    // @GetMapping("/batch/stock/page")
+    // public ResponseEntity<?> searchBatchByPaging(@RequestParam Map<String, Object> params, @PageableDefault(sort = "cid", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
+    //     Message message = new Message();
+
+    //     message.setData(productBusinessService.searchBatchByPaging(params, pageable));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
     /**
      * Create list api for product.
      * <p>
      * <b>POST : API URL => /api/v1/product/list</b>
      */
-    @PostMapping("/list")
-    @PermissionRole
-    public ResponseEntity<?> createList(@RequestBody List<ProductGetDto.CreateReq> productCreateReqDtos) {
-        Message message = new Message();
+    // @PostMapping("/list")
+    // @PermissionRole
+    // public ResponseEntity<?> createList(@RequestBody List<ProductGetDto.CreateReq> productCreateReqDtos) {
+    //     Message message = new Message();
 
-        try {
-            productBusinessService.createPAOList(productCreateReqDtos);
-            message.setStatus(HttpStatus.OK);
-            message.setMessage("success");
-        } catch (DataIntegrityViolationException e) {
-            message.setStatus(HttpStatus.BAD_REQUEST);
-            message.setMessage("error");
-            message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
-        }
+    //     try {
+    //         productBusinessService.createPAOList(productCreateReqDtos);
+    //         message.setStatus(HttpStatus.OK);
+    //         message.setMessage("success");
+    //     } catch (DataIntegrityViolationException e) {
+    //         message.setStatus(HttpStatus.BAD_REQUEST);
+    //         message.setMessage("error");
+    //         message.setMemo("입력된 옵션관리코드 값이 이미 존재합니다.");
+    //     }
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Create one api for product.
@@ -191,12 +222,50 @@ public class ProductApiController {
      * <p>
      * 단일 product, product 하위의 다중 option, option 하위의 다중 package를 등록한다.
      */
-    @PostMapping("/one")
+    // @PostMapping("/one")
+    // @PermissionRole
+    // public ResponseEntity<?> createOne(@RequestBody ProductGetDto.CreateReq productCreateReqDto) {
+    //     Message message = new Message();
+
+    //     productBusinessService.createPAO(productCreateReqDto);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    //  [221005] FEAT
+    @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createOne(@RequestBody ProductGetDto.CreateReq productCreateReqDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
         Message message = new Message();
 
-        productBusinessService.createPAO(productCreateReqDto);
+        productBusinessService.createProductAndOptions(createDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // [221021] FEAT
+    @PutMapping("/options")
+    @PermissionRole
+    public ResponseEntity<?> updateProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
+        Message message = new Message();
+
+        productBusinessService.updateProductAndOptions(createDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    // [221021] FEAT
+    @GetMapping("/{productId}")
+    public ResponseEntity<?> searchProductAndOptions(@PathVariable(value = "productId") UUID productId) {
+        Message message = new Message();
+
+        message.setData(productBusinessService.searchProductAndOptions(productId));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -208,9 +277,21 @@ public class ProductApiController {
      * <p>
      * <b>DELETE : API URL => /api/v1/product/one/{productId}</b>
      */
+    // @PermissionRole(role = "ROLE_SUPERADMIN")
+    // @DeleteMapping("/one/{productId}")
+    // public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
+    //     Message message = new Message();
+
+    //     productBusinessService.destroyOne(productId);
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+    
     @PermissionRole(role = "ROLE_SUPERADMIN")
-    @DeleteMapping("/one/{productId}")
-    public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") Integer productId) {
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> destroyOne(@PathVariable(value = "productId") UUID productId) {
         Message message = new Message();
 
         productBusinessService.destroyOne(productId);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 import com.piaar_store_manager.server.domain.option_package.repository.OptionPackageRepository;
 
 import org.springframework.stereotype.Service;
@@ -28,8 +29,19 @@ public class OptionPackageService {
      * @return List::OptionPackageEntity::
      * @see OptionPackageRepository#findAllByParentOptionId
      */
-    public List<OptionPackageEntity> searchListByParentOptionId(UUID parentOptionId) {
+     public List<OptionPackageEntity> searchListByParentOptionId(UUID parentOptionId) {
+         return optionPackageRepository.findAllByParentOptionId(parentOptionId);
+     }
+
+    // [221029] NEW
+    // TODO :: 제거
+    public List<OptionPackageEntity> searchBatchByParentOptionId(UUID parentOptionId) {
         return optionPackageRepository.findAllByParentOptionId(parentOptionId);
+    }
+
+    // [221108] NEW2
+    public List<OptionPackageProjection.RelatedProductOption> searchBatchByParentOptionId2(UUID parentOptionId) {
+        return optionPackageRepository.qfindBatchByParentOptionId(parentOptionId);
     }
 
     /**

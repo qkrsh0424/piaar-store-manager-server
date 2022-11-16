@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.product.dto;
 
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -11,9 +12,13 @@ import lombok.*;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Data
 @Accessors(chain = true)
@@ -21,26 +26,27 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductGetDto {
+
     private Integer cid;
     private UUID id;
+
+    @Size(max = 20, message = "'상품코드'는 20자 이내로 입력해주세요.")
     private String code;
-    private String manufacturingCode;
-    private String naverProductCode;
+
+    @NotBlank(message = "'상품명'을 입력해주세요.")
+    @Size(max = 100, message = "'상품명'은 100자 이내로 입력해주세요.")
     private String defaultName;
+
+    @Size(max = 100, message = "'상품설명'은 100자 이내로 입력해주세요.")
     private String managementName;
+
     private String imageUrl;
+    
+    @Size(max = 100, message = "'이미지 파일명'은 100자 이내로 입력해주세요.")
     private String imageFileName;
+
     private String purchaseUrl;
     private String memo;
-    private String hsCode;
-    private String style;
-    private String tariffRate;
-    private Integer defaultWidth;
-    private Integer defaultLength;
-    private Integer defaultHeight;
-    private Integer defaultQuantity;
-    private Integer defaultWeight;
-    private Integer defaultTotalPurchasePrice;
     private Boolean stockManagement;
     private LocalDateTime createdAt;
     private UUID createdBy;
@@ -63,30 +69,18 @@ public class ProductGetDto {
             .cid(entity.getCid())
             .id(entity.getId())
             .code(entity.getCode())
-            .manufacturingCode(entity.getManufacturingCode())
-            .naverProductCode(entity.getNaverProductCode())
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())
             .purchaseUrl(entity.getPurchaseUrl())
             .imageFileName(entity.getImageFileName())
             .memo(entity.getMemo())
-            .hsCode(entity.getHsCode())
-            .tariffRate(entity.getTariffRate())
-            .style(entity.getStyle())
-            .tariffRate(entity.getTariffRate())
-            .defaultWidth(entity.getDefaultWidth())
-            .defaultLength(entity.getDefaultLength())
-            .defaultHeight(entity.getDefaultHeight())
-            .defaultQuantity(entity.getDefaultQuantity())
-            .defaultWeight(entity.getDefaultWeight())
-            .defaultTotalPurchasePrice(entity.getDefaultTotalPurchasePrice())
             .stockManagement(entity.getStockManagement())
+            .productCategoryCid(entity.getProductCategoryCid())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())
             .updatedBy(entity.getUpdatedBy())
-            .productCategoryCid(entity.getProductCategoryCid())
             .build();
 
         return productDto;
@@ -150,6 +144,20 @@ public class ProductGetDto {
 
             return dto;
         }
+
+        public static FullJoin toDto(ProductManagementProj proj) {
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
+            List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
+
+            FullJoin dto = FullJoin.builder()
+                    .product(product)
+                    .category(category)
+                    .options(options)
+                    .build();
+
+            return dto;
+        }
     }
 
     /**
@@ -165,5 +173,34 @@ public class ProductGetDto {
         ProductGetDto productDto;
         List<ProductOptionGetDto> optionDtos;
         List<OptionPackageDto> packageDtos;
+    }
+
+    /*
+     * [221005] FEAT  
+     * 상품 & 옵션 생성 시 넘어오는 객체. product, product 하위 데이터 option.
+     */
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProductAndOptions {
+        @Valid
+        ProductGetDto product;
+        @Valid
+        List<ProductOptionGetDto> options;
+
+        public static ProductAndOptions toDto(ProductManagementProj proj) {
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
+
+            ProductAndOptions dto = ProductAndOptions.builder()
+                    .product(product)
+                    .options(options)
+                    .build();
+
+            return dto;
+        }
     }
 }
