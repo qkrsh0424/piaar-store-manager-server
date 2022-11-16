@@ -175,16 +175,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     private BooleanExpression lkCategorySearchCondition(Map<String, Object> params) {
-        String searchQuery = params.get("categorySearchQuery") == null ? null : params.get("categorySearchQuery").toString();
+        UUID searchQuery = params.get("categorySearchQuery") == null ? null : UUID.fromString(params.get("categorySearchQuery").toString());
 
         if (searchQuery == null) {
             return null;
         }
 
         try {
-            StringPath headerNameStringPath = CustomFieldUtils.getFieldValue(qProductCategoryEntity, "id");
-            return headerNameStringPath.contains(searchQuery);
-        
+            // StringPath headerNameStringPath = CustomFieldUtils.getFieldValue(qProductCategoryEntity, "id");
+            // System.out.println(headerName);
+            return qProductCategoryEntity.id.eq(searchQuery);
         } catch (ClassCastException e) {
             throw new CustomInvalidDataException("허용된 데이터 타입이 아닙니다.");
         }
