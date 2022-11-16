@@ -172,7 +172,7 @@ public class ErpOrderItemDto {
     @Pattern(regexp = "^[n|y]$", message = "'반품 입금여부'에 올바른 값을 입력해주세요.")
     @Size(min = 1, max = 1)
     private String returnYn;
-    private String exchangeYn;
+    // private String exchangeYn;
     private LocalDateTime createdAt;  // 주문등록일
     private UUID createdBy;
 
@@ -237,7 +237,7 @@ public class ErpOrderItemDto {
                 .releaseAt(entity.getReleaseAt())
                 .stockReflectYn(entity.getStockReflectYn())
                 .returnYn(entity.getReturnYn())
-                .exchangeYn(entity.getExchangeYn())
+                // .exchangeYn(entity.getExchangeYn())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .build();

@@ -41,13 +41,13 @@ public class ErpOrderItemJdbcImpl implements ErpOrderItemCustomJdbc {
                 "destination_detail, sales_channel, order_number1, order_number2, channel_prod_code, channel_option_code, zip_code, courier, transport_type, delivery_message, " +
                 "waybill_number, price, delivery_charge, barcode, prod_code, option_code, release_option_code, channel_order_date, management_memo1, management_memo2, " +
                 "management_memo3, management_memo4, management_memo5, management_memo6, management_memo7, management_memo8, management_memo9, management_memo10, freight_code, sales_yn, " + 
-                "sales_at, release_yn, release_at, stock_reflect_yn, return_yn, exchange_yn, created_at, created_by)" +
+                "sales_at, release_yn, release_at, stock_reflect_yn, return_yn, created_at, created_by)" +
                 "VALUES" +
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                " ?, ?, ?, ?, ?, ?, ?, ?)";
+                " ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -100,9 +100,9 @@ public class ErpOrderItemJdbcImpl implements ErpOrderItemCustomJdbc {
                 ps.setObject(43, entity.getReleaseAt());
                 ps.setString(44, entity.getStockReflectYn());
                 ps.setString(45, entity.getReturnYn());
-                ps.setString(46, entity.getExchangeYn());
-                ps.setObject(47, entity.getCreatedAt());
-                ps.setObject(48, entity.getCreatedBy().toString());
+                // ps.setString(46, entity.getExchangeYn());
+                ps.setObject(46, entity.getCreatedAt());
+                ps.setObject(47, entity.getCreatedBy().toString());
 
             }
 
