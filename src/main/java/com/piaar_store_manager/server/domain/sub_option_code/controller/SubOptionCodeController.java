@@ -2,8 +2,11 @@ package com.piaar_store_manager.server.domain.sub_option_code.controller;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,7 @@ import com.piaar_store_manager.server.domain.sub_option_code.service.SubOptionCo
 
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/sub-option-code")
 @RequiredArgsConstructor
@@ -53,7 +57,7 @@ public class SubOptionCodeController {
 
     @PostMapping("")
     @PermissionRole
-    public ResponseEntity<?> createOne(@RequestBody SubOptionCodeDto subOptionCode) {
+    public ResponseEntity<?> createOne(@RequestBody @Valid SubOptionCodeDto subOptionCode) {
         Message message = new Message();
 
         subOptionCodeBusinessService.createOne(subOptionCode);
@@ -65,7 +69,7 @@ public class SubOptionCodeController {
 
     @PutMapping("")
     @PermissionRole
-    public ResponseEntity<?> updateOne(@RequestBody SubOptionCodeDto subOptionCode) {
+    public ResponseEntity<?> updateOne(@RequestBody @Valid SubOptionCodeDto subOptionCode) {
         Message message = new Message();
 
         subOptionCodeBusinessService.updateOne(subOptionCode);

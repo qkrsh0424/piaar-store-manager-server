@@ -35,21 +35,19 @@ public class ProductReleaseBusinessServiceV2 {
     public void createBatch(List<ProductReleaseGetDto> releaseDtos) {
         UUID USER_ID = userService.getUserId();
 
-        List<ProductReleaseGetDto> dtos = releaseDtos.stream().filter(r -> !r.getReleaseUnit().equals(0)).collect(Collectors.toList());
-        List<ProductReleaseEntity> productReleaseEntities = dtos.stream().map(dto -> {
-            ProductReleaseGetDto releaseGetDto = ProductReleaseGetDto.builder()
-                    .id(UUID.randomUUID())
-                    .releaseUnit(dto.getReleaseUnit())
-                    .memo(dto.getMemo())
-                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                    .createdBy(USER_ID)
-                    .productOptionCid(dto.getProductOptionCid())
-                    .productOptionId(dto.getProductOptionId())
-                    .build();
+        List<ProductReleaseEntity> productReleaseEntities = releaseDtos.stream().map(dto -> {
+            ProductReleaseEntity entity = ProductReleaseEntity.builder()
+                .id(UUID.randomUUID())
+                .releaseUnit(dto.getReleaseUnit())
+                .memo(dto.getMemo().strip())
+                .createdAt(CustomDateUtils.getCurrentDateTime())
+                .createdBy(USER_ID)
+                .productOptionCid(dto.getProductOptionCid())
+                .productOptionId(dto.getProductOptionId())
+                .build();
 
-            return ProductReleaseEntity.toEntity(releaseGetDto);
+            return entity;
         }).collect(Collectors.toList());
-
         productReleaseService.saveListAndModify(productReleaseEntities);
     }
 
@@ -67,7 +65,7 @@ public class ProductReleaseBusinessServiceV2 {
             releaseEntity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
         }
         if (releaseDto.getMemo() != null) {
-            releaseEntity.setMemo(releaseDto.getMemo());
+            releaseEntity.setMemo(releaseDto.getMemo().strip());
         }
     }
 }

@@ -3,6 +3,9 @@ package com.piaar_store_manager.server.domain.sub_option_code.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.sub_option_code.entity.SubOptionCodeEntity;
 import com.piaar_store_manager.server.domain.sub_option_code.proj.SubOptionCodeProjection;
@@ -22,10 +25,15 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 public class SubOptionCodeDto {
     private UUID id;
+
+    @NotBlank(message = "'대체옵션코드'를 입력해주세요.")
+    @Size(max = 50, message = "'대체옵션코드'는 50자 이내로 입력해주세요.")
     private String subOptionCode;
+
+    @Size(max = 50, message = "'대체옵션코드 메모'는 50자 이내로 입력해주세요.")
     private String memo;
+
     private UUID productOptionId;
-    // private String productOptionCode;
     private LocalDateTime createdAt;
     private UUID createdBy;
     private LocalDateTime updatedAt;
@@ -37,7 +45,6 @@ public class SubOptionCodeDto {
             .subOptionCode(entity.getSubOptionCode())
             .memo(entity.getMemo())
             .productOptionId(entity.getProductOptionId())
-            // .productOptionCode(entity.getProductOptionCode())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
             .updatedAt(entity.getUpdatedAt())

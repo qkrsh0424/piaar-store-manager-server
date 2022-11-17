@@ -1,6 +1,5 @@
 package com.piaar_store_manager.server.domain.product.dto;
 
-import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
 import com.piaar_store_manager.server.domain.product.proj.ProductProj;
@@ -17,7 +16,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
+import javax.validation.constraints.AssertFalse;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
@@ -29,8 +32,6 @@ public class ProductGetDto {
 
     private Integer cid;
     private UUID id;
-
-    @Size(max = 20, message = "'상품코드'는 20자 이내로 입력해주세요.")
     private String code;
 
     @NotBlank(message = "'상품명'을 입력해주세요.")
@@ -47,6 +48,8 @@ public class ProductGetDto {
 
     private String purchaseUrl;
     private String memo;
+
+    @NotBlank(message = "'재고반영 여부'를 입력해주세요.")
     private Boolean stockManagement;
     private LocalDateTime createdAt;
     private UUID createdBy;
@@ -163,17 +166,17 @@ public class ProductGetDto {
     /**
      * 상품&옵션&패키지 생성 시 넘어오는 객체. product, product 하위 데이터 option, option의 하위 데이터 package로 구성된 객체
      */
-    @Getter
-    @ToString
-    @Accessors(chain = true)
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class CreateReq {
-        ProductGetDto productDto;
-        List<ProductOptionGetDto> optionDtos;
-        List<OptionPackageDto> packageDtos;
-    }
+    // @Getter
+    // @ToString
+    // @Accessors(chain = true)
+    // @Builder
+    // @NoArgsConstructor
+    // @AllArgsConstructor
+    // public static class CreateReq {
+    //     ProductGetDto productDto;
+    //     List<ProductOptionGetDto> optionDtos;
+    //     List<OptionPackageDto> packageDtos;
+    // }
 
     /*
      * [221005] FEAT  

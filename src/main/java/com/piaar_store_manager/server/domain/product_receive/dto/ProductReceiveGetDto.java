@@ -3,6 +3,9 @@ package com.piaar_store_manager.server.domain.product_receive.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -25,6 +28,9 @@ import lombok.experimental.Accessors;
 public class ProductReceiveGetDto {
     private Integer cid;
     private UUID id;
+
+    @NotNull
+    @Positive(message = "'입고수량'은 0보다 큰 값을 입력해주세요.")
     private Integer receiveUnit;
     private String memo;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")

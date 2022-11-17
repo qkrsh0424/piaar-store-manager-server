@@ -1,30 +1,17 @@
 package com.piaar_store_manager.server.domain.product_option.repository;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection.RelatedProductReceiveAndProductRelease;
 import com.piaar_store_manager.server.domain.product_receive.entity.QProductReceiveEntity;
-import com.piaar_store_manager.server.domain.product_receive.proj.ProductReceiveProjection;
 import com.piaar_store_manager.server.domain.product_release.entity.QProductReleaseEntity;
-import com.piaar_store_manager.server.domain.product_release.proj.ProductReleaseProjection;
 import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
-import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.querydsl.core.QueryResults;
-import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Order;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -96,75 +83,5 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
 
         QueryResults<StockAnalysisProj> result = customQuery.fetchResults();
         return result.getResults();
-    }
-
-    // TODO :: 사용하지 않는 메서드
-    @Override
-    public RelatedProductReceiveAndProductRelease qSearchBatchStockStatus(List<UUID> optionIds, Map<String, Object> params) {
-        List<ProductReceiveProjection.RelatedProductAndProductOption> productReceiveProjs = query.from(qProductOptionEntity)
-            .where(qProductOptionEntity.id.in(optionIds), withinDateRange("receive", params))
-            .orderBy(new OrderSpecifier(Order.DESC, qProductReceiveEntity.createdAt))
-            .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-            .leftJoin(qProductReceiveEntity).on(qProductOptionEntity.id.eq(qProductReceiveEntity.productOptionId))
-            .transform(
-                GroupBy.groupBy(qProductReceiveEntity.cid)
-                .list(    
-                    Projections.fields(
-                        ProductReceiveProjection.RelatedProductAndProductOption.class,
-                        qProductReceiveEntity.as("productReceive"),
-                        qProductEntity.as("product"),
-                        qProductOptionEntity.as("productOption"))
-                )
-            )
-        ;
-        
-        List<ProductReleaseProjection.RelatedProductAndProductOption> productReleaseProjs = query.from(qProductOptionEntity)
-            .where(qProductOptionEntity.id.in(optionIds), withinDateRange("release", params))
-            .orderBy(new OrderSpecifier(Order.DESC, qProductReleaseEntity.createdAt))
-            .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-            .leftJoin(qProductReleaseEntity).on(qProductOptionEntity.id.eq(qProductReleaseEntity.productOptionId))
-            .transform(
-                GroupBy.groupBy(qProductReleaseEntity.cid)
-                .list(    
-                    Projections.fields(
-                        ProductReleaseProjection.RelatedProductAndProductOption.class,
-                        qProductReleaseEntity.as("productRelease"),
-                        qProductEntity.as("product"),
-                        qProductOptionEntity.as("productOption"))
-                )
-            )
-            ;
-
-        ProductOptionProjection.RelatedProductReceiveAndProductRelease proj = ProductOptionProjection.RelatedProductReceiveAndProductRelease.builder()
-            .productReceive(productReceiveProjs)
-            .productRelease(productReleaseProjs)
-            .build();
-
-        return proj;
-    }
-
-    private BooleanExpression withinDateRange(String status, Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-
-        if (params.get("startDate") == null || params.get("endDate") == null) {
-            return null;
-        }
-
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
-
-        if (startDate.isAfter(endDate)) {
-            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
-        }
-
-        if (status.equals("receive")) {
-            return qProductReceiveEntity.createdAt.between(startDate, endDate);
-        } else if(status.equals("release")) {
-            return qProductReleaseEntity.createdAt.between(startDate, endDate);
-        }
-
-        return null;
     }
 }

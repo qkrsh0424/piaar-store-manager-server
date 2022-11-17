@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 import org.springframework.stereotype.Service;
 
@@ -22,21 +22,6 @@ import lombok.RequiredArgsConstructor;
 public class ProductOptionBusinessServiceV2 {
     private final ProductOptionService productOptionService;
     private final UserService userService;
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * startDate와 endDate기간 사이에 등록된 모든 release(출고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * startDate와 endDate기간 사이에 등록된 모든 receive(입고) 데이터와 그에 대응하는 option, product, category, user 데이터를 모두 조회한다.
-     * 입출고 데이터를 이용해 ProductOptionGetDto.JoinReceiveAndRelease 생성한다.
-     *
-     * @return ProductOptionGetDto.JoinReceiveAndRelease
-     */
-    public ProductOptionGetDto.RelatedProductReceiveAndProductRelease searchBatchStockStatus(List<UUID> optionIds, Map<String,Object> params) {
-        ProductOptionProjection.RelatedProductReceiveAndProductRelease proj = productOptionService.qSearchBatchStockStatus(optionIds, params);
-        ProductOptionGetDto.RelatedProductReceiveAndProductRelease stockStatusDto = ProductOptionGetDto.RelatedProductReceiveAndProductRelease.toDto(proj);
-        return stockStatusDto;
-    }
 
     /**
      * <b>DB Select Related Method</b>
@@ -80,13 +65,13 @@ public class ProductOptionBusinessServiceV2 {
         reqOptions.forEach(reqOption -> {
             originOptions.forEach(entity -> {
                 if (reqOption.getId().equals(entity.getId())) {
-                    entity.setDefaultName(reqOption.getDefaultName())
-                            .setManagementName(reqOption.getManagementName())
+                    entity.setDefaultName(reqOption.getDefaultName().strip())
+                            .setManagementName(reqOption.getManagementName().strip())
                             .setSalesPrice(reqOption.getSalesPrice())
                             .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
-                            .setStatus(reqOption.getStatus())
-                            .setMemo(reqOption.getMemo())
-                            .setReleaseLocation(reqOption.getReleaseLocation())
+                            .setStatus(reqOption.getStatus().strip())
+                            .setMemo(reqOption.getMemo().strip())
+                            .setReleaseLocation(reqOption.getReleaseLocation().strip())
                             .setSafetyStockUnit(reqOption.getSafetyStockUnit())
                             .setUpdatedAt(LocalDateTime.now())
                             .setUpdatedBy(USER_ID);
@@ -103,11 +88,23 @@ public class ProductOptionBusinessServiceV2 {
         List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
                 .filter(r -> newOptionIds.contains(r.getId()))
                 .map(r -> {
-                    r.setCode(CustomUniqueKeyUtils.generateCode18())
-                            .setCreatedAt(LocalDateTime.now()).setCreatedBy(USER_ID)
-                            .setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+                    ProductOptionEntity option = ProductOptionEntity.builder()
+                            .id(UUID.randomUUID())
+                            .code(CustomUniqueKeyUtils.generateCode18())
+                            .defaultName(r.getDefaultName().strip())
+                            .managementName(r.getManagementName().strip())
+                            .salesPrice(r.getSalesPrice())
+                            .safetyStockUnit(r.getSafetyStockUnit())
+                            .status(r.getStatus().strip())
+                            .memo(r.getMemo().strip())
+                            .releaseLocation(r.getReleaseLocation().strip())
+                            .updatedAt(CustomDateUtils.getCurrentDateTime())
+                            .updatedBy(USER_ID)
+                            .totalPurchasePrice(r.getTotalPurchasePrice())
+                            .packageYn("n")
+                            .build();
 
-                    return ProductOptionEntity.toEntity(r);
+                    return option;
                 }).collect(Collectors.toList());
 
         productOptionService.saveListAndModify(newOptionEntities);

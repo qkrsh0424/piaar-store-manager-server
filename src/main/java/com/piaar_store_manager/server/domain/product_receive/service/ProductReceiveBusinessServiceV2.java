@@ -34,21 +34,19 @@ public class ProductReceiveBusinessServiceV2 {
     public void createBatch(List<ProductReceiveGetDto> receiveDtos) {
         UUID USER_ID = userService.getUserId();
 
-        List<ProductReceiveGetDto> dtos = receiveDtos.stream().filter(r -> !r.getReceiveUnit().equals(0)).collect(Collectors.toList());
-        List<ProductReceiveEntity> productReceiveEntities = dtos.stream().map(dto -> {
-            ProductReceiveGetDto receiveGetDto = ProductReceiveGetDto.builder()
-                    .id(UUID.randomUUID())
-                    .receiveUnit(dto.getReceiveUnit())
-                    .memo(dto.getMemo())
-                    .createdAt(CustomDateUtils.getCurrentDateTime())
-                    .createdBy(USER_ID)
-                    .productOptionCid(dto.getProductOptionCid())
-                    .productOptionId(dto.getProductOptionId())
-                    .build();
+        List<ProductReceiveEntity> productReceiveEntities = receiveDtos.stream().map(dto -> {
+            ProductReceiveEntity entity = ProductReceiveEntity.builder()
+                .id(UUID.randomUUID())
+                .receiveUnit(dto.getReceiveUnit())
+                .memo(dto.getMemo().strip())
+                .createdAt(CustomDateUtils.getCurrentDateTime())
+                .createdBy(USER_ID)
+                .productOptionCid(dto.getProductOptionCid())
+                .productOptionId(dto.getProductOptionId())
+                .build();
 
-            return ProductReceiveEntity.toEntity(receiveGetDto);
+            return entity;
         }).collect(Collectors.toList());
-
         productReceiveService.saveListAndModify(productReceiveEntities);
     }
 
@@ -66,7 +64,7 @@ public class ProductReceiveBusinessServiceV2 {
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
         }
         if (receiveDto.getMemo() != null) {
-            receiveEntity.setMemo(receiveDto.getMemo());
+            receiveEntity.setMemo(receiveDto.getMemo().strip());
         }
     }
 }

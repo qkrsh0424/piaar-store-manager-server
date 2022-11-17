@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
@@ -24,12 +27,11 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 public class OptionPackageDto {
     private UUID id;
-    private Integer packageUnit;
-    // private String originOptionCode;
-    // private String originOptionDefaultName;
 
-    // @Setter
-    // private Integer originOptionCid;
+    @NotNull
+    @Positive(message = "'패키지옵션 수량'은 0보다 큰 값을 입력해주세요.")
+    private Integer packageUnit;
+
     private UUID originOptionId;
     
     @Setter

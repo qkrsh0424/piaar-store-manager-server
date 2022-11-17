@@ -43,10 +43,9 @@ public class SubOptionCodeBusinessService {
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
             .id(UUID.randomUUID())
-            .subOptionCode(dto.getSubOptionCode())
-            .memo(dto.getMemo())
+            .subOptionCode(dto.getSubOptionCode().strip())
+            .memo(dto.getMemo().strip())
             .productOptionId(dto.getProductOptionId())
-            // .productOptionCode(dto.getProductOptionCode())
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
             .updatedAt(CustomDateUtils.getCurrentDateTime())

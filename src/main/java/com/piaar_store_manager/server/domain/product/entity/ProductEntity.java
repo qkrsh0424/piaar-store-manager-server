@@ -22,9 +22,9 @@ import java.util.UUID;
 @Entity
 @Getter
 @ToString
+@Builder
 @Table(name = "product")
 @Accessors(chain = true)
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @DynamicInsert
@@ -150,24 +150,12 @@ public class ProductEntity {
         ProductEntity entity = ProductEntity.builder()
             .id(UUID.randomUUID())
             .code(productDto.getCode())
-            // .manufacturingCode(productDto.getManufacturingCode())
-            // .naverProductCode(productDto.getNaverProductCode())
             .defaultName(productDto.getDefaultName())
             .managementName(productDto.getManagementName())
             .imageUrl(productDto.getImageUrl())
             .imageFileName(productDto.getImageFileName())
             .purchaseUrl(productDto.getPurchaseUrl())
             .memo(productDto.getMemo())
-            // .hsCode(productDto.getHsCode())
-            // .tariffRate(productDto.getTariffRate())
-            // .style(productDto.getStyle())
-            // .tariffRate(productDto.getTariffRate())
-            // .defaultWidth(productDto.getDefaultWidth())
-            // .defaultLength(productDto.getDefaultLength())
-            // .defaultHeight(productDto.getDefaultHeight())
-            // .defaultQuantity(productDto.getDefaultQuantity())
-            // .defaultWeight(productDto.getDefaultWeight())
-            // .defaultTotalPurchasePrice(productDto.getDefaultTotalPurchasePrice())
             .stockManagement(productDto.getStockManagement())
             .productCategoryCid(productDto.getProductCategoryCid())
             .createdAt(productDto.getCreatedAt())

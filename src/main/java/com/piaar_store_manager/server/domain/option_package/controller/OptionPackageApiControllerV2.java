@@ -3,6 +3,8 @@ package com.piaar_store_manager.server.domain.option_package.controller;
 import java.util.List;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
@@ -11,6 +13,7 @@ import com.piaar_store_manager.server.domain.option_package.service.OptionPackag
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/api/v2/option-packages")
 @RequiredArgsConstructor
@@ -47,7 +51,7 @@ public class OptionPackageApiControllerV2 {
     }
 
     @PostMapping("/{parentOptionId}")
-    public ResponseEntity<?> deleteAndCreateBatch(@PathVariable("parentOptionId") UUID parentOptionId, @RequestBody List<OptionPackageDto> dtos) {
+    public ResponseEntity<?> deleteAndCreateBatch(@PathVariable("parentOptionId") UUID parentOptionId, @RequestBody @Valid List<OptionPackageDto> dtos) {
         Message message = new Message();
 
         optionPackageBusinessService.deleteAndCreateBatch(parentOptionId, dtos);

@@ -11,6 +11,7 @@ import com.piaar_store_manager.server.domain.option_package.proj.OptionPackagePr
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,18 +57,24 @@ public class OptionPackageBusinessServiceV2 {
         // null 이거나 dtos 사이즈가 0일 때
         // 옵션의 packageYn 수정, 옵션패키지 제거
         if(dtos == null || dtos.isEmpty()) {
-            optionEntity.setPackageYn("n").setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+            optionEntity.setPackageYn("n").setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         } else {
             // 옵션의 packageYn 수정, 옵션패키지 제거 후 생성
-            optionEntity.setPackageYn("y").setUpdatedAt(LocalDateTime.now()).setUpdatedBy(USER_ID);
+            optionEntity.setPackageYn("y").setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
 
             List<OptionPackageEntity> newOptionPackageEntities = dtos.stream().map(r -> {
-                r.setParentOptionId(optionEntity.getId())
-                    .setCreatedAt(LocalDateTime.now())
-                    .setCreatedBy(USER_ID)
-                    .setUpdatedAt(LocalDateTime.now())
-                    .setUpdatedBy(USER_ID);
-                return OptionPackageEntity.toEntity(r);
+                OptionPackageEntity entity = OptionPackageEntity.builder()
+                    .id(UUID.randomUUID())
+                    .packageUnit(r.getPackageUnit())
+                    .originOptionId(r.getOriginOptionId())
+                    .createdAt(CustomDateUtils.getCurrentDateTime())
+                    .createdBy(USER_ID)
+                    .updatedAt(CustomDateUtils.getCurrentDateTime())
+                    .updatedBy(USER_ID)
+                    .parentOptionId(optionEntity.getId())
+                    .build();
+
+                return entity;
             }).collect(Collectors.toList());
 
             optionPackageService.saveListAndModify(newOptionPackageEntities);

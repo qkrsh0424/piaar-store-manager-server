@@ -3,6 +3,9 @@ package com.piaar_store_manager.server.domain.product_detail_page.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import com.piaar_store_manager.server.domain.product_detail_page.entity.ProductDetailPageEntity;
 
 import lombok.AllArgsConstructor;
@@ -18,8 +21,14 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ProductDetailPageDto {
     private UUID id;
+
+    @NotNull
+    @Size(max = 50, message = "'상세페이지 제목'은 50자 이내로 입력해주세요.")
     private String title;
     private String imageUrl;
+
+    @NotNull
+    @Size(max = 100, message = "'이미지파일명'은 100자 이내로 입력해주세요.")
     private String imageFileName;
     private UUID productId;
     private LocalDateTime createdAt;

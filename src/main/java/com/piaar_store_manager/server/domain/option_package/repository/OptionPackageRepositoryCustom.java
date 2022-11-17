@@ -1,4 +1,4 @@
-package com.piaar_store_manager.server.domain.option_package.controller;
+package com.piaar_store_manager.server.domain.option_package.repository;
 
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 import org.springframework.stereotype.Repository;

@@ -3,6 +3,8 @@ package com.piaar_store_manager.server.domain.product_category.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.Size;
+
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 
 import lombok.AllArgsConstructor;
@@ -20,6 +22,8 @@ public class ProductCategoryGetDto {
     private Integer cid;
     private UUID id;
     private String code;
+
+    @Size(max = 100, message = "'카테고리명'은 100자 이내로 입력해주세요.")
     private String name;
     private LocalDateTime createdAt;
     private UUID createdBy;

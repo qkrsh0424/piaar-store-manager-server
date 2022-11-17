@@ -2,8 +2,11 @@ package com.piaar_store_manager.server.domain.product_detail_page.controller;
 
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +24,7 @@ import com.piaar_store_manager.server.domain.product_detail_page.service.Product
 
 import lombok.RequiredArgsConstructor;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/product-detail-pages")
 @RequiredLogin
@@ -41,7 +45,7 @@ public class ProductDetailPageApi {
 
     @PermissionRole
     @PostMapping("")
-    public ResponseEntity<?> createOne(@RequestBody ProductDetailPageDto dto) {
+    public ResponseEntity<?> createOne(@RequestBody @Valid ProductDetailPageDto dto) {
         Message message = new Message();
 
         productDetailPageBusinessService.createOne(dto);
@@ -65,7 +69,7 @@ public class ProductDetailPageApi {
 
     @PermissionRole
     @PutMapping("")
-    public ResponseEntity<?> updateOne(@RequestBody ProductDetailPageDto dto) {
+    public ResponseEntity<?> updateOne(@RequestBody @Valid ProductDetailPageDto dto) {
         Message message = new Message();
 
         productDetailPageBusinessService.updateOne(dto);

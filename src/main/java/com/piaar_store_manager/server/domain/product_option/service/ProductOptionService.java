@@ -5,7 +5,6 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionSto
 import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionCustomJdbc;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
@@ -19,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -303,9 +301,5 @@ public class ProductOptionService {
 
     public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
         return productOptionCustomJdbc.searchStockStatusByWeek(searchEndDate, productCid);
-    }
-
-    public ProductOptionProjection.RelatedProductReceiveAndProductRelease qSearchBatchStockStatus(List<UUID> optionIds, Map<String, Object> params) {
-        return productOptionRepository.qSearchBatchStockStatus(optionIds, params);
     }
 }

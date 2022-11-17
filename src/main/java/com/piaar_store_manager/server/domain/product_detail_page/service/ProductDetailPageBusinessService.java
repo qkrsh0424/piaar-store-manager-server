@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.piaar_store_manager.server.domain.product_detail_page.dto.ProductDetailPageDto;
 import com.piaar_store_manager.server.domain.product_detail_page.entity.ProductDetailPageEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,13 +33,13 @@ public class ProductDetailPageBusinessService {
 
         ProductDetailPageEntity entity = ProductDetailPageEntity.builder()
             .id(UUID.randomUUID())
-            .title(dto.getTitle())
+            .title(dto.getTitle().strip())
             .imageUrl(dto.getImageUrl())
             .imageFileName(dto.getImageFileName())
             .productId(dto.getProductId())
-            .createdAt(LocalDateTime.now())
+            .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
-            .updatedAt(LocalDateTime.now())
+            .updatedAt(CustomDateUtils.getCurrentDateTime())
             .updatedBy(USER_ID)
             .build();
 
@@ -56,10 +57,10 @@ public class ProductDetailPageBusinessService {
         UUID USER_ID = userService.getUserId();
 
         ProductDetailPageEntity entity = productDetailPageService.searchOne(dto.getId());
-        entity.setTitle(dto.getTitle())
+        entity.setTitle(dto.getTitle().strip())
             .setImageUrl(dto.getImageUrl())
             .setImageFileName(dto.getImageFileName())
-            .setUpdatedAt(LocalDateTime.now())
+            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
             .setUpdatedBy(USER_ID);
 
         productDetailPageService.saveAndModify(entity);

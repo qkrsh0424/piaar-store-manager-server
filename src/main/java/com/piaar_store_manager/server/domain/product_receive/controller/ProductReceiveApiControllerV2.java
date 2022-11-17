@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.validation.Valid;
+
 import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
@@ -13,6 +15,7 @@ import com.piaar_store_manager.server.domain.product_receive.service.ProductRece
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController
 @RequestMapping("/api/v2/product-receive")
 @RequiredArgsConstructor
@@ -34,7 +38,7 @@ public class ProductReceiveApiControllerV2 {
      */
     @PostMapping("/batch")
     @PermissionRole
-    public ResponseEntity<?> createBatch(@RequestBody List<ProductReceiveGetDto> dtos) {
+    public ResponseEntity<?> createBatch(@RequestBody @Valid List<ProductReceiveGetDto> dtos) {
         Message message = new Message();
 
         productReceiveBusinessService.createBatch(dtos);
