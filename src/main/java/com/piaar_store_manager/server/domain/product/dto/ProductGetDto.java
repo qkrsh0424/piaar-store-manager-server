@@ -16,11 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
-import javax.validation.constraints.AssertFalse;
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
@@ -49,7 +45,6 @@ public class ProductGetDto {
     private String purchaseUrl;
     private String memo;
 
-    @NotBlank(message = "'재고반영 여부'를 입력해주세요.")
     private Boolean stockManagement;
     private LocalDateTime createdAt;
     private UUID createdBy;

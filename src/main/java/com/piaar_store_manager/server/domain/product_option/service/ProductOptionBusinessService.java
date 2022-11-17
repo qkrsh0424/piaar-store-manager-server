@@ -15,8 +15,6 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGet
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
-import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
@@ -29,8 +27,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ProductOptionBusinessService {
-    private final ProductReleaseService productReleaseService;
-    private final ProductReceiveService productReceiveService;
     private final ProductOptionService productOptionService;
     private final OptionPackageService optionPackageService;
     private final UserService userService;
