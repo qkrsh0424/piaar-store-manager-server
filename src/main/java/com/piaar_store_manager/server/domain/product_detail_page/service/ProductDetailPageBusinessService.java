@@ -33,7 +33,7 @@ public class ProductDetailPageBusinessService {
 
         ProductDetailPageEntity entity = ProductDetailPageEntity.builder()
             .id(UUID.randomUUID())
-            .title(dto.getTitle().strip())
+            .title(dto.getTitle() != null ? dto.getTitle().strip() : null)
             .imageUrl(dto.getImageUrl())
             .imageFileName(dto.getImageFileName())
             .productId(dto.getProductId())
@@ -57,7 +57,7 @@ public class ProductDetailPageBusinessService {
         UUID USER_ID = userService.getUserId();
 
         ProductDetailPageEntity entity = productDetailPageService.searchOne(dto.getId());
-        entity.setTitle(dto.getTitle().strip())
+        entity.setTitle(dto.getTitle() != null ? dto.getTitle().strip() : null)
             .setImageUrl(dto.getImageUrl())
             .setImageFileName(dto.getImageFileName())
             .setUpdatedAt(CustomDateUtils.getCurrentDateTime())

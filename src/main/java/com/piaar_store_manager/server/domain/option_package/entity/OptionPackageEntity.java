@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.Type;
 
@@ -20,6 +21,7 @@ import java.util.UUID;
 @Table(name = "option_package")
 @Accessors(chain = true)
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class OptionPackageEntity {

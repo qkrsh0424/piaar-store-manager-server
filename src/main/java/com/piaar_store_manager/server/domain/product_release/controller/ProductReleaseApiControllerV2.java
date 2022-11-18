@@ -41,9 +41,10 @@ public class ProductReleaseApiControllerV2 {
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ProductReleaseGetDto> dtos) {
         Message message = new Message();
 
-        productReleaseBusinessService.createBatch(dtos);
+        Integer count = productReleaseBusinessService.createBatch(dtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
+        message.setMemo(count + " 건의 옵션 상품에 출고 처리가 완료되었습니다.");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

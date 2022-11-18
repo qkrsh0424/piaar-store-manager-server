@@ -41,9 +41,10 @@ public class ProductReceiveApiControllerV2 {
     public ResponseEntity<?> createBatch(@RequestBody @Valid List<ProductReceiveGetDto> dtos) {
         Message message = new Message();
 
-        productReceiveBusinessService.createBatch(dtos);
+        Integer count = productReceiveBusinessService.createBatch(dtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
+        message.setMemo(count + " 건의 옵션 상품에 입고 처리가 완료되었습니다.");
 
         return new ResponseEntity<>(message, message.getStatus());
     }

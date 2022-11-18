@@ -57,6 +57,10 @@ public class OptionPackageService {
         return optionPackageRepository.findAllByParentOptionIdList(parentOptionIdList);
     }
 
+    public List<OptionPackageProjection.RelatedProductOption> searchBatchByParentOptionIds(List<UUID> parentOptionIds) {
+        return optionPackageRepository.qfindBatchByParentOptionIds(parentOptionIds);
+    }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>

@@ -2,6 +2,7 @@ package com.piaar_store_manager.server.domain.option_package.repository;
 
 import com.piaar_store_manager.server.domain.option_package.entity.QOptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection.RelatedProductOption;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
@@ -40,4 +41,20 @@ public class OptionPackageRepositoryImpl implements OptionPackageRepositoryCusto
         QueryResults<OptionPackageProjection.RelatedProductOption> result = customQuery.fetchResults();
         return result.getResults();
     }
+
+    @Override
+    public List<RelatedProductOption> qfindBatchByParentOptionIds(List<UUID> parentOptionIds) {
+        JPQLQuery customQuery = query.from(qOptionPackageEntity)
+            .select(
+                Projections.fields(OptionPackageProjection.RelatedProductOption.class,
+                qOptionPackageEntity.as("optionPackage"),
+                qProductOptionEntity.as("productOption")))
+            .where(qOptionPackageEntity.parentOptionId.in(parentOptionIds))
+            .leftJoin(qProductOptionEntity).on(qProductOptionEntity.id.eq(qOptionPackageEntity.originOptionId));
+        
+        QueryResults<OptionPackageProjection.RelatedProductOption> result = customQuery.fetchResults();
+        return result.getResults();
+    }
+
+    
 }

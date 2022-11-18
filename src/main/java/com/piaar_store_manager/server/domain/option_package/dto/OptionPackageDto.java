@@ -23,6 +23,7 @@ import lombok.experimental.Accessors;
 @Table(name = "option_package")
 @Accessors(chain = true)
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class OptionPackageDto {

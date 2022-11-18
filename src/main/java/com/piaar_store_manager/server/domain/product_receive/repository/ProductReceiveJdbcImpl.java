@@ -53,8 +53,7 @@ public class ProductReceiveJdbcImpl implements ProductReceiveCustomJdbc {
                 ps.setObject(6, entity.getCreatedBy().toString());
                 ps.setInt(7, entity.getProductOptionCid());
                 ps.setObject(8, entity.getProductOptionId().toString());
-                ps.setObject(9, entity.getErpOrderItemId().toString());
-
+                ps.setObject(9, entity.getErpOrderItemId() != null ? entity.getErpOrderItemId().toString() : null);
             }
 
             @Override
