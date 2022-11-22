@@ -64,6 +64,12 @@ public class ProductReleaseGetDto {
         return dto;
     }
 
+    public static void removeBlank(ProductReleaseGetDto releaseDto) {
+        if(releaseDto == null) return;
+
+        releaseDto.setMemo(releaseDto.getMemo() != null ? releaseDto.getMemo().strip() : null);
+    }
+
     @Getter
     @ToString
     @Accessors(chain = true)

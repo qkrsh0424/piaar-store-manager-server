@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Getter
@@ -22,13 +23,14 @@ import lombok.ToString;
 public class ProductDetailPageDto {
     private UUID id;
 
+    @Setter
     @NotNull
     @Size(max = 50, message = "'상세페이지 제목'은 50자 이내로 입력해주세요.")
     private String title;
     private String imageUrl;
 
     @NotNull
-    @Size(max = 100, message = "'이미지파일명'은 100자 이내로 입력해주세요.")
+    @Size(max = 100, message = "'이미지 파일명'은 100자 이내로 입력해주세요.")
     private String imageFileName;
     private UUID productId;
     private LocalDateTime createdAt;
@@ -50,5 +52,11 @@ public class ProductDetailPageDto {
             .build();
 
         return dto;
+    }
+
+    public static void removeBlank(ProductDetailPageDto detailPageDto) {
+        if(detailPageDto == null) return;
+
+        detailPageDto.setTitle(detailPageDto.getTitle().strip());
     }
 }

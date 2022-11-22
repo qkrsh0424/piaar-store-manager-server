@@ -48,16 +48,16 @@ public class ProductApiController {
      * <p>
      * productCid에 대응하는 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
      */
-    @GetMapping("/one-m2oj/{productCid}")
-    public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
-        Message message = new Message();
+    // @GetMapping("/one-m2oj/{productCid}")
+    // public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
+    //     Message message = new Message();
 
-        message.setData(productBusinessService.searchOneM2OJ(productCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productBusinessService.searchOneM2OJ(productCid));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search one api for product.
@@ -118,16 +118,16 @@ public class ProductApiController {
      * <p>
      * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category을 함께 조회한다.
      */
-    @GetMapping("/list-m2oj")
-    public ResponseEntity<?> searchListM2OJ() {
-        Message message = new Message();
+    // @GetMapping("/list-m2oj")
+    // public ResponseEntity<?> searchListM2OJ() {
+    //     Message message = new Message();
 
-        message.setData(productBusinessService.searchListM2OJ());
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
+    //     message.setData(productBusinessService.searchListM2OJ());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
 
-        return new ResponseEntity<>(message, message.getStatus());
-    }
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
 
     /**
      * Search list api for product.

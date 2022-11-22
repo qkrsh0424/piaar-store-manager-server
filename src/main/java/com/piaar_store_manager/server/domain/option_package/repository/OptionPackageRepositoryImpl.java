@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.option_package.repository;
 import com.piaar_store_manager.server.domain.option_package.entity.QOptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection.RelatedProductOption;
+import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Projections;
@@ -20,6 +21,7 @@ public class OptionPackageRepositoryImpl implements OptionPackageRepositoryCusto
 
     private final QOptionPackageEntity qOptionPackageEntity = QOptionPackageEntity.optionPackageEntity;
     private final QProductOptionEntity qProductOptionEntity = QProductOptionEntity.productOptionEntity;
+    private final QProductEntity qProductEntity = QProductEntity.productEntity;
 
     @Autowired
     public OptionPackageRepositoryImpl (
@@ -29,14 +31,16 @@ public class OptionPackageRepositoryImpl implements OptionPackageRepositoryCusto
     }
 
     @Override
-    public List<OptionPackageProjection.RelatedProductOption> qfindBatchByParentOptionId(UUID parentOptionId) {
+    public List<RelatedProductOption> qfindBatchByParentOptionId(UUID parentOptionId) {
         JPQLQuery customQuery = query.from(qOptionPackageEntity)
                 .select(
                         Projections.fields(OptionPackageProjection.RelatedProductOption.class,
                                 qOptionPackageEntity.as("optionPackage"),
-                                qProductOptionEntity.as("productOption")))
+                                qProductOptionEntity.as("productOption"),
+                                qProductEntity.as("product")))
                 .where(qOptionPackageEntity.parentOptionId.eq(parentOptionId))
-                .leftJoin(qProductOptionEntity).on(qProductOptionEntity.id.eq(qOptionPackageEntity.originOptionId));
+                .leftJoin(qProductOptionEntity).on(qProductOptionEntity.id.eq(qOptionPackageEntity.originOptionId))
+                .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId));
 
         QueryResults<OptionPackageProjection.RelatedProductOption> result = customQuery.fetchResults();
         return result.getResults();
@@ -48,9 +52,11 @@ public class OptionPackageRepositoryImpl implements OptionPackageRepositoryCusto
             .select(
                 Projections.fields(OptionPackageProjection.RelatedProductOption.class,
                 qOptionPackageEntity.as("optionPackage"),
-                qProductOptionEntity.as("productOption")))
+                qProductOptionEntity.as("productOption"),
+                qProductEntity.as("product")))
             .where(qOptionPackageEntity.parentOptionId.in(parentOptionIds))
-            .leftJoin(qProductOptionEntity).on(qProductOptionEntity.id.eq(qOptionPackageEntity.originOptionId));
+            .leftJoin(qProductOptionEntity).on(qProductOptionEntity.id.eq(qOptionPackageEntity.originOptionId))
+            .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId));
         
         QueryResults<OptionPackageProjection.RelatedProductOption> result = customQuery.fetchResults();
         return result.getResults();

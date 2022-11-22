@@ -197,6 +197,11 @@ public class ProductOptionService {
         });
     }
 
+    // 20221122 FEAT
+    public void deleteOne(ProductOptionEntity optionEntity) {
+        productOptionRepository.delete(optionEntity);
+    }
+
     public void deleteBatch(List<UUID> ids) {
         productOptionRepository.deleteBatch(ids);
     }

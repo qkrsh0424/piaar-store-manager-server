@@ -82,7 +82,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
-            .join(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
+            .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
             .groupBy(qProductEntity.cid)
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())

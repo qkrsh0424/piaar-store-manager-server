@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.product_option.controller;
 import java.util.List;
 import java.util.UUID;
 
+import com.piaar_store_manager.server.annotation.PermissionRole;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
@@ -61,6 +62,18 @@ public class ProductOptionApiControllerV2 {
         Message message = new Message();
 
         productOptionBusinessService.updateBatch(productId, optionDtos);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @DeleteMapping("/{optionId}")
+    @PermissionRole(role = "ROLE_SUPERADMIN")
+    public ResponseEntity<?> deleteOne(@PathVariable(value = "optionId") UUID optionId) {
+        Message message = new Message();
+
+        productOptionBusinessService.deleteOne(optionId);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

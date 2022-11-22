@@ -31,37 +31,10 @@ public class ProductReleaseBusinessServiceV2 {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * 출고데이터 다중 등록.
-     *
-     * @param productReleaseGetDtos : List::ProductReleaseGetDto::
-     * @see ProductReleaseService#saveAndModify
-     */
-    // @Transactional
-    // public void createBatch(List<ProductReleaseGetDto> releaseDtos) {
-    //     UUID USER_ID = userService.getUserId();
-
-    //     List<ProductReleaseEntity> productReleaseEntities = releaseDtos.stream().map(dto -> {
-    //         ProductReleaseEntity entity = ProductReleaseEntity.builder()
-    //             .id(UUID.randomUUID())
-    //             .releaseUnit(dto.getReleaseUnit())
-    //             .memo(dto.getMemo().strip())
-    //             .createdAt(CustomDateUtils.getCurrentDateTime())
-    //             .createdBy(USER_ID)
-    //             .productOptionCid(dto.getProductOptionCid())
-    //             .productOptionId(dto.getProductOptionId())
-    //             .build();
-
-    //         return entity;
-    //     }).collect(Collectors.toList());
-    //     productReleaseService.saveListAndModify(productReleaseEntities);
-    // }
-
     // 출고 방식 - 세트상품, 일반상품 구분해서 재고반영
     @Transactional
     public Integer createBatch(List<ProductReleaseGetDto> releaseDtos) {
+        releaseDtos.forEach(releaseDto -> ProductReleaseGetDto.removeBlank(releaseDto));
         List<UUID> optionIds = releaseDtos.stream().map(ProductReleaseGetDto::getProductOptionId).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByIds(optionIds);
         AtomicInteger count = new AtomicInteger();
@@ -88,7 +61,7 @@ public class ProductReleaseBusinessServiceV2 {
                     ProductReleaseEntity entity = ProductReleaseEntity.builder()
                         .id(UUID.randomUUID())
                         .releaseUnit(dto.getReleaseUnit())
-                        .memo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+                        .memo(dto.getMemo())
                         .createdAt(CustomDateUtils.getCurrentDateTime())
                         .createdBy(USER_ID)
                         .productOptionCid(dto.getProductOptionCid())
@@ -123,7 +96,7 @@ public class ProductReleaseBusinessServiceV2 {
                         ProductReleaseEntity releaseEntity = ProductReleaseEntity.builder()
                             .id(UUID.randomUUID())
                             .releaseUnit(dto.getReleaseUnit() * option.getOptionPackage().getPackageUnit())
-                            .memo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+                            .memo(dto.getMemo())
                             .createdAt(CustomDateUtils.getCurrentDateTime())
                             .createdBy(USER_ID)
                             .productOptionCid(option.getProductOption().getCid())
@@ -149,12 +122,13 @@ public class ProductReleaseBusinessServiceV2 {
     @Transactional
     public void patchOne(ProductReleaseGetDto releaseDto) {
         ProductReleaseEntity releaseEntity = productReleaseService.searchOne(releaseDto.getId());
+        ProductReleaseGetDto.removeBlank(releaseDto);
 
         if (releaseDto.getReleaseUnit() != null) {
             releaseEntity.setReleaseUnit(releaseDto.getReleaseUnit()).setMemo(releaseDto.getMemo());
         }
         if (releaseDto.getMemo() != null) {
-            releaseEntity.setMemo(releaseDto.getMemo() != null ? releaseDto.getMemo().strip() : null);
+            releaseEntity.setMemo(releaseDto.getMemo());
         }
     }
 }

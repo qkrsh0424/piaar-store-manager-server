@@ -53,6 +53,13 @@ public class SubOptionCodeDto {
         return dto;
     }
 
+    public static void removeBlank(SubOptionCodeDto subOptionCodeDto) {
+        if(subOptionCodeDto == null) return;
+
+        subOptionCodeDto.setSubOptionCode(subOptionCodeDto.getSubOptionCode().strip())
+            .setMemo(subOptionCodeDto.getMemo() != null ? subOptionCodeDto.getMemo().strip() : null);
+    }
+
     @Getter
     @ToString
     @Builder

@@ -62,9 +62,6 @@ public class OptionPackageDto {
         OptionPackageDto dto = OptionPackageDto.builder()
             .id(entity.getId())
             .packageUnit(entity.getPackageUnit())
-            // .originOptionCode(entity.getOriginOptionCode())
-            // .originOptionDefaultName(entity.getOriginOptionDefaultName())
-            // .originOptionCid(entity.getOriginOptionCid())
             .originOptionId(entity.getOriginOptionId())
             .createdAt(entity.getCreatedAt())
             .createdBy(entity.getCreatedBy())
@@ -75,7 +72,7 @@ public class OptionPackageDto {
 
         return dto;
     }
-    
+
     @Getter
     @ToString
     @Accessors(chain = true)
@@ -97,6 +94,9 @@ public class OptionPackageDto {
         private String originOptionCode;
         private String originOptionDefaultName;
 
+        // product
+        private String originProductDefaultName;
+
         public static RelatedOriginOption toDto(OptionPackageProjection.RelatedProductOption proj) {
             RelatedOriginOption dto = RelatedOriginOption.builder()
                 .id(proj.getOptionPackage().getId())
@@ -109,6 +109,7 @@ public class OptionPackageDto {
                 .parentOptionId(proj.getOptionPackage().getParentOptionId())
                 .originOptionCode(proj.getProductOption().getCode())
                 .originOptionDefaultName(proj.getProductOption().getDefaultName())
+                .originProductDefaultName(proj.getProduct().getDefaultName())
                 .build();
 
             return dto;

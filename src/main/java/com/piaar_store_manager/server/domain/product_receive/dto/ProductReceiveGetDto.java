@@ -64,6 +64,12 @@ public class ProductReceiveGetDto {
         return dto;
     }
 
+    public static void removeBlank(ProductReceiveGetDto receiveDto) {
+        if(receiveDto == null) return;
+
+        receiveDto.setMemo(receiveDto.getMemo() != null ? receiveDto.getMemo().strip() : null);
+    }
+
     @Getter
     @ToString
     @Accessors(chain = true)

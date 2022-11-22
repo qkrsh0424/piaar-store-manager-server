@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
+import com.piaar_store_manager.server.domain.product.service.ProductService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
@@ -20,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductOptionBusinessServiceV2 {
     private final ProductOptionService productOptionService;
+    private final ProductService productService;
     private final UserService userService;
 
     /**
@@ -42,18 +46,23 @@ public class ProductOptionBusinessServiceV2 {
         return dtos;
     }
 
+    // TODO :: 리팩토링 진행하기. productDto 조회로 reqOptionIds가 필요없어짐
     public void updateBatch(UUID productId, List<ProductOptionGetDto> optionDtos) {
+        optionDtos.forEach(option -> ProductOptionGetDto.removeBlank(option));
+        ProductGetDto productDto = ProductGetDto.toDto(productService.searchOne(productId));
+        
         // 기존 저장된 옵션
         List<ProductOptionEntity> originOptions = productOptionService.searchListByProductId(productId);
         List<UUID> originOptionIds = originOptions.stream().map(r -> r.getId()).collect(Collectors.toList());
 
+        // 현재 생성 요청된 옵션
         List<UUID> reqOptionIds = optionDtos.stream().map(r -> r.getId()).collect(Collectors.toList());
         List<UUID> newOptionIds = reqOptionIds.stream().filter(option -> !originOptionIds.contains(option)).collect(Collectors.toList());
 
         // 변경된 옵션
         this.changeOriginOptions(optionDtos, originOptions);
         // 새로 추가된 옵션
-        this.createNewOptions(optionDtos, newOptionIds);
+        this.createNewOptions(optionDtos, newOptionIds, productDto);
         // 삭제된 옵션
         this.deleteSavedOptions(originOptions, reqOptionIds);
     }
@@ -64,13 +73,13 @@ public class ProductOptionBusinessServiceV2 {
         reqOptions.forEach(reqOption -> {
             originOptions.forEach(entity -> {
                 if (reqOption.getId().equals(entity.getId())) {
-                    entity.setDefaultName(reqOption.getDefaultName().strip())
-                            .setManagementName(reqOption.getManagementName() != null ? reqOption.getManagementName().strip() : null)
+                    entity.setDefaultName(reqOption.getDefaultName())
+                            .setManagementName(reqOption.getManagementName())
                             .setSalesPrice(reqOption.getSalesPrice())
                             .setTotalPurchasePrice(reqOption.getTotalPurchasePrice())
-                            .setStatus(reqOption.getStatus() != null ? reqOption.getStatus().strip() : null)
-                            .setMemo(reqOption.getMemo() != null ? reqOption.getMemo().strip() : null)
-                            .setReleaseLocation(reqOption.getReleaseLocation() != null ? reqOption.getReleaseLocation().strip() : null)
+                            .setStatus(reqOption.getStatus())
+                            .setMemo(reqOption.getMemo())
+                            .setReleaseLocation(reqOption.getReleaseLocation())
                             .setSafetyStockUnit(reqOption.getSafetyStockUnit())
                             .setUpdatedAt(LocalDateTime.now())
                             .setUpdatedBy(USER_ID);
@@ -81,7 +90,7 @@ public class ProductOptionBusinessServiceV2 {
         productOptionService.saveListAndModify(originOptions);
     }
 
-    public void createNewOptions(List<ProductOptionGetDto> reqOptions, List<UUID> newOptionIds) {
+    public void createNewOptions(List<ProductOptionGetDto> reqOptions, List<UUID> newOptionIds, ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
         List<ProductOptionEntity> newOptionEntities = reqOptions.stream()
@@ -90,16 +99,20 @@ public class ProductOptionBusinessServiceV2 {
                     ProductOptionEntity option = ProductOptionEntity.builder()
                             .id(UUID.randomUUID())
                             .code(CustomUniqueKeyUtils.generateCode18())
-                            .defaultName(r.getDefaultName().strip())
-                            .managementName(r.getManagementName() != null ? r.getManagementName().strip() : null)
+                            .defaultName(r.getDefaultName())
+                            .managementName(r.getManagementName())
                             .salesPrice(r.getSalesPrice())
                             .safetyStockUnit(r.getSafetyStockUnit())
-                            .status(r.getStatus() != null ? r.getStatus().strip() : null)
-                            .memo(r.getMemo() != null ? r.getMemo().strip() : null)
-                            .releaseLocation(r.getReleaseLocation() != null ? r.getReleaseLocation().strip() : null)
+                            .status(r.getStatus())
+                            .memo(r.getMemo())
+                            .releaseLocation(r.getReleaseLocation())
+                            .createdAt(CustomDateUtils.getCurrentDateTime())
+                            .createdBy(USER_ID)
                             .updatedAt(CustomDateUtils.getCurrentDateTime())
                             .updatedBy(USER_ID)
                             .totalPurchasePrice(r.getTotalPurchasePrice())
+                            .productCid(productDto.getCid())
+                            .productId(productDto.getId())
                             .packageYn("n")
                             .build();
 
@@ -117,5 +130,10 @@ public class ProductOptionBusinessServiceV2 {
         if(deletedIds.size() != 0) {
             productOptionService.deleteBatch(deletedIds);
         }
+    }
+
+    public void deleteOne(UUID optionId) {
+        ProductOptionEntity optionEntity = productOptionService.searchOne(optionId);
+        productOptionService.deleteOne(optionEntity);
     }
 }

@@ -30,36 +30,9 @@ public class ProductReceiveBusinessServiceV2 {
     private final OptionPackageService optionPackageService;
     private final UserService userService;
 
-    /**
-     * <b>DB Insert Related Method</b>
-     * <p>
-     * 입고데이터 다중 등록.
-     *
-     * @param productReceiveGetDtos : List::ProductReceiveGetDto::
-     * @see ProductReceiveService#saveAndModify
-     */
-    // @Transactional
-    // public void createBatch(List<ProductReceiveGetDto> receiveDtos) {
-    //     UUID USER_ID = userService.getUserId();
-
-    //     List<ProductReceiveEntity> productReceiveEntities = receiveDtos.stream().map(dto -> {
-    //         ProductReceiveEntity entity = ProductReceiveEntity.builder()
-    //             .id(UUID.randomUUID())
-    //             .receiveUnit(dto.getReceiveUnit())
-    //             .memo(dto.getMemo().strip())
-    //             .createdAt(CustomDateUtils.getCurrentDateTime())
-    //             .createdBy(USER_ID)
-    //             .productOptionCid(dto.getProductOptionCid())
-    //             .productOptionId(dto.getProductOptionId())
-    //             .build();
-
-    //         return entity;
-    //     }).collect(Collectors.toList());
-    //     productReceiveService.saveListAndModify(productReceiveEntities);
-    // }
-
     @Transactional
     public Integer createBatch(List<ProductReceiveGetDto> receiveDtos) {
+        receiveDtos.forEach(receiveDto -> ProductReceiveGetDto.removeBlank(receiveDto));
         List<UUID> optionIds = receiveDtos.stream().map(ProductReceiveGetDto::getProductOptionId).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByIds(optionIds);
         AtomicInteger count = new AtomicInteger();
@@ -86,7 +59,7 @@ public class ProductReceiveBusinessServiceV2 {
                     ProductReceiveEntity entity = ProductReceiveEntity.builder()
                         .id(UUID.randomUUID())
                         .receiveUnit(dto.getReceiveUnit())
-                        .memo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+                        .memo(dto.getMemo())
                         .createdAt(CustomDateUtils.getCurrentDateTime())
                         .createdBy(USER_ID)
                         .productOptionCid(dto.getProductOptionCid())
@@ -121,7 +94,7 @@ public class ProductReceiveBusinessServiceV2 {
                         ProductReceiveEntity receiveEntity = ProductReceiveEntity.builder()
                             .id(UUID.randomUUID())
                             .receiveUnit(dto.getReceiveUnit() * option.getOptionPackage().getPackageUnit())
-                            .memo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+                            .memo(dto.getMemo())
                             .createdAt(CustomDateUtils.getCurrentDateTime())
                             .createdBy(USER_ID)
                             .productOptionCid(option.getProductOption().getCid())
@@ -152,7 +125,7 @@ public class ProductReceiveBusinessServiceV2 {
             receiveEntity.setReceiveUnit(receiveDto.getReceiveUnit()).setMemo(receiveDto.getMemo());
         }
         if (receiveDto.getMemo() != null) {
-            receiveEntity.setMemo(receiveDto.getMemo() != null ? receiveDto.getMemo().strip() : null);
+            receiveEntity.setMemo(receiveDto.getMemo());
         }
     }
 }

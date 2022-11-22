@@ -33,18 +33,17 @@ public class SubOptionCodeBusinessService {
 
     @Transactional
     public void createOne(SubOptionCodeDto dto) {
+        SubOptionCodeDto.removeBlank(dto);
+
         UUID USER_ID = userService.getUserId();
-        if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
-            throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
-        }
 
         // 중복체크
         subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
             .id(UUID.randomUUID())
-            .subOptionCode(dto.getSubOptionCode().strip())
-            .memo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+            .subOptionCode(dto.getSubOptionCode())
+            .memo(dto.getMemo())
             .productOptionId(dto.getProductOptionId())
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
@@ -59,9 +58,6 @@ public class SubOptionCodeBusinessService {
         UUID USER_ID = userService.getUserId();
         
         SubOptionCodeEntity entity = subOptionCodeService.searchOne(dto.getId());
-        if(dto.getSubOptionCode() == null || dto.getSubOptionCode().isBlank()) {
-            throw new CustomInvalidDataException("대체코드는 공백으로 생성할 수 없습니다.");
-        }
 
         // 동일한 옵션코드로 등록 하지 않는 경우
         if(!entity.getSubOptionCode().equals(dto.getSubOptionCode())){

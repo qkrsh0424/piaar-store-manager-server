@@ -84,33 +84,17 @@ public class ProductGetDto {
         return productDto;
     }
 
-    /**
-     * product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category로 구성된 객체
+    /*
+     * 필수값 항목은 null인지 검사하지 않고 공백제거 실행
+     * 필수값이 아닌 항목은 null이 아니라면 공백제거를 실행한다
      */
-    @Getter
-    @ToString
-    @Accessors(chain = true)
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ManyToOneJoin {
-        ProductGetDto product;
-        ProductCategoryGetDto category;
-        UserGetDto user;
+    public static void removeBlank(ProductGetDto productDto) {
+        if(productDto == null) return;
 
-        public static ManyToOneJoin toDto(ProductProj proj){
-            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
-            UserGetDto user = UserGetDto.toDto(proj.getUser());
-
-            ManyToOneJoin dto = ManyToOneJoin.builder()
-                    .product(product)
-                    .category(category)
-                    .user(user)
-                    .build();
-
-            return dto;
-        }
+        productDto.setDefaultName(productDto.getDefaultName().strip())
+            .setManagementName(productDto.getManagementName() != null ? productDto.getManagementName().strip() : null)
+            .setPurchaseUrl(productDto.getPurchaseUrl() != null ? productDto.getPurchaseUrl().strip() : null)
+            .setMemo(productDto.getMemo() != null ? productDto.getMemo().strip() : null);
     }
 
     /**

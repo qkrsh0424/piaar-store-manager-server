@@ -115,6 +115,20 @@ public class ProductOptionGetDto {
         return dto;
     }
 
+    /*
+     * 필수값 항목은 null인지 검사하지 않고 공백제거 실행
+     * 필수값이 아닌 항목은 null이 아니라면 공백제거를 실행한다
+     */
+    public static void removeBlank(ProductOptionGetDto optionDto) {
+        if(optionDto == null) return;
+
+        optionDto.setDefaultName(optionDto.getDefaultName().strip())
+            .setManagementName(optionDto.getManagementName() != null ? optionDto.getManagementName().strip() : null)
+            .setStatus(optionDto.getStatus() != null ? optionDto.getStatus().strip() : null)
+            .setMemo(optionDto.getMemo() != null ? optionDto.getMemo().strip() : null)
+            .setReleaseLocation(optionDto.getReleaseLocation() != null ? optionDto.getReleaseLocation().strip() : null);
+    }
+
     /**
      * option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category, option으로 구성된 객체
      */

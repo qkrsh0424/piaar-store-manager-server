@@ -3,6 +3,7 @@ package com.piaar_store_manager.server.domain.product_category.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
@@ -23,6 +24,7 @@ public class ProductCategoryGetDto {
     private UUID id;
     private String code;
 
+    @NotBlank(message = "'카테고리명'을 입력해주세요.")
     @Size(max = 100, message = "'카테고리명'은 100자 이내로 입력해주세요.")
     private String name;
     private LocalDateTime createdAt;
@@ -54,5 +56,11 @@ public class ProductCategoryGetDto {
                 .build();
     
         return dto;
+    }
+
+    public static void removeBlank(ProductCategoryGetDto categoryDto) {
+        if(categoryDto == null) return;
+
+        categoryDto.setName(categoryDto.getName() != null ? categoryDto.getName().strip() : null);
     }
 }

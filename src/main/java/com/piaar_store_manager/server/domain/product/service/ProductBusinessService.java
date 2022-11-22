@@ -63,11 +63,11 @@ public class ProductBusinessService {
      * @param productCid : Integer
      * @see ProductService#searchOneM2OJ
      */
-    public ProductGetDto.ManyToOneJoin searchOneM2OJ(Integer productCid) {
-        ProductProj productProj = productService.searchOneM2OJ(productCid);
-        ProductGetDto.ManyToOneJoin productM2OJDto = ProductGetDto.ManyToOneJoin.toDto(productProj);
-        return productM2OJDto;
-    }
+    // public ProductGetDto.ManyToOneJoin searchOneM2OJ(Integer productCid) {
+    //     ProductProj productProj = productService.searchOneM2OJ(productCid);
+    //     ProductGetDto.ManyToOneJoin productM2OJDto = ProductGetDto.ManyToOneJoin.toDto(productProj);
+    //     return productM2OJDto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -108,11 +108,11 @@ public class ProductBusinessService {
      *
      * @see ProductService#searchListM2OJ
      */
-    public List<ProductGetDto.ManyToOneJoin> searchListM2OJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        List<ProductGetDto.ManyToOneJoin> productM2OJDto = productProjs.stream().map(proj -> ProductGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return productM2OJDto;
-    }
+    // public List<ProductGetDto.ManyToOneJoin> searchListM2OJ() {
+    //     List<ProductProj> productProjs = productService.searchListM2OJ();
+    //     List<ProductGetDto.ManyToOneJoin> productM2OJDto = productProjs.stream().map(proj -> ProductGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
+    //     return productM2OJDto;
+    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -237,22 +237,25 @@ public class ProductBusinessService {
     /**
      * [221005] FEAT
      * 20221117 strip() 설정
+     * 20221122 공백제거 메서드 생성 후 적용
      */
     @Transactional
     public void createProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
         UUID USER_ID = userService.getUserId();
         ProductGetDto PRODUCT = reqDto.getProduct();
         List<ProductOptionGetDto> OPTIONS = reqDto.getOptions();
+        ProductGetDto.removeBlank(PRODUCT);     // 앞뒤 공백제거
+        OPTIONS.forEach(option -> ProductOptionGetDto.removeBlank(option));
 
         ProductEntity productEntity = ProductEntity.builder()
             .id(UUID.randomUUID())
             .code(CustomUniqueKeyUtils.generateCode18())
-            .defaultName(PRODUCT.getDefaultName().strip())
-            .managementName(PRODUCT.getManagementName() != null ? PRODUCT.getManagementName().strip() : null)
+            .defaultName(PRODUCT.getDefaultName())
+            .managementName(PRODUCT.getManagementName())
             .imageUrl(PRODUCT.getImageUrl())
             .imageFileName(PRODUCT.getImageFileName())
-            .purchaseUrl(PRODUCT.getPurchaseUrl()  != null ? PRODUCT.getPurchaseUrl().strip() : null)
-            .memo(PRODUCT.getMemo()  != null ? PRODUCT.getMemo().strip() : null)
+            .purchaseUrl(PRODUCT.getPurchaseUrl())
+            .memo(PRODUCT.getMemo())
             .stockManagement(PRODUCT.getStockManagement())
             .createdAt(CustomDateUtils.getCurrentDateTime())
             .createdBy(USER_ID)
@@ -267,13 +270,13 @@ public class ProductBusinessService {
             ProductOptionEntity entity = ProductOptionEntity.builder()
                 .id(UUID.randomUUID())
                 .code(CustomUniqueKeyUtils.generateCode18())
-                .defaultName(optionDto.getDefaultName().strip())
-                .managementName(optionDto.getManagementName()  != null ? optionDto.getManagementName().strip() : null)
+                .defaultName(optionDto.getDefaultName())
+                .managementName(optionDto.getManagementName())
                 .salesPrice(optionDto.getSalesPrice())
                 .safetyStockUnit(optionDto.getSafetyStockUnit())
-                .status(optionDto.getStatus() != null ? optionDto.getStatus().strip() : null)
-                .memo(optionDto.getMemo() != null ? optionDto.getMemo().strip() : null)
-                .releaseLocation(optionDto.getReleaseLocation() != null ? optionDto.getReleaseLocation().strip() : null)
+                .status(optionDto.getStatus())
+                .memo(optionDto.getMemo())
+                .releaseLocation(optionDto.getReleaseLocation())
                 .createdAt(CustomDateUtils.getCurrentDateTime())
                 .createdBy(USER_ID)
                 .updatedAt(CustomDateUtils.getCurrentDateTime())
@@ -320,17 +323,18 @@ public class ProductBusinessService {
     @Transactional
     public void updateOne(ProductGetDto dto) {
         UUID USER_ID = userService.getUserId();
+        ProductGetDto.removeBlank(dto);
 
         /*
          * Update Product
          */
         ProductEntity savedProductEntity = productService.searchOne(dto.getId());
-        savedProductEntity.setDefaultName(dto.getDefaultName().strip())
-                .setManagementName(dto.getManagementName() != null ? dto.getManagementName().strip() : null)
+        savedProductEntity.setDefaultName(dto.getDefaultName())
+                .setManagementName(dto.getManagementName())
                 .setImageUrl(dto.getImageUrl())
                 .setImageFileName(dto.getImageFileName())
-                .setPurchaseUrl(dto.getPurchaseUrl() != null ? dto.getPurchaseUrl().strip() : null)
-                .setMemo(dto.getMemo() != null ? dto.getMemo().strip() : null)
+                .setPurchaseUrl(dto.getPurchaseUrl())
+                .setMemo(dto.getMemo())
                 .setStockManagement(dto.getStockManagement())
                 .setProductCategoryCid(dto.getProductCategoryCid())
                 .setUpdatedAt(LocalDateTime.now())

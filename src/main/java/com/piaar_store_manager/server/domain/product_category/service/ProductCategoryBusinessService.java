@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class ProductCategoryBusinessService {
     @Transactional
     public void createOne(ProductCategoryGetDto dto) {
         UUID USER_ID = userService.getUserId();
+        ProductCategoryGetDto.removeBlank(dto);
 
         ProductCategoryEntity entity = ProductCategoryEntity.builder()
             .id(UUID.randomUUID())
@@ -46,6 +48,7 @@ public class ProductCategoryBusinessService {
     @Transactional
     public void changeOne(ProductCategoryGetDto dto) {
         UUID USER_ID = userService.getUserId();
+        ProductCategoryGetDto.removeBlank(dto);
 
         ProductCategoryEntity entity = productCategoryService.searchOne(dto.getId());
 

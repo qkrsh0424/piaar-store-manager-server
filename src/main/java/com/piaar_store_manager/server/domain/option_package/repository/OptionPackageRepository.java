@@ -65,8 +65,9 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
      * @return List::OptionPackageEntity::
      */
     @Query(
-        "SELECT op as optionPackage, po as productOption FROM OptionPackageEntity op\n"
+        "SELECT op as optionPackage, po as productOption, p as product FROM OptionPackageEntity op\n"
         + "JOIN ProductOptionEntity po ON po.id=op.originOptionId\n"
+        + "JOIN ProductEntity p ON p.id=po.productId\n"
         + "WHERE op.parentOptionId =:parentOptionId"
     )
     List<OptionPackageProjection.RelatedProductOption> findBatchByParentOptionId(@Param("parentOptionId") UUID parentOptionId);

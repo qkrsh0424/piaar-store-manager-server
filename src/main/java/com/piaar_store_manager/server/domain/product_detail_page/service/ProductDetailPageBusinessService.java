@@ -30,10 +30,11 @@ public class ProductDetailPageBusinessService {
     @Transactional
     public void createOne(ProductDetailPageDto dto) {
         UUID USER_ID = userService.getUserId();
+        ProductDetailPageDto.removeBlank(dto);
 
         ProductDetailPageEntity entity = ProductDetailPageEntity.builder()
             .id(UUID.randomUUID())
-            .title(dto.getTitle() != null ? dto.getTitle().strip() : null)
+            .title(dto.getTitle())
             .imageUrl(dto.getImageUrl())
             .imageFileName(dto.getImageFileName())
             .productId(dto.getProductId())
@@ -55,9 +56,10 @@ public class ProductDetailPageBusinessService {
     @Transactional
     public void updateOne(ProductDetailPageDto dto) {
         UUID USER_ID = userService.getUserId();
+        ProductDetailPageDto.removeBlank(dto);
 
         ProductDetailPageEntity entity = productDetailPageService.searchOne(dto.getId());
-        entity.setTitle(dto.getTitle() != null ? dto.getTitle().strip() : null)
+        entity.setTitle(dto.getTitle())
             .setImageUrl(dto.getImageUrl())
             .setImageFileName(dto.getImageFileName())
             .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
