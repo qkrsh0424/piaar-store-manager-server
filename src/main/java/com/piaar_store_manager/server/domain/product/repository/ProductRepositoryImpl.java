@@ -113,9 +113,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                             ProductProjection.RelatedCategoryAndOptions.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
-                            GroupBy.set(
-                                qProductOptionEntity
-                            ).as("options")
+                            GroupBy.set(qProductOptionEntity).as("options")
                         )
                     )
             )

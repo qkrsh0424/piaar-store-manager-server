@@ -988,45 +988,6 @@ public class ErpOrderItemBusinessService {
         return count.get();
     }
 
-    // public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities, String memo) {
-    //     UUID USER_ID = userService.getUserId();
-    //     List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
-    //     AtomicInteger count = new AtomicInteger();
-
-    //     // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
-    //     List<UUID> parentOptionIdList = parentOptionEntities.stream().map(ProductOptionEntity::getId).collect(Collectors.toList());
-    //     // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
-    //     List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionIdList(parentOptionIdList);
-
-    //     for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
-    //         parentOptionEntities.forEach(parentOption -> {
-    //             if (parentOption.getCode().equals(orderItemEntity.getReleaseOptionCode()) && orderItemEntity.getStockReflectYn().equals("n")) {
-    //                 optionPackageEntities.forEach(option -> {
-    //                     if (option.getParentOptionId().equals(parentOption.getId())) {
-    //                         count.getAndIncrement();
-
-    //                         ProductReleaseEntity releaseEntity = new ProductReleaseEntity();
-    //                         releaseEntity.setId(UUID.randomUUID());
-    //                         releaseEntity.setErpOrderItemId(orderItemEntity.getId());
-    //                         releaseEntity.setReleaseUnit(orderItemEntity.getUnit() * option.getPackageUnit());
-    //                         releaseEntity.setMemo(memo);
-    //                         releaseEntity.setCreatedAt(CustomDateUtils.getCurrentDateTime());
-    //                         releaseEntity.setCreatedBy(USER_ID);
-    //                         // releaseEntity.setProductOptionCid(option.getOriginOptionCid());
-    //                         releaseEntity.setProductOptionId(option.getOriginOptionId());
-
-    //                         orderItemEntity.setStockReflectYn("y");
-    //                         releaseEntities.add(releaseEntity);
-    //                     }
-    //                 });
-    //             }
-    //         });
-    //     }
-
-    //     productReleaseService.bulkInsert(releaseEntities);
-    //     return count.get();
-    // }
-
     public int reflectStockUnitOfPackageOption(List<ErpOrderItemEntity> erpOrderItemEntities, List<ProductOptionEntity> parentOptionEntities, String memo) {
         UUID USER_ID = userService.getUserId();
         List<ProductReleaseEntity> releaseEntities = new ArrayList<>();
@@ -1035,7 +996,7 @@ public class ErpOrderItemBusinessService {
         // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
         List<UUID> parentOptionIds = parentOptionEntities.stream().map(ProductOptionEntity::getId).collect(Collectors.toList());
         // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
-        List<OptionPackageProjection.RelatedProductOption> optionPackageEntities = optionPackageService.searchBatchByParentOptionIds(parentOptionIds);
+        List<OptionPackageProjection.RelatedProductAndOption> optionPackageEntities = optionPackageService.searchBatchByParentOptionIds(parentOptionIds);
 
         for (ErpOrderItemEntity orderItemEntity : erpOrderItemEntities) {
             parentOptionEntities.forEach(parentOption -> {

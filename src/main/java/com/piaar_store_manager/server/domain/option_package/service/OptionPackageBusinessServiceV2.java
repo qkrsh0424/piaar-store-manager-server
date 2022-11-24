@@ -24,27 +24,15 @@ public class OptionPackageBusinessServiceV2 {
     private final ProductOptionService productOptionService;
     private final UserService userService;
 
-    /**
-     * <b>DB Select Related Method</b>
-     * parentOptionId에 대응하는 option package를 모두 조회한다.
-     * 
-     * @param parentOptionId : UUID
-     * @return List::OptionPackageDto::
-     * @see OptionPackageService#searchBatchByParentOptionId
-     */
-    // public List<OptionPackageDto> searchBatchByParentOptionId(UUID parentOptionId) {
-    //     List<OptionPackageEntity> entities = optionPackageService.searchBatchByParentOptionId(parentOptionId);
-    //     List<OptionPackageDto> dtos = entities.stream().map(entity -> OptionPackageDto.toDto(entity)).collect(Collectors.toList());
-    //     return dtos;
-    // }
-
-    // 221108 NEW
     public List<OptionPackageDto.RelatedOriginOption> searchBatchByParentOptionId(UUID parentOptionId) {
-        List<OptionPackageProjection.RelatedProductOption> projs = optionPackageService.searchBatchByParentOptionId2(parentOptionId);
+        List<OptionPackageProjection.RelatedProductAndOption> projs = optionPackageService.searchBatchByParentOptionId(parentOptionId);
         List<OptionPackageDto.RelatedOriginOption> dtos = projs.stream().map(proj -> OptionPackageDto.RelatedOriginOption.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
+    /*
+     * 옵션에 등록된 패키지옵션들을 모두 제거한 후, 새로 등록한다
+     */
     @Transactional
     public void deleteAndCreateBatch(UUID parentOptionId, List<OptionPackageDto> dtos) {
         UUID USER_ID = userService.getUserId();
@@ -53,8 +41,7 @@ public class OptionPackageBusinessServiceV2 {
         // 옵션패키지 제거
         optionPackageService.deleteBatchByParentOptionId(optionEntity.getId());
 
-        // null 이거나 dtos 사이즈가 0일 때
-        // 옵션의 packageYn 수정, 옵션패키지 제거
+        // 옵션패키지가 존재하지 않을 경우, option의 packageYn을 n으로 변경
         if(dtos == null || dtos.isEmpty()) {
             optionEntity.setPackageYn("n").setUpdatedAt(CustomDateUtils.getCurrentDateTime()).setUpdatedBy(USER_ID);
         } else {

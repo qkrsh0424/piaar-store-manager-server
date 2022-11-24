@@ -8,7 +8,6 @@ import javax.validation.Valid;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
-import com.piaar_store_manager.server.domain.option_package.service.OptionPackageBusinessService;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageBusinessServiceV2;
 
 import org.springframework.http.HttpStatus;
@@ -32,12 +31,9 @@ public class OptionPackageApiControllerV2 {
     private final OptionPackageBusinessServiceV2 optionPackageBusinessService;
 
     /**
-     * Search one api for option package.
+     * Search list api for option package.
      * <p>
-     * <b>GET : API URL => /api/v1/option-package/parent-option/{parentOptionId}</b>
-     *
-     * @param parentOptionId : UUID
-     * @see OptionPackageBusinessService#searchBatchByParentOptionId
+     * <b>GET : API URL => /api/v2/option-packages/parent-option/{parentOptionId}</b>
      */
     @GetMapping("/parent-option/{parentOptionId}")
     public ResponseEntity<?> searchBatchByParentOptionId(@PathVariable(value = "parentOptionId") UUID parentOptionId) {
@@ -50,6 +46,11 @@ public class OptionPackageApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Delete And Create list api for option package.
+     * <p>
+     * <b>GET : API URL => /api/v2/option-packages/{parentOptionId}</b>
+     */
     @PostMapping("/{parentOptionId}")
     public ResponseEntity<?> deleteAndCreateBatch(@PathVariable("parentOptionId") UUID parentOptionId, @RequestBody @Valid List<OptionPackageDto> dtos) {
         Message message = new Message();

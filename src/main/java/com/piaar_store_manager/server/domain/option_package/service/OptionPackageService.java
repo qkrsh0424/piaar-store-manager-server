@@ -20,54 +20,19 @@ public class OptionPackageService {
         optionPackageRepository.saveAll(entities);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * parentOptionId에 대응하는 option package를 모두 조회한다. (단일 옵션에 대한 패키지 리스트 조회)
-     *
-     * @param parentOptionId : UUID
-     * @return List::OptionPackageEntity::
-     * @see OptionPackageRepository#findAllByParentOptionId
-     */
-     public List<OptionPackageEntity> searchListByParentOptionId(UUID parentOptionId) {
-         return optionPackageRepository.findAllByParentOptionId(parentOptionId);
-     }
-
-    // [221029] NEW
-    // TODO :: 제거
-    public List<OptionPackageEntity> searchBatchByParentOptionId(UUID parentOptionId) {
-        return optionPackageRepository.findAllByParentOptionId(parentOptionId);
-    }
-
-    // [221108] NEW2
-    public List<OptionPackageProjection.RelatedProductOption> searchBatchByParentOptionId2(UUID parentOptionId) {
+    public List<OptionPackageProjection.RelatedProductAndOption> searchBatchByParentOptionId(UUID parentOptionId) {
         return optionPackageRepository.qfindBatchByParentOptionId(parentOptionId);
     }
 
-    /**
-     * <b></b>
-     * <p>
-     * parentOptionIdList에 대응하는 option package를 모두 조회한다. (다중 옵션에 대한 패키지 리스트 조회)
-     * 
-     * @param parentOptionIdList : List::UUID::
-     * @return List::OptionPackageEntity::
-     * @see OptionPackageRepository#findAllByParentOptionIdList
+    /*
+     * option package, option package와 관련된 
      */
-    public List<OptionPackageEntity> searchListByParentOptionIdList(List<UUID> parentOptionIdList) {
-        return optionPackageRepository.findAllByParentOptionIdList(parentOptionIdList);
-    }
-
-    public List<OptionPackageProjection.RelatedProductOption> searchBatchByParentOptionIds(List<UUID> parentOptionIds) {
+    public List<OptionPackageProjection.RelatedProductAndOption> searchBatchByParentOptionIds(List<UUID> parentOptionIds) {
         return optionPackageRepository.qfindBatchByParentOptionIds(parentOptionIds);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
+    /*
      * parentOptionId에 대응하는 option package를 모두 제거한다.(단일 옵션에 대한 패키지 리스트 전체 제거)
-     * 
-     * @param parentOptionId : UUID
-     * @see OptionPackageRepository#deleteBatchByParentOptionId
      */
     public void deleteBatchByParentOptionId(UUID parentOptionId) {
         optionPackageRepository.deleteBatchByParentOptionId(parentOptionId);

@@ -13,7 +13,7 @@ public class OptionPackageProjection {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class RelatedProductOption {
+    public static class RelatedProductAndOption {
         OptionPackageEntity optionPackage;
         ProductOptionEntity productOption;
         ProductEntity product;

@@ -22,10 +22,6 @@ public class SubOptionCodeService {
         return subOptionCodeRepository.findByProductOptionId(optionId);
     }
 
-    public List<SubOptionCodeEntity> findAll() {
-        return subOptionCodeRepository.findAll();
-    }
-
     public void destroyOne(UUID subOptionId) {
         subOptionCodeRepository.findById(subOptionId).ifPresent(subOptionCode -> {
             subOptionCodeRepository.delete(subOptionCode);
@@ -46,7 +42,10 @@ public class SubOptionCodeService {
         }
     }
 
-    public void duplicationCodeCheck(String subOptionCode) {
+    /*
+     * 중복된 옵션대체코드 검사
+     */
+    public void checkDuplicationCode(String subOptionCode) {
         Optional<SubOptionCodeEntity> entityOpt = subOptionCodeRepository.findBySubOptionCode(subOptionCode);
 
         if(entityOpt.isPresent()) {

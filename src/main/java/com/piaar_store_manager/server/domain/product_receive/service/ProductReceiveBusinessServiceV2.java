@@ -83,7 +83,7 @@ public class ProductReceiveBusinessServiceV2 {
         // 1. 해당 옵션에 포함되는 하위 패키지 옵션들 추출
         List<UUID> parentOptionIds = parentOptionEntities.stream().map(ProductOptionEntity::getId).collect(Collectors.toList());
         // 2. 구성된 옵션패키지 추출 - 여러 패키지들이 다 섞여있는 상태
-        List<OptionPackageProjection.RelatedProductOption> optionPackageEntities = optionPackageService.searchBatchByParentOptionIds(parentOptionIds);
+        List<OptionPackageProjection.RelatedProductAndOption> optionPackageEntities = optionPackageService.searchBatchByParentOptionIds(parentOptionIds);
         
         for(ProductReceiveGetDto dto : receiveDtos) {
             parentOptionEntities.forEach(parentOption -> {

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +26,7 @@ public class SubOptionCodeBusinessService {
         return dtos;
     }
 
+    @Transactional
     public void destroyOne(UUID subOptionCodeId) {
         subOptionCodeService.destroyOne(subOptionCodeId);
     }
@@ -38,7 +38,7 @@ public class SubOptionCodeBusinessService {
         UUID USER_ID = userService.getUserId();
 
         // 중복체크
-        subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+        subOptionCodeService.checkDuplicationCode(dto.getSubOptionCode());
 
         SubOptionCodeEntity entity = SubOptionCodeEntity.builder()
             .id(UUID.randomUUID())
@@ -54,6 +54,7 @@ public class SubOptionCodeBusinessService {
         subOptionCodeService.saveAndModify(entity);
     }
 
+    @Transactional
     public void updateOne(SubOptionCodeDto dto) {
         UUID USER_ID = userService.getUserId();
         
@@ -62,7 +63,7 @@ public class SubOptionCodeBusinessService {
         // 동일한 옵션코드로 등록 하지 않는 경우
         if(!entity.getSubOptionCode().equals(dto.getSubOptionCode())){
             // 중복체크
-            subOptionCodeService.duplicationCodeCheck(dto.getSubOptionCode());
+            subOptionCodeService.checkDuplicationCode(dto.getSubOptionCode());
         }
         
         entity.setSubOptionCode(dto.getSubOptionCode())

@@ -32,6 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class SubOptionCodeController {
     private final SubOptionCodeBusinessService subOptionCodeBusinessService;
 
+    /**
+     * Search list api for sub option code.
+     * <p>
+     * <b>GET : API URL => /api/v1/sub-option-code/{optionId}</b>
+     */
     @GetMapping("/{optionId}")
     public ResponseEntity<?> searchListByProductOptionId(@PathVariable(value = "optionId") UUID optionId) {
         Message message = new Message();
@@ -43,6 +48,11 @@ public class SubOptionCodeController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Delete one api for sub option code.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/sub-option-code/{subOptionCodeId}</b>
+     */
     @DeleteMapping("/{subOptionCodeId}")
     @PermissionRole
     public ResponseEntity<?> destroyOne(@PathVariable(value = "subOptionCodeId") UUID subOptionCodeId) {
@@ -55,6 +65,11 @@ public class SubOptionCodeController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Create one api for sub option code.
+     * <p>
+     * <b>POST : API URL => /api/v1/sub-option-code</b>
+     */
     @PostMapping("")
     @PermissionRole
     public ResponseEntity<?> createOne(@RequestBody @Valid SubOptionCodeDto subOptionCode) {
@@ -67,6 +82,11 @@ public class SubOptionCodeController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Update one api for sub option code.
+     * <p>
+     * <b>PUT : API URL => /api/v1/sub-option-code</b>
+     */
     @PutMapping("")
     @PermissionRole
     public ResponseEntity<?> updateOne(@RequestBody @Valid SubOptionCodeDto subOptionCode) {

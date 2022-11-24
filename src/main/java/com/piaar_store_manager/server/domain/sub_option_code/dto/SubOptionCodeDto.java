@@ -18,7 +18,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@Getter @Setter
+@Getter
 @Builder
 @Accessors(chain = true)
 @AllArgsConstructor
@@ -26,17 +26,21 @@ import lombok.experimental.Accessors;
 public class SubOptionCodeDto {
     private UUID id;
 
+    @Setter
     @NotBlank(message = "'대체옵션코드'를 입력해주세요.")
     @Size(max = 50, message = "'대체옵션코드'는 50자 이내로 입력해주세요.")
     private String subOptionCode;
 
+    @Setter
     @Size(max = 50, message = "'대체옵션코드 메모'는 50자 이내로 입력해주세요.")
     private String memo;
 
     private UUID productOptionId;
     private LocalDateTime createdAt;
     private UUID createdBy;
+    @Setter
     private LocalDateTime updatedAt;
+    @Setter
     private UUID updatedBy;
 
     public static SubOptionCodeDto toDto(SubOptionCodeEntity entity) {

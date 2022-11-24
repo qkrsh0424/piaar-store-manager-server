@@ -70,5 +70,5 @@ public interface OptionPackageRepository extends JpaRepository<OptionPackageEnti
         + "JOIN ProductEntity p ON p.id=po.productId\n"
         + "WHERE op.parentOptionId =:parentOptionId"
     )
-    List<OptionPackageProjection.RelatedProductOption> findBatchByParentOptionId(@Param("parentOptionId") UUID parentOptionId);
+    List<OptionPackageProjection.RelatedProductAndOption> findBatchByParentOptionId(@Param("parentOptionId") UUID parentOptionId);
 }

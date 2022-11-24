@@ -22,7 +22,7 @@ import com.piaar_store_manager.server.domain.erp_return_item.dto.ErpReturnItemDt
 import com.piaar_store_manager.server.domain.erp_return_item.entity.ErpReturnItemEntity;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.erp_return_item.vo.ErpReturnItemVo;
-import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
 import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
@@ -395,24 +395,52 @@ public class ErpReturnItemBusinessService {
         return receiveEntity;
     }
 
+    // public List<ProductReceiveEntity> reflectStockUnitOfPackageOption(ErpReturnItemEntity returnItem, ProductOptionEntity optionEntity, Map<String, Object> params) {
+    //     UUID USER_ID = userService.getUserId();
+
+    //     String memo = params.get("memo") == null ? "" : params.get("memo").toString();
+    //     Integer unit = params.get("unit") == null ? 0 : Integer.parseInt(params.get("unit").toString());
+        
+    //     List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+    //     List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
+
+    //     optionPackageEntities.forEach(option -> {
+    //         ProductReceiveEntity receiveEntity = ProductReceiveEntity.builder()
+    //             .id(UUID.randomUUID())
+    //             .receiveUnit(unit * option.getPackageUnit())
+    //             .memo(memo)
+    //             .createdAt(LocalDateTime.now())
+    //             .createdBy(USER_ID)
+    //             // .productOptionCid(option.getOriginOptionCid())
+    //             .productOptionId(option.getOriginOptionId())
+    //             .erpOrderItemId(returnItem.getErpOrderItemId())
+    //             .build();
+
+    //         receiveEntities.add(receiveEntity);
+    //     });
+
+    //     returnItem.setStockReflectYn("y");
+    //     return receiveEntities;
+    // }
+
     public List<ProductReceiveEntity> reflectStockUnitOfPackageOption(ErpReturnItemEntity returnItem, ProductOptionEntity optionEntity, Map<String, Object> params) {
         UUID USER_ID = userService.getUserId();
 
         String memo = params.get("memo") == null ? "" : params.get("memo").toString();
         Integer unit = params.get("unit") == null ? 0 : Integer.parseInt(params.get("unit").toString());
         
-        List<OptionPackageEntity> optionPackageEntities = optionPackageService.searchListByParentOptionId(optionEntity.getId());
+        List<OptionPackageProjection.RelatedProductAndOption> optionPackageEntities = optionPackageService.searchBatchByParentOptionId(optionEntity.getId());
         List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
 
         optionPackageEntities.forEach(option -> {
             ProductReceiveEntity receiveEntity = ProductReceiveEntity.builder()
                 .id(UUID.randomUUID())
-                .receiveUnit(unit * option.getPackageUnit())
+                .receiveUnit(unit * option.getOptionPackage().getPackageUnit())
                 .memo(memo)
                 .createdAt(LocalDateTime.now())
                 .createdBy(USER_ID)
-                // .productOptionCid(option.getOriginOptionCid())
-                .productOptionId(option.getOriginOptionId())
+                .productOptionCid(option.getProductOption().getCid())
+                .productOptionId(option.getProductOption().getId())
                 .erpOrderItemId(returnItem.getErpOrderItemId())
                 .build();
 

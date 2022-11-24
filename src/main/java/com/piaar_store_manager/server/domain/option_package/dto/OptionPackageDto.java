@@ -97,7 +97,7 @@ public class OptionPackageDto {
         // product
         private String originProductDefaultName;
 
-        public static RelatedOriginOption toDto(OptionPackageProjection.RelatedProductOption proj) {
+        public static RelatedOriginOption toDto(OptionPackageProjection.RelatedProductAndOption proj) {
             RelatedOriginOption dto = RelatedOriginOption.builder()
                 .id(proj.getOptionPackage().getId())
                 .packageUnit(proj.getOptionPackage().getPackageUnit())
