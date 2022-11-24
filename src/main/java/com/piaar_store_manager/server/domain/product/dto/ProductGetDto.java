@@ -1,11 +1,9 @@
 package com.piaar_store_manager.server.domain.product.dto;
 
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
-import com.piaar_store_manager.server.domain.product.proj.ProductProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductProjection;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
-import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
 
 import lombok.*;
 import lombok.experimental.Accessors;
@@ -85,8 +83,8 @@ public class ProductGetDto {
     }
 
     /*
-     * 필수값 항목은 null인지 검사하지 않고 공백제거 실행
-     * 필수값이 아닌 항목은 null이 아니라면 공백제거를 실행한다
+     * 필수값 항목은 null인지 검사하지 않고 앞뒤공백제거 실행
+     * 필수값이 아닌 항목은 null이 아니라면 앞뒤공백제거를 실행한다
      */
     public static void removeBlank(ProductGetDto productDto) {
         if(productDto == null) return;
@@ -98,7 +96,7 @@ public class ProductGetDto {
     }
 
     /**
-     * product, product와 Full Join(fj) 연관관계에 놓여있는 user, category, option으로 구성된 객체
+     * product, product와 Full Join(fj) 연관관계에 놓여있는 category, options으로 구성된 객체
      */
     @Getter @Setter
     @ToString
@@ -106,33 +104,17 @@ public class ProductGetDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class FullJoin {
+    public static class RelatedCategoryAndOptions {
         ProductGetDto product;
         ProductCategoryGetDto category;
-        UserGetDto user;
         List<ProductOptionGetDto> options;
 
-        // require option
-        public static FullJoin toDto(ProductProj proj){
-            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
-            UserGetDto user = UserGetDto.toDto(proj.getUser());
-
-            FullJoin dto = FullJoin.builder()
-                    .product(product)
-                    .category(category)
-                    .user(user)
-                    .build();
-
-            return dto;
-        }
-
-        public static FullJoin toDto(ProductManagementProj proj) {
+        public static RelatedCategoryAndOptions toDto(ProductProjection.RelatedCategoryAndOptions proj) {
             ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
             ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
             List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
 
-            FullJoin dto = FullJoin.builder()
+            RelatedCategoryAndOptions dto = RelatedCategoryAndOptions.builder()
                     .product(product)
                     .category(category)
                     .options(options)
@@ -142,24 +124,8 @@ public class ProductGetDto {
         }
     }
 
-    /**
-     * 상품&옵션&패키지 생성 시 넘어오는 객체. product, product 하위 데이터 option, option의 하위 데이터 package로 구성된 객체
-     */
-    // @Getter
-    // @ToString
-    // @Accessors(chain = true)
-    // @Builder
-    // @NoArgsConstructor
-    // @AllArgsConstructor
-    // public static class CreateReq {
-    //     ProductGetDto productDto;
-    //     List<ProductOptionGetDto> optionDtos;
-    //     List<OptionPackageDto> packageDtos;
-    // }
-
     /*
-     * [221005] FEAT  
-     * 상품 & 옵션 생성 시 넘어오는 객체. product, product 하위 데이터 option.
+     * 상품&옵션으로 구성된 객체. product, product의 하위 options
      */
     @Getter
     @ToString
@@ -167,17 +133,17 @@ public class ProductGetDto {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ProductAndOptions {
+    public static class RelatedOptions {
         @Valid
         ProductGetDto product;
         @Valid
         List<ProductOptionGetDto> options;
 
-        public static ProductAndOptions toDto(ProductManagementProj proj) {
+        public static RelatedOptions toDto(ProductProjection.RelatedCategoryAndOptions proj) {
             ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
             List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
 
-            ProductAndOptions dto = ProductAndOptions.builder()
+            RelatedOptions dto = RelatedOptions.builder()
                     .product(product)
                     .options(options)
                     .build();

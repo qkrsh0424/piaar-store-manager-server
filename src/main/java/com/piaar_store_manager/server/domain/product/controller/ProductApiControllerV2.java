@@ -30,7 +30,7 @@ public class ProductApiControllerV2 {
     private final ProductBusinessService productBusinessService;
 
     // 22.10.11 FEAT
-    // 재고관리 페이지에서 조회할 데이터 - 페이징처리 X
+    // 재고주기 페이지에서 조회할 데이터 - 페이징처리 X
     @GetMapping("/batch/stock")
     public ResponseEntity<?> searchBatch(@RequestParam Map<String, Object> params) {
         Message message = new Message();
@@ -58,7 +58,7 @@ public class ProductApiControllerV2 {
     //  [221005] FEAT
     @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.RelatedOptions createDto) {
         Message message = new Message();
 
         productBusinessService.createProductAndOptions(createDto);

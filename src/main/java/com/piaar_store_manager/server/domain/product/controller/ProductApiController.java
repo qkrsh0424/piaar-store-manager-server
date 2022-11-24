@@ -42,42 +42,6 @@ public class ProductApiController {
     }
 
     /**
-     * Search one api for product.
-     * <p>
-     * <b>GET : API URL => /api/v1/product/one-m2oj/{productCid}</b>
-     * <p>
-     * productCid에 대응하는 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     */
-    // @GetMapping("/one-m2oj/{productCid}")
-    // public ResponseEntity<?> searchOneM2OJ(@PathVariable(value = "productCid") Integer productCid) {
-    //     Message message = new Message();
-
-    //     message.setData(productBusinessService.searchOneM2OJ(productCid));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
-    /**
-     * Search one api for product.
-     * <p>
-     * <b>GET : API URL => /api/v1/product/one-fj/{productId}</b>
-     * <p>
-     * productCid에 대응하는 product, product와 Full Join(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     */
-    @GetMapping("/one-fj/{productCid}")
-    public ResponseEntity<?> searchOneFJ(@PathVariable(value = "productCid") Integer productCid) {
-        Message message = new Message();
-
-        message.setData(productBusinessService.searchOneFJ(productCid));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
      * Search list api for product.
      * <p>
      * <b>GET : API URL => /api/v1/product/list</b>
@@ -111,64 +75,10 @@ public class ProductApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    /**
-     * Search list api for product.
-     * <p>
-     * <b>GET : API URL => /api/v1/product/list-m2oj</b>
-     * <p>
-     * 모든 product, product와 Many To One Join(m2oj) 연관관계에 놓여있는 user, category을 함께 조회한다.
-     */
-    // @GetMapping("/list-m2oj")
-    // public ResponseEntity<?> searchListM2OJ() {
-    //     Message message = new Message();
-
-    //     message.setData(productBusinessService.searchListM2OJ());
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
-    /**
-     * Search list api for product.
-     * <p>
-     * <b>GET : API URL => /api/v1/product/list-fj</b>
-     * <p>
-     * 모든 product, product와 Full Join(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     */
-    @GetMapping("/list-fj")
-    public ResponseEntity<?> searchListFJ() {
-        Message message = new Message();
-
-        message.setData(productBusinessService.searchListFJ());
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    /**
-     * Search list api for product.
-     * <p>
-     * <b>GET : API URL => /api/v1/product/list-fj</b>
-     * <p>
-     * 재고관리 여부가 true인 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     */
-    @GetMapping("/list-fj/stock")
-    public ResponseEntity<?> searchStockListFJ() {
-        Message message = new Message();
-
-        message.setData(productBusinessService.searchStockListFJ());
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
     //  [221005] FEAT
     @PostMapping("/options")
     @PermissionRole
-    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.ProductAndOptions createDto) {
+    public ResponseEntity<?> createProductAndOptions(@RequestBody @Valid ProductGetDto.RelatedOptions createDto) {
         Message message = new Message();
 
         productBusinessService.createProductAndOptions(createDto);

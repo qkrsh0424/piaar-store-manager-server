@@ -6,19 +6,16 @@ import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Getter
-@ToString
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class ProductManagementProj {
-    private ProductEntity product;
-    private ProductCategoryEntity category;
-    private Set<ProductOptionEntity> options;
+public class ProductProjection {
+    
+    @Getter
+    @ToString
+    public static class RelatedCategoryAndOptions {
+        ProductEntity product;
+        ProductCategoryEntity category;
+        Set<ProductOptionEntity> options;
+    }
 }

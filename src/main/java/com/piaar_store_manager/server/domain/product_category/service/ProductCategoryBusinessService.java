@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.domain.user.service.UserService;
-import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
 
 import lombok.RequiredArgsConstructor;

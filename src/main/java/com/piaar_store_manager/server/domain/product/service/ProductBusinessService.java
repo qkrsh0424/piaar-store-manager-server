@@ -7,11 +7,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
 import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
-import com.piaar_store_manager.server.domain.product.proj.ProductProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductProjection;
+import com.piaar_store_manager.server.domain.product.proj.ProductProjection.RelatedCategoryAndOptions;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
@@ -33,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductBusinessService {
     private final ProductService productService;
     private final ProductOptionService productOptionService;
-    private final OptionPackageService optionPackageService;
     private final UserService userService;
 
     public ProductGetDto searchOne(Integer productCid) {
@@ -58,39 +56,6 @@ public class ProductBusinessService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * productCid에 대응하는 product, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     *
-     * @param productCid : Integer
-     * @see ProductService#searchOneM2OJ
-     */
-    // public ProductGetDto.ManyToOneJoin searchOneM2OJ(Integer productCid) {
-    //     ProductProj productProj = productService.searchOneM2OJ(productCid);
-    //     ProductGetDto.ManyToOneJoin productM2OJDto = ProductGetDto.ManyToOneJoin.toDto(productProj);
-    //     return productM2OJDto;
-    // }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productCid에 대응하는 product, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @param productCid : Integer
-     * @see ProductService#searchOneM2OJ
-     * @see ProductOptionService#searchListByProductCid
-     */
-    public ProductGetDto.FullJoin searchOneFJ(Integer productCid) {
-        ProductProj productProj = productService.searchOneM2OJ(productCid);
-        List<ProductOptionEntity> optionEntities = productOptionService.searchListByProductCid(productCid);
-        List<ProductOptionGetDto> optionDtos = optionEntities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
-
-        ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(productProj);
-        productFJDto.setOptions(optionDtos);
-        return productFJDto;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
      * categortyCid에 대응하는 product를 조회한다.
      *
      * @see ProductService#searchListByCategory
@@ -101,83 +66,20 @@ public class ProductBusinessService {
         return productDtos;
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 product 조회, product와 Many To One JOIN(m2oj) 연관관계에 놓여있는 user, category를 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     */
-    // public List<ProductGetDto.ManyToOneJoin> searchListM2OJ() {
-    //     List<ProductProj> productProjs = productService.searchListM2OJ();
-    //     List<ProductGetDto.ManyToOneJoin> productM2OJDto = productProjs.stream().map(proj -> ProductGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-    //     return productM2OJDto;
-    // }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     * @see ProductOptionService#searchListByProductCids
-     */
-    public List<ProductGetDto.FullJoin> searchListFJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        List<Integer> productCids = productProjs.stream().map(r -> r.getProduct().getCid()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductCids(productCids);
-
-        // option setting
-        List<ProductGetDto.FullJoin> productFJDtos = productProjs.stream().map(r -> {
-            List<ProductOptionGetDto> optionDtos = optionGetDtos.stream().filter(option -> r.getProduct().getCid().equals(option.getProductCid())).collect(Collectors.toList());
-
-            ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(r);
-            productFJDto.setOptions(optionDtos);
-            return productFJDto;
-        }).collect(Collectors.toList());
-        return productFJDtos;
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 재고관리 여부가 true인 product 조회, product와 Full JOIN(fj) 연관관계에 놓여있는 user, category, option을 함께 조회한다.
-     *
-     * @see ProductService#searchListM2OJ
-     * @see ProductOptionService#searchListByProductCids
-     */
-    public List<ProductGetDto.FullJoin> searchStockListFJ() {
-        List<ProductProj> productProjs = productService.searchListM2OJ();
-        // 재고관리 상품 추출
-        List<ProductProj> stockManagementProductProjs = productProjs.stream().filter(proj -> proj.getProduct().getStockManagement()).collect(Collectors.toList());
-        List<Integer> productCids = stockManagementProductProjs.stream().map(proj -> proj.getProduct().getCid()).collect(Collectors.toList());
-        List<ProductOptionGetDto> optionGetDtos = productOptionService.searchListByProductCids(productCids);
-
-        // option setting
-        List<ProductGetDto.FullJoin> productFJDtos = stockManagementProductProjs.stream().map(r -> {
-            List<ProductOptionGetDto> optionDtos = optionGetDtos.stream().filter(option -> r.getProduct().getCid().equals(option.getProductCid())).collect(Collectors.toList());
-
-            ProductGetDto.FullJoin productFJDto = ProductGetDto.FullJoin.toDto(r);
-            productFJDto.setOptions(optionDtos);
-            return productFJDto;
-        }).collect(Collectors.toList());
-        return productFJDtos;
-    }
-
     // 22.10.11 NEW
-    public List<ProductGetDto.FullJoin> searchBatch(Map<String, Object> params) {
-        List<ProductManagementProj> projs = productService.findAllFJ(params);
-        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+    public List<ProductGetDto.RelatedCategoryAndOptions> searchBatch(Map<String, Object> params) {
+        List<ProductProjection.RelatedCategoryAndOptions> projs = productService.findAllFJ(params);
+        List<ProductGetDto.RelatedCategoryAndOptions> productDtos = projs.stream().map(proj -> ProductGetDto.RelatedCategoryAndOptions.toDto(proj)).collect(Collectors.toList());
 
         this.setOptionStockSumUnit(productDtos);
         return productDtos;
     }
 
     // 22.10.17 NEW
-    public Page<ProductGetDto.FullJoin> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        Page<ProductManagementProj> pages = productService.findAllFJByPage(params, pageable);
-        List<ProductManagementProj> projs = pages.getContent();
-        List<ProductGetDto.FullJoin> productDtos = projs.stream().map(proj -> ProductGetDto.FullJoin.toDto(proj)).collect(Collectors.toList());
+    public Page<ProductGetDto.RelatedCategoryAndOptions> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
+        Page<ProductProjection.RelatedCategoryAndOptions> pages = productService.findAllFJByPage(params, pageable);
+        List<ProductProjection.RelatedCategoryAndOptions> projs = pages.getContent();
+        List<ProductGetDto.RelatedCategoryAndOptions> productDtos = projs.stream().map(proj -> ProductGetDto.RelatedCategoryAndOptions.toDto(proj)).collect(Collectors.toList());
 
         // option setting
         this.setOptionStockSumUnit(productDtos);
@@ -185,7 +87,7 @@ public class ProductBusinessService {
     }
 
     // 옵션 입출고 수량 계산. 옵션의 재고수량을 수정
-    public void setOptionStockSumUnit(List<ProductGetDto.FullJoin> productDtos) {
+    public void setOptionStockSumUnit(List<ProductGetDto.RelatedCategoryAndOptions> productDtos) {
          // option setting
          List<ProductOptionEntity> optionEntities = new ArrayList<>();
          productDtos.forEach(dto -> {
@@ -240,7 +142,7 @@ public class ProductBusinessService {
      * 20221122 공백제거 메서드 생성 후 적용
      */
     @Transactional
-    public void createProductAndOptions(ProductGetDto.ProductAndOptions reqDto) {
+    public void createProductAndOptions(ProductGetDto.RelatedOptions reqDto) {
         UUID USER_ID = userService.getUserId();
         ProductGetDto PRODUCT = reqDto.getProduct();
         List<ProductOptionGetDto> OPTIONS = reqDto.getOptions();
@@ -344,9 +246,9 @@ public class ProductBusinessService {
     /*
      * [221017] FEAT
      */
-    public ProductGetDto.ProductAndOptions searchProductAndOptions(UUID productId) {
-        ProductManagementProj proj = productService.qSelectProductAndOptions(productId);
-        return ProductGetDto.ProductAndOptions.toDto(proj);
+    public ProductGetDto.RelatedOptions searchProductAndOptions(UUID productId) {
+        ProductProjection.RelatedCategoryAndOptions proj = productService.qSelectProductAndOptions(productId);
+        return ProductGetDto.RelatedOptions.toDto(proj);
     }
 
     /**

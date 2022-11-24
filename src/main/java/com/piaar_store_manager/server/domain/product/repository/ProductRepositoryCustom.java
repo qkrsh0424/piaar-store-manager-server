@@ -8,11 +8,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductProjection;
 
 @Repository
 public interface ProductRepositoryCustom {
-    List<ProductManagementProj> qfindAllFJ(Map<String, Object> params);
-    Page<ProductManagementProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable);
-    ProductManagementProj qSelectProductAndOptions(UUID productId);
+    List<ProductProjection.RelatedCategoryAndOptions> qfindAllFJ(Map<String, Object> params);
+    Page<ProductProjection.RelatedCategoryAndOptions> qfindAllFJByPage(Map<String, Object> params, Pageable pageable);
+    ProductProjection.RelatedCategoryAndOptions qSelectProductAndOptions(UUID productId);
 }

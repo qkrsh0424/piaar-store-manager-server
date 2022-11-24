@@ -12,7 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
-import com.piaar_store_manager.server.domain.product.proj.ProductManagementProj;
+import com.piaar_store_manager.server.domain.product.proj.ProductProjection;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.user.entity.QUserEntity;
@@ -47,8 +47,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ProductManagementProj> qfindAllFJ(Map<String, Object> params) {
-        List<ProductManagementProj> projs = query.from(qProductEntity)
+    public List<ProductProjection.RelatedCategoryAndOptions> qfindAllFJ(Map<String, Object> params) {
+        List<ProductProjection.RelatedCategoryAndOptions> projs = query.from(qProductEntity)
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
             .leftJoin(qUserEntity).on(qProductEntity.createdBy.eq(qUserEntity.id))
@@ -58,7 +58,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 GroupBy.groupBy(qProductEntity.cid)
                     .list(
                         Projections.fields(
-                            ProductManagementProj.class,
+                            ProductProjection.RelatedCategoryAndOptions.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
                             GroupBy.set(
@@ -74,7 +74,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public Page<ProductManagementProj> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
+    public Page<ProductProjection.RelatedCategoryAndOptions> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
         JPQLQuery customQuery = query.from(qProductEntity)
             .select(
                 qProductEntity.cid
@@ -97,7 +97,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         List<Integer> productCids = customQuery.fetch();
         Long totalCount = customQuery.fetchCount();
 
-        List<ProductManagementProj> projs = query.from(qProductEntity)
+        List<ProductProjection.RelatedCategoryAndOptions> projs = query.from(qProductEntity)
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
             .where(qProductEntity.cid.in(productCids))
@@ -108,7 +108,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 GroupBy.groupBy(qProductEntity.cid)
                     .list(
                         Projections.fields(
-                            ProductManagementProj.class,
+                            ProductProjection.RelatedCategoryAndOptions.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
                             GroupBy.set(
@@ -119,12 +119,12 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             )
             ;
 
-        return new PageImpl<ProductManagementProj>(projs, pageable, totalCount);
+        return new PageImpl<ProductProjection.RelatedCategoryAndOptions>(projs, pageable, totalCount);
     }
 
     @Override
-    public ProductManagementProj qSelectProductAndOptions(UUID productId) {
-        ProductManagementProj proj = query.from(qProductEntity)
+    public ProductProjection.RelatedCategoryAndOptions qSelectProductAndOptions(UUID productId) {
+        ProductProjection.RelatedCategoryAndOptions proj = query.from(qProductEntity)
             .where(qProductEntity.id.eq(productId))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
             .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
@@ -132,7 +132,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 GroupBy.groupBy(qProductEntity.cid)
                     .list(
                         Projections.fields(
-                            ProductManagementProj.class,
+                            ProductProjection.RelatedCategoryAndOptions.class,
                             qProductEntity.as("product"),
                             qProductCategoryEntity.as("category"),
                             GroupBy.set(

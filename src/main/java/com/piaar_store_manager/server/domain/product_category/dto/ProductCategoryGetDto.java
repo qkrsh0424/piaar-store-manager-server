@@ -58,6 +58,10 @@ public class ProductCategoryGetDto {
         return dto;
     }
 
+    /*
+     * 필수값 항목은 null인지 검사하지 않고 앞뒤공백제거 실행
+     * 필수값이 아닌 항목은 null이 아니라면 앞뒤공백제거를 실행한다
+     */
     public static void removeBlank(ProductCategoryGetDto categoryDto) {
         if(categoryDto == null) return;
 
