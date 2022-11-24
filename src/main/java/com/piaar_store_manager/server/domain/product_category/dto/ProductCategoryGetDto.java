@@ -11,10 +11,14 @@ import com.piaar_store_manager.server.domain.product_category.entity.ProductCate
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.Accessors;
 
-@Data
+@Getter
+@ToString
 @Accessors(chain=true)
 @Builder
 @NoArgsConstructor
@@ -24,12 +28,17 @@ public class ProductCategoryGetDto {
     private UUID id;
     private String code;
 
+    @Setter
     @NotBlank(message = "'카테고리명'을 입력해주세요.")
     @Size(max = 100, message = "'카테고리명'은 100자 이내로 입력해주세요.")
     private String name;
     private LocalDateTime createdAt;
     private UUID createdBy;
+
+    @Setter
     private LocalDateTime updatedAt;
+    
+    @Setter
     private UUID updatedBy;
 
 

@@ -40,17 +40,8 @@ public class ProductEntity {
     @Column(name = "id")
     private UUID id;
 
-    // @Setter
     @Column(name = "code")
     private String code;
-
-    // @Setter
-    // @Column(name = "manufacturing_code")
-    // private String manufacturingCode;
-    
-    // @Setter
-    // @Column(name = "naver_product_code")
-    // private String naverProductCode;
 
     @Setter
     @Column(name = "default_name")
@@ -75,42 +66,6 @@ public class ProductEntity {
     @Setter
     @Column(name = "memo")
     private String memo;
-
-    // @Setter
-    // @Column(name = "hs_code")
-    // private String hsCode;
-
-    // @Setter
-    // @Column(name = "style")
-    // private String style;
-
-    // @Setter
-    // @Column(name = "tariff_rate")
-    // private String tariffRate;
-
-    // @Setter
-    // @Column(name = "default_width")
-    // private Integer defaultWidth;
-
-    // @Setter
-    // @Column(name = "default_length")
-    // private Integer defaultLength;
-
-    // @Setter
-    // @Column(name = "default_height")
-    // private Integer defaultHeight;
-
-    // @Setter
-    // @Column(name = "default_quantity")
-    // private Integer defaultQuantity;
-
-    // @Setter
-    // @Column(name = "default_weight")
-    // private Integer defaultWeight;
-
-    // @Setter
-    // @Column(name = "default_total_purchase_price")
-    // private Integer defaultTotalPurchasePrice;
 
     @Setter
     @Column(name = "stock_management")

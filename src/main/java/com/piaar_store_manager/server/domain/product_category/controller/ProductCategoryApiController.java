@@ -33,9 +33,9 @@ public class ProductCategoryApiController {
     private final ProductCategoryBusinessService productCategoryBusinessService;
 
     /**
-     * Search list api for product category.
+     * Search all api for product category.
      * <p>
-     * <b>GET : API URL => /api/v1/product-category/list</b>
+     * <b>GET : API URL => /api/v1/product-category/all</b>
      */
     @GetMapping("/all")
     public ResponseEntity<?> searchAll() {
@@ -48,7 +48,11 @@ public class ProductCategoryApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 221109 FEAT
+    /**
+     * Create one api for product category.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-category</b>
+     */
     @PermissionRole
     @PostMapping("")
     public ResponseEntity<?> createOne(@RequestBody @Valid ProductCategoryGetDto dto) {
@@ -61,6 +65,11 @@ public class ProductCategoryApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Patch one api for product category.
+     * <p>
+     * <b>PATCH : API URL => /api/v1/product-category</b>
+     */
     @PermissionRole
     @PatchMapping("")
     public ResponseEntity<?> changeOne(@RequestBody @Valid ProductCategoryGetDto dto) {
@@ -73,6 +82,11 @@ public class ProductCategoryApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Delete one api for product category.
+     * <p>
+     * <b>DELETE : API URL => /api/v1/product-category/{categoryId}</b>
+     */
     @PermissionRole(role = "ROLE_SUPERADMIN")
     @DeleteMapping("/{categoryId}")
     public ResponseEntity<?> deleteOne(@PathVariable(value = "categoryId") UUID id) {

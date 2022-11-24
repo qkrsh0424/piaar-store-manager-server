@@ -442,7 +442,7 @@ public class ErpOrderItemApi {
 
         for (int i = 0; i < itemDtos.size(); i++) {
             sheet.autoSizeColumn(i);
-            sheet.setColumnWidth(i, (sheet.getColumnWidth(i))+(short)1024);
+            sheet.setColumnWidth(i, Math.min(255 * 256, sheet.getColumnWidth(i))+(short)1024);  // poi 셀 너비는 255자 이내여야 한다
         }
 
         response.setContentType("ms-vnd/excel");

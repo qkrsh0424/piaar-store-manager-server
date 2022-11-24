@@ -75,6 +75,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public Page<ProductProjection.RelatedCategoryAndOptions> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
+        // 조회하려는 product의 cid만을 추출
         JPQLQuery customQuery = query.from(qProductEntity)
             .select(
                 qProductEntity.cid
@@ -97,6 +98,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         List<Integer> productCids = customQuery.fetch();
         Long totalCount = customQuery.fetchCount();
 
+        // 추출된 productCids를 이용해 ProductProjection.RelatedCategoryAndOptions를 조회한다
         List<ProductProjection.RelatedCategoryAndOptions> projs = query.from(qProductEntity)
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
@@ -120,32 +122,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             ;
 
         return new PageImpl<ProductProjection.RelatedCategoryAndOptions>(projs, pageable, totalCount);
-    }
-
-    @Override
-    public ProductProjection.RelatedCategoryAndOptions qSelectProductAndOptions(UUID productId) {
-        ProductProjection.RelatedCategoryAndOptions proj = query.from(qProductEntity)
-            .where(qProductEntity.id.eq(productId))
-            .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
-            .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-            .transform(
-                GroupBy.groupBy(qProductEntity.cid)
-                    .list(
-                        Projections.fields(
-                            ProductProjection.RelatedCategoryAndOptions.class,
-                            qProductEntity.as("product"),
-                            qProductCategoryEntity.as("category"),
-                            GroupBy.set(
-                                qProductOptionEntity
-                            ).as("options")
-                        )
-                    )
-            ).get(0)
-            ;
-
-        // TODO :: 예외처리
-
-        return proj;
     }
 
     private OrderSpecifier<?> orderByProductCids(List<Integer> productCids) {

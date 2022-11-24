@@ -20,16 +20,6 @@ import com.piaar_store_manager.server.exception.CustomNotFoundDataException;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-
-    public ProductEntity searchOne(Integer productCid) {
-        Optional<ProductEntity> productEntityOpt = productRepository.findById(productCid);
-
-        if (productEntityOpt.isPresent()) {
-            return productEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
     
     public ProductEntity searchOne(UUID id) {
         Optional<ProductEntity> productEntityOpt = productRepository.findById(id);
@@ -45,18 +35,6 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * categoryCid에 대응하는 product 데이터를 모두 조회한다.
-     *
-     * @return List::ProductEntity::
-     * @see ProductRepository#findByProductCategoryCid
-     */
-    public List<ProductEntity> searchListByCategory(Integer categoryCid) {
-        return productRepository.findByProductCategoryCid(categoryCid);
-    }
-
     public void saveAndModify(ProductEntity entity) {
         productRepository.save(entity);
     }
@@ -64,30 +42,16 @@ public class ProductService {
     public ProductEntity saveAndGet(ProductEntity entity) {
         return productRepository.save(entity);
     }
-
-    public void saveListAndModify(List<ProductEntity> entities) {
-        productRepository.saveAll(entities);
-    }
-
-    public void destroyOne(UUID productId) {
-        productRepository.findById(productId).ifPresent(product -> {
-            productRepository.delete(product);
-        });
-    }
-
+    
     public void destroyOne(ProductEntity product) {
         productRepository.delete(product);
     }
 
-    public List<ProductProjection.RelatedCategoryAndOptions> findAllFJ(Map<String, Object> params) {
+    public List<ProductProjection.RelatedCategoryAndOptions> qfindAllFJ(Map<String, Object> params) {
         return productRepository.qfindAllFJ(params);
     }
 
-    public Page<ProductProjection.RelatedCategoryAndOptions> findAllFJByPage(Map<String, Object> params, Pageable pageable) {
+    public Page<ProductProjection.RelatedCategoryAndOptions> qfindAllFJByPage(Map<String, Object> params, Pageable pageable) {
         return productRepository.qfindAllFJByPage(params, pageable);
-    }
-
-    public ProductProjection.RelatedCategoryAndOptions qSelectProductAndOptions(UUID productId) {
-        return productRepository.qSelectProductAndOptions(productId);
     }
 }
