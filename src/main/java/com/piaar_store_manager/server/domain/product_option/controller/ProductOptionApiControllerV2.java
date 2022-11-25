@@ -27,24 +27,29 @@ public class ProductOptionApiControllerV2 {
     private final ProductOptionBusinessServiceV2 productOptionBusinessService;
 
     /**
-     * Search list api for product option.
+     * Search all api for product option.
+     * product option related product.
      * <p>
-     * <b>GET : API URL => /api/v1/product-option/list-m2oj</b>
+     * <b>GET : API URL => /api/v2/product-options/all/product</b>
      * <p>
-     * 모든 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category을 함께 조회한다.
      */
-    @GetMapping("/all-m2oj")
-    public ResponseEntity<?> searchAllM2OJ() {
+    @GetMapping("/all/product")
+    public ResponseEntity<?> searchAllRelatedProduct() {
         Message message = new Message();
 
-        message.setData(productOptionBusinessService.searchAllM2OJ());
+        message.setData(productOptionBusinessService.searchAllRelatedProduct());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 221108 FEAT
+    /**
+     * Search list api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v2/product-options/batch/{productId}</b>
+     * <p>
+     */
     @GetMapping("/batch/{productId}")
     public ResponseEntity<?> searchBatchByProductId(@PathVariable UUID productId) {
         Message message = new Message();
@@ -56,7 +61,12 @@ public class ProductOptionApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // 221108 FEAT
+    /**
+     * Update list api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v2/product-options/batch/{productId}</b>
+     * <p>
+     */
     @PutMapping("/batch/{productId}")
     public ResponseEntity<?> updateBatch(@PathVariable UUID productId, @RequestBody @Valid List<ProductOptionGetDto> optionDtos) {
         Message message = new Message();
@@ -68,6 +78,12 @@ public class ProductOptionApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Delete one api for product option.
+     * <p>
+     * <b>GET : API URL => /api/v2/product-options/{optionId}</b>
+     * <p>
+     */
     @DeleteMapping("/{optionId}")
     @PermissionRole(role = "ROLE_SUPERADMIN")
     public ResponseEntity<?> deleteOne(@PathVariable(value = "optionId") UUID optionId) {

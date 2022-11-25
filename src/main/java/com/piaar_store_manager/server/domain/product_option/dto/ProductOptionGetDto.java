@@ -20,10 +20,8 @@ import javax.validation.constraints.Size;
 
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-import com.piaar_store_manager.server.domain.user.dto.UserGetDto;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 
 @Data
 @Accessors(chain = true)
@@ -129,32 +127,23 @@ public class ProductOptionGetDto {
             .setReleaseLocation(optionDto.getReleaseLocation() != null ? optionDto.getReleaseLocation().strip() : null);
     }
 
-    /**
-     * option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category, option으로 구성된 객체
-     */
     @Getter
     @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class ManyToOneJoin {
+    public static class RelatedProduct {
         ProductOptionGetDto option;
         ProductGetDto product;
-        ProductCategoryGetDto category;
-        UserGetDto user;
 
-        public static ManyToOneJoin toDto(ProductOptionProj proj) {
+        public static RelatedProduct toDto(ProductOptionProjection.RelatedProduct proj) {
+            ProductOptionGetDto productOption = ProductOptionGetDto.toDto(proj.getOption());
             ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            ProductCategoryGetDto category = ProductCategoryGetDto.toDto(proj.getCategory());
-            UserGetDto user = UserGetDto.toDto(proj.getUser());
-            ProductOptionGetDto option = ProductOptionGetDto.toDto(proj.getProductOption());
 
-            ManyToOneJoin dto = ManyToOneJoin.builder()
+            RelatedProduct dto = RelatedProduct.builder()
+                .option(productOption)
                 .product(product)
-                .category(category)
-                .user(user)
-                .option(option)
                 .build();
 
             return dto;

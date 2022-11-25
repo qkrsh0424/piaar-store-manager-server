@@ -9,49 +9,17 @@ import javax.persistence.Tuple;
 import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProductOptionRepository extends JpaRepository<ProductOptionEntity, Integer>, ProductOptionRepositoryCustom {
     
     Optional<ProductOptionEntity> findById(UUID id);
-    
-    /**
-     * cid값에 대응하는 option, option과 Many To One Join(m2oj) 연관관계에 놓여있는 product, user, category
-     * 
-     * @param cid : Integer
-     * @return ProductOptionProj
-     */
-    @Query(
-        "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
-        "JOIN ProductEntity p ON p.cid=po.productCid\n"+
-        "JOIN UserEntity u ON po.createdBy = u.id\n"+
-        "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
-        "WHERE po.cid=:cid"
-    )
-    Optional<ProductOptionProj> searchOneM2OJ(Integer cid);
-
-    // FIX : Added "ORDER BY" query for product_option.created_at ASC
-    /**
-     * 모든 option, option과 Full Join(fj) 연관관계에 놓여있는 product, user, category
-     * 
-     * @return List::ProductOptionProj::
-     */
-    @Query(
-        "SELECT po AS productOption, p AS product, u AS user, pc AS category FROM ProductOptionEntity po\n"+
-        "JOIN ProductEntity p ON p.cid=po.productCid\n"+
-        "JOIN UserEntity u ON po.createdBy = u.id\n"+
-        "JOIN ProductCategoryEntity pc ON pc.cid = p.productCategoryCid\n"+
-        "ORDER BY po.createdAt ASC"
-    )
-    List<ProductOptionProj> searchListM2OJ();
 
     /**
      * code값에 대응되는 option을 조회한다.

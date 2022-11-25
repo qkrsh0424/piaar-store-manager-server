@@ -1,17 +1,14 @@
 package com.piaar_store_manager.server.domain.product_option.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
-import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.service.ProductService;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
-
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 import com.piaar_store_manager.server.domain.user.service.UserService;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.piaar_store_manager.server.utils.CustomUniqueKeyUtils;
@@ -26,18 +23,14 @@ public class ProductOptionBusinessServiceV2 {
     private final ProductService productService;
     private final UserService userService;
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 option 조회, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
-     *
-     * @return List::ProductOptionGetDto.ManyToOneJoin::
-     * @see ProductOptionService#searchListM2OJ
+    /*
+     * 모든 상품옵션을 조회한다
+     * 옵션이 속한 상품도 함께 조회한다
      */
-    public List<ProductOptionGetDto.ManyToOneJoin> searchAllM2OJ() {
-        List<ProductOptionProj> productOptionProjs = productOptionService.searchListM2OJ();
-        List<ProductOptionGetDto.ManyToOneJoin> optionM2OJDtos = productOptionProjs.stream().map(proj -> ProductOptionGetDto.ManyToOneJoin.toDto(proj)).collect(Collectors.toList());
-        return optionM2OJDtos;
+    public List<ProductOptionGetDto.RelatedProduct> searchAllRelatedProduct() {
+        List<ProductOptionProjection.RelatedProduct> projs = productOptionService.qfindAllRelatedProduct();
+        List<ProductOptionGetDto.RelatedProduct> dtos = projs.stream().map(proj -> ProductOptionGetDto.RelatedProduct.toDto(proj)).collect(Collectors.toList());
+        return dtos;
     }
 
     public List<ProductOptionGetDto> searchBatchByProductId(UUID productId) {
@@ -46,7 +39,11 @@ public class ProductOptionBusinessServiceV2 {
         return dtos;
     }
 
-    // TODO :: 리팩토링 진행하기. productDto 조회로 reqOptionIds가 필요없어짐
+    /*
+     * 상품 옵션을 업데이트
+     * 기존에 저장된 옵션과 현재 요청된 옵션을 비교해
+     * update, create, delete 를 실행한다
+     */
     public void updateBatch(UUID productId, List<ProductOptionGetDto> optionDtos) {
         optionDtos.forEach(option -> ProductOptionGetDto.removeBlank(option));
         ProductGetDto productDto = ProductGetDto.toDto(productService.searchOne(productId));
@@ -67,6 +64,7 @@ public class ProductOptionBusinessServiceV2 {
         this.deleteSavedOptions(originOptions, reqOptionIds);
     }
 
+    // 변경된 옵션
     public void changeOriginOptions(List<ProductOptionGetDto> reqOptions, List<ProductOptionEntity> originOptions) {
         UUID USER_ID = userService.getUserId();
 
@@ -81,15 +79,15 @@ public class ProductOptionBusinessServiceV2 {
                             .setMemo(reqOption.getMemo())
                             .setReleaseLocation(reqOption.getReleaseLocation())
                             .setSafetyStockUnit(reqOption.getSafetyStockUnit())
-                            .setUpdatedAt(LocalDateTime.now())
+                            .setUpdatedAt(CustomDateUtils.getCurrentDateTime())
                             .setUpdatedBy(USER_ID);
                 }
             });
         });
-
         productOptionService.saveListAndModify(originOptions);
     }
 
+    // 새로 추가된 옵션
     public void createNewOptions(List<ProductOptionGetDto> reqOptions, List<UUID> newOptionIds, ProductGetDto productDto) {
         UUID USER_ID = userService.getUserId();
 
@@ -118,10 +116,10 @@ public class ProductOptionBusinessServiceV2 {
 
                     return option;
                 }).collect(Collectors.toList());
-
         productOptionService.saveListAndModify(newOptionEntities);
     }
 
+    // 삭제된 옵션
     public void deleteSavedOptions(List<ProductOptionEntity> savedOptions, List<UUID> reqOptionIds) {
         List<UUID> deletedIds = savedOptions.stream()
                 .filter(r -> !reqOptionIds.contains(r.getId()))

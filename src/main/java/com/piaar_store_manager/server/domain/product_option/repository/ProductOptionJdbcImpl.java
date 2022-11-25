@@ -18,7 +18,7 @@ public class ProductOptionJdbcImpl implements ProductOptionCustomJdbc {
     private final int TOTAL_WEEK = 11;
 
     @Override
-    public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer categoryCid) {
+    public List<ProductOptionStockCycleDto> jdSearchStockStatusByWeek(LocalDateTime searchEndDate, Integer categoryCid) {
         List<ProductOptionStockCycleDto> cycleDtos = new ArrayList<>();
         List<String> searchParams = new ArrayList<>();
         StringBuilder sql = new StringBuilder();

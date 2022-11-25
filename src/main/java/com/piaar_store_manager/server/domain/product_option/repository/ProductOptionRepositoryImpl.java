@@ -5,11 +5,13 @@ import java.util.List;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection.RelatedProduct;
 import com.piaar_store_manager.server.domain.product_receive.entity.QProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_release.entity.QProductReleaseEntity;
 import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPAExpressions;
@@ -19,7 +21,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-// TODO :: 제거
 @Repository
 public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCustom {
     private final JPAQueryFactory query;
@@ -38,24 +39,28 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
     }
 
     @Override
-    public List<ProductOptionProj> qfindAllM2OJ() {
-        JPQLQuery customQuery = query.from(qProductOptionEntity)
-            .select(Projections.fields(ProductOptionProj.class,
-                    qProductOptionEntity.as("productOption"),
-                    qProductEntity.as("product"),
-                    qProductCategoryEntity.as("productCategory")
-                    ))
-            .leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-            .leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid));
-
-        QueryResults<ProductOptionProj> result = customQuery.fetchResults();
-        return result.getResults();
+    public List<RelatedProduct> qfindAllRelatedProduct() {
+        List<RelatedProduct> projs = query.from(qProductOptionEntity)
+            .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+            .transform(
+                GroupBy.groupBy(qProductOptionEntity.cid)
+                    .list(
+                        Projections.fields(
+                            ProductOptionProjection.RelatedProduct.class,
+                            qProductOptionEntity.as("option"),
+                            qProductEntity.as("product") 
+                        )
+                    )
+            );
+            
+        return projs;
     }
 
     /*
     재고 계산을 위한 데이터 추출.
     (옵션, 상품, 카테고리, 출고 수량, 입고 수량, 최근 출고 일)
      */
+    // TODO :: REFACTOR
     @Override
     public List<StockAnalysisProj> qfindStockAnalysis() {
         JPQLQuery customQuery = query.from(qProductOptionEntity)

@@ -4,7 +4,7 @@ import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGet
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionStockCycleDto;
 import com.piaar_store_manager.server.domain.product_option.dto.ReceiveReleaseSumOnlyDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProj;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionCustomJdbc;
 import com.piaar_store_manager.server.domain.product_option.repository.ProductOptionRepository;
 import com.piaar_store_manager.server.domain.sales_analysis.proj.SalesAnalysisItemProj;
@@ -30,17 +30,6 @@ public class ProductOptionService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductOptionCustomJdbc productOptionCustomJdbc;
 
-    public ProductOptionEntity searchOne(Integer productOptionCid) {
-        Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(productOptionCid);
-
-        if (productOptionEntityOpt.isPresent()) {
-            return productOptionEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
-        }
-    }
-
-    // [221028] FEAT
     public ProductOptionEntity searchOne(UUID id) {
         Optional<ProductOptionEntity> productOptionEntityOpt = productOptionRepository.findById(id);
 
@@ -55,48 +44,8 @@ public class ProductOptionService {
         return productOptionRepository.findAll();
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productOptionCid에 대응하는 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
-     *
-     * @param productOptionCid : Integer
-     * @return ProductOptionProj
-     * @see ProductOptionRepository#searchOneM2OJ
-     */
-    public ProductOptionProj searchOneM2OJ(Integer productOptionCid) {
-        Optional<ProductOptionProj> productOptionProjOpt = productOptionRepository.searchOneM2OJ(productOptionCid);
-
-        if(productOptionProjOpt.isPresent()) {
-            return productOptionProjOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("존재하지 않는 데이터입니다.");
-        }
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 모든 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, category, user를 함께 조회한다.
-     *
-     * @return List::ProductOptionProj::
-     * @see ProductOptionRepository#searchListM2OJ
-     */
-    public List<ProductOptionProj> searchListM2OJ() {
-        return productOptionRepository.searchListM2OJ();
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productCid에 대응되는 option 데이터를 모두 조회한다.
-     *
-     * @param productCid : Integer
-     * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#findByProductCid
-     */
-    public List<ProductOptionEntity> searchListByProductCid(Integer productCid) {
-        return productOptionRepository.findByProductCid(productCid);
+    public List<ProductOptionProjection.RelatedProduct> qfindAllRelatedProduct() {
+        return productOptionRepository.qfindAllRelatedProduct();
     }
 
     // [221021] FEAT
@@ -104,38 +53,26 @@ public class ProductOptionService {
         return productOptionRepository.findByProductId(productId);
     }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * cids에 대응되는 option 데이터를 모두 조회한다.
-     * 
-     * @param cids : List::Integer:;
-     * @see ProductOptionRepository#findAllByCids
-     */
-    public List<ProductOptionEntity> searchListByCids(List<Integer> cids) {
-        return productOptionRepository.findAllByCids(cids);
-    }
-
     // 221115 FEAT
     public List<ProductOptionEntity> searchListByIds(List<UUID> ids) {
         return productOptionRepository.findAllByIds(ids);
     }
+   
+    public void saveAndModify(ProductOptionEntity entity) {
+        productOptionRepository.save(entity);
+    }
 
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * productCids에 대응되는 option 데이터를 모두 조회한다.
-     * 조회된 option의 release(출고)와 receive(입고) 데이터로 옵션의 재고수량을 구한다.
-     *
-     * @param productCids : List::Integer::
-     * @return List::ProductOptionGetDto::
-     * @see ProductOptionRepository#searchListByProductCids
-     * @see ProductOptionService#searchStockUnit
-     */
-    public List<ProductOptionGetDto> searchListByProductCids(List<Integer> productCids) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.searchListByProductCids(productCids);
-        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
-        return productOptionGetDtos;
+    public void saveListAndModify(List<ProductOptionEntity> entities) {
+        productOptionRepository.saveAll(entities);
+    }
+
+    // 20221122 FEAT
+    public void deleteOne(ProductOptionEntity optionEntity) {
+        productOptionRepository.delete(optionEntity);
+    }
+
+    public void deleteBatch(List<UUID> ids) {
+        productOptionRepository.deleteBatch(ids);
     }
 
     /**
@@ -181,29 +118,6 @@ public class ProductOptionService {
             });
         }
         return productOptionGetDtos;
-    }
-
-    public void saveAndModify(ProductOptionEntity entity) {
-        productOptionRepository.save(entity);
-    }
-
-    public void saveListAndModify(List<ProductOptionEntity> entities) {
-        productOptionRepository.saveAll(entities);
-    }
-
-    public void destroyOne(Integer productOptionCid) {
-        productOptionRepository.findById(productOptionCid).ifPresent(productOption -> {
-            productOptionRepository.delete(productOption);
-        });
-    }
-
-    // 20221122 FEAT
-    public void deleteOne(ProductOptionEntity optionEntity) {
-        productOptionRepository.delete(optionEntity);
-    }
-
-    public void deleteBatch(List<UUID> ids) {
-        productOptionRepository.deleteBatch(ids);
     }
 
     /**
@@ -277,18 +191,6 @@ public class ProductOptionService {
     /**
      * <b>DB Select Related Method</b>
      * <p>
-     * 모든 option, option과 Many To One JOIN(m2oj) 연관관계에 놓여있는 product, user, category를 함께 조회한다.
-     *
-     * @return List::ProductOptionProj::
-     * @see ProductOptionRepository#qfindAllM2OJ
-     */
-    public List<ProductOptionProj> qfindAllM2OJ() {
-        return productOptionRepository.qfindAllM2OJ();
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
      * startDate, endDate 날짜 사이의 판매랭킹 데이터를 모두 조회한다.
      * (네이버, 쿠팡, 피아르 erp)
      * 
@@ -304,7 +206,7 @@ public class ProductOptionService {
         return productOptionRepository.qfindStockAnalysis();
     }
 
-    public List<ProductOptionStockCycleDto> searchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
-        return productOptionCustomJdbc.searchStockStatusByWeek(searchEndDate, productCid);
+    public List<ProductOptionStockCycleDto> jdSearchStockStatusByWeek(LocalDateTime searchEndDate, Integer productCid) {
+        return productOptionCustomJdbc.jdSearchStockStatusByWeek(searchEndDate, productCid);
     }
 }

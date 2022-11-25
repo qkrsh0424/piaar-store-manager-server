@@ -48,7 +48,7 @@ public class ErpOrderItemBusinessServiceV2 {
         return itemVos;
     }
 
-    // 대시보드 에서 사용. 페이징 처리하지 않는
+    // ERP 대시보드에서 사용. 페이징 처리하지 않는
     @Transactional(readOnly = true)
     public List<ErpOrderItemVo.ManyToOneJoin> searchAll(Map<String, Object> params) {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
