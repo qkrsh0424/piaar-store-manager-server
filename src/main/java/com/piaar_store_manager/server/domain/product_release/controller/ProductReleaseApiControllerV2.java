@@ -32,7 +32,7 @@ public class ProductReleaseApiControllerV2 {
     private final ProductReleaseBusinessServiceV2 productReleaseBusinessService;
 
     /**
-     * Create list api for release.
+     * Create list api for product release.
      * <p>
      * <b>POST : API URL => /api/v2/product-release/batch</b>
      */
@@ -49,6 +49,11 @@ public class ProductReleaseApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search list api for product release.
+     * <p>
+     * <b>POST : API URL => /api/v2/product-release/batch</b>
+     */
     @PostMapping("/batch/status")
     public ResponseEntity<?> searchBatchByOptionIds(@RequestParam Map<String, Object> params, @RequestBody List<UUID> optionIds) {
         Message message = new Message();
@@ -61,7 +66,7 @@ public class ProductReleaseApiControllerV2 {
     }
 
     /**
-     * Patch one api for release
+     * Patch one api for product release
      * <p>
      * <b>PATCH : API URL => /api/v2/product-release</b>
      */

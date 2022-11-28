@@ -37,11 +37,11 @@ public class ProductReleaseBusinessServiceV2 {
         releaseDtos.forEach(releaseDto -> ProductReleaseGetDto.removeBlank(releaseDto));
         List<UUID> optionIds = releaseDtos.stream().map(ProductReleaseGetDto::getProductOptionId).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByIds(optionIds);
-        AtomicInteger count = new AtomicInteger();
         
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
-
+        
+        AtomicInteger count = new AtomicInteger();
         // 일반 옵션 반영
         count.addAndGet(this.createOriginOption(releaseDtos, originOptionEntities));
         // 세트상품 옵션 반영

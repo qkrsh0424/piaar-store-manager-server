@@ -32,9 +32,9 @@ public class ProductReceiveApiControllerV2 {
     private final ProductReceiveBusinessServiceV2 productReceiveBusinessService;
 
     /**
-     * Create list api for receive.
+     * Create list api for product receive.
      * <p>
-     * <b>POST : API URL => /api/v1/product-receive/list</b>
+     * <b>POST : API URL => /api/v1/product-receive/batch</b>
      */
     @PostMapping("/batch")
     @PermissionRole
@@ -49,6 +49,11 @@ public class ProductReceiveApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Search list api for product receive.
+     * <p>
+     * <b>POST : API URL => /api/v1/product-receive/batch/status</b>
+     */
     @PostMapping("/batch/status")
     public ResponseEntity<?> searchBatchByOptionIds(@RequestParam Map<String, Object> params, @RequestBody List<UUID> optionIds) {
         Message message = new Message();
@@ -60,6 +65,11 @@ public class ProductReceiveApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    /**
+     * Patch one api for product receive.
+     * <p>
+     * <b>PATCH : API URL => /api/v1/product-receive</b>
+     */
     @PatchMapping("")
     @PermissionRole
     public ResponseEntity<?> patchOne(@RequestBody ProductReceiveGetDto productReceiveGetDto) {

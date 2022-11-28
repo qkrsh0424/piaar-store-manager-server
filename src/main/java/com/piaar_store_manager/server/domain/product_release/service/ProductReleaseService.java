@@ -22,16 +22,6 @@ public class ProductReleaseService {
     private final ProductReleaseRepository productReleaseRepository;
     private final ProductReleaseCustomJdbc productReleaseCustomJdbc;
 
-    public ProductReleaseEntity searchOne(Integer productReleaseCid) {
-        Optional<ProductReleaseEntity> releaseEntityOpt = productReleaseRepository.findById(productReleaseCid);
-
-        if (releaseEntityOpt.isPresent()) {
-            return releaseEntityOpt.get();
-        } else {
-            throw new CustomNotFoundDataException("데이터를 찾을 수 없습니다.");
-        }
-    }
-
     public ProductReleaseEntity searchOne(UUID releaseId) {
         Optional<ProductReleaseEntity> entityOpt = productReleaseRepository.findById(releaseId);
 
@@ -46,36 +36,6 @@ public class ProductReleaseService {
         List<ProductReleaseEntity> releaseEntities = productReleaseRepository.findByErpOrderItemId(erpOrderItemId);
 
         return releaseEntities.stream().findFirst().get();
-    }
-
-    public List<ProductReleaseEntity> searchList() {
-        return productReleaseRepository.findAll();
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * ProductOptionCid 값과 상응되는 release 데이터를 모두 조회한다.
-     *
-     * @param productOptionCid : Integer
-     * @return List::ProductReleaseEntity
-     * @see ProductReleaseRepository#findByProductOptionCid
-     */
-    public List<ProductReleaseEntity> searchListByOptionCid(Integer productOptionCid) {
-        return productReleaseRepository.findByProductOptionCid(productOptionCid);
-    }
-
-    /**
-     * <b>DB Select Related Method</b>
-     * <p>
-     * 다중 cid값에 대응되는 release 데이터를 모두 조회한다.
-     *
-     * @param cids : List::Integer::
-     * @return List::ProductReleaseEntity
-     * @see ProductReleaseRepository#selectAllByCid
-     */
-    public List<ProductReleaseEntity> searchListByCid(List<Integer> cids) {
-        return productReleaseRepository.selectAllByCid(cids);
     }
 
     public void saveAndModify(ProductReleaseEntity entity) {
@@ -94,18 +54,10 @@ public class ProductReleaseService {
     }
 
     public void bulkInsert(List<ProductReleaseEntity> entities){
-        // access check
-        // userService.userLoginCheck();
-        // userService.userManagerRoleCheck();
-        
         productReleaseCustomJdbc.jdbcBulkInsert(entities);
     }
 
     public void deleteByErpOrderItemIds(List<UUID> erpOrderItemIds){
-        // access check
-        // userService.userLoginCheck();
-        // userService.userManagerRoleCheck();
-        
         productReleaseRepository.deleteByErpOrderItemIds(erpOrderItemIds);
     }
 

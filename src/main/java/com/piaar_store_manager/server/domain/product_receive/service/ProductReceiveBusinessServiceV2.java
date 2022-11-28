@@ -33,21 +33,22 @@ public class ProductReceiveBusinessServiceV2 {
     @Transactional
     public Integer createBatch(List<ProductReceiveGetDto> receiveDtos) {
         receiveDtos.forEach(receiveDto -> ProductReceiveGetDto.removeBlank(receiveDto));
+
         List<UUID> optionIds = receiveDtos.stream().map(ProductReceiveGetDto::getProductOptionId).collect(Collectors.toList());
         List<ProductOptionEntity> optionEntities = productOptionService.searchListByIds(optionIds);
-        AtomicInteger count = new AtomicInteger();
         
         List<ProductOptionEntity> originOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("n")).collect(Collectors.toList());
         List<ProductOptionEntity> parentOptionEntities = optionEntities.stream().filter(r -> r.getPackageYn().equals("y")).collect(Collectors.toList());
-
+        
+        AtomicInteger count = new AtomicInteger();
         // 일반 옵션 반영
-        count.addAndGet(this.createOriginOption(receiveDtos, originOptionEntities));
+        count.addAndGet(this.createOriginOptionReceiveData(receiveDtos, originOptionEntities));
         // 세트상품 옵션 반영
-        count.addAndGet(this.createParentOption(receiveDtos, parentOptionEntities));
+        count.addAndGet(this.createParentOptionReceiveData(receiveDtos, parentOptionEntities));
         return count.get();       
     }
 
-    public int createOriginOption(List<ProductReceiveGetDto> receiveDtos, List<ProductOptionEntity> originOptionEntities) {
+    public int createOriginOptionReceiveData(List<ProductReceiveGetDto> receiveDtos, List<ProductOptionEntity> originOptionEntities) {
         UUID USER_ID = userService.getUserId();
         List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
@@ -75,7 +76,7 @@ public class ProductReceiveBusinessServiceV2 {
         return count.get();
     }
 
-    public int createParentOption(List<ProductReceiveGetDto> receiveDtos, List<ProductOptionEntity> parentOptionEntities) {
+    public int createParentOptionReceiveData(List<ProductReceiveGetDto> receiveDtos, List<ProductOptionEntity> parentOptionEntities) {
         UUID USER_ID = userService.getUserId();
         List<ProductReceiveEntity> receiveEntities = new ArrayList<>();
         AtomicInteger count = new AtomicInteger();
