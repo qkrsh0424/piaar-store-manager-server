@@ -92,6 +92,26 @@ public class ProductOptionService {
         return productOptionGetDtos;
     }
 
+    // 221125 FEAT
+    // 221128 RE FEAT
+    // public List<ProductOptionGetDto> searchBatchByOptionCodes(List<String> optionCodes) {
+    //     List<ProductOptionEntity> entities = productOptionRepository.selectListByCodes(optionCodes);
+    //     List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
+    //     List<ProductOptionGetDto> productOptionGetDtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
+
+    //     List<ReceiveReleaseSumOnlyDto> stockUnitByOption = this.sumStockUnit(productOptionCids);
+
+    //     for(ProductOptionGetDto dto : productOptionGetDtos) {
+    //         stockUnitByOption.stream().forEach(r -> {
+    //             if(dto.getCid().equals(r.getOptionCid())){
+    //                 dto.setReceivedSumUnit(r.getReceivedSum()).setReleasedSumUnit(r.getReleasedSum())
+    //                     .setStockSumUnit(r.getReceivedSum() - r.getReleasedSum());
+    //             }
+    //         });
+    //     }
+    //     return productOptionGetDtos;
+    // }
+
     /**
      * <b>DB Select Related Method</b>
      * <p>

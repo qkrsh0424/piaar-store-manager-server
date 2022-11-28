@@ -9,5 +9,5 @@ import java.util.UUID;
 @Repository
 public interface OptionPackageRepositoryCustom {
     List<OptionPackageProjection.RelatedProductAndOption> qfindBatchByParentOptionId(UUID parentOptionId);
-    List<OptionPackageProjection.RelatedProductAndOption> qfindBatchByParentOptionIds(List<UUID> parentOptionId);
+    List<OptionPackageProjection.RelatedProductAndOption> qfindBatchByParentOptionIds(List<UUID> parentOptionIds);
 }

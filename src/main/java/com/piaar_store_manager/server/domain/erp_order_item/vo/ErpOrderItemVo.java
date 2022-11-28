@@ -97,6 +97,9 @@ public class ErpOrderItemVo {
     private String optionManagementName;
     private String optionStockUnit;
     private String optionReleaseLocation;
+    
+    // 221125 생성
+    private String optionPackageYn;
 
     @Builder
     @Data
@@ -257,6 +260,7 @@ public class ErpOrderItemVo {
                 .optionDefaultName(proj.getProductOption() != null ? proj.getProductOption().getDefaultName() : "")
                 .optionManagementName(proj.getProductOption() != null ? proj.getProductOption().getManagementName() : "")
                 .optionReleaseLocation(proj.getProductOption() != null ? proj.getProductOption().getReleaseLocation() : "")
+                .optionPackageYn(proj.getProductOption() != null ? proj.getProductOption().getPackageYn() : "n")
                 .build();
 
         return itemVo;
