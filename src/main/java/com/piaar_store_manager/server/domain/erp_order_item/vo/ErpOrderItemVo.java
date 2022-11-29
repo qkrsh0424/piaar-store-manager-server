@@ -21,13 +21,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 import org.apache.poi.ss.usermodel.*;
 
 @Builder
-@Data
-@Accessors(chain = true)
+@Getter
+@Setter
+@ToString
+@Accessors(chain=true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class ErpOrderItemVo {

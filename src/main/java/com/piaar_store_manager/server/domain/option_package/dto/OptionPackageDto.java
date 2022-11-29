@@ -90,6 +90,10 @@ public class OptionPackageDto {
         private UUID updatedBy;
         private UUID parentOptionId;
 
+        // parent option code
+        @Setter
+        private String parentOptionCode;
+
         // origin option
         private String originOptionCode;
         private String originOptionDefaultName;

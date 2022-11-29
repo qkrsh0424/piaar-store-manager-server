@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.product_option.entity;
 
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
+import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.erp_return_item.proj.ErpReturnItemProj;
 import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 

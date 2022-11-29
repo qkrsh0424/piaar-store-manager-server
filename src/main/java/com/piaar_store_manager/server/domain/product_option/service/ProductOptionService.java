@@ -87,30 +87,10 @@ public class ProductOptionService {
      * @see ProductOptionService#searchStockUnit
      */
     public List<ProductOptionGetDto> searchListByOptionCodes(List<String> optionCodes) {
-        List<ProductOptionEntity> productOptionEntities = productOptionRepository.selectListByCodes(optionCodes);
-        List<ProductOptionGetDto> productOptionGetDtos = this.searchStockUnit(productOptionEntities);
-        return productOptionGetDtos;
+        List<ProductOptionEntity> entities = productOptionRepository.selectListByCodes(optionCodes);
+        List<ProductOptionGetDto> dtos = this.setOptionStockUnit(entities);
+        return dtos;
     }
-
-    // 221125 FEAT
-    // 221128 RE FEAT
-    // public List<ProductOptionGetDto> searchBatchByOptionCodes(List<String> optionCodes) {
-    //     List<ProductOptionEntity> entities = productOptionRepository.selectListByCodes(optionCodes);
-    //     List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
-    //     List<ProductOptionGetDto> productOptionGetDtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
-
-    //     List<ReceiveReleaseSumOnlyDto> stockUnitByOption = this.sumStockUnit(productOptionCids);
-
-    //     for(ProductOptionGetDto dto : productOptionGetDtos) {
-    //         stockUnitByOption.stream().forEach(r -> {
-    //             if(dto.getCid().equals(r.getOptionCid())){
-    //                 dto.setReceivedSumUnit(r.getReceivedSum()).setReleasedSumUnit(r.getReleasedSum())
-    //                     .setStockSumUnit(r.getReceivedSum() - r.getReleasedSum());
-    //             }
-    //         });
-    //     }
-    //     return productOptionGetDtos;
-    // }
 
     /**
      * <b>DB Select Related Method</b>
@@ -123,7 +103,7 @@ public class ProductOptionService {
      * @return List::ProductOptionGetDto::
      * @see ProductOptionService#sumStockUnit
      */
-    public List<ProductOptionGetDto> searchStockUnit(List<ProductOptionEntity> entities) {
+    public List<ProductOptionGetDto> setOptionStockUnit(List<ProductOptionEntity> entities) {
         List<Integer> productOptionCids = entities.stream().map(r -> r.getCid()).collect(Collectors.toList());
         List<ProductOptionGetDto> productOptionGetDtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());
 

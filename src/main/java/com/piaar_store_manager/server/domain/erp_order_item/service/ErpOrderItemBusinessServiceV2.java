@@ -1,9 +1,15 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
+import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpReleaseConfirmItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
+import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
+import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
+import com.piaar_store_manager.server.domain.option_package.service.OptionPackageService;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,6 +25,7 @@ import java.util.stream.Collectors;
 public class ErpOrderItemBusinessServiceV2 {
     private final ErpOrderItemService erpOrderItemService;
     private final ProductOptionService productOptionService;
+    private final OptionPackageService optionPackageService;
 
     /**
      * <b>DB Select Related Method</b>
@@ -97,7 +104,7 @@ public class ErpOrderItemBusinessServiceV2 {
 //    RE-OK
     @Transactional(readOnly = true)
     public Page<ErpOrderItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {
-        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";        // 기본값은 옵션관리코드로 지정
+        String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         Page<ErpOrderItemProj> itemPages = null;
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
@@ -113,6 +120,56 @@ public class ErpOrderItemBusinessServiceV2 {
         }
 
         return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
+    }
+
+    public List<ErpReleaseConfirmItemDto> searchReleaseConfirmPackageItem(List<ErpReleaseConfirmItemDto> packageReleaseItemDtos) {
+        /*
+         * PackageReleaseItemDtos의 code값을 추출해 세트옵션데이터를 조회
+         */
+        List<String> optionCodes = packageReleaseItemDtos.stream().map(dto -> dto.getCode()).collect(Collectors.toList());
+        List<ProductOptionGetDto> optionDtos = productOptionService.searchListByOptionCodes(optionCodes);
+        List<UUID> optionIds = optionDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
+
+        /*
+         * 추출된 세트상품 옵션의 id를 이용해 패키지상품을 조회
+         */
+        List<OptionPackageProjection.RelatedProductAndOption> packageProjs = optionPackageService.searchBatchByParentOptionIds(optionIds);
+        List<OptionPackageDto.RelatedOriginOption> packageDtos = packageProjs.stream().map(r -> OptionPackageDto.RelatedOriginOption.toDto(r)).collect(Collectors.toList());
+        
+        /* 
+         * 패키지상품의 parentOptionCode을 세팅
+         */
+        packageDtos.forEach(packageOption -> {
+            optionDtos.forEach(parentOption -> {
+                if(packageOption.getParentOptionId().equals(parentOption.getId())) {
+                    packageOption.setParentOptionCode(parentOption.getCode());
+                }
+            });
+        });
+
+        /*
+         * 세트상품의 각 구성품으로 생성한 ErpReleaseConfirmItemDto를 생성해 반환한다
+         */
+        List<ErpReleaseConfirmItemDto> releaseItemDtos = new ArrayList<>();
+        packageReleaseItemDtos.forEach(releaseItem -> {
+            packageDtos.forEach(packageDto -> {
+                if(releaseItem.getCode().equals(packageDto.getParentOptionCode())) {
+                    ErpReleaseConfirmItemDto dto = ErpReleaseConfirmItemDto.builder()
+                        .code(packageDto.getOriginOptionCode())
+                        .prodDefaultName(packageDto.getOriginProductDefaultName())
+                        .optionDefaultName(packageDto.getOriginOptionDefaultName())
+                        .unit(releaseItem.getUnit() * packageDto.getPackageUnit())
+                        .optionStockUnit(releaseItem.getOptionStockUnit())
+                        .optionPackageYn("n")
+                        .parentOptionCode(packageDto.getParentOptionCode())
+                        .build();
+
+                    releaseItemDtos.add(dto);
+                }
+            });
+        });
+
+        return releaseItemDtos;
     }
 
     /**
