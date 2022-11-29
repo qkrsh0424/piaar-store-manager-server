@@ -56,7 +56,7 @@ public class ErpReturnItemBusinessService {
      */
     @Transactional
     public void createErpReturnItemAndReturnProductImage(ErpReturnItemDto.CreateReq returnItemReqDto) {
-        ErpReturnItemDto returnItemDto = returnItemReqDto.getErpReturnItemDto();
+        ErpReturnItemDto returnItemDto = returnItemReqDto.getErpReturnItem();
 
         UUID USER_ID = userService.getUserId();
         ErpOrderItemEntity orderItemEntity = erpOrderItemService.searchOne(returnItemDto.getErpOrderItemId());
@@ -107,10 +107,10 @@ public class ErpReturnItemBusinessService {
 
         erpReturnItemService.saveAndModify(entity);
 
-        if (returnItemReqDto.getImageDtos() != null) {
+        if (returnItemReqDto.getReturnImages() != null) {
             // 반품 상품 이미지 등록
             UUID erpReturnItemId = entity.getId();
-            List<ReturnProductImageEntity> imageEntities = returnItemReqDto.getImageDtos().stream().map(dto -> {
+            List<ReturnProductImageEntity> imageEntities = returnItemReqDto.getReturnImages().stream().map(dto -> {
                 ReturnProductImageEntity imageEntity = ReturnProductImageEntity.builder()
                         .id(UUID.randomUUID())
                         .imageUrl(dto.getImageUrl())
