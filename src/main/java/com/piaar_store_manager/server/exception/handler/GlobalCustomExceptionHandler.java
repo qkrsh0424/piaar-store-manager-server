@@ -132,4 +132,16 @@ public class GlobalCustomExceptionHandler {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @ExceptionHandler({ CustomNotAllowedActionException.class })
+    public ResponseEntity<?> customNotAllowedActionExceptionHandler(CustomNotAllowedActionException e) {
+        log.error("ERROR STACKTRACE => {}", e.getStackTrace());
+
+        Message message = new Message();
+        message.setStatus(HttpStatus.BAD_REQUEST);
+        message.setMessage("not_allowed_action");
+        message.setMemo(e.getMessage());
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

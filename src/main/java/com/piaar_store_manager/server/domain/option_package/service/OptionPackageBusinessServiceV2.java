@@ -7,9 +7,12 @@ import java.util.stream.Collectors;
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.option_package.entity.OptionPackageEntity;
 import com.piaar_store_manager.server.domain.option_package.proj.OptionPackageProjection;
+import com.piaar_store_manager.server.domain.product_option.dto.ProductOptionGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.service.ProductOptionService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
+import com.piaar_store_manager.server.exception.CustomInvalidDataException;
+import com.piaar_store_manager.server.exception.CustomNotAllowedActionException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import org.springframework.stereotype.Service;
@@ -37,6 +40,18 @@ public class OptionPackageBusinessServiceV2 {
     public void deleteAndCreateBatch(UUID parentOptionId, List<OptionPackageDto> dtos) {
         UUID USER_ID = userService.getUserId();
         ProductOptionEntity optionEntity = productOptionService.searchOne(parentOptionId);
+        List<UUID> originOptionIds = dtos.stream().map(r -> r.getOriginOptionId()).collect(Collectors.toList());
+
+        /*
+         * 세트상품으로 구성된 옵션이 세트상품의 구성상품으로 등록하는 동작 제한
+         */
+        List<ProductOptionEntity> originOptionEntities = productOptionService.searchListByIds(originOptionIds);
+        List<ProductOptionGetDto> originOptionDtos = originOptionEntities.stream().map(r -> ProductOptionGetDto.toDto(r)).collect(Collectors.toList());
+        originOptionDtos.forEach(dto -> {
+            if(dto.getPackageYn().equals("y")) {
+                throw new CustomNotAllowedActionException("세트상품으로 구성된 옵션은 구성상품으로 등록할 수 없습니다.");
+            }
+        });
 
         // 옵션패키지 제거
         optionPackageService.deleteBatchByParentOptionId(optionEntity.getId());
