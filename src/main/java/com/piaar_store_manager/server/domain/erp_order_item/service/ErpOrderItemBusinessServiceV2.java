@@ -43,13 +43,22 @@ public class ErpOrderItemBusinessServiceV2 {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
 
         if(matchedCode.equals("optionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
-            itemVos = this.setOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setReleaseOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setOptionStockUnitForList(itemVos, optionEntities);
         }else if(matchedCode.equals("releaseOptionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJByReleaseItem(params);   // 페이징 처리 x
-            itemVos = this.setReleaseOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setReleaseOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setReleaseOptionStockUnitForList(itemVos, optionEntities);
         }
 
         return itemVos;
@@ -61,13 +70,22 @@ public class ErpOrderItemBusinessServiceV2 {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         List<ErpOrderItemVo.ManyToOneJoin> itemVos = new ArrayList<>();
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
 
         if(matchedCode.equals("optionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJ(params);       // 페이징 처리 x
-            itemVos = this.setOptionStockUnitAndToM2OJVos(itemProjs);
+            optionEntities = this.setOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setOptionStockUnitForM2OJList(itemVos, optionEntities);
         }else if(matchedCode.equals("releaseOptionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJByReleaseItem(params);   // 페이징 처리 x
-            itemVos = this.setReleaseOptionStockUnitAndToM2OJVos(itemProjs);
+            optionEntities = this.setReleaseOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setOptionStockUnitForM2OJList(itemVos, optionEntities);
         }
         // 등록된 모든 엑셀 데이터와 M2OJ 관계에 있는 데이터를 모두 조회한다
         // 옵션재고수량 추가 및 vos 변환
@@ -82,16 +100,24 @@ public class ErpOrderItemBusinessServiceV2 {
     @Transactional(readOnly = true)
     public List<ErpOrderItemVo> searchBatchByIds(List<UUID> ids, Map<String, Object> params) {
         String matchedCode = params.get("matchedCode") != null ? params.get("matchedCode").toString() : "releaseOptionCode";
-        // 등록된 모든 엑셀 데이터를 조회한다
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
 
         if(matchedCode.equals("optionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJ(ids, params);       // 페이징 처리 x
-            itemVos = this.setOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setOptionStockUnitForList(itemVos, optionEntities);
         } else if(matchedCode.equals("releaseOptionCode")) {
             itemProjs = erpOrderItemService.findAllM2OJByReleasedItem(ids, params); // 페이징 처리 x
-            itemVos = this.setReleaseOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setReleaseOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setReleaseOptionStockUnitForList(itemVos, optionEntities);
         }
         // 옵션재고수량 추가 및 vos 변환
         return itemVos;
@@ -108,15 +134,24 @@ public class ErpOrderItemBusinessServiceV2 {
         Page<ErpOrderItemProj> itemPages = null;
         List<ErpOrderItemProj> itemProjs = new ArrayList<>();
         List<ErpOrderItemVo> itemVos = new ArrayList<>();
+        List<ProductOptionEntity> optionEntities = new ArrayList<>();
 
         if(matchedCode.equals("optionCode")) {
             itemPages = erpOrderItemService.findAllM2OJByPage(params, pageable);
             itemProjs = itemPages.getContent();
-            itemVos = this.setOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+            
+            // 재고수량 세팅
+            ErpOrderItemVo.setOptionStockUnitForList(itemVos, optionEntities);
         }else if(matchedCode.equals("releaseOptionCode")) {
             itemPages = erpOrderItemService.findReleaseItemM2OJByPage(params, pageable);
             itemProjs = itemPages.getContent();
-            itemVos = this.setReleaseOptionStockUnitAndToVos(itemProjs);
+            optionEntities = this.setReleaseOptionStockUnit(itemProjs);
+            itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+
+            // 재고수량 세팅
+            ErpOrderItemVo.setReleaseOptionStockUnitForList(itemVos, optionEntities);
         }
 
         return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
@@ -124,9 +159,9 @@ public class ErpOrderItemBusinessServiceV2 {
 
     public List<ErpReleaseConfirmItemDto> searchReleaseConfirmPackageItem(List<ErpReleaseConfirmItemDto> packageReleaseItemDtos) {
         /*
-         * PackageReleaseItemDtos의 code값을 추출해 세트옵션데이터를 조회
+         * PackageReleaseItemDtos의 code값을 추출해 세트옵션의 id를 추출 (option package를 검색하기 위함. option pakcage에는 parentOptionId만을 참조하므로)
          */
-        List<String> optionCodes = packageReleaseItemDtos.stream().map(dto -> dto.getCode()).collect(Collectors.toList());
+        List<String> optionCodes = packageReleaseItemDtos.stream().map(ErpReleaseConfirmItemDto::getCode).collect(Collectors.toList());
         List<ProductOptionGetDto> optionDtos = productOptionService.searchListByOptionCodes(optionCodes);
         List<UUID> optionIds = optionDtos.stream().map(dto -> dto.getId()).collect(Collectors.toList());
 
@@ -134,11 +169,24 @@ public class ErpOrderItemBusinessServiceV2 {
          * 추출된 세트상품 옵션의 id를 이용해 패키지상품을 조회
          */
         List<OptionPackageProjection.RelatedProductAndOption> packageProjs = optionPackageService.searchBatchByParentOptionIds(optionIds);
-        List<OptionPackageDto.RelatedOriginOption> packageDtos = packageProjs.stream().map(r -> OptionPackageDto.RelatedOriginOption.toDto(r)).collect(Collectors.toList());
+        List<OptionPackageDto.RelatedOriginOption> packageDtos = packageProjs.stream().map(OptionPackageDto.RelatedOriginOption::toDto).collect(Collectors.toList());
         
         /* 
-         * 패키지상품의 parentOptionCode을 세팅
+        * 패키지상품의 parentOptionCode을 세팅
+        */
+        this.setOptionStockUnit(packageDtos, optionDtos);
+
+        /*
+         * 세트상품의 각 구성품으로 생성한 ErpReleaseConfirmItemDto를 반환한다
          */
+        List<ErpReleaseConfirmItemDto> releaseItemDtos = this.createPackageReleaseItem(packageReleaseItemDtos, packageDtos);
+        return releaseItemDtos;
+    }
+
+    /* 
+     * 패키지상품의 parentOptionCode을 세팅
+    */
+    private void setOptionStockUnit(List<OptionPackageDto.RelatedOriginOption> packageDtos, List<ProductOptionGetDto> optionDtos) {
         packageDtos.forEach(packageOption -> {
             optionDtos.forEach(parentOption -> {
                 if(packageOption.getParentOptionId().equals(parentOption.getId())) {
@@ -146,11 +194,14 @@ public class ErpOrderItemBusinessServiceV2 {
                 }
             });
         });
+    }
 
-        /*
-         * 세트상품의 각 구성품으로 생성한 ErpReleaseConfirmItemDto를 생성해 반환한다
-         */
+    /*
+     * 세트상품의 각 구성품으로 생성한 ErpReleaseConfirmItemDto를 반환한다
+    */
+    private List<ErpReleaseConfirmItemDto>  createPackageReleaseItem(List<ErpReleaseConfirmItemDto> packageReleaseItemDtos, List<OptionPackageDto.RelatedOriginOption> packageDtos) {
         List<ErpReleaseConfirmItemDto> releaseItemDtos = new ArrayList<>();
+
         packageReleaseItemDtos.forEach(releaseItem -> {
             packageDtos.forEach(packageDto -> {
                 if(releaseItem.getCode().equals(packageDto.getParentOptionCode())) {
@@ -172,6 +223,30 @@ public class ErpOrderItemBusinessServiceV2 {
         return releaseItemDtos;
     }
 
+    private List<ProductOptionEntity> setOptionStockUnit(List<ErpOrderItemProj> itemProjs) {
+        /*
+        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+         */
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+        /*
+        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+         */
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+        return optionEntities;
+    }
+
+    private List<ProductOptionEntity> setReleaseOptionStockUnit(List<ErpOrderItemProj> itemProjs) {
+        /*
+        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+         */
+        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+        /*
+        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+         */
+        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+        return optionEntities;
+    }
+
     /**
      * ErpOrderItemProjs => ErpOrderItemVos
      * proj -> vos 변환 및 재고 수량 셋
@@ -186,65 +261,65 @@ public class ErpOrderItemBusinessServiceV2 {
     ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
      */
 //    RE-OK
-    private List<ErpOrderItemVo> setOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
-        /*
-        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
-         */
-        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
-        /*
-        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
-         */
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
-        /*
-        ErpOrderItemProjs -> ErpOrderItemVos 변환
-         */
-        List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
-        /*
-        ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
-         */
-        ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
-        return erpOrderItemVos;
-    }
+    // private List<ErpOrderItemVo> setOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
+    //     /*
+    //     ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+    //      */
+    //     List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+    //     /*
+    //     옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+    //      */
+    //     productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+    //     /*
+    //     ErpOrderItemProjs -> ErpOrderItemVos 변환
+    //      */
+    //     List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+    //     /*
+    //     ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+    //      */
+    //     ErpOrderItemVo.setOptionStockUnitForList(erpOrderItemVos, optionEntities);
+    //     return erpOrderItemVos;
+    // }
 
-    private List<ErpOrderItemVo> setReleaseOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
-        /*
-        ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
-         */
-        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
-        /*
-        옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
-         */
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
-        /*
-        ErpOrderItemProjs -> ErpOrderItemVos 변환
-         */
-        List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
-        /*
-        ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
-         */
-        ErpOrderItemVo.setReleaseOptionStockUnitForList(erpOrderItemVos, optionEntities);
-        return erpOrderItemVos;
-    }
+    // private List<ErpOrderItemVo> setReleaseOptionStockUnitAndToVos(List<ErpOrderItemProj> itemProjs) {
+    //     /*
+    //     ErpOrderItemProj 에서 옵션 엔터티가 존재하는 것들만 리스트를 가져온다.
+    //      */
+    //     List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+    //     /*
+    //     옵션 엔터티 리스트에 received unit, released unit, stockSum unit 을 셋 해준다.
+    //      */
+    //     productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+    //     /*
+    //     ErpOrderItemProjs -> ErpOrderItemVos 변환
+    //      */
+    //     List<ErpOrderItemVo> erpOrderItemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+    //     /*
+    //     ErpOrderItemVos 에 옵션 재고 수량을 셋 해준다.
+    //      */
+    //     ErpOrderItemVo.setReleaseOptionStockUnitForList(erpOrderItemVos, optionEntities);
+    //     return erpOrderItemVos;
+    // }
 
-    private List<ErpOrderItemVo.ManyToOneJoin> setOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
-        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+    // private List<ErpOrderItemVo.ManyToOneJoin> setOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
+    //     List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
 
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+    //     productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
 
-        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
-        ErpOrderItemVo.setOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
+    //     List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+    //     ErpOrderItemVo.setOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
 
-        return erpOrderItemM2OJVos;
-    }
+    //     return erpOrderItemM2OJVos;
+    // }
 
-    private List<ErpOrderItemVo.ManyToOneJoin> setReleaseOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
-        List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
+    // private List<ErpOrderItemVo.ManyToOneJoin> setReleaseOptionStockUnitAndToM2OJVos(List<ErpOrderItemProj> itemProjs) {
+    //     List<ProductOptionEntity> optionEntities = ProductOptionEntity.getExistList(itemProjs);
 
-        productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
+    //     productOptionService.setReceivedAndReleasedAndStockSum(optionEntities);
 
-        List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
-        ErpOrderItemVo.setReleaseOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
+    //     List<ErpOrderItemVo.ManyToOneJoin> erpOrderItemM2OJVos = itemProjs.stream().map(ErpOrderItemVo.ManyToOneJoin::toVo).collect(Collectors.toList());
+    //     ErpOrderItemVo.setReleaseOptionStockUnitForM2OJList(erpOrderItemM2OJVos, optionEntities);
 
-        return erpOrderItemM2OJVos;
-    }
+    //     return erpOrderItemM2OJVos;
+    // }
 }
