@@ -109,7 +109,7 @@ public class ErpReturnItemBusinessService {
         }
 
         erpReturnItemService.saveAndModify(entity);
-        returnProductImageService.saveListAndModify(imageEntities);
+        returnProductImageService.bulkInsert(imageEntities);
     }
 
     /*
