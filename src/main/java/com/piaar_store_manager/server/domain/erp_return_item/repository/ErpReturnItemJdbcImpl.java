@@ -42,7 +42,7 @@ public class ErpReturnItemJdbcImpl implements ErpReturnItemCustomJdbc {
                 "VALUES" + 
                 "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
                 " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?," +
-                " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " ?, ?, ?, ?, ?, ?, ?, ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override

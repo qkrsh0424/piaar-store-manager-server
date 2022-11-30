@@ -653,6 +653,25 @@ public class ErpOrderItemBusinessService {
         }
     }
 
+    // TODO :: param사용하는 방법으로 변경하자
+    @Transactional
+    public void changeBatchForReturnYn(List<ErpOrderItemDto> itemDtos) {
+        List<UUID> orderIds = itemDtos.stream().map(ErpOrderItemDto::getId).collect(Collectors.toList());
+        List<ErpOrderItemEntity> entities = erpOrderItemService.searchBatchByIds(orderIds);
+
+        itemDtos.forEach(dto -> {
+            entities.forEach(entity -> {
+                if(dto.getId().equals(entity.getId())) {
+                    if(dto.getReturnYn().equals("n")) {
+                        entity.setReturnYn("n");
+                    }else {
+                        entity.setReturnYn("y");
+                    }
+                }
+            });
+        });
+    }
+
     /**
      * <b>Data Delete Related Method</b>
      * <p>

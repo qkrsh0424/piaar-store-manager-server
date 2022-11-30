@@ -30,6 +30,7 @@ import com.piaar_store_manager.server.domain.product_receive.entity.ProductRecei
 import com.piaar_store_manager.server.domain.product_receive.service.ProductReceiveService;
 import com.piaar_store_manager.server.domain.product_release.entity.ProductReleaseEntity;
 import com.piaar_store_manager.server.domain.product_release.service.ProductReleaseService;
+import com.piaar_store_manager.server.domain.return_product_image.dto.ReturnProductImageDto;
 import com.piaar_store_manager.server.domain.return_product_image.entity.ReturnProductImageEntity;
 import com.piaar_store_manager.server.domain.return_product_image.service.ReturnProductImageService;
 import com.piaar_store_manager.server.domain.user.service.UserService;
@@ -57,6 +58,8 @@ public class ErpReturnItemBusinessService {
     @Transactional
     public void createErpReturnItemAndReturnProductImage(ErpReturnItemDto.CreateReq returnItemReqDto) {
         ErpReturnItemDto returnItemDto = returnItemReqDto.getErpReturnItem();
+        List<ReturnProductImageDto> returnProductImageDtos = returnItemReqDto.getReturnImages();
+        List<ReturnProductImageEntity> imageEntities = new ArrayList<>();
 
         UUID USER_ID = userService.getUserId();
         ErpOrderItemEntity orderItemEntity = erpOrderItemService.searchOne(returnItemDto.getErpOrderItemId());
@@ -68,10 +71,6 @@ public class ErpReturnItemBusinessService {
 
         if (orderItemEntity.getReturnYn().equals("y")) {
             throw new CustomInvalidDataException("이미 반품접수된 상품입니다.");
-        }
-
-        if (returnItemDto.getReturnReasonType() == null || returnItemDto.getReturnReasonType().isBlank()) {
-            throw new CustomInvalidDataException("반품 요청 사유는 필수값입니다.");
         }
 
         // 반품 데이터 생성
@@ -105,27 +104,110 @@ public class ErpReturnItemBusinessService {
                 .erpOrderItemId(returnItemDto.getErpOrderItemId())
                 .build();
 
-        erpReturnItemService.saveAndModify(entity);
-
-        if (returnItemReqDto.getReturnImages() != null) {
-            // 반품 상품 이미지 등록
-            UUID erpReturnItemId = entity.getId();
-            List<ReturnProductImageEntity> imageEntities = returnItemReqDto.getReturnImages().stream().map(dto -> {
-                ReturnProductImageEntity imageEntity = ReturnProductImageEntity.builder()
-                        .id(UUID.randomUUID())
-                        .imageUrl(dto.getImageUrl())
-                        .imageFileName(dto.getImageFileName())
-                        .createdAt(LocalDateTime.now())
-                        .createdBy(USER_ID)
-                        .productOptionId(dto.getProductOptionId())
-                        .erpReturnItemId(erpReturnItemId)
-                        .build();
-
-                return imageEntity;
-            }).collect(Collectors.toList());
-
-            returnProductImageService.saveListAndModify(imageEntities);
+        if(returnProductImageDtos != null) {
+            imageEntities.addAll(this.createProductReturnImages(returnProductImageDtos, entity));
         }
+
+        erpReturnItemService.saveAndModify(entity);
+        returnProductImageService.saveListAndModify(imageEntities);
+    }
+
+    /*
+     * 반품 데이터는 직접 등록이 존재하지 않는다. erp 출고데이터 -> 반품데이터 생성.
+     * 반품 데이터 다중 생성
+     */
+    @Transactional
+    public void createBatchErpReturnItemAndReturnProductImage(List<ErpReturnItemDto.CreateReq> returnItemReqDtos) {
+        UUID USER_ID = userService.getUserId();
+        // 최종 저장될 erp return item과 return product image
+        List<ErpReturnItemEntity> returnItemEntities = new ArrayList<>();
+        List<ReturnProductImageEntity> imageEntities = new ArrayList<>();
+
+        // erpOrderItem 조회, 재고 미반영데이터 & 반품 여부 검사
+        this.checkErpOrderItemField(returnItemReqDtos);
+
+        returnItemReqDtos.forEach(reqDto -> {
+            // 요청된 erp return item과 return product image
+            ErpReturnItemDto returnItemDto = reqDto.getErpReturnItem();
+            List<ReturnProductImageDto> returnProductImageDtos = reqDto.getReturnImages();
+
+            // 반품 데이터 생성
+            ErpReturnItemEntity entity = ErpReturnItemEntity.builder()
+                .id(UUID.randomUUID())
+                .waybillNumber(returnItemDto.getWaybillNumber())
+                .courier(returnItemDto.getCourier())
+                .transportType(returnItemDto.getTransportType())
+                .deliveryChargeReturnType(returnItemDto.getDeliveryChargeReturnType())
+                .deliveryChargeReturnYn(returnItemDto.getDeliveryChargeReturnYn())
+                .receiveLocation(returnItemDto.getReceiveLocation())
+                .returnReasonType(returnItemDto.getReturnReasonType())
+                .returnReasonDetail(returnItemDto.getReturnReasonDetail())
+                .managementMemo1(returnItemDto.getManagementMemo1())
+                .managementMemo2(returnItemDto.getManagementMemo2())
+                .managementMemo3(returnItemDto.getManagementMemo3())
+                .managementMemo4(returnItemDto.getManagementMemo4())
+                .managementMemo5(returnItemDto.getManagementMemo5())
+                .createdAt(LocalDateTime.now())
+                .createdBy(USER_ID)
+                .collectYn("n")
+                .collectAt(returnItemDto.getCollectAt())
+                .collectCompleteYn("n")
+                .collectCompleteAt(returnItemDto.getCollectCompleteAt())
+                .returnCompleteYn("n")
+                .returnCompleteAt(returnItemDto.getReturnCompleteAt())
+                .returnRejectYn("n")
+                .returnRejectAt(returnItemDto.getReturnRejectAt())
+                .defectiveYn("n")
+                .stockReflectYn("n")
+                .erpOrderItemId(returnItemDto.getErpOrderItemId())
+                .build();
+
+            returnItemEntities.add(entity);
+            // 반품 이미지 생성
+            if(returnProductImageDtos != null) {
+                imageEntities.addAll(this.createProductReturnImages(returnProductImageDtos, entity));
+            }
+        });
+
+        erpReturnItemService.bulkInsert(returnItemEntities);
+        returnProductImageService.bulkInsert(imageEntities);
+    }
+
+    private void checkErpOrderItemField(List<ErpReturnItemDto.CreateReq> returnItemReqDtos) {
+        List<UUID> orderItemIds = returnItemReqDtos.stream().map(reqDto -> reqDto.getErpReturnItem().getErpOrderItemId()).collect(Collectors.toList());
+        List<ErpOrderItemEntity> orderItemEntities = erpOrderItemService.searchBatchByIds(orderItemIds);
+        
+        // erpOrderItem 조회, 재고 미반영데이터, 반품 검사
+        orderItemEntities.forEach(entity -> {
+            if (entity.getStockReflectYn().equals("n")) {
+                throw new CustomInvalidDataException("재고 미반영 데이터는 반품데이터로 설정할 수 없습니다.");
+            }
+            if (entity.getReturnYn().equals("y")) {
+                throw new CustomInvalidDataException("이미 반품접수된 상품입니다.");
+            }
+        });
+    }
+    
+    // 이걸 returnProductImage에 빼야하나?
+    private List<ReturnProductImageEntity> createProductReturnImages(List<ReturnProductImageDto> imageDtos, ErpReturnItemEntity returnItemEntity) {
+        UUID USER_ID = userService.getUserId();
+
+        // 반품 상품 이미지 등록
+        List<ReturnProductImageEntity> imageEntities = imageDtos.stream().map(dto -> {
+            ReturnProductImageEntity imageEntity = ReturnProductImageEntity.builder()
+                    .id(UUID.randomUUID())
+                    .imageUrl(dto.getImageUrl())
+                    .imageFileName(dto.getImageFileName())
+                    .createdAt(LocalDateTime.now())
+                    .createdBy(USER_ID)
+                    .productOptionId(dto.getProductOptionId())
+                    .erpReturnItemId(returnItemEntity.getId())
+                    .build();
+
+            return imageEntity;
+        }).collect(Collectors.toList());
+
+        return imageEntities;
     }
 
     public Page<ErpReturnItemVo> searchBatchByPaging(Map<String, Object> params, Pageable pageable) {

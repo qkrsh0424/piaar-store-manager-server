@@ -36,10 +36,23 @@ public class ErpReturnItemSocket {
 
     @PostMapping("/return-product-image")
     @PermissionRole
-    public void createErpReturnItemAndReturnProductImage(@RequestBody @Valid ErpReturnItemDto.CreateReq itemDto) {
+    public void createOne(@RequestBody @Valid ErpReturnItemDto.CreateReq itemDto) {
         Message message = new Message();
 
         erpReturnItemBusinessService.createErpReturnItemAndReturnProductImage(itemDto);
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+        message.setSocketMemo("[반품 접수] 에 추가된 데이터가 있습니다.");
+
+        messagingTemplate.convertAndSend("/topic/erp.erp-return-item", message);
+    }
+
+    @PostMapping("/batch/return-product-image")
+    @PermissionRole
+    public void createBatch(@RequestBody @Valid List<ErpReturnItemDto.CreateReq> itemDtos) {
+        Message message = new Message();
+
+        erpReturnItemBusinessService.createBatchErpReturnItemAndReturnProductImage(itemDtos);
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
         message.setSocketMemo("[반품 접수] 에 추가된 데이터가 있습니다.");

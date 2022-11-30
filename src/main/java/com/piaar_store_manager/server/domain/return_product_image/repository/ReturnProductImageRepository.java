@@ -12,6 +12,5 @@ import com.piaar_store_manager.server.domain.return_product_image.entity.ReturnP
 @Repository
 public interface ReturnProductImageRepository extends JpaRepository<ReturnProductImageEntity, Integer> {
     List<ReturnProductImageEntity> findByErpReturnItemId(UUID erpReturnItemId);
-
     Optional<ReturnProductImageEntity> findById(UUID id);
 }

@@ -17,6 +17,12 @@ public interface ErpOrderItemRepository extends JpaRepository<ErpOrderItemEntity
     Optional<ErpOrderItemEntity> findById(UUID id);
 
     @Query(
+        "SELECT item FROM ErpOrderItemEntity item\n" +
+        "WHERE item.id IN :ids"
+    )
+    List<ErpOrderItemEntity> findListByIds(List<UUID> ids);
+
+    @Query(
         "SELECT item FROM ErpOrderItemEntity item\n" + 
         "WHERE (item.orderNumber1 IN :orderNumber1 AND item.receiver IN :receiver AND item.prodName IN :prodName AND item.optionName IN :optionName AND item.unit IN :unit)"
     )

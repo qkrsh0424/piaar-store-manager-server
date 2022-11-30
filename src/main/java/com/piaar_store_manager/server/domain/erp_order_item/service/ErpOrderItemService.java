@@ -147,6 +147,10 @@ public class ErpOrderItemService {
         }
     }
 
+    public List<ErpOrderItemEntity> searchBatchByIds(List<UUID> ids) {
+        return erpOrderItemRepository.findListByIds(ids);
+    }
+
     public List<ErpOrderItemEntity> findDuplicationItems(List<String> orderNumber1, List<String> receiver, List<String> prodName, List<String> optionName, List<Integer> unit) {
         return erpOrderItemRepository.findDuplicationItems(orderNumber1, receiver, prodName, optionName, unit);
     }
