@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -69,6 +70,11 @@ public class CustomDateUtils {
 
     public static LocalDateTime toUtc(final LocalDateTime time) {
         return CustomDateUtils.toUtc(time, ZoneId.of("Asia/Seoul"));
+    }
+
+    // TODO :: 판매성과 날짜변환 - 배포 후 확인
+    public static LocalDateTime toLocalDateStartTime(final LocalDate date) {
+        return date.atStartOfDay(ZoneId.systemDefault()).toLocalDateTime();
     }
 
     public static boolean isValidDate(String inDate, String pattern) {
