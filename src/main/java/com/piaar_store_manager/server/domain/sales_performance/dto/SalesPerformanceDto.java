@@ -1,14 +1,8 @@
 package com.piaar_store_manager.server.domain.sales_performance.dto;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.jdbc.core.RowMapper;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -34,10 +28,10 @@ public class SalesPerformanceDto {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime datetime;
 
-        private Long orderRegistration;
+        private Integer orderRegistration;
         private Integer orderPayAmount;
 
-        private Long salesRegistration;
+        private Integer salesRegistration;
         private Integer salesPayAmount;
 
         public static Dashboard toDto(SalesPerformanceProjection.Dashboard proj) {

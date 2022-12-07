@@ -1,36 +1,23 @@
 package com.piaar_store_manager.server.domain.sales_performance.repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.hibernate.criterion.Projection;
-import org.hibernate.loader.custom.CustomQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.Dashboard;
-import com.querydsl.core.QueryResults;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ConstantImpl;
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringTemplate;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 @Repository
@@ -69,12 +56,15 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                     Projections.fields(
                         Dashboard.class,
                         dateformatted().as("datetime"),
-                        qErpOrderItemEntity.cid.count().as("orderRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                            .then(1)
+                            .otherwise(0)
+                        ).sum().as("orderRegistration"),
                         (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
                         (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.cid)
+                            .then(1)
                             .otherwise(0)
-                        ).count().as("salesRegistration"),
+                        ).sum().as("salesRegistration"),
                         (new CaseBuilder()
                             .when(qErpOrderItemEntity.salesYn.eq("y"))
                             .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))

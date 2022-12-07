@@ -10,10 +10,10 @@ public class SalesPerformanceProjection {
     public static class Dashboard {
         private String datetime;
 
-        private Long orderRegistration;
+        private Integer orderRegistration;
         private Integer orderPayAmount;
 
-        private Long salesRegistration;
+        private Integer salesRegistration;
         private Integer salesPayAmount;
     }
 }
