@@ -24,7 +24,6 @@ public class SalesPerformanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Dashboard {
-
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime datetime;
 
@@ -38,10 +37,36 @@ public class SalesPerformanceDto {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
             Dashboard dto = Dashboard.builder()
-                .datetime(CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)))
+                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
                 .orderRegistration(proj.getOrderRegistration())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesRegistration(proj.getSalesRegistration())
+                .salesPayAmount(proj.getSalesPayAmount())
+                .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PayAmount {
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime datetime;
+
+        private Integer orderPayAmount;
+        private Integer salesPayAmount;
+
+        public static PayAmount toDto(SalesPerformanceProjection.PayAmount proj) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            PayAmount dto = PayAmount.builder()
+                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
                 .build();
 

@@ -23,7 +23,7 @@ public class SalesPerformanceApiController {
     private final SalesPerformanceBusinessService salesPerformanceBusinessService;
 
     @GetMapping("/dashboard")
-    public ResponseEntity<?> searchDailyDashboard(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchDashboard(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchDashboard(params));
@@ -33,11 +33,22 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/dashboard/monthly")
-    public ResponseEntity<?> searchMonthlyDashboard() {
+    // @GetMapping("/dashboard/monthly")
+    // public ResponseEntity<?> searchMonthlyDashboard() {
+    //     Message message = new Message();
+
+    //     message.setData(salesPerformanceBusinessService.searchMonthlyDashboard());
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    @GetMapping("/total/pay-amount")
+    public ResponseEntity<?> searchTotalPayAmount(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchMonthlyDashboard());
+        message.setData(salesPerformanceBusinessService.searchTotalPayAmount(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

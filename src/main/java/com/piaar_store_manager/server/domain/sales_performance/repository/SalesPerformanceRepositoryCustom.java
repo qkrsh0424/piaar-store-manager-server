@@ -10,4 +10,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerform
 @Repository
 public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection.Dashboard> qSearchDashBoardByParams(Map<String, Object> params);
+    List<SalesPerformanceProjection.PayAmount> qSearchDailyPayAmountByParams(Map<String, Object> params);
+    List<SalesPerformanceProjection.PayAmount> qSearchWeeklyPayAmountByParams(Map<String, Object> params);
+    List<SalesPerformanceProjection.PayAmount> qSearchMonthlyPayAmountByParams(Map<String, Object> params);
 }

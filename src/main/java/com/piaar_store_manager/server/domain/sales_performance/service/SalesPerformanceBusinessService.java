@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.Dashboard;
+import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,9 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesPerformanceDto.Dashboard> searchMonthlyDashboard() {
-        return null;
+    public List<SalesPerformanceDto.PayAmount> searchTotalPayAmount(Map<String, Object> params) {
+        List<SalesPerformanceProjection.PayAmount> projs = salesPerformanceService.qSearchPayAmountByParams(params);
+        List<SalesPerformanceDto.PayAmount> dtos = projs.stream().map(proj -> PayAmount.toDto(proj)).collect(Collectors.toList());
+        return dtos;
     }
 }

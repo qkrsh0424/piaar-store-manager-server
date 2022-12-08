@@ -16,4 +16,13 @@ public class SalesPerformanceProjection {
         private Integer salesRegistration;
         private Integer salesPayAmount;
     }
+
+    @Getter
+    @ToString
+    public static class PayAmount {
+        private String datetime;
+
+        private Integer orderPayAmount;
+        private Integer salesPayAmount;
+    }
 }
