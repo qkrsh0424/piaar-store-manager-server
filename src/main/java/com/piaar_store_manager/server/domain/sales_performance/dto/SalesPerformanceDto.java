@@ -73,4 +73,34 @@ public class SalesPerformanceDto {
             return dto;
         }
     }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RegistrationAndUnit {
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime datetime;
+
+        private Integer orderRegistration;
+        private Integer orderUnit;
+        private Integer salesRegistration;
+        private Integer salesUnit;
+
+        public static RegistrationAndUnit toDto(SalesPerformanceProjection.RegistrationAndUnit proj) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            RegistrationAndUnit dto = RegistrationAndUnit.builder()
+                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .orderRegistration(proj.getOrderRegistration())
+                .orderUnit(proj.getOrderUnit())
+                .salesRegistration(proj.getSalesRegistration())
+                .salesUnit(proj.getSalesUnit())
+                .build();
+
+            return dto;
+        }
+    }
 }

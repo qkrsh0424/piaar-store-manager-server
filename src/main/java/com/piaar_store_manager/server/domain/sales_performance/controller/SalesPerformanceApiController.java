@@ -54,4 +54,15 @@ public class SalesPerformanceApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/total/registration-and-unit")
+    public ResponseEntity<?> searchTotalRegistrationAndUnit(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchTotalRegistrationAndUnit(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

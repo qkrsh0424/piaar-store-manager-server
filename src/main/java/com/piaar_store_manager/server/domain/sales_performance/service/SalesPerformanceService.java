@@ -39,4 +39,24 @@ public class SalesPerformanceService {
 
         return projs;
     }
+
+    public List<SalesPerformanceProjection.RegistrationAndUnit> qSearchRegistrationAndUnitByParams(Map<String, Object> params) {
+        String dimension = params.get("dimension") != null ? params.get("dimension").toString() : "date";
+
+        List<SalesPerformanceProjection.RegistrationAndUnit> projs = new ArrayList<>();
+        switch(dimension) {
+            case "date":
+                projs = salesPerformanceRepositoryCustom.qSearchDailyRegistrationAndUnitByParams(params);
+                break;
+            case "week":
+                // projs = salesPerformanceRepositoryCustom.qSearchWeeklyPayAmountByParams(params);
+                break;
+            case "month":
+                // projs = salesPerformanceRepositoryCustom.qSearchDailyPayAmountByParams(params);
+                break;
+            default: break;
+        }
+
+        return projs;
+    }
 }

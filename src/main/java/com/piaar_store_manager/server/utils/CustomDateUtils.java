@@ -88,6 +88,18 @@ public class CustomDateUtils {
         return true;
     }
 
+    /*
+     * startDate와 endDate의 일(date) 차이를 반환
+     */
+    public static long getDateDiff(LocalDate startDate, LocalDate endDate) throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        Date date1 = format.parse(startDate.toString());
+        Date date2 = format.parse(endDate.toString());
+
+        // 24*60*60*1000 : 하루
+        return (date2.getTime() - date1.getTime()) / (24*60*60*1000);
+    }
+
     /**
      * <p>@JsonDeserialize(using = CustomDateUtils.JsonLocalDateTimeBasicDeserializer.class)</p>
      * <p>private LocalDateTime example</p>
