@@ -103,4 +103,28 @@ public class SalesPerformanceDto {
             return dto;
         }
     }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SalesPayAmount {
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime datetime;
+
+        private Integer salesPayAmount;
+
+        public static SalesPayAmount toDto(SalesPerformanceProjection.SalesPayAmount proj) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            SalesPayAmount dto = SalesPayAmount.builder()
+                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .salesPayAmount(proj.getSalesPayAmount())
+                .build();
+
+            return dto;
+        }
+    }
 }

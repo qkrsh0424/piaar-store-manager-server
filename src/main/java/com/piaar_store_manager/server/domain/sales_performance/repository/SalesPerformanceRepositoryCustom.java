@@ -15,9 +15,12 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection.PayAmount> qSearchDailyPayAmountByParams(Map<String, Object> params);
     List<SalesPerformanceProjection.PayAmount> qSearchWeeklyPayAmountByParams(Map<String, Object> params);
     List<SalesPerformanceProjection.PayAmount> qSearchMonthlyPayAmountByParams(Map<String, Object> params);
-
+    
     // 총 판매건 & 수량
     List<SalesPerformanceProjection.RegistrationAndUnit> qSearchDailyRegistrationAndUnitByParams(Map<String, Object> params);
     List<SalesPerformanceProjection.RegistrationAndUnit> qSearchWeeklyRegistrationAndUnitByParams(Map<String, Object> params);
     List<SalesPerformanceProjection.RegistrationAndUnit> qSearchMonthlyRegistrationAndUnitByParams(Map<String, Object> params);
+    
+    // 판매 총 매출액
+    List<SalesPerformanceProjection.SalesPayAmount> qSearchSalesPayAmountByParams(Map<String, Object> params);
 }

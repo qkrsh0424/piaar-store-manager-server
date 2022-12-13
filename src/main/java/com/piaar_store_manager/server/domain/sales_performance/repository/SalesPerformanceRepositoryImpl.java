@@ -17,6 +17,7 @@ import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItem
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.Dashboard;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.RegistrationAndUnit;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.SalesPayAmount;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.querydsl.core.group.GroupBy;
@@ -181,7 +182,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         // 날짜 데이터 세팅
         List<RegistrationAndUnit> projs = this.getRegistrationAndUnitInitProjs(params);
 
-        List<RegistrationAndUnit> payAmountProjs = (List<RegistrationAndUnit>) query.from(qErpOrderItemEntity)
+        List<RegistrationAndUnit> registrationAndUnitProjs = (List<RegistrationAndUnit>) query.from(qErpOrderItemEntity)
             .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
             .groupBy(dateformatted("%Y-%m-%d"))
             .orderBy(dateformatted("%Y-%m-%d").asc())
@@ -211,20 +212,106 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 )
             );
 
-        this.updateRegistrationAndUnitProjs(projs, payAmountProjs);
+        this.updateRegistrationAndUnitProjs(projs, registrationAndUnitProjs);
+        return projs;
+    }
+
+    @Override
+    public List<RegistrationAndUnit> qSearchWeeklyRegistrationAndUnitByParams(Map<String, Object> params) {
+        // 날짜 데이터 세팅
+        List<RegistrationAndUnit> projs = this.getRegistrationAndUnitInitProjs(params);
+
+        List<RegistrationAndUnit> registrationAndUnitProjs = (List<RegistrationAndUnit>) query.from(qErpOrderItemEntity)
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .groupBy(weekformatted(7))
+            .orderBy(weekformatted(7).asc())
+            .transform(
+                GroupBy.groupBy(weekformatted(7))
+                .list(
+                    Projections.fields(
+                        RegistrationAndUnit.class,
+                        dateformatted("%Y-%m-%d").min().as("datetime"),
+                        weekformatted(7).as("weekNum"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                            .then(1)
+                            .otherwise(0)
+                        ).sum().as("orderRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("orderUnit"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(1)
+                            .otherwise(0)
+                        ).sum().as("salesRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("salesUnit")
+                    )
+                )
+            );
+
+        this.updateRegistrationAndUnitProjs(projs, registrationAndUnitProjs);
         return projs;
     }
 
     @Override
     public List<RegistrationAndUnit> qSearchMonthlyRegistrationAndUnitByParams(Map<String, Object> params) {
-        // TODO Auto-generated method stub
-        return null;
+        // 날짜 데이터 세팅
+        List<RegistrationAndUnit> projs = this.getRegistrationAndUnitInitProjs(params);
+
+        List<RegistrationAndUnit> registrationAndUnitProjs = (List<RegistrationAndUnit>) query.from(qErpOrderItemEntity)
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .groupBy(dateformatted("%Y-%m"))
+            .orderBy(dateformatted("%Y-%m").asc())
+            .transform(
+                GroupBy.groupBy(dateformatted("%Y-%m"))
+                .list(
+                    Projections.fields(
+                        RegistrationAndUnit.class,
+                        dateformatted("%Y-%m-%d").min().as("datetime"),
+                        dateformatted("%Y-%m").as("monthNum"),
+                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+                        (new CaseBuilder()
+                            .when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                            .otherwise(0)
+                        ).sum().as("salesPayAmount")
+                    )
+                )
+            );
+
+        this.updateRegistrationAndUnitProjs(projs, registrationAndUnitProjs);
+        return projs;
     }
 
     @Override
-    public List<RegistrationAndUnit> qSearchWeeklyRegistrationAndUnitByParams(Map<String, Object> params) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<SalesPayAmount> qSearchSalesPayAmountByParams(Map<String, Object> params) {
+        // 날짜 데이터 세팅
+        List<SalesPayAmount> projs = this.getSalesPayAmountInitProjs(params);
+
+        List<SalesPayAmount> payAmountProjs = (List<SalesPayAmount>) query.from(qErpOrderItemEntity)
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .groupBy(dateformatted("%Y-%m-%d"))
+            .orderBy(dateformatted("%Y-%m-%d").asc())
+            .transform(
+                GroupBy.groupBy(dateformatted("%Y-%m-%d"))
+                .list(
+                    Projections.fields(
+                        SalesPayAmount.class,
+                        dateformatted("%Y-%m-%d").as("datetime"),
+                        (new CaseBuilder()
+                            .when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                            .otherwise(0)
+                        ).sum().as("salesPayAmount")
+                    )
+                )
+            );
+
+        this.updateSalesPayAmountProjs(projs, payAmountProjs);
+        return projs;
     }
 
     private List<PayAmount> getPayAmountInitProjs(Map<String, Object> params) {
@@ -245,12 +332,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         try {
             datediff = CustomDateUtils.getDateDiff(startDate, endDate);
 
-            for(long i = 0; i < datediff; i++) {
+            for (long i = 0; i < datediff; i++) {
                 LocalDate datetime = startDate.plusDays(i);
-                if(dimension.equals("week")) {
-                    datetime = startDate.plusWeeks(i);
-                }else if(dimension.equals("month")) {
-                    datetime = startDate.plusMonths(i);
+                if(i != 0) {
+                    if (dimension.equals("week")) {
+                        datetime = CustomDateUtils.getFirstDateForWeek(startDate, i);
+                    } else if (dimension.equals("month")) {
+                        datetime = CustomDateUtils.getFirstDateForMonth(startDate, i);
+                    }
                 }
 
                 // 검색날짜가 범위에 벗어난다면 for문 탈출
@@ -303,10 +392,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
             for(long i = 0; i < datediff; i++) {
                 LocalDate datetime = startDate.plusDays(i);
-                if(dimension.equals("week")) {
-                    datetime = startDate.plusWeeks(i);
-                }else if(dimension.equals("month")) {
-                    datetime = startDate.plusMonths(i);
+                if(i != 0) {
+                    if (dimension.equals("week")) {
+                        datetime = CustomDateUtils.getFirstDateForWeek(startDate, i);
+                    } else if (dimension.equals("month")) {
+                        datetime = CustomDateUtils.getFirstDateForMonth(startDate, i);
+                    }
                 }
 
                 // 검색날짜가 범위에 벗어난다면 for문 탈출
@@ -372,6 +463,54 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             });
         });
     }
+
+    private List<SalesPayAmount> getSalesPayAmountInitProjs(Map<String, Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        long datediff = 0;
+
+        if (params.get("startDate") == null || params.get("endDate") == null) {
+            return null;
+        }
+
+        startDate = LocalDate.parse(params.get("startDate").toString(), formatter);
+        endDate = LocalDate.parse(params.get("endDate").toString(), formatter);
+
+        List<SalesPayAmount> projs = new ArrayList<>();
+        try {
+            datediff = CustomDateUtils.getDateDiff(startDate, endDate);
+
+            for (long i = 0; i < datediff; i++) {
+                LocalDate datetime = startDate.plusDays(i);
+
+                // 검색날짜가 범위에 벗어난다면 for문 탈출
+                if(datetime.isAfter(endDate)) {
+                    break;
+                }
+
+                SalesPayAmount proj = SalesPayAmount.builder()
+                        .datetime(datetime.toString())
+                        .salesPayAmount(0)
+                        .build();
+                projs.add(proj);
+            }
+        } catch (ParseException e) {
+            throw new CustomInvalidDataException("조회기간 데이터가 올바르지 않습니다.");
+        }
+
+        return projs;
+    }
+
+    private void updateSalesPayAmountProjs(List<SalesPayAmount> initProjs, List<SalesPayAmount> payAmountProjs) {
+        initProjs.forEach(r -> {
+            payAmountProjs.forEach(r2 -> {
+                if(r.getDatetime().equals(r2.getDatetime())) {
+                     r.setSalesPayAmount(r2.getSalesPayAmount());
+                }
+            });
+        });
+    }
     
     private BooleanExpression withinDateRange(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -388,7 +527,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         if (startDate.isAfter(endDate)) {
             throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
         }
-
 
         return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
     }

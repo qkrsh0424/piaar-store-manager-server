@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -98,6 +99,35 @@ public class CustomDateUtils {
 
         // 24*60*60*1000 : 하루
         return (date2.getTime() - date1.getTime()) / (24*60*60*1000);
+    }
+
+    // TODO :: 수정하자. startDate에서 plusWeek한 값을 파라미터로 넘겨주자
+    public static LocalDate getFirstDateForWeek(LocalDate startDate, long plusWeek) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        Calendar cal = Calendar.getInstance();
+        LocalDate localDate = startDate.plusWeeks(plusWeek);
+        ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
+        Instant instant = zonedDateTime.toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return LocalDate.parse(formatter.format(cal.getTime()));
+    }
+
+    public static LocalDate getFirstDateForMonth(LocalDate startDate, long plusMonth) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+        Calendar cal = Calendar.getInstance();
+        LocalDate localDate = startDate.plusMonths(plusMonth);
+        ZonedDateTime zonedDateTime = localDate.atStartOfDay(ZoneId.systemDefault());
+        Instant instant = zonedDateTime.toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        return LocalDate.parse(formatter.format(cal.getTime()));
     }
 
     /**

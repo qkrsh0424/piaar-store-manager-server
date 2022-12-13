@@ -62,4 +62,17 @@ public class SalesPerformanceProjection {
         @Setter
         private Integer salesUnit;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Accessors(chain = true)
+    public static class SalesPayAmount {
+        private String datetime;
+
+        @Setter
+        private Integer salesPayAmount;
+    }
 }

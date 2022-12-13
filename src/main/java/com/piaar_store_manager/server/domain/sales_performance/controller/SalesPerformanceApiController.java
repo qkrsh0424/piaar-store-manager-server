@@ -65,4 +65,15 @@ public class SalesPerformanceApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/day-of-week/pay-amount")
+    public ResponseEntity<?> searchPayAmountDayOfWeek(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchPayAmountDayOfWeek(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

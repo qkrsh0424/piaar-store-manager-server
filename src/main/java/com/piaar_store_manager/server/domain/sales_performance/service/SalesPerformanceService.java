@@ -32,7 +32,7 @@ public class SalesPerformanceService {
                 projs = salesPerformanceRepositoryCustom.qSearchWeeklyPayAmountByParams(params);
                 break;
             case "month":
-                projs = salesPerformanceRepositoryCustom.qSearchDailyPayAmountByParams(params);
+                projs = salesPerformanceRepositoryCustom.qSearchMonthlyPayAmountByParams(params);
                 break;
             default: break;
         }
@@ -49,14 +49,19 @@ public class SalesPerformanceService {
                 projs = salesPerformanceRepositoryCustom.qSearchDailyRegistrationAndUnitByParams(params);
                 break;
             case "week":
-                // projs = salesPerformanceRepositoryCustom.qSearchWeeklyPayAmountByParams(params);
+                projs = salesPerformanceRepositoryCustom.qSearchWeeklyRegistrationAndUnitByParams(params);
                 break;
             case "month":
-                // projs = salesPerformanceRepositoryCustom.qSearchDailyPayAmountByParams(params);
+                projs = salesPerformanceRepositoryCustom.qSearchMonthlyRegistrationAndUnitByParams(params);
                 break;
             default: break;
         }
 
+        return projs;
+    }
+
+    public List<SalesPerformanceProjection.SalesPayAmount> qSearchSalesPayAmountByParams(Map<String, Object> params) {
+        List<SalesPerformanceProjection.SalesPayAmount> projs = salesPerformanceRepositoryCustom.qSearchSalesPayAmountByParams(params);
         return projs;
     }
 }
