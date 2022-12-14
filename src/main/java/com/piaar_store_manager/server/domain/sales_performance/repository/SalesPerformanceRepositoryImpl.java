@@ -18,6 +18,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerform
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.RegistrationAndUnit;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.SalesPayAmount;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.SummaryTable;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.querydsl.core.group.GroupBy;
@@ -314,6 +315,50 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
+    @Override
+    public List<SummaryTable> qSearchSummaryTableByParams(Map<String, Object> params) {
+        List<SummaryTable> projs = this.getSummaryTableInitProjs(params);
+
+        List<SummaryTable> summaryProjs = (List<SummaryTable>) query.from(qErpOrderItemEntity)
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .groupBy(dateformatted("%Y-%m-%d"))
+            .orderBy(dateformatted("%Y-%m-%d").asc())
+            .transform(
+                GroupBy.groupBy(dateformatted("%Y-%m-%d"))
+                .list(
+                    Projections.fields(
+                        SummaryTable.class,
+                        dateformatted("%Y-%m-%d").as("datetime"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                            .then(1)
+                            .otherwise(0)
+                        ).sum().as("orderRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("orderUnit"),
+                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(1)
+                            .otherwise(0)
+                        ).sum().as("salesRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y").and(qErpOrderItemEntity.unit.isNotNull()))
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("salesUnit"),
+                        (new CaseBuilder()
+                            .when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                            .otherwise(0)
+                        ).sum().as("salesPayAmount")
+                    )
+                )
+            );
+
+        this.updateSummaryTableProjs(projs, summaryProjs);
+        return projs;
+    }
+
     private List<PayAmount> getPayAmountInitProjs(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDate startDate = null;
@@ -511,6 +556,64 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             });
         });
     }
+
+    private List<SummaryTable> getSummaryTableInitProjs(Map<String, Object> params) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        long datediff = 0;
+
+        if (params.get("startDate") == null || params.get("endDate") == null) {
+            return null;
+        }
+
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
+
+        List<SummaryTable> projs = new ArrayList<>();
+        try {
+            datediff = CustomDateUtils.getDateDiff(startDate, endDate);
+
+            for (long i = 0; i < datediff; i++) {
+                LocalDate datetime = startDate.plusDays(i);
+
+                // 검색날짜가 범위에 벗어난다면 for문 탈출
+                if(datetime.isAfter(endDate)) {
+                    break;
+                }
+
+                SummaryTable proj = SummaryTable.builder()
+                        .datetime(datetime.toString())
+                        .orderRegistration(0)
+                        .orderUnit(0)
+                        .orderPayAmount(0)
+                        .salesRegistration(0)
+                        .salesUnit(0)
+                        .salesPayAmount(0)
+                        .build();
+                projs.add(proj);
+            }
+        } catch (ParseException e) {
+            throw new CustomInvalidDataException("조회기간 데이터가 올바르지 않습니다.");
+        }
+
+        return projs;
+    }
+
+    private void updateSummaryTableProjs(List<SummaryTable> initProjs, List<SummaryTable> summaryProjs) {
+        initProjs.forEach(r -> {
+            summaryProjs.forEach(r2 -> {
+                if(r.getDatetime().equals(r2.getDatetime())) {
+                    r.setOrderRegistration(r2.getOrderRegistration())
+                     .setOrderUnit(r2.getOrderUnit())
+                     .setOrderPayAmount(r2.getOrderPayAmount())
+                     .setSalesRegistration(r2.getSalesRegistration())
+                     .setSalesUnit(r2.getSalesUnit())
+                     .setSalesPayAmount(r2.getSalesPayAmount());
+                }
+            });
+        });
+    }
     
     private BooleanExpression withinDateRange(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -521,8 +624,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9);
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
 
         if (startDate.isAfter(endDate)) {
             throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");

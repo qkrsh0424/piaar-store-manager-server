@@ -75,4 +75,27 @@ public class SalesPerformanceProjection {
         @Setter
         private Integer salesPayAmount;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Accessors(chain = true)
+    public static class SummaryTable {
+        private String datetime;
+
+        @Setter
+        private Integer orderRegistration;
+        @Setter
+        private Integer orderUnit;
+        @Setter
+        private Integer orderPayAmount;
+        @Setter
+        private Integer salesRegistration;
+        @Setter
+        private Integer salesUnit;
+        @Setter
+        private Integer salesPayAmount;
+    }
 }

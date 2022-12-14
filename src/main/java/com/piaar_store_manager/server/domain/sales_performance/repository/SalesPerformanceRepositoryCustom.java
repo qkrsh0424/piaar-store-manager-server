@@ -23,4 +23,7 @@ public interface SalesPerformanceRepositoryCustom {
     
     // 판매 총 매출액
     List<SalesPerformanceProjection.SalesPayAmount> qSearchSalesPayAmountByParams(Map<String, Object> params);
+
+    // 판매 매출 BEST
+    List<SalesPerformanceProjection.SummaryTable> qSearchSummaryTableByParams(Map<String, Object> params);
 }

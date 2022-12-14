@@ -113,7 +113,7 @@ public class SalesPerformanceDto {
     public static class SalesPayAmount {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime datetime;
-
+        
         private Integer salesPayAmount;
 
         public static SalesPayAmount toDto(SalesPerformanceProjection.SalesPayAmount proj) {
@@ -121,6 +121,41 @@ public class SalesPerformanceDto {
 
             SalesPayAmount dto = SalesPayAmount.builder()
                 .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .salesPayAmount(proj.getSalesPayAmount())
+                .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SummaryTable {
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        private LocalDateTime datetime;
+
+        private Integer orderRegistration;
+        private Integer orderUnit;
+        private Integer orderPayAmount;
+
+        private Integer salesRegistration;
+        private Integer salesUnit;
+        private Integer salesPayAmount;
+
+        public static SummaryTable toDto(SalesPerformanceProjection.SummaryTable proj) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            SummaryTable dto = SummaryTable.builder()
+                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .orderRegistration(proj.getOrderRegistration())
+                .orderUnit(proj.getOrderUnit())
+                .orderPayAmount(proj.getOrderPayAmount())
+                .salesRegistration(proj.getSalesRegistration())
+                .salesUnit(proj.getSalesUnit())
                 .salesPayAmount(proj.getSalesPayAmount())
                 .build();
 

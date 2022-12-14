@@ -64,4 +64,9 @@ public class SalesPerformanceService {
         List<SalesPerformanceProjection.SalesPayAmount> projs = salesPerformanceRepositoryCustom.qSearchSalesPayAmountByParams(params);
         return projs;
     }
+
+    public List<SalesPerformanceProjection.SummaryTable> qSearchSummaryTableByParams(Map<String, Object> params) {
+        List<SalesPerformanceProjection.SummaryTable> projs = salesPerformanceRepositoryCustom.qSearchSummaryTableByParams(params);
+        return projs;
+    }
 }

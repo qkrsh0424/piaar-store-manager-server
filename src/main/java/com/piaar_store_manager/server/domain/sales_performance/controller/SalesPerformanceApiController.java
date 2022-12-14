@@ -76,4 +76,15 @@ public class SalesPerformanceApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/total/summary-table")
+    public ResponseEntity<?> searchSummaryTable(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchSummaryTable(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

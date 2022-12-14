@@ -11,6 +11,7 @@ import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerforma
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.RegistrationAndUnit;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.SalesPayAmount;
+import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.SummaryTable;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,12 @@ public class SalesPerformanceBusinessService {
     public List<SalesPerformanceDto.SalesPayAmount> searchPayAmountDayOfWeek(Map<String, Object> params) {
         List<SalesPerformanceProjection.SalesPayAmount> projs = salesPerformanceService.qSearchSalesPayAmountByParams(params);
         List<SalesPerformanceDto.SalesPayAmount> dtos = projs.stream().map(proj -> SalesPayAmount.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesPerformanceDto.SummaryTable> searchSummaryTable(Map<String, Object> params) {
+        List<SalesPerformanceProjection.SummaryTable> projs = salesPerformanceService.qSearchSummaryTableByParams(params);
+        List<SalesPerformanceDto.SummaryTable> dtos = projs.stream().map(proj -> SummaryTable.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 }
