@@ -383,14 +383,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDate.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDate.parse(params.get("endDate").toString(), formatter);
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<RegistrationAndUnit> projs = new ArrayList<>();
         try {
             datediff = CustomDateUtils.getDateDiff(startDate, endDate);
 
-            for(long i = 0; i < datediff; i++) {
+            for(long i = 0; i <= datediff; i++) {
                 LocalDate datetime = startDate.plusDays(i);
                 if(i != 0) {
                     if (dimension.equals("week")) {
@@ -474,8 +474,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDate.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDate.parse(params.get("endDate").toString(), formatter);
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<SalesPayAmount> projs = new ArrayList<>();
         try {
