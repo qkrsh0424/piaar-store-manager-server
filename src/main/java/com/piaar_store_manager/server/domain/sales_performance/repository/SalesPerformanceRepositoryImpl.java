@@ -46,13 +46,13 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     public List<Dashboard> qSearchDashBoardByParams(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-        // client에서 전달되는 날짜값으로 배열만들어서 사용해보기
         if(params.get("date") == null) {
             return null;
         }
         
         List<String> dateList = Arrays.asList(params.get("date").toString().split(","));
-        List<String> dateValues =  dateList.stream().map(r -> LocalDate.parse(r, formatter).toString()).collect(Collectors.toList());
+        List<LocalDateTime> localDatetimeList = dateList.stream().map(r -> LocalDateTime.parse(r, formatter)).collect(Collectors.toList());
+        List<String> dateValues =  localDatetimeList.stream().map(r -> r.plusHours(9).toLocalDate().toString()).collect(Collectors.toList());
         List<Dashboard> projs = this.getDashboardInitProjs(dateValues);
 
         // TODO :: 현재 11-01 조회하면 전날로 조회됨. 근데 이건 서버에서는 정상적으로 돌아갈 수 있으니 확인해봐야함
@@ -325,14 +325,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDate.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDate.parse(params.get("endDate").toString(), formatter);
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<PayAmount> projs = new ArrayList<>();
         try {
             datediff = CustomDateUtils.getDateDiff(startDate, endDate);
 
-            for (long i = 0; i < datediff; i++) {
+            for (long i = 0; i <= datediff; i++) {
                 LocalDate datetime = startDate.plusDays(i);
                 if(i != 0) {
                     if (dimension.equals("week")) {
