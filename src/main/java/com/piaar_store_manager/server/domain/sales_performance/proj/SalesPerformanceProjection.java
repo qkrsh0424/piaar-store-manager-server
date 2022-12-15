@@ -1,5 +1,10 @@
 package com.piaar_store_manager.server.domain.sales_performance.proj;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.jdbc.core.RowMapper;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +32,26 @@ public class SalesPerformanceProjection {
         private Integer salesRegistration;
         @Setter
         private Integer salesPayAmount;
+
+        @Getter
+        @ToString
+        @Builder
+        @NoArgsConstructor        
+        public static class Mapper implements RowMapper<SalesPerformanceProjection.Dashboard> {
+            
+            @Override
+            public Dashboard mapRow(ResultSet rs, int rowNum) throws SQLException {
+                Dashboard proj = Dashboard.builder()
+                    .datetime(rs.getString("datetime"))
+                    .orderRegistration(rs.getInt("orderRegistration"))
+                    .orderPayAmount(rs.getInt("orderPayAmount"))
+                    .salesRegistration(rs.getInt("salesRegistration"))
+                    .salesPayAmount(rs.getInt("salesPayAmount"))
+                    .build();
+                
+                return proj;
+            }
+        }
     }
 
     @Getter

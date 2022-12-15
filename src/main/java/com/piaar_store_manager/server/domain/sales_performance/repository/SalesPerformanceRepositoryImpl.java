@@ -5,16 +5,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.Dashboard;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.RegistrationAndUnit;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.SalesPayAmount;
@@ -43,51 +40,54 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         this.query = query;
     }
 
-    @Override
-    public List<Dashboard> qSearchDashBoardByParams(Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    // @Override
+    // public List<Dashboard> qSearchDashBoardByParams(Map<String, Object> params) {
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-        if(params.get("date") == null) {
-            return null;
-        }
+    //     if(params.get("date") == null) {
+    //         return null;
+    //     }
         
-        List<String> dateList = Arrays.asList(params.get("date").toString().split(","));
-        List<LocalDateTime> localDatetimeList = dateList.stream().map(r -> LocalDateTime.parse(r, formatter)).collect(Collectors.toList());
-        List<String> dateValues =  localDatetimeList.stream().map(r -> r.plusHours(9).toLocalDate().toString()).collect(Collectors.toList());
-        List<Dashboard> projs = this.getDashboardInitProjs(dateValues);
+    //     List<String> dateList = Arrays.asList(params.get("date").toString().split(","));
+    //     List<LocalDateTime> localDatetimeList = dateList.stream().map(r -> LocalDateTime.parse(r, formatter)).collect(Collectors.toList());
+    //     List<String> dateValues =  localDatetimeList.stream().map(r -> r.toLocalDate().toString()).collect(Collectors.toList());
+    //     // List<String> dateValues =  localDatetimeList.stream().map(r -> r.plusHours(9).toLocalDate().toString()).collect(Collectors.toList());
+    //     List<Dashboard> projs = this.getDashboardInitProjs(dateValues);
 
-        // TODO :: 현재 11-01 조회하면 전날로 조회됨. 근데 이건 서버에서는 정상적으로 돌아갈 수 있으니 확인해봐야함
-        List<Dashboard> dashboardProjs = (List<Dashboard>) query.from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(dateformatted("%Y-%m-%d").in(dateValues)))
-            .groupBy(dateformatted("%Y-%m-%d"))
-            .orderBy(dateformatted("%Y-%m-%d").asc())
-            .transform(
-                GroupBy.groupBy(dateformatted("%Y-%m-%d"))
-                .list(
-                    Projections.fields(
-                        Dashboard.class,
-                        dateformatted("%Y-%m-%d").as("datetime"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("orderRegistration"),
-                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("salesRegistration"),
-                        (new CaseBuilder()
-                            .when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                            .otherwise(0)
-                        ).sum().as("salesPayAmount")
-                    )
-                )
-            );
+    //     StringPath datetime = Expressions.stringPath( "datetime");
 
-        this.updateDashboardProjs(projs, dashboardProjs);
-        return projs;
-    }
+    //     // TODO :: 현재 11-01 조회하면 전날로 조회됨. 근데 이건 서버에서는 정상적으로 돌아갈 수 있으니 확인해봐야함
+    //     List<Dashboard> dashboardProjs = (List<Dashboard>) query.from(qErpOrderItemEntity)
+    //         .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(dateformatted("%Y-%m-%d").in(dateValues)))
+    //         .groupBy(dateformatted("%Y-%m-%d"))
+    //         .orderBy(dateformatted("%Y-%m-%d").asc())
+    //         .transform(
+    //             GroupBy.groupBy(dateformatted("%Y-%m-%d"))
+    //             .list(
+    //                 Projections.fields(
+    //                     Dashboard.class,
+    //                     dateformatted("%Y-%m-%d").as(datetime),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("orderRegistration"),
+    //                     (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("salesRegistration"),
+    //                     (new CaseBuilder()
+    //                         .when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+    //                         .otherwise(0)
+    //                     ).sum().as("salesPayAmount")
+    //                 )
+    //             )
+    //         );
+
+    //     this.updateDashboardProjs(projs, dashboardProjs);
+    //     return projs;
+    // }
 
     @Override
     public List<PayAmount> qSearchDailyPayAmountByParams(Map<String, Object> params) {
@@ -370,8 +370,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).toLocalDate();
+
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<PayAmount> projs = new ArrayList<>();
         try {
@@ -428,8 +431,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).toLocalDate();
+
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<RegistrationAndUnit> projs = new ArrayList<>();
         try {
@@ -479,35 +485,35 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         });
     }
 
-    private List<Dashboard> getDashboardInitProjs(List<String> dateValues) {
-        List<Dashboard> projs = new ArrayList<>();
-        for (int i = 0; i < dateValues.size(); i++) {
-            Dashboard proj = Dashboard.builder()
-                    .datetime(dateValues.get(i))
-                    .orderRegistration(0)
-                    .orderPayAmount(0)
-                    .salesRegistration(0)
-                    .salesPayAmount(0)
-                    .build();
+    // private List<Dashboard> getDashboardInitProjs(List<String> dateValues) {
+    //     List<Dashboard> projs = new ArrayList<>();
+    //     for (int i = 0; i < dateValues.size(); i++) {
+    //         Dashboard proj = Dashboard.builder()
+    //                 .datetime(dateValues.get(i))
+    //                 .orderRegistration(0)
+    //                 .orderPayAmount(0)
+    //                 .salesRegistration(0)
+    //                 .salesPayAmount(0)
+    //                 .build();
 
-            projs.add(proj);
-        }
+    //         projs.add(proj);
+    //     }
 
-        return projs;
-    }
+    //     return projs;
+    // }
 
-    private void updateDashboardProjs(List<Dashboard> initProjs, List<Dashboard> dashboardProjs) {
-        initProjs.forEach(r -> {
-            dashboardProjs.forEach(r2 -> {
-                if(r.getDatetime().equals(r2.getDatetime())) {
-                    r.setOrderRegistration(r2.getOrderRegistration())
-                     .setOrderPayAmount(r2.getOrderPayAmount())
-                     .setSalesRegistration(r2.getSalesRegistration())
-                     .setSalesPayAmount(r2.getSalesPayAmount());
-                }
-            });
-        });
-    }
+    // private void updateDashboardProjs(List<Dashboard> initProjs, List<Dashboard> dashboardProjs) {
+    //     initProjs.forEach(r -> {
+    //         dashboardProjs.forEach(r2 -> {
+    //             if(r.getDatetime().equals(r2.getDatetime())) {
+    //                 r.setOrderRegistration(r2.getOrderRegistration())
+    //                  .setOrderPayAmount(r2.getOrderPayAmount())
+    //                  .setSalesRegistration(r2.getSalesRegistration())
+    //                  .setSalesPayAmount(r2.getSalesPayAmount());
+    //             }
+    //         });
+    //     });
+    // }
 
     private List<SalesPayAmount> getSalesPayAmountInitProjs(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -519,8 +525,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).toLocalDate();
+
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<SalesPayAmount> projs = new ArrayList<>();
         try {
@@ -567,8 +576,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).toLocalDate();
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).toLocalDate();
+
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9).toLocalDate();
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9).toLocalDate();
 
         List<SummaryTable> projs = new ArrayList<>();
         try {
@@ -624,11 +636,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
+        // startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9);
+        // endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
 
         if (startDate.isAfter(endDate)) {
             throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");

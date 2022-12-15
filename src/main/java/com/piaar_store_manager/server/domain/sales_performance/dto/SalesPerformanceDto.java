@@ -34,10 +34,10 @@ public class SalesPerformanceDto {
         private Integer salesPayAmount;
 
         public static Dashboard toDto(SalesPerformanceProjection.Dashboard proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
             Dashboard dto = Dashboard.builder()
-                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .orderRegistration(proj.getOrderRegistration())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesRegistration(proj.getSalesRegistration())

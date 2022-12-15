@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
+import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceCustomJdbc;
 import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceRepositoryCustom;
 
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesPerformanceService {
     private final SalesPerformanceRepositoryCustom salesPerformanceRepositoryCustom;
+    private final SalesPerformanceCustomJdbc salesPerformanceCustomJdbc;
 
     public List<SalesPerformanceProjection.Dashboard> qSearchDashBoardByParams(Map<String, Object> params) {
-        return salesPerformanceRepositoryCustom.qSearchDashBoardByParams(params);
+        return salesPerformanceCustomJdbc.jdbcSearchDashboard(params);
     }
     
     public List<SalesPerformanceProjection.PayAmount> qSearchPayAmountByParams(Map<String, Object> params) {
