@@ -62,10 +62,10 @@ public class SalesPerformanceDto {
         private Integer salesPayAmount;
 
         public static PayAmount toDto(SalesPerformanceProjection.PayAmount proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
             PayAmount dto = PayAmount.builder()
-                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
                 .build();

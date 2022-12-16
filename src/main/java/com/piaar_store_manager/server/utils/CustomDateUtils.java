@@ -101,8 +101,9 @@ public class CustomDateUtils {
         return (date2.getTime() - date1.getTime()) / (24*60*60*1000);
     }
 
+    // TODO :: 제거하자
     // TODO :: 수정하자. startDate에서 plusWeek한 값을 파라미터로 넘겨주자
-    public static LocalDate getFirstDateForWeek(LocalDate startDate, long plusWeek) {
+    public static LocalDate getFirstDateOfWeek(LocalDate startDate, long plusWeek) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         Calendar cal = Calendar.getInstance();
@@ -116,7 +117,34 @@ public class CustomDateUtils {
         return LocalDate.parse(formatter.format(cal.getTime()));
     }
 
-    public static LocalDate getFirstDateForMonth(LocalDate startDate, long plusMonth) {
+    // getFirstDateOfWeek -> getFirstDateTimeOfWeek
+    // GET MONDAY
+    public static LocalDateTime getFirstDateTimeOfWeek(LocalDateTime datetime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        Calendar cal = Calendar.getInstance();
+        Instant instant = datetime.atZone(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        return LocalDateTime.parse(formatter.format(cal.getTime()));
+    }
+
+    public static LocalDateTime getLastDateTimeOfWeek(LocalDateTime datetime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        Calendar cal = Calendar.getInstance();
+        Instant instant = datetime.atZone(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        return LocalDateTime.parse(formatter.format(cal.getTime()));
+    }
+
+    // TODO :: 제거하자
+    public static LocalDate getFirstDateOfMonth(LocalDate startDate, long plusMonth) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
         Calendar cal = Calendar.getInstance();
@@ -128,6 +156,19 @@ public class CustomDateUtils {
         cal.setTime(date);
         cal.set(Calendar.DAY_OF_MONTH, 1);
         return LocalDate.parse(formatter.format(cal.getTime()));
+    }
+
+    // getFirstDateOfMonth -> getFirstDateTimeOfMonth
+    public static LocalDateTime getFirstDateTimeOfMonth(LocalDateTime datetime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+        Calendar cal = Calendar.getInstance();
+        Instant instant = datetime.atZone(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        return LocalDateTime.parse(formatter.format(cal.getTime()));
     }
 
     /**

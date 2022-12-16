@@ -23,23 +23,24 @@ public class SalesPerformanceService {
     }
     
     public List<SalesPerformanceProjection.PayAmount> qSearchPayAmountByParams(Map<String, Object> params) {
-        String dimension = params.get("dimension") != null ? params.get("dimension").toString() : "date";
+        // String dimension = params.get("dimension") != null ? params.get("dimension").toString() : "date";
 
-        List<SalesPerformanceProjection.PayAmount> projs = new ArrayList<>();
-        switch(dimension) {
-            case "date":
-                projs = salesPerformanceRepositoryCustom.qSearchDailyPayAmountByParams(params);
-                break;
-            case "week":
-                projs = salesPerformanceRepositoryCustom.qSearchWeeklyPayAmountByParams(params);
-                break;
-            case "month":
-                projs = salesPerformanceRepositoryCustom.qSearchMonthlyPayAmountByParams(params);
-                break;
-            default: break;
-        }
+        // List<SalesPerformanceProjection.PayAmount> projs = new ArrayList<>();
+        // switch(dimension) {
+        //     case "date":
+        //         projs = salesPerformanceRepositoryCustom.qSearchDailyPayAmountByParams(params);
+        //         break;
+        //     case "week":
+        //         projs = salesPerformanceRepositoryCustom.qSearchWeeklyPayAmountByParams(params);
+        //         break;
+        //     case "month":
+        //         projs = salesPerformanceRepositoryCustom.qSearchMonthlyPayAmountByParams(params);
+        //         break;
+        //     default: break;
+        // }
 
-        return projs;
+        // return projs;
+        return salesPerformanceCustomJdbc.jdbcSearchPayAmount(params);
     }
 
     public List<SalesPerformanceProjection.RegistrationAndUnit> qSearchRegistrationAndUnitByParams(Map<String, Object> params) {

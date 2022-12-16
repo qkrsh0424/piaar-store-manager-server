@@ -384,9 +384,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 LocalDate datetime = startDate.plusDays(i);
                 if(i != 0) {
                     if (dimension.equals("week")) {
-                        datetime = CustomDateUtils.getFirstDateForWeek(startDate, i);
+                        datetime = CustomDateUtils.getFirstDateOfWeek(startDate, i);
                     } else if (dimension.equals("month")) {
-                        datetime = CustomDateUtils.getFirstDateForMonth(startDate, i);
+                        datetime = CustomDateUtils.getFirstDateOfMonth(startDate, i);
                     }
                 }
 
@@ -445,9 +445,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 LocalDate datetime = startDate.plusDays(i);
                 if(i != 0) {
                     if (dimension.equals("week")) {
-                        datetime = CustomDateUtils.getFirstDateForWeek(startDate, i);
+                        datetime = CustomDateUtils.getFirstDateOfWeek(startDate, i);
                     } else if (dimension.equals("month")) {
-                        datetime = CustomDateUtils.getFirstDateForMonth(startDate, i);
+                        datetime = CustomDateUtils.getFirstDateOfMonth(startDate, i);
                     }
                 }
 

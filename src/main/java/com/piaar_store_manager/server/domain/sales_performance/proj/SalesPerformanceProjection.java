@@ -33,8 +33,6 @@ public class SalesPerformanceProjection {
         @Setter
         private Integer salesPayAmount;
 
-        @Getter
-        @ToString
         @Builder
         @NoArgsConstructor        
         public static class Mapper implements RowMapper<SalesPerformanceProjection.Dashboard> {
@@ -67,6 +65,22 @@ public class SalesPerformanceProjection {
         private Integer orderPayAmount;
         @Setter
         private Integer salesPayAmount;
+
+        @Builder
+        @NoArgsConstructor        
+        public static class Mapper implements RowMapper<SalesPerformanceProjection.PayAmount> {
+            
+            @Override
+            public PayAmount mapRow(ResultSet rs, int rowNum) throws SQLException {
+                PayAmount proj = PayAmount.builder()
+                    .datetime(rs.getString("datetime"))
+                    .orderPayAmount(rs.getInt("orderPayAmount"))
+                    .salesPayAmount(rs.getInt("salesPayAmount"))
+                    .build();
+                
+                return proj;
+            }
+        }
     }
 
     @Getter
