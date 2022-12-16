@@ -118,7 +118,7 @@ public class CustomDateUtils {
     }
 
     // getFirstDateOfWeek -> getFirstDateTimeOfWeek
-    // GET MONDAY
+    // GET MONDAY START TIME
     public static LocalDateTime getFirstDateTimeOfWeek(LocalDateTime datetime) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -128,9 +128,10 @@ public class CustomDateUtils {
 
         cal.setTime(date);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-        return LocalDateTime.parse(formatter.format(cal.getTime()));
+        return LocalDateTime.parse(formatter.format(cal.getTime())).minusDays(1);
     }
 
+    // GET SUNDAY END TIME
     public static LocalDateTime getLastDateTimeOfWeek(LocalDateTime datetime) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
@@ -140,7 +141,7 @@ public class CustomDateUtils {
 
         cal.setTime(date);
         cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-        return LocalDateTime.parse(formatter.format(cal.getTime()));
+        return LocalDateTime.parse(formatter.format(cal.getTime())).minusMinutes(1);
     }
 
     // TODO :: 제거하자
@@ -154,21 +155,34 @@ public class CustomDateUtils {
         Date date = Date.from(instant);
 
         cal.setTime(date);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
+        cal.set(Calendar.DATE, cal.getMinimum(Calendar.DATE));
         return LocalDate.parse(formatter.format(cal.getTime()));
     }
 
     // getFirstDateOfMonth -> getFirstDateTimeOfMonth
     public static LocalDateTime getFirstDateTimeOfMonth(LocalDateTime datetime) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
         Calendar cal = Calendar.getInstance();
         Instant instant = datetime.atZone(ZoneId.systemDefault()).toInstant();
         Date date = Date.from(instant);
 
         cal.setTime(date);
-        cal.set(Calendar.DAY_OF_MONTH, 1);
-        return LocalDateTime.parse(formatter.format(cal.getTime()));
+        cal.set(Calendar.DATE, cal.getMinimum(Calendar.DAY_OF_MONTH));
+        return LocalDateTime.parse(formatter.format(cal.getTime())).minusDays(1);
+    }
+
+    // GET LAST DATE OF MONTH, END TIME
+    public static LocalDateTime getLastDateTimeOfMonth(LocalDateTime datetime) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
+        Calendar cal = Calendar.getInstance();
+        Instant instant = datetime.atZone(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
+
+        cal.setTime(date);
+        cal.set(Calendar.DATE, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return LocalDateTime.parse(formatter.format(cal.getTime())).minusMinutes(1);
     }
 
     /**

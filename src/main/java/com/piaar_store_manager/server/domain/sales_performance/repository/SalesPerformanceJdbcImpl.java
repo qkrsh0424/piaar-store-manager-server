@@ -104,7 +104,7 @@ public class SalesPerformanceJdbcImpl implements SalesPerformanceCustomJdbc {
         if(dimension.equals("week")) {
             dateDiff = endDate.compareTo(startDate) / 7;
         }else if(dimension.equals("month")) {
-
+            dateDiff = endDate.getMonthValue() - startDate.getMonthValue();
         }
 
         // 일별 객체 초기화
@@ -129,6 +129,22 @@ public class SalesPerformanceJdbcImpl implements SalesPerformanceCustomJdbc {
                     }else {
                         searchStartDate = CustomDateUtils.getFirstDateTimeOfWeek(startDate.plusWeeks(i)).toString();
                         searchEndDate = CustomDateUtils.getLastDateTimeOfWeek(startDate.plusWeeks(i+1)).toString();
+                    }
+                }
+            }else if (dimension.equals("month")) {
+                if(dateDiff == 0) {
+                    searchStartDate = startDate.toString();
+                    searchEndDate = endDate.toString();
+                }else {
+                    if(i == 0) {
+                        searchStartDate = startDate.toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate).toString();
+                    }else if(i == dateDiff) {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = endDate.toString();
+                    }else {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate.plusMonths(i)).toString();
                     }
                 }
             }
