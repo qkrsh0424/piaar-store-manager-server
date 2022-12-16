@@ -69,7 +69,6 @@ public class SalesPerformanceProjection {
         @Builder
         @NoArgsConstructor        
         public static class Mapper implements RowMapper<SalesPerformanceProjection.PayAmount> {
-            
             @Override
             public PayAmount mapRow(ResultSet rs, int rowNum) throws SQLException {
                 PayAmount proj = PayAmount.builder()
@@ -100,6 +99,23 @@ public class SalesPerformanceProjection {
         private Integer salesRegistration;
         @Setter
         private Integer salesUnit;
+
+        @Builder
+        @NoArgsConstructor        
+        public static class Mapper implements RowMapper<SalesPerformanceProjection.RegistrationAndUnit> {
+            @Override
+            public RegistrationAndUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
+                RegistrationAndUnit proj = RegistrationAndUnit.builder()
+                    .datetime(rs.getString("datetime"))
+                    .orderRegistration(rs.getInt("orderRegistration"))
+                    .orderUnit(rs.getInt("orderUnit"))
+                    .salesRegistration(rs.getInt("salesRegistration"))
+                    .salesUnit(rs.getInt("salesUnit"))
+                    .build();
+                
+                return proj;
+            }
+        }
     }
 
     @Getter
@@ -113,7 +129,44 @@ public class SalesPerformanceProjection {
 
         @Setter
         private Integer salesPayAmount;
+
+        @Builder
+        @NoArgsConstructor        
+        public static class Mapper implements RowMapper<SalesPerformanceProjection.SalesPayAmount> {
+            @Override
+            public SalesPayAmount mapRow(ResultSet rs, int rowNum) throws SQLException {
+                SalesPayAmount proj = SalesPayAmount.builder()
+                    .datetime(rs.getString("datetime"))
+                    .salesPayAmount(rs.getInt("salesPayAmount"))
+                    .build();
+                
+                return proj;
+            }
+        }
     }
+
+    // @Getter
+    // @Builder
+    // @ToString
+    // @AllArgsConstructor
+    // @NoArgsConstructor
+    // @Accessors(chain = true)
+    // public static class SummaryTable {
+    //     private String datetime;
+
+    //     @Setter
+    //     private Integer orderRegistration;
+    //     @Setter
+    //     private Integer orderUnit;
+    //     @Setter
+    //     private Integer orderPayAmount;
+    //     @Setter
+    //     private Integer salesRegistration;
+    //     @Setter
+    //     private Integer salesUnit;
+    //     @Setter
+    //     private Integer salesPayAmount;
+    // }
 
     @Getter
     @Builder
@@ -121,7 +174,7 @@ public class SalesPerformanceProjection {
     @AllArgsConstructor
     @NoArgsConstructor
     @Accessors(chain = true)
-    public static class SummaryTable {
+    public static class TotalSummary {
         private String datetime;
 
         @Setter
@@ -136,5 +189,24 @@ public class SalesPerformanceProjection {
         private Integer salesUnit;
         @Setter
         private Integer salesPayAmount;
+
+        @Builder
+        @NoArgsConstructor        
+        public static class Mapper implements RowMapper<SalesPerformanceProjection.TotalSummary> {
+            @Override
+            public TotalSummary mapRow(ResultSet rs, int rowNum) throws SQLException {
+                TotalSummary proj = TotalSummary.builder()
+                    .datetime(rs.getString("datetime"))
+                    .orderRegistration(rs.getInt("orderRegistration"))
+                    .orderUnit(rs.getInt("orderUnit"))
+                    .orderPayAmount(rs.getInt("orderPayAmount"))
+                    .salesRegistration(rs.getInt("salesRegistration"))
+                    .salesUnit(rs.getInt("salesUnit"))
+                    .salesPayAmount(rs.getInt("salesPayAmount"))
+                    .build();
+                
+                return proj;
+            }
+        }
     }
 }

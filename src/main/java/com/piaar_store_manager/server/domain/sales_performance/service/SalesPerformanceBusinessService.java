@@ -13,7 +13,7 @@ import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerforma
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.RegistrationAndUnit;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.SalesPayAmount;
-import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.SummaryTable;
+import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.TotalSummary;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 
 import lombok.RequiredArgsConstructor;
@@ -24,32 +24,32 @@ public class SalesPerformanceBusinessService {
     private final SalesPerformanceService salesPerformanceService;
 
     public List<SalesPerformanceDto.Dashboard> searchDashboard(Map<String, Object> params) {
-        List<SalesPerformanceProjection.Dashboard> projs = salesPerformanceService.qSearchDashBoardByParams(params);
+        List<SalesPerformanceProjection.Dashboard> projs = salesPerformanceService.jdbcSearchDashBoardByParams(params);
         List<SalesPerformanceDto.Dashboard> dtos = projs.stream().map(proj -> Dashboard.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
     public List<SalesPerformanceDto.PayAmount> searchTotalPayAmount(Map<String, Object> params) {
-        List<SalesPerformanceProjection.PayAmount> projs = salesPerformanceService.qSearchPayAmountByParams(params);
+        List<SalesPerformanceProjection.PayAmount> projs = salesPerformanceService.jdbcSearchPayAmountByParams(params);
         List<SalesPerformanceDto.PayAmount> dtos = projs.stream().map(proj -> PayAmount.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
     public List<SalesPerformanceDto.RegistrationAndUnit> searchTotalRegistrationAndUnit(Map<String, Object> params) {
-        List<SalesPerformanceProjection.RegistrationAndUnit> projs = salesPerformanceService.qSearchRegistrationAndUnitByParams(params);
+        List<SalesPerformanceProjection.RegistrationAndUnit> projs = salesPerformanceService.jdbcSearchRegistrationAndUnitByParams(params);
         List<SalesPerformanceDto.RegistrationAndUnit> dtos = projs.stream().map(proj -> RegistrationAndUnit.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
     public List<SalesPerformanceDto.SalesPayAmount> searchPayAmountDayOfWeek(Map<String, Object> params) {
-        List<SalesPerformanceProjection.SalesPayAmount> projs = salesPerformanceService.qSearchSalesPayAmountByParams(params);
+        List<SalesPerformanceProjection.SalesPayAmount> projs = salesPerformanceService.jdbcSearchSalesPayAmountByParams(params);
         List<SalesPerformanceDto.SalesPayAmount> dtos = projs.stream().map(proj -> SalesPayAmount.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 
-    public List<SalesPerformanceDto.SummaryTable> searchSummaryTable(Map<String, Object> params) {
-        List<SalesPerformanceProjection.SummaryTable> projs = salesPerformanceService.qSearchSummaryTableByParams(params);
-        List<SalesPerformanceDto.SummaryTable> dtos = projs.stream().map(proj -> SummaryTable.toDto(proj)).collect(Collectors.toList());
+    public List<SalesPerformanceDto.TotalSummary> searchTotalSummary(Map<String, Object> params) {
+        List<SalesPerformanceProjection.TotalSummary> projs = salesPerformanceService.jdbcSearchTotalSummaryByParams(params);
+        List<SalesPerformanceDto.TotalSummary> dtos = projs.stream().map(proj -> TotalSummary.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 }

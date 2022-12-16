@@ -90,10 +90,10 @@ public class SalesPerformanceDto {
         private Integer salesUnit;
 
         public static RegistrationAndUnit toDto(SalesPerformanceProjection.RegistrationAndUnit proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
             RegistrationAndUnit dto = RegistrationAndUnit.builder()
-                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .orderRegistration(proj.getOrderRegistration())
                 .orderUnit(proj.getOrderUnit())
                 .salesRegistration(proj.getSalesRegistration())
@@ -117,10 +117,10 @@ public class SalesPerformanceDto {
         private Integer salesPayAmount;
 
         public static SalesPayAmount toDto(SalesPerformanceProjection.SalesPayAmount proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            
             SalesPayAmount dto = SalesPayAmount.builder()
-                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .salesPayAmount(proj.getSalesPayAmount())
                 .build();
 
@@ -128,13 +128,49 @@ public class SalesPerformanceDto {
         }
     }
 
+    // TODO :: 제거
+    // @Getter
+    // @ToString
+    // @Accessors(chain = true)
+    // @Builder
+    // @NoArgsConstructor
+    // @AllArgsConstructor
+    // public static class SummaryTable {
+    //     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    //     private LocalDateTime datetime;
+
+    //     private Integer orderRegistration;
+    //     private Integer orderUnit;
+    //     private Integer orderPayAmount;
+
+    //     private Integer salesRegistration;
+    //     private Integer salesUnit;
+    //     private Integer salesPayAmount;
+
+    //     public static SummaryTable toDto(SalesPerformanceProjection.SummaryTable proj) {
+    //         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    //         SummaryTable dto = SummaryTable.builder()
+    //             .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+    //             .orderRegistration(proj.getOrderRegistration())
+    //             .orderUnit(proj.getOrderUnit())
+    //             .orderPayAmount(proj.getOrderPayAmount())
+    //             .salesRegistration(proj.getSalesRegistration())
+    //             .salesUnit(proj.getSalesUnit())
+    //             .salesPayAmount(proj.getSalesPayAmount())
+    //             .build();
+
+    //         return dto;
+    //     }
+    // }
+
     @Getter
     @ToString
     @Accessors(chain = true)
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class SummaryTable {
+    public static class TotalSummary {
         @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
         private LocalDateTime datetime;
 
@@ -146,11 +182,11 @@ public class SalesPerformanceDto {
         private Integer salesUnit;
         private Integer salesPayAmount;
 
-        public static SummaryTable toDto(SalesPerformanceProjection.SummaryTable proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        public static TotalSummary toDto(SalesPerformanceProjection.TotalSummary proj) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-            SummaryTable dto = SummaryTable.builder()
-                .datetime(proj.getDatetime() != null ? CustomDateUtils.toLocalDateStartTime(LocalDate.parse(proj.getDatetime(), formatter)) : null)
+            TotalSummary dto = TotalSummary.builder()
+                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .orderRegistration(proj.getOrderRegistration())
                 .orderUnit(proj.getOrderUnit())
                 .orderPayAmount(proj.getOrderPayAmount())

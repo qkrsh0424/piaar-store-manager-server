@@ -11,4 +11,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerform
 public interface SalesPerformanceCustomJdbc {
     List<SalesPerformanceProjection.Dashboard> jdbcSearchDashboard(Map<String, Object> params);
     List<SalesPerformanceProjection.PayAmount> jdbcSearchPayAmount(Map<String, Object> params);
+    List<SalesPerformanceProjection.RegistrationAndUnit> jdbcSearchRegistrationAndUnit(Map<String, Object> params);
+    List<SalesPerformanceProjection.SalesPayAmount> jdbcSearchSalesPayAmount(Map<String, Object> params);
+    List<SalesPerformanceProjection.TotalSummary> jdbcSearchTotalSummary(Map<String, Object> params);
 }
