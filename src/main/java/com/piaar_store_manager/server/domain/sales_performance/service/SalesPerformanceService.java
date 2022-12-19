@@ -1,11 +1,11 @@
 package com.piaar_store_manager.server.domain.sales_performance.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceCustomJdbc;
 
@@ -34,5 +34,9 @@ public class SalesPerformanceService {
 
     public List<SalesPerformanceProjection.TotalSummary> jdbcSearchTotalSummaryByParams(Map<String, Object> params) {
         return salesPerformanceCustomJdbc.jdbcSearchTotalSummary(params);
+    }
+
+    public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSalesChannelPayAmountByParams(Map<String, Object> params) {
+        return salesPerformanceCustomJdbc.jdbcSearchSalesChannelPayAmount(params);
     }
 }

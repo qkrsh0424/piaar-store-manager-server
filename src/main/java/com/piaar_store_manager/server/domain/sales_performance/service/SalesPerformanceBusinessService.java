@@ -1,19 +1,19 @@
 package com.piaar_store_manager.server.domain.sales_performance.service;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.Dashboard;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.PayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.RegistrationAndUnit;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.SalesPayAmount;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto.TotalSummary;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 
 import lombok.RequiredArgsConstructor;
@@ -50,6 +50,12 @@ public class SalesPerformanceBusinessService {
     public List<SalesPerformanceDto.TotalSummary> searchTotalSummary(Map<String, Object> params) {
         List<SalesPerformanceProjection.TotalSummary> projs = salesPerformanceService.jdbcSearchTotalSummaryByParams(params);
         List<SalesPerformanceDto.TotalSummary> dtos = projs.stream().map(proj -> TotalSummary.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesChannelPerformanceDto.PayAmount> searchSalesChannelPayAmount(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = salesPerformanceService.jdbcSearchSalesChannelPayAmountByParams(params);
+        List<SalesChannelPerformanceDto.PayAmount> dtos = projs.stream().map(proj -> SalesChannelPerformanceDto.PayAmount.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
 }

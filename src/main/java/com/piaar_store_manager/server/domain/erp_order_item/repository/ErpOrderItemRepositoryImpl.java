@@ -233,7 +233,7 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
                     customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, erpOrderItemBuilder.get(o.getProperty())));
             }
 
-            customQuery.orderBy(qErpOrderItemEntity.cid.desc());
+            customQuery.orderBy(qErpOrderItemEntity.cid.asc());
         }
     }
 

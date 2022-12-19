@@ -1,12 +1,10 @@
 package com.piaar_store_manager.server.domain.sales_performance.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
-import com.piaar_store_manager.server.utils.CustomDateUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

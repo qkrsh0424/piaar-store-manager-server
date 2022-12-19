@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.Dashboard;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection.PayAmount;
@@ -370,6 +371,100 @@ public class SalesPerformanceJdbcImpl implements SalesPerformanceCustomJdbc {
         this.updateTotalSummaryProjs(resultProjs, projs);
         return resultProjs;
     }
+    
+    /*
+     * 판매채널별 매출액
+     */
+    @Override
+    public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSalesChannelPayAmount(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        List<String> searchParams = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+
+        if (params.get("startDate") == null || params.get("endDate") == null || params.get("dimension") == null) {
+            return null;
+        }
+        LocalDateTime startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        LocalDateTime endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        String dimension = params.get("dimension").toString();
+        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
+
+        if(dimension.equals("week")) {
+            dateDiff = endDate.compareTo(startDate) / 7;
+        }else if(dimension.equals("month")) {
+            dateDiff = endDate.getMonthValue() - startDate.getMonthValue();
+        }
+
+        // 일별 객체 초기화
+        List<SalesChannelPerformanceProjection.PayAmount> resultProjs = this.getSalesChannelPayAmountInitProjs(startDate, endDate, dimension);
+        sql.append("SELECT (CASE ");
+
+        for(int i = 0; i <= dateDiff; i++) {
+            String searchStartDate = startDate.plusDays(i).toString();
+            String searchEndDate = startDate.plusDays(i+1).minusMinutes(1).toString();
+
+            if(dimension.equals("week")) {   
+                if(dateDiff == 0) {
+                    searchStartDate = startDate.toString();
+                    searchEndDate = endDate.toString();
+                }else {
+                    if(i == 0) {
+                        searchStartDate = startDate.toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfWeek(startDate.plusWeeks(1)).toString();
+                    }else if(i == dateDiff) {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfWeek(startDate.plusWeeks(i)).toString();
+                        searchEndDate = endDate.toString();
+                    }else {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfWeek(startDate.plusWeeks(i)).toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfWeek(startDate.plusWeeks(i+1)).toString();
+                    }
+                }
+            }else if (dimension.equals("month")) {
+                if(dateDiff == 0) {
+                    searchStartDate = startDate.toString();
+                    searchEndDate = endDate.toString();
+                }else {
+                    if(i == 0) {
+                        searchStartDate = startDate.toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate).toString();
+                    }else if(i == dateDiff) {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = endDate.toString();
+                    }else {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                    }
+                }
+            }
+
+            sql.append("WHEN item.channel_order_date BETWEEN ? AND ? THEN ? ");
+
+            searchParams.add(searchStartDate);
+            searchParams.add(searchEndDate);
+            searchParams.add(searchStartDate);
+        }
+
+        sql.append("END) AS datetime, " + 
+            "(CASE WHEN item.sales_channel IS NULL OR item.sales_channel='' THEN '미지정' ELSE item.sales_channel END) AS salesChannel, " + 
+            "SUM(item.price + item.delivery_charge) AS orderPayAmount, " +
+            "SUM(CASE WHEN item.sales_yn='y' THEN item.price + item.delivery_charge ELSE 0 END) AS salesPayAmount " + 
+            "FROM erp_order_item item " + 
+            "WHERE item.channel_order_date IS NOT NULL AND item.channel_order_date BETWEEN ? AND ? " +
+            "GROUP BY salesChannel, datetime " +
+            "HAVING salesChannel IS NOT NULL AND datetime IS NOT NULL " + 
+            "ORDER BY datetime asc"
+        );
+        searchParams.add(startDate.toString());
+        searchParams.add(endDate.toString());
+
+        Object[] objs = new Object[searchParams.size()];
+        objs = searchParams.stream().toArray();
+        projs = jdbcTemplate.query(sql.toString(), new SalesChannelPerformanceProjection.PayAmount.Mapper(), objs);
+        // 초기화 객체 업데이트
+        List<SalesChannelPerformanceProjection.PayAmount> updatedProjs = this.updateSalesChannelPayAmountProjs(resultProjs, projs);
+        return updatedProjs;
+    }
 
     /*
      * dashboard projs 세팅
@@ -580,5 +675,86 @@ public class SalesPerformanceJdbcImpl implements SalesPerformanceCustomJdbc {
                 }
             });
         });
+    }
+
+    /*
+     * sales channel payamount projs 세팅
+     */
+    private List<SalesChannelPerformanceProjection.PayAmount> getSalesChannelPayAmountInitProjs(LocalDateTime startDate, LocalDateTime endDate, String dimension) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = new ArrayList<>();
+
+        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
+
+        for (long i = 0; i <= dateDiff; i++) {
+            LocalDateTime datetime = startDate.plusDays(i);
+            if (i != 0) {
+                if (dimension.equals("week")) {
+                    datetime = startDate.plusWeeks(i);
+                    datetime = CustomDateUtils.getFirstDateTimeOfWeek(datetime);
+                } else if (dimension.equals("month")) {
+                    datetime = startDate.plusMonths(i);
+                    datetime = CustomDateUtils.getFirstDateTimeOfMonth(datetime);
+                }
+            }
+
+            // 검색날짜가 범위에 벗어난다면 for문 탈출
+            if (datetime.isAfter(endDate)) {
+                break;
+            }
+            
+            SalesChannelPerformanceProjection.PayAmount proj = SalesChannelPerformanceProjection.PayAmount.builder()
+                    .datetime(datetime.toString())
+                    .build();
+            projs.add(proj);
+        }
+        return projs;
+    }
+
+    // private List<SalesChannelPerformanceProjection.PayAmount> updateSalesChannelPayAmountProjs(List<SalesChannelPerformanceProjection.PayAmount> initProjs, List<SalesChannelPerformanceProjection.PayAmount> payAmountProjs) {
+    //     List<SalesChannelPerformanceProjection.PayAmount> projs = new ArrayList<>();
+
+    //     initProjs.forEach(r -> {
+    //         payAmountProjs.forEach(r2 -> {
+    //             if(r.getDatetime().equals(r2.getDatetime())) {
+    //                 if(r.getSalesChannel().equals(r2.getSalesChannel())) {
+    //                     r.setOrderPayAmount(r2.getOrderPayAmount())
+    //                         .setSalesPayAmount(r2.getSalesPayAmount());
+    //                 } else{
+    //                     SalesChannelPerformanceProjection.PayAmount proj = SalesChannelPerformanceProjection.PayAmount.builder()
+    //                         .datetime(r.getDatetime())
+    //                         .salesChannel(r2.getSalesChannel())
+    //                         .orderPayAmount(r2.getOrderPayAmount())
+    //                         .salesPayAmount(r2.getSalesPayAmount())
+    //                         .build();
+    
+    //                         projs.add(proj);
+    //                 }
+    //             }
+    //         });
+    //     });
+    //     projs.addAll(initProjs);
+    //     return projs;
+    // }
+
+    private List<SalesChannelPerformanceProjection.PayAmount> updateSalesChannelPayAmountProjs(List<SalesChannelPerformanceProjection.PayAmount> initProjs, List<SalesChannelPerformanceProjection.PayAmount> payAmountProjs) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = new ArrayList<>();
+
+        initProjs.forEach(r -> {
+            List<SalesChannelPerformanceProjection> salesChannelProjs = new ArrayList<>();
+            payAmountProjs.forEach(r2 -> {
+                if(r.getDatetime().equals(r2.getDatetime())) {
+                    SalesChannelPerformanceProjection salesChannelProj = SalesChannelPerformanceProjection.builder()
+                        .salesChannel(r2.getPerformance().stream().findFirst().get().getSalesChannel())
+                        .orderPayAmount(r2.getPerformance().stream().findFirst().get().getOrderPayAmount())
+                        .salesPayAmount(r2.getPerformance().stream().findFirst().get().getSalesPayAmount())
+                        .build();
+
+                    salesChannelProjs.add(salesChannelProj);
+                }
+                r.setPerformance(salesChannelProjs);
+            });
+        });
+        projs.addAll(initProjs);
+        return projs;
     }
 }

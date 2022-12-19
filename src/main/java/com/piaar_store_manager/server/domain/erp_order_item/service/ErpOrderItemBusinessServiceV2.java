@@ -322,4 +322,19 @@ public class ErpOrderItemBusinessServiceV2 {
 
     //     return erpOrderItemM2OJVos;
     // }
+
+    @Transactional(readOnly = true)
+    public Set<String> searchSalesChannel(Map<String, Object> params) {
+        List<ErpOrderItemProj> itemProjs = new ArrayList<>();
+        List<ErpOrderItemVo> itemVos = new ArrayList<>();
+        Set<String> channel = new HashSet<>();
+
+        itemProjs = erpOrderItemService.findAllM2OJ(params); // 페이징 처리 x
+        itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
+        itemVos.forEach(vo -> {
+            String channelName = vo.getSalesChannel() == null || vo.getSalesChannel().equals("") ? "미지정" : vo.getSalesChannel();
+            channel.add(channelName);
+        });
+        return channel;
+    }
 }

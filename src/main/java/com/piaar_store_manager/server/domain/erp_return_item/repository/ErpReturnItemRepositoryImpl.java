@@ -161,7 +161,7 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
                 }
                 customQuery.orderBy(new OrderSpecifier(o.isAscending() ? Order.ASC : Order.DESC, erpReturnItemBuilder.get(o.getProperty())));
             }
-            customQuery.orderBy(qErpOrderItemEntity.cid.desc());
+            customQuery.orderBy(qErpOrderItemEntity.cid.asc());
         }
     }
     

@@ -128,4 +128,15 @@ public class ErpOrderItemApiV2 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/sales-channel")
+    public ResponseEntity<?> searchSalesChannel(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(erpOrderItemBusinessService.searchSalesChannel(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

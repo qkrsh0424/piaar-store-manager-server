@@ -76,4 +76,15 @@ public class SalesPerformanceApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/sales-channel/pay-amount")
+    public ResponseEntity<?> searchSalesChannelPayAmount(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchSalesChannelPayAmount(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    } 
 }
