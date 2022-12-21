@@ -24,11 +24,11 @@ public class ProductApiController {
      * <p>
      * <b>GET : API URL => /api/v1/product/list</b>
      */
-    @GetMapping("/batch")
-    public ResponseEntity<?> searchList() {
+    @GetMapping("/all")
+    public ResponseEntity<?> searchAll() {
         Message message = new Message();
 
-        message.setData(productBusinessService.searchList());
+        message.setData(productBusinessService.searchAll());
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

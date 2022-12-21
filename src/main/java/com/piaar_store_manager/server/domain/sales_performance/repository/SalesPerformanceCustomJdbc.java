@@ -15,5 +15,4 @@ public interface SalesPerformanceCustomJdbc {
     List<SalesPerformanceProjection.RegistrationAndUnit> jdbcSearchRegistrationAndUnit(Map<String, Object> params);
     List<SalesPerformanceProjection.SalesPayAmount> jdbcSearchSalesPayAmount(Map<String, Object> params);
     List<SalesPerformanceProjection.TotalSummary> jdbcSearchTotalSummary(Map<String, Object> params);
-    List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSalesChannelPayAmount(Map<String, Object> params);
 }

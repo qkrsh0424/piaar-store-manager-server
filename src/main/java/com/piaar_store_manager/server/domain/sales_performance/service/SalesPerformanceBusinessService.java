@@ -58,4 +58,22 @@ public class SalesPerformanceBusinessService {
         List<SalesChannelPerformanceDto.PayAmount> dtos = projs.stream().map(proj -> SalesChannelPerformanceDto.PayAmount.toDto(proj)).collect(Collectors.toList());
         return dtos;
     }
+
+    public List<SalesChannelPerformanceDto.PayAmount> searchPayAmountByChannel(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = salesPerformanceService.jdbcSearchSelectedSalesChannelPayAmountByParams(params);
+        List<SalesChannelPerformanceDto.PayAmount> dtos = projs.stream().map(proj -> SalesChannelPerformanceDto.PayAmount.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesChannelPerformanceDto.RegistrationAndUnit> searchRegistrationAndUnitByChannel(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.RegistrationAndUnit> projs = salesPerformanceService.jdbcSearchSelectedSalesChannelRegistrationAndUnitByParams(params);
+        List<SalesChannelPerformanceDto.RegistrationAndUnit> dtos = projs.stream().map(proj -> SalesChannelPerformanceDto.RegistrationAndUnit.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+    
+    public List<SalesChannelPerformanceDto.SalesPayAmount> searchPayAmountDayOfWeekByChannel(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.SalesPayAmount> projs = salesPerformanceService.jdbcSearchSelectedSalesChannelSalesPayAmountParams(params);
+        List<SalesChannelPerformanceDto.SalesPayAmount> dtos = projs.stream().map(proj -> SalesChannelPerformanceDto.SalesPayAmount.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
 }

@@ -38,8 +38,8 @@ public class ProductBusinessService {
         return ProductGetDto.toDto(entity);
     }
 
-    public List<ProductGetDto> searchList() {
-        List<ProductEntity> entities = productService.searchList();
+    public List<ProductGetDto> searchAll() {
+        List<ProductEntity> entities = productService.searchAll();
         List<ProductGetDto> dtos = entities.stream().map(entity -> ProductGetDto.toDto(entity)).collect(Collectors.toList());
         return dtos;
     }

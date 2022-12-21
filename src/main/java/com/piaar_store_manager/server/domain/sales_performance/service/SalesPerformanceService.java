@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
+import com.piaar_store_manager.server.domain.sales_performance.repository.SalesChannelPerformanceCustomJdbc;
 import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceCustomJdbc;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesPerformanceService {
     private final SalesPerformanceCustomJdbc salesPerformanceCustomJdbc;
+    private final SalesChannelPerformanceCustomJdbc salesChannelPerformanceCustomJdbc;
 
     public List<SalesPerformanceProjection.Dashboard> jdbcSearchDashBoardByParams(Map<String, Object> params) {
         return salesPerformanceCustomJdbc.jdbcSearchDashboard(params);
@@ -37,6 +39,18 @@ public class SalesPerformanceService {
     }
 
     public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSalesChannelPayAmountByParams(Map<String, Object> params) {
-        return salesPerformanceCustomJdbc.jdbcSearchSalesChannelPayAmount(params);
+        return salesChannelPerformanceCustomJdbc.jdbcSearchSalesChannelPayAmount(params);
+    }
+
+    public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSelectedSalesChannelPayAmountByParams(Map<String, Object> params) {
+        return salesChannelPerformanceCustomJdbc.jdbcSearchSelectedSalesChannelPayAmount(params);
+    }
+
+    public List<SalesChannelPerformanceProjection.RegistrationAndUnit> jdbcSearchSelectedSalesChannelRegistrationAndUnitByParams(Map<String, Object> params) {
+        return salesChannelPerformanceCustomJdbc.jdbcSearchSelectedSalesChannelRegistrationAndUnit(params);
+    }
+
+    public List<SalesChannelPerformanceProjection.SalesPayAmount> jdbcSearchSelectedSalesChannelSalesPayAmountParams(Map<String, Object> params) {
+        return salesChannelPerformanceCustomJdbc.jdbcSearchSelectedSalesChannelSalesPayAmountParams(params);
     }
 }

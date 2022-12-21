@@ -31,7 +31,7 @@ public class ProductService {
         }
     }
 
-    public List<ProductEntity> searchList() {
+    public List<ProductEntity> searchAll() {
         return productRepository.findAll();
     }
 
