@@ -13,4 +13,5 @@ public interface SalesChannelPerformanceCustomJdbc {
     List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSelectedSalesChannelPayAmount(Map<String, Object> params);
     List<SalesChannelPerformanceProjection.RegistrationAndUnit> jdbcSearchSelectedSalesChannelRegistrationAndUnit(Map<String, Object> params);
     List<SalesChannelPerformanceProjection.SalesPayAmount> jdbcSearchSelectedSalesChannelSalesPayAmountParams(Map<String, Object> params);
+    List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSelectedSalesChannelProductPayAmount(Map<String, Object> params);  // client에서 사용하지 않는 메서드
 }

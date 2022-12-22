@@ -53,4 +53,8 @@ public class SalesPerformanceService {
     public List<SalesChannelPerformanceProjection.SalesPayAmount> jdbcSearchSelectedSalesChannelSalesPayAmountParams(Map<String, Object> params) {
         return salesChannelPerformanceCustomJdbc.jdbcSearchSelectedSalesChannelSalesPayAmountParams(params);
     }
+
+    public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSelectedSalesChannelProductPayAmountByParams(Map<String, Object> params) {
+        return salesChannelPerformanceCustomJdbc.jdbcSearchSelectedSalesChannelProductPayAmount(params);
+    }
 }

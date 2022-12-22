@@ -88,7 +88,7 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     } 
 
-    @GetMapping("/sales-channel/channel/pay-amount")
+    @GetMapping("/sales-channel/pay-amount")
     public ResponseEntity<?> searchPayAmountByChannel(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
@@ -99,7 +99,7 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/sales-channel/channel/registration-and-unit")
+    @GetMapping("/sales-channel/registration-and-unit")
     public ResponseEntity<?> searchRegistrationAndUnitByChannel(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
@@ -110,11 +110,22 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/sales-channel/channel/pay-amount/day-of-week")
+    @GetMapping("/sales-channel/pay-amount/day-of-week")
     public ResponseEntity<?> searchPayAmountDayOfWeekByChannel(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchPayAmountDayOfWeekByChannel(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @GetMapping("/sales-channel/pay-amount/product")
+    public ResponseEntity<?> searchProductPayAmountByChannel(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchProductPayAmountByChannel(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

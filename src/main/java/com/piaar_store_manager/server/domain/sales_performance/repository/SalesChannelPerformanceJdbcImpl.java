@@ -411,6 +411,121 @@ public class SalesChannelPerformanceJdbcImpl implements SalesChannelPerformanceC
     }
 
     /*
+     * 선택된 판매스토어의 
+     */
+    @Override
+    public List<SalesChannelPerformanceProjection.PayAmount> jdbcSearchSelectedSalesChannelProductPayAmount(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.PayAmount> projs = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        List<String> searchParams = new ArrayList<>();
+        StringBuilder sql = new StringBuilder();
+
+        if (params.get("startDate") == null || params.get("endDate") == null
+            || params.get("dimension") == null || params.get("channel") == null || params.get("optionCode") == null) {
+            return null;
+        }
+
+        LocalDateTime startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        LocalDateTime endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
+        String dimension = params.get("dimension").toString();
+        List<String> channel = Arrays.asList(params.get("channel").toString().split(","));
+        String optionCode = params.get("optionCode").toString();
+        
+        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
+
+        if(dimension.equals("week")) {
+            dateDiff = dateDiff / 7;
+        }else if(dimension.equals("month")) {
+            dateDiff = endDate.getMonthValue() - startDate.getMonthValue();
+        }
+
+        // 일별 객체 초기화
+        List<SalesChannelPerformanceProjection.PayAmount> resultProjs = this.getSalesChannelPayAmountInitProjs(startDate, endDate, dimension);
+        sql.append("SELECT (CASE ");
+
+        for(int i = 0; i <= dateDiff; i++) {
+            String searchStartDate = startDate.plusDays(i).toString();
+            String searchEndDate = startDate.plusDays(i+1).minusMinutes(1).toString();
+
+            if(dimension.equals("week")) {   
+                if(dateDiff == 0) {
+                    searchStartDate = startDate.toString();
+                    searchEndDate = endDate.toString();
+                }else {
+                    if(i == 0) {
+                        searchStartDate = startDate.toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfWeek(startDate.plusWeeks(1)).toString();
+                    }else if(i == dateDiff) {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfWeek(startDate.plusWeeks(i)).toString();
+                        searchEndDate = endDate.toString();
+                    }else {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfWeek(startDate.plusWeeks(i)).toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfWeek(startDate.plusWeeks(i+1)).toString();
+                    }
+                }
+            }else if (dimension.equals("month")) {
+                if(dateDiff == 0) {
+                    searchStartDate = startDate.toString();
+                    searchEndDate = endDate.toString();
+                }else {
+                    if(i == 0) {
+                        searchStartDate = startDate.toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate).toString();
+                    }else if(i == dateDiff) {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = endDate.toString();
+                    }else {
+                        searchStartDate = CustomDateUtils.getFirstDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                        searchEndDate = CustomDateUtils.getLastDateTimeOfMonth(startDate.plusMonths(i)).toString();
+                    }
+                }
+            }
+
+            sql.append("WHEN item.channel_order_date BETWEEN ? AND ? THEN ? ");
+
+            searchParams.add(searchStartDate);
+            searchParams.add(searchEndDate);
+            searchParams.add(searchStartDate);
+        }
+
+        sql.append(
+            "END) AS datetime, " + 
+            "(CASE WHEN item.sales_channel IS NULL OR item.sales_channel='' THEN '미지정' ELSE item.sales_channel END) AS salesChannel, " + 
+            "SUM(item.price + item.delivery_charge) AS orderPayAmount, " +
+            "SUM(CASE WHEN item.sales_yn='y' THEN item.price + item.delivery_charge ELSE 0 END) AS salesPayAmount " + 
+            "FROM erp_order_item item " + 
+            "WHERE ("
+        );
+
+        for(int i = 0; i < channel.size(); i++) {
+            sql.append("item.sales_channel = ? ");
+            if(i != channel.size()-1) {
+                sql.append("OR ");
+            }
+            searchParams.add(channel.get(i));
+        }
+            
+        sql.append(") AND item.option_code = ? ");
+        searchParams.add(optionCode);
+
+        sql.append(
+            "AND item.channel_order_date IS NOT NULL AND item.channel_order_date BETWEEN ? AND ? " +
+            "GROUP BY salesChannel, datetime " +
+            "HAVING salesChannel IS NOT NULL AND datetime IS NOT NULL " + 
+            "ORDER BY datetime asc"
+        );
+        searchParams.add(startDate.toString());
+        searchParams.add(endDate.toString());
+
+        Object[] objs = new Object[searchParams.size()];
+        objs = searchParams.stream().toArray();
+        projs = jdbcTemplate.query(sql.toString(), new SalesChannelPerformanceProjection.PayAmount.Mapper(), objs);
+        // 초기화 객체 업데이트
+        List<SalesChannelPerformanceProjection.PayAmount> updatedProjs = this.updateSalesChannelPayAmountProjs(resultProjs, projs);
+        return updatedProjs;
+    }
+
+    /*
      * sales channel payamount projs 세팅
      */
     private List<SalesChannelPerformanceProjection.PayAmount> getSalesChannelPayAmountInitProjs(LocalDateTime startDate, LocalDateTime endDate, String dimension) {
