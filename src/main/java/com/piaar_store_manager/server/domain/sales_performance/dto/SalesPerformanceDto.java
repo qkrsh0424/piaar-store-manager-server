@@ -22,8 +22,9 @@ public class SalesPerformanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Dashboard {
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        private LocalDateTime datetime;
+        // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        // private LocalDateTime datetime;
+        private String datetime;
 
         private Integer orderRegistration;
         private Integer orderPayAmount;
@@ -35,7 +36,8 @@ public class SalesPerformanceDto {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
             Dashboard dto = Dashboard.builder()
-                .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
+                // .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
+                .datetime(proj.getDatetime())
                 .orderRegistration(proj.getOrderRegistration())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesRegistration(proj.getSalesRegistration())

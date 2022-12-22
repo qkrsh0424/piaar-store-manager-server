@@ -206,7 +206,6 @@ public class ErpReturnItemRepositoryImpl implements ErpReturnItemRepositoryCusto
 
         try {
             StringPath columnNameStringPath = null;
-            System.out.println(columnName);
             if (columnName.startsWith("order_")) {
                 String matchedColumnName = columnName.replace("order_", "");
                 switch (matchedColumnName) {

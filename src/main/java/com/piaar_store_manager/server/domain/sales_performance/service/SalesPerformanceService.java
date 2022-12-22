@@ -9,6 +9,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannel
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.repository.SalesChannelPerformanceCustomJdbc;
 import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceCustomJdbc;
+import com.piaar_store_manager.server.domain.sales_performance.repository.SalesPerformanceRepositoryCustom;
 
 import lombok.RequiredArgsConstructor;
 
@@ -17,9 +18,11 @@ import lombok.RequiredArgsConstructor;
 public class SalesPerformanceService {
     private final SalesPerformanceCustomJdbc salesPerformanceCustomJdbc;
     private final SalesChannelPerformanceCustomJdbc salesChannelPerformanceCustomJdbc;
+    private final SalesPerformanceRepositoryCustom salesPerformanceRepositoryCustom;
 
     public List<SalesPerformanceProjection.Dashboard> jdbcSearchDashBoardByParams(Map<String, Object> params) {
-        return salesPerformanceCustomJdbc.jdbcSearchDashboard(params);
+        // return salesPerformanceCustomJdbc.jdbcSearchDashboard(params);
+        return salesPerformanceRepositoryCustom.qSearchDashBoardByParams(params);
     }
     
     public List<SalesPerformanceProjection.PayAmount> jdbcSearchPayAmountByParams(Map<String, Object> params) {

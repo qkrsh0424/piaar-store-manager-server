@@ -10,7 +10,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerform
 // TODO :: 사용하지 않는 인터페이스
 @Repository
 public interface SalesPerformanceRepositoryCustom {
-    // List<SalesPerformanceProjection.Dashboard> qSearchDashBoardByParams(Map<String, Object> params);
+    List<SalesPerformanceProjection.Dashboard> qSearchDashBoardByParams(Map<String, Object> params);
 
     // 총 매출액
     // List<SalesPerformanceProjection.PayAmount> qSearchDailyPayAmountByParams(Map<String, Object> params);

@@ -87,8 +87,6 @@ public class SalesPerformanceJdbcImpl implements SalesPerformanceCustomJdbc {
         return resultProjs;
     }
 
-    
-
     @Override
     public List<PayAmount> jdbcSearchPayAmount(Map<String, Object> params) {
         List<SalesPerformanceProjection.PayAmount> projs = new ArrayList<>();
