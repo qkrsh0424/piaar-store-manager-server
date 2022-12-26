@@ -21,6 +21,8 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SalesChannelPerformanceProjection {
+    private String datetime;
+    
     @Setter
     private String salesChannel;
     @Setter

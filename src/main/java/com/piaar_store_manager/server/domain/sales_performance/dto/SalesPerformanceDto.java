@@ -13,7 +13,34 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+@Getter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
 public class SalesPerformanceDto {
+    private String datetime;
+    private Integer orderRegistration;
+    private Integer orderUnit;
+    private Integer orderPayAmount;
+    private Integer salesRegistration;
+    private Integer salesUnit;
+    private Integer salesPayAmount;
+
+    public static SalesPerformanceDto toDto(SalesPerformanceProjection proj) {
+        SalesPerformanceDto dto = SalesPerformanceDto.builder()
+            .datetime(proj.getDatetime())
+            .orderRegistration(proj.getOrderRegistration())
+            .orderUnit(proj.getOrderUnit())
+            .orderPayAmount(proj.getOrderPayAmount())
+            .salesRegistration(proj.getSalesRegistration())
+            .salesUnit(proj.getSalesUnit())
+            .salesPayAmount(proj.getSalesPayAmount())
+            .build();
+            
+        return dto;
+    }
 
     @Getter
     @ToString
@@ -22,8 +49,6 @@ public class SalesPerformanceDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Dashboard {
-        // @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        // private LocalDateTime datetime;
         private String datetime;
 
         private Integer orderRegistration;
@@ -33,10 +58,8 @@ public class SalesPerformanceDto {
         private Integer salesPayAmount;
 
         public static Dashboard toDto(SalesPerformanceProjection.Dashboard proj) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
             Dashboard dto = Dashboard.builder()
-                // .datetime(proj.getDatetime() != null ? LocalDateTime.parse(proj.getDatetime(), formatter) : null)
                 .datetime(proj.getDatetime())
                 .orderRegistration(proj.getOrderRegistration())
                 .orderPayAmount(proj.getOrderPayAmount())

@@ -13,7 +13,27 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.Accessors;
 
+@Getter
+@Builder
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
 public class SalesPerformanceProjection {
+    private String datetime;
+    
+    @Setter
+    private Integer orderRegistration;
+    @Setter
+    private Integer orderUnit;
+    @Setter
+    private Integer orderPayAmount;
+    @Setter
+    private Integer salesRegistration;
+    @Setter
+    private Integer salesUnit;
+    @Setter
+    private Integer salesPayAmount;
 
     @Getter
     @Builder
