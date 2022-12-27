@@ -1,11 +1,6 @@
 package com.piaar_store_manager.server.domain.sales_performance.proj;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
-
-import org.springframework.jdbc.core.RowMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +16,7 @@ import lombok.experimental.Accessors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
-public class SalesChannelPerformanceProjectionV2 {
+public class SalesCategoryPerformanceProjection {
     private String datetime;
     @Setter
     private List<Performance> performance;
@@ -34,7 +29,7 @@ public class SalesChannelPerformanceProjectionV2 {
     @NoArgsConstructor
     public static class Performance {
         private String datetime;
-        private String salesChannel;
+        private String productCategory;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
         private Integer orderRegistration;

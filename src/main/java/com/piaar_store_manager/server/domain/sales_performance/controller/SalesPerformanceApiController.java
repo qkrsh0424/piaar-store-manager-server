@@ -34,10 +34,10 @@ public class SalesPerformanceApiController {
     }
 
     @GetMapping("/total")
-    public ResponseEntity<?> searchTotalSalesPerformance(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchSalesPerformance(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchTotalSalesPerformance(params));
+        message.setData(salesPerformanceBusinessService.searchSalesPerformance(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
@@ -45,65 +45,21 @@ public class SalesPerformanceApiController {
     }
 
     @GetMapping("/channel")
-    public ResponseEntity<?> searchChannelSalesPerformance(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<?> searchSalesPerformanceByChannel(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchChannelSalesPerformance(params));
+        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByChannel(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // @GetMapping("/sales-channel/total/pay-amount")
-    // public ResponseEntity<?> searchSalesChannelPayAmount(@RequestParam Map<String, Object> params) {
-    //     Message message = new Message();
-
-    //     message.setData(salesPerformanceBusinessService.searchSalesChannelPayAmount(params));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // } 
-
-    @GetMapping("/sales-channel/pay-amount")
-    public ResponseEntity<?> searchPayAmountByChannel(@RequestParam Map<String, Object> params) {
+    @GetMapping("/category")
+    public ResponseEntity<?> searchSalesPerformanceByCategory(@RequestParam Map<String, Object> params) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchPayAmountByChannel(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/sales-channel/registration-and-unit")
-    public ResponseEntity<?> searchRegistrationAndUnitByChannel(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
-
-        message.setData(salesPerformanceBusinessService.searchRegistrationAndUnitByChannel(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/sales-channel/pay-amount/day-of-week")
-    public ResponseEntity<?> searchPayAmountDayOfWeekByChannel(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
-
-        message.setData(salesPerformanceBusinessService.searchPayAmountDayOfWeekByChannel(params));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
-
-    @GetMapping("/sales-channel/pay-amount/product")
-    public ResponseEntity<?> searchProductPayAmountByChannel(@RequestParam Map<String, Object> params) {
-        Message message = new Message();
-
-        message.setData(salesPerformanceBusinessService.searchProductPayAmountByChannel(params));
+        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByCategory(params));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

@@ -1,9 +1,10 @@
 package com.piaar_store_manager.server.domain.sales_performance.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjectionV2;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,14 +18,18 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class SalesChannelPerformanceDtoV2 {
+public class SalesCategoryPerformanceDto {
     private String datetime;
     private List<Performance> performances;
 
-    public static SalesChannelPerformanceDtoV2 toDto(SalesChannelPerformanceProjectionV2 proj) {
-        List<Performance> performanceDtos = proj.getPerformance().stream().map(r -> Performance.toDto(r)).collect(Collectors.toList());
+    public static SalesCategoryPerformanceDto toDto(SalesCategoryPerformanceProjection proj) {
+        List<Performance> performanceDtos = new ArrayList<>();
         
-        SalesChannelPerformanceDtoV2 dto = SalesChannelPerformanceDtoV2.builder()
+        if(proj.getPerformance() != null) {
+            performanceDtos = proj.getPerformance().stream().map(r -> Performance.toDto(r)).collect(Collectors.toList());
+        }
+        
+        SalesCategoryPerformanceDto dto = SalesCategoryPerformanceDto.builder()
             .datetime(proj.getDatetime())
             .performances(performanceDtos)
             .build();
@@ -39,7 +44,7 @@ public class SalesChannelPerformanceDtoV2 {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Performance {
-        private String salesChannel;
+        private String productCategory;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
         private Integer orderRegistration;
@@ -47,9 +52,9 @@ public class SalesChannelPerformanceDtoV2 {
         private Integer orderUnit;
         private Integer salesUnit;
 
-        public static Performance toDto(SalesChannelPerformanceProjectionV2.Performance proj) {
+        public static Performance toDto(SalesCategoryPerformanceProjection.Performance proj) {
             Performance dto = Performance.builder()
-                .salesChannel(proj.getSalesChannel())
+                .productCategory(proj.getProductCategory())
                 .orderRegistration(proj.getOrderRegistration())
                 .orderUnit(proj.getOrderUnit())
                 .orderPayAmount(proj.getOrderPayAmount())
