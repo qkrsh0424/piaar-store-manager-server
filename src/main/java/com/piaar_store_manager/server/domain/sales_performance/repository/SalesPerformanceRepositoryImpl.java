@@ -136,20 +136,20 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         List<Performance> performanceProjs = (List<Performance>) query.from(qErpOrderItemEntity)
             .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
             .groupBy(
-                qErpOrderItemEntity.salesChannel.coalesce("미지정"),
+                qErpOrderItemEntity.salesChannel.coalesce(""),
                 dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d")
             )
             .orderBy(dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d").asc())
             .transform(
                 GroupBy.groupBy(
-                    qErpOrderItemEntity.salesChannel.coalesce("미지정"),
+                    qErpOrderItemEntity.salesChannel.coalesce(""),
                     dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d")
                 )
                 .list(
                     Projections.fields(
                         Performance.class,
                         dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d").as("datetime"),
-                        qErpOrderItemEntity.salesChannel.coalesce("미지정").as("salesChannel"),
+                        qErpOrderItemEntity.salesChannel.coalesce("").as("salesChannel"),
                         (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                             .then(1)
                             .otherwise(0)
@@ -275,9 +275,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             List<Performance> salesChannelProjs = new ArrayList<>();
             performanceProjs.forEach(r2 -> {
                 if(r.getDatetime().equals(r2.getDatetime())) {
+                    String channelName = r2.getSalesChannel().isBlank() ? "미지정" : r2.getSalesChannel();
                     Performance salesChannelProj = Performance.builder()
                         .datetime(r2.getDatetime())
-                        .salesChannel(r2.getSalesChannel())
+                        .salesChannel(channelName)
                         .orderRegistration(r2.getOrderRegistration())
                         .orderUnit(r2.getOrderUnit())
                         .orderPayAmount(r2.getOrderPayAmount())
