@@ -19,21 +19,25 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalesChannelPerformanceDto {
-    private String datetime;
-    private List<Performance> performances;
+    private String salesChannel;
+    private Integer orderPayAmount;
+    private Integer salesPayAmount;
+    private Integer orderRegistration;
+    private Integer salesRegistration;
+    private Integer orderUnit;
+    private Integer salesUnit;
 
     public static SalesChannelPerformanceDto toDto(SalesChannelPerformanceProjection proj) {
-        List<Performance> performanceDtos = new ArrayList<>();
-        
-        if(proj.getPerformance() != null) {
-            performanceDtos = proj.getPerformance().stream().map(r -> Performance.toDto(r)).collect(Collectors.toList());
-        }
-        
         SalesChannelPerformanceDto dto = SalesChannelPerformanceDto.builder()
-            .datetime(proj.getDatetime())
-            .performances(performanceDtos)
+            .salesChannel(proj.getSalesChannel())
+            .orderRegistration(proj.getOrderRegistration())
+            .orderUnit(proj.getOrderUnit())
+            .orderPayAmount(proj.getOrderPayAmount())
+            .salesRegistration(proj.getSalesRegistration())
+            .salesUnit(proj.getSalesUnit())
+            .salesPayAmount(proj.getSalesPayAmount())
             .build();
-
+            
         return dto;
     }
 
@@ -44,25 +48,21 @@ public class SalesChannelPerformanceDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Performance {
-        private String salesChannel;
-        private Integer orderPayAmount;
-        private Integer salesPayAmount;
-        private Integer orderRegistration;
-        private Integer salesRegistration;
-        private Integer orderUnit;
-        private Integer salesUnit;
+        private String datetime;
+        private List<SalesChannelPerformanceDto> performances;
 
         public static Performance toDto(SalesChannelPerformanceProjection.Performance proj) {
+            List<SalesChannelPerformanceDto> performanceDtos = new ArrayList<>();
+
+            if (proj.getPerformance() != null) {
+                performanceDtos = proj.getPerformance().stream().map(SalesChannelPerformanceDto::toDto).collect(Collectors.toList());
+            }
+
             Performance dto = Performance.builder()
-                .salesChannel(proj.getSalesChannel())
-                .orderRegistration(proj.getOrderRegistration())
-                .orderUnit(proj.getOrderUnit())
-                .orderPayAmount(proj.getOrderPayAmount())
-                .salesRegistration(proj.getSalesRegistration())
-                .salesUnit(proj.getSalesUnit())
-                .salesPayAmount(proj.getSalesPayAmount())
-                .build();
-                
+                    .datetime(proj.getDatetime())
+                    .performances(performanceDtos)
+                    .build();
+
             return dto;
         }
     }

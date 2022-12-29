@@ -19,19 +19,25 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SalesCategoryPerformanceDto {
-    private String datetime;
-    private List<Performance> performances;
+    private String productCategoryName;
+    private String productName;
+    private Integer orderPayAmount;
+    private Integer salesPayAmount;
+    private Integer orderRegistration;
+    private Integer salesRegistration;
+    private Integer orderUnit;
+    private Integer salesUnit;
 
     public static SalesCategoryPerformanceDto toDto(SalesCategoryPerformanceProjection proj) {
-        List<Performance> performanceDtos = new ArrayList<>();
-        
-        if(proj.getPerformance() != null) {
-            performanceDtos = proj.getPerformance().stream().map(r -> Performance.toDto(r)).collect(Collectors.toList());
-        }
-        
         SalesCategoryPerformanceDto dto = SalesCategoryPerformanceDto.builder()
-            .datetime(proj.getDatetime())
-            .performances(performanceDtos)
+            .productCategoryName(proj.getProductCategoryName())
+            .productName(proj.getProductName())
+            .orderRegistration(proj.getOrderRegistration())
+            .orderUnit(proj.getOrderUnit())
+            .orderPayAmount(proj.getOrderPayAmount())
+            .salesRegistration(proj.getSalesRegistration())
+            .salesUnit(proj.getSalesUnit())
+            .salesPayAmount(proj.getSalesPayAmount())
             .build();
 
         return dto;
@@ -44,25 +50,47 @@ public class SalesCategoryPerformanceDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Performance {
-        private String productCategory;
-        private Integer orderPayAmount;
-        private Integer salesPayAmount;
-        private Integer orderRegistration;
-        private Integer salesRegistration;
-        private Integer orderUnit;
-        private Integer salesUnit;
+        private String datetime;
+        private List<SalesCategoryPerformanceDto> performances;
 
         public static Performance toDto(SalesCategoryPerformanceProjection.Performance proj) {
+            List<SalesCategoryPerformanceDto> performanceDtos = new ArrayList<>();
+
+            if (proj.getPerformance() != null) {
+                performanceDtos = proj.getPerformance().stream().map(SalesCategoryPerformanceDto::toDto).collect(Collectors.toList());
+            }
+
             Performance dto = Performance.builder()
-                .productCategory(proj.getProductCategory())
-                .orderRegistration(proj.getOrderRegistration())
-                .orderUnit(proj.getOrderUnit())
-                .orderPayAmount(proj.getOrderPayAmount())
-                .salesRegistration(proj.getSalesRegistration())
-                .salesUnit(proj.getSalesUnit())
-                .salesPayAmount(proj.getSalesPayAmount())
-                .build();
-                
+                    .datetime(proj.getDatetime())
+                    .performances(performanceDtos)
+                    .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ProductPerformance {
+        private String productCategoryName;
+        private List<SalesCategoryPerformanceDto> performances;
+
+        public static ProductPerformance toDto(SalesCategoryPerformanceProjection.ProductPerformance proj) {
+            List<SalesCategoryPerformanceDto> performanceDtos = new ArrayList<>();
+
+            if (proj.getPerformance() != null) {
+                performanceDtos = proj.getPerformance().stream().map(SalesCategoryPerformanceDto::toDto).collect(Collectors.toList());
+            }
+
+            ProductPerformance dto = ProductPerformance.builder()
+                    .productCategoryName(proj.getProductCategoryName())
+                    .performances(performanceDtos)
+                    .build();
+
             return dto;
         }
     }

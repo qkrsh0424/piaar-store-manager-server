@@ -20,7 +20,6 @@ import com.piaar_store_manager.server.domain.product_option.entity.QProductOptio
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection.Performance;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ConstantImpl;
@@ -140,10 +139,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesChannelPerformanceProjection> qSearchSalesPerformanceByChannel(Map<String, Object> params) {
-        List<SalesChannelPerformanceProjection> projs = this.getSalesChannelPerformanceInitProjs(params);
+    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(Map<String, Object> params) {
+        List<SalesChannelPerformanceProjection.Performance> projs = this.getSalesChannelPerformanceInitProjs(params);
 
-        List<Performance> performanceProjs = (List<Performance>) query.from(qErpOrderItemEntity)
+        List<SalesChannelPerformanceProjection> performanceProjs = (List<SalesChannelPerformanceProjection>) query.from(qErpOrderItemEntity)
             .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)).and(eqSearchCondition(params)))
             .groupBy(
                 qErpOrderItemEntity.salesChannel.coalesce(""),
@@ -157,7 +156,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 )
                 .list(
                     Projections.fields(
-                        Performance.class,
+                        SalesChannelPerformanceProjection.class,
                         dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d").as("datetime"),
                         qErpOrderItemEntity.salesChannel.coalesce("").as("salesChannel"),
                         (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
@@ -191,16 +190,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesCategoryPerformanceProjection> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName) {
+    public List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName) {
         // 전체 카테고리 조회
-        List<SalesCategoryPerformanceProjection> projs = this.getSalesCategoryPerformanceInitProjs(categoryName, params);
+        List<SalesCategoryPerformanceProjection.Performance> projs = this.getSalesCategoryPerformanceInitProjs(categoryName, params);
 
-        StringPath productCategory = Expressions.stringPath("productCategory");
+        StringPath productCategoryName = Expressions.stringPath("productCategoryName");
         StringPath datetime = Expressions.stringPath("datetime");
 
-        List<SalesCategoryPerformanceProjection.Performance> performanceProjs = query
+        List<SalesCategoryPerformanceProjection> performanceProjs = query
             .select(
-                Projections.fields(SalesCategoryPerformanceProjection.Performance.class,
+                Projections.fields(SalesCategoryPerformanceProjection.class,
                 dateFormatTemplate(dateAddHourTemplate(9), "%Y-%m-%d").as(datetime),
                 (ExpressionUtils.as(JPAExpressions.select(qProductCategoryEntity.name)
                     .from(qProductOptionEntity)
@@ -208,7 +207,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                     .join(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
                     .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))
                     ,
-                    productCategory
+                    productCategoryName
                 )),
                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                     .then(1)
@@ -235,12 +234,104 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             ))
             .from(qErpOrderItemEntity)
             .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
-            .groupBy(productCategory, datetime)
+            .groupBy(productCategoryName, datetime)
             .orderBy(datetime.asc())
             .fetch();
 
         this.updateSalesCategoryPerformanceProjs(projs, performanceProjs);
         return projs;
+    }
+
+    @Override
+    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(Map<String, Object> params, List<String> categoryName) {
+        // 전체 카테고리 조회
+        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this.getSalesCategoryAndProductPerformanceInitProjs(categoryName, params);
+
+        StringPath productCategoryName = Expressions.stringPath("productCategoryName");
+        StringPath productName = Expressions.stringPath("productName");
+
+        List<SalesCategoryPerformanceProjection> performanceProjs = query
+            .select(
+                Projections.fields(SalesCategoryPerformanceProjection.class,
+                (ExpressionUtils.as(JPAExpressions.select(qProductCategoryEntity.name)
+                    .from(qProductOptionEntity)
+                    .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                    .join(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
+                    .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))
+                    ,
+                    productCategoryName
+                )),
+                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
+                    .from(qProductOptionEntity)
+                    .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                    .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))
+                    ,
+                    productName
+                )),
+                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                    .then(1)
+                    .otherwise(0)
+                ).sum().as("orderRegistration"),
+                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                    .then(qErpOrderItemEntity.unit)
+                    .otherwise(0)
+                ).sum().as("orderUnit"),
+                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                    .then(1)
+                    .otherwise(0)
+                ).sum().as("salesRegistration"),
+                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                    .then(qErpOrderItemEntity.unit)
+                    .otherwise(0)
+                ).sum().as("salesUnit"),
+                (new CaseBuilder()
+                    .when(qErpOrderItemEntity.salesYn.eq("y"))
+                    .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                    .otherwise(0)
+                ).sum().as("salesPayAmount")
+            ))
+            .from(qErpOrderItemEntity)
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .groupBy(productName)
+            .orderBy(productCategoryName.asc())
+            .fetch();
+
+        this.updateSalesCategoryAndProductPerformanceProjs(projs, performanceProjs);
+        return projs;
+    }
+
+    /*
+     * dashboard projs 세팅
+     */
+    private List<SalesPerformanceProjection> getDashboardInitProjs(List<String> dateValues) {
+        List<SalesPerformanceProjection> projs = new ArrayList<>();
+        for (int i = 0; i < dateValues.size(); i++) {
+            SalesPerformanceProjection proj = SalesPerformanceProjection.builder()
+                    .datetime(dateValues.get(i))
+                    .orderRegistration(0)
+                    .orderPayAmount(0)
+                    .salesRegistration(0)
+                    .salesPayAmount(0)
+                    .build();
+
+            projs.add(proj);
+        }
+
+        return projs;
+    }
+
+    private void updateDashboardProjs(List<SalesPerformanceProjection> initProjs, List<SalesPerformanceProjection> dashboardProjs) {
+        initProjs.forEach(r -> {
+            dashboardProjs.forEach(r2 -> {
+                if(r.getDatetime().equals(r2.getDatetime())) {
+                    r.setOrderRegistration(r2.getOrderRegistration())
+                     .setOrderPayAmount(r2.getOrderPayAmount())
+                     .setSalesRegistration(r2.getSalesRegistration())
+                     .setSalesPayAmount(r2.getSalesPayAmount());
+                }
+            });
+        });
     }
 
     /*
@@ -301,7 +392,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales channel performance projs 세팅
      */
-    private List<SalesChannelPerformanceProjection> getSalesChannelPerformanceInitProjs(Map<String, Object> params) {
+    private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
@@ -314,7 +405,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
         int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
-        List<SalesChannelPerformanceProjection> projs = new ArrayList<>();
+        List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
         for (int i = 0; i <= dateDiff; i++) {
             LocalDateTime datetime = startDate.plusDays(i);
 
@@ -323,7 +414,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 break;
             }
 
-            SalesChannelPerformanceProjection proj = SalesChannelPerformanceProjection.builder()
+            SalesChannelPerformanceProjection.Performance proj = SalesChannelPerformanceProjection.Performance.builder()
                 .datetime(datetime.toLocalDate().toString())
                 .build();
             projs.add(proj);
@@ -331,15 +422,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private List<SalesChannelPerformanceProjection> updateSalesChannelPerformanceProjs(List<SalesChannelPerformanceProjection> initProjs, List<Performance> performanceProjs) {
-        List<SalesChannelPerformanceProjection> projs = new ArrayList<>();
+    private List<SalesChannelPerformanceProjection.Performance> updateSalesChannelPerformanceProjs(List<SalesChannelPerformanceProjection.Performance> initProjs, List<SalesChannelPerformanceProjection> performanceProjs) {
+        List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
 
         initProjs.forEach(r -> {
-            List<Performance> salesChannelProjs = new ArrayList<>();
+            List<SalesChannelPerformanceProjection> salesChannelProjs = new ArrayList<>();
             performanceProjs.forEach(r2 -> {
                 if(r.getDatetime().equals(r2.getDatetime())) {
                     String channelName = r2.getSalesChannel().isBlank() ? "미지정" : r2.getSalesChannel();
-                    Performance salesChannelProj = Performance.builder()
+
+                    SalesChannelPerformanceProjection salesChannelProj = SalesChannelPerformanceProjection.builder()
                         .datetime(r2.getDatetime())
                         .salesChannel(channelName)
                         .orderRegistration(r2.getOrderRegistration())
@@ -362,10 +454,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales category performance projs 세팅
      */
-    private List<SalesCategoryPerformanceProjection> getSalesCategoryPerformanceInitProjs(List<String> categoryName, Map<String, Object> params) {
+    private List<SalesCategoryPerformanceProjection.Performance> getSalesCategoryPerformanceInitProjs(List<String> categoryName, Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = null;
         LocalDateTime endDate = null;
+        categoryName.add("미지정");
         
         if (params.get("startDate") == null || params.get("endDate") == null) {
             return null;
@@ -375,9 +468,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
         int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
-        List<SalesCategoryPerformanceProjection.Performance> performances = categoryName.stream().map(r -> {
-            SalesCategoryPerformanceProjection.Performance performance = SalesCategoryPerformanceProjection.Performance.builder()
-                .productCategory(r)
+        List<SalesCategoryPerformanceProjection> performances = categoryName.stream().map(r -> {
+            SalesCategoryPerformanceProjection performance = SalesCategoryPerformanceProjection.builder()
+                .productCategoryName(r)
                 .orderRegistration(0)
                 .orderUnit(0)
                 .orderPayAmount(0)
@@ -388,7 +481,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return performance;
         }).collect(Collectors.toList());
 
-        List<SalesCategoryPerformanceProjection> projs = new ArrayList<>();
+        List<SalesCategoryPerformanceProjection.Performance> projs = new ArrayList<>();
         for (int i = 0; i <= dateDiff; i++) {
             LocalDateTime datetime = startDate.plusDays(i);
 
@@ -397,7 +490,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 break;
             }
 
-            SalesCategoryPerformanceProjection proj = SalesCategoryPerformanceProjection.builder()
+            SalesCategoryPerformanceProjection.Performance proj = SalesCategoryPerformanceProjection.Performance.builder()
                 .datetime(datetime.toLocalDate().toString())
                 .performance(performances)
                 .build();
@@ -407,14 +500,15 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private void updateSalesCategoryPerformanceProjs(List<SalesCategoryPerformanceProjection> initProjs, List<SalesCategoryPerformanceProjection.Performance> performanceProjs) {
+    private void updateSalesCategoryPerformanceProjs(List<SalesCategoryPerformanceProjection.Performance> initProjs, List<SalesCategoryPerformanceProjection> performanceProjs) {
         initProjs.forEach(r -> {
             performanceProjs.forEach(r2 -> {
                 if (r.getDatetime().equals(r2.getDatetime())) {
-                    List<SalesCategoryPerformanceProjection.Performance> updatedPerform = r.getPerformance().stream().map(r3 -> {
-                        if(r3.getProductCategory() != null && r3.getProductCategory().equals(r2.getProductCategory())) {
-                            SalesCategoryPerformanceProjection.Performance p = SalesCategoryPerformanceProjection.Performance.builder()
-                                    .productCategory(r2.getProductCategory())
+                    List<SalesCategoryPerformanceProjection> updatedPerform = r.getPerformance().stream().map(r3 -> {
+                        String categoryName = (r3.getProductCategoryName() == null || r3.getProductCategoryName().isBlank()) ? "미지정" : r3.getProductCategoryName();
+                        if(categoryName.equals(r2.getProductCategoryName())) {
+                            SalesCategoryPerformanceProjection p = SalesCategoryPerformanceProjection.builder()
+                                    .productCategoryName(categoryName)
                                     .orderRegistration(r2.getOrderRegistration())
                                     .orderUnit(r2.getOrderUnit())
                                     .orderPayAmount(r2.getOrderPayAmount())
@@ -434,36 +528,24 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         });
     }
 
-    private List<SalesPerformanceProjection> getDashboardInitProjs(List<String> dateValues) {
-        List<SalesPerformanceProjection> projs = new ArrayList<>();
-        for (int i = 0; i < dateValues.size(); i++) {
-            SalesPerformanceProjection proj = SalesPerformanceProjection.builder()
-                    .datetime(dateValues.get(i))
-                    .orderRegistration(0)
-                    .orderPayAmount(0)
-                    .salesRegistration(0)
-                    .salesPayAmount(0)
-                    .build();
-
+    /*
+     * sales category and product performance projs 세팅
+     */
+    private List<SalesCategoryPerformanceProjection.ProductPerformance> getSalesCategoryAndProductPerformanceInitProjs(List<String> categoryName, Map<String, Object> params) {
+        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = new ArrayList<>();
+        
+        for (int i = 0; i < categoryName.size(); i++) {
+            SalesCategoryPerformanceProjection.ProductPerformance proj = SalesCategoryPerformanceProjection.ProductPerformance.builder()
+                .productCategoryName(categoryName.get(i))
+                .build();
             projs.add(proj);
         }
-
         return projs;
     }
 
-    private void updateDashboardProjs(List<SalesPerformanceProjection> initProjs, List<SalesPerformanceProjection> dashboardProjs) {
-        initProjs.forEach(r -> {
-            dashboardProjs.forEach(r2 -> {
-                if(r.getDatetime().equals(r2.getDatetime())) {
-                    r.setOrderRegistration(r2.getOrderRegistration())
-                     .setOrderPayAmount(r2.getOrderPayAmount())
-                     .setSalesRegistration(r2.getSalesRegistration())
-                     .setSalesPayAmount(r2.getSalesPayAmount());
-                }
-            });
-        });
-    }
-    
+    /*
+     * sales category and product performance projs 세팅
+     */
     private BooleanExpression withinDateRange(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         LocalDateTime startDate = null;
@@ -481,6 +563,29 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         }
 
         return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+    }
+
+    private void updateSalesCategoryAndProductPerformanceProjs(List<SalesCategoryPerformanceProjection.ProductPerformance> initProjs, List<SalesCategoryPerformanceProjection> performanceProjs) {
+        initProjs.forEach(r -> {
+            List<SalesCategoryPerformanceProjection> performances = new ArrayList<>();
+            performanceProjs.forEach(r2 -> {
+                if(r.getProductCategoryName().equals(r2.getProductCategoryName())) {
+                    SalesCategoryPerformanceProjection performance = SalesCategoryPerformanceProjection.builder()
+                        .productCategoryName(r2.getProductCategoryName())
+                        .productName(r2.getProductName())
+                        .orderRegistration(r2.getOrderRegistration())
+                        .orderUnit(r2.getOrderUnit())
+                        .orderPayAmount(r2.getOrderPayAmount())
+                        .salesRegistration(r2.getSalesRegistration())
+                        .salesUnit(r2.getSalesUnit())
+                        .salesPayAmount(r2.getSalesPayAmount())
+                        .build();
+
+                    performances.add(performance);
+                }
+            });
+            r.setPerformance(performances);
+        });
     }
 
     private BooleanExpression eqSearchCondition(Map<String, Object> params) {

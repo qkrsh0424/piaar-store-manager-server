@@ -65,4 +65,15 @@ public class SalesPerformanceApiController {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
+
+    @GetMapping("/category/product")
+    public ResponseEntity<?> searchSalesProductPerformanceByCategory(@RequestParam Map<String, Object> params) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
 }

@@ -13,6 +13,7 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerform
 public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection> qSearchDashBoardByParams(Map<String, Object> params);
     List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params);
-    List<SalesChannelPerformanceProjection> qSearchSalesPerformanceByChannel(Map<String, Object> params);
-    List<SalesCategoryPerformanceProjection> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName);
+    List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(Map<String, Object> params);
+    List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName);
+    List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(Map<String, Object> params, List<String> categoryName);
 }

@@ -25,11 +25,15 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformance(params);
     }
 
-    public List<SalesChannelPerformanceProjection> qSearchChannelSalesPerformanceByParams(Map<String, Object> params) {
+    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByParams(Map<String, Object> params) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(params);
     }
 
-    public List<SalesCategoryPerformanceProjection> qSearchCategorySalesPerformanceByParams(Map<String, Object> params, List<String> categoryName) {
+    public List<SalesCategoryPerformanceProjection.Performance> qSearchCategorySalesPerformanceByParams(Map<String, Object> params, List<String> categoryName) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByCategory(params, categoryName);
+    }
+
+    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchCategoryAndProductSalesPerformanceByParams(Map<String, Object> params, List<String> categoryName) {
+        return salesPerformanceRepositoryCustom.qSearchSalesProductPerformanceByCategory(params, categoryName);
     }
 }

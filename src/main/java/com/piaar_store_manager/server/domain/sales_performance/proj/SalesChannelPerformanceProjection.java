@@ -18,8 +18,13 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SalesChannelPerformanceProjection {
     private String datetime;
-    @Setter
-    private List<Performance> performance;
+    private String salesChannel;
+    private Integer orderPayAmount;
+    private Integer salesPayAmount;
+    private Integer orderRegistration;
+    private Integer salesRegistration;
+    private Integer orderUnit;
+    private Integer salesUnit;
 
     @Getter
     @Setter
@@ -29,12 +34,7 @@ public class SalesChannelPerformanceProjection {
     @NoArgsConstructor
     public static class Performance {
         private String datetime;
-        private String salesChannel;
-        private Integer orderPayAmount;
-        private Integer salesPayAmount;
-        private Integer orderRegistration;
-        private Integer salesRegistration;
-        private Integer orderUnit;
-        private Integer salesUnit;
+        @Setter
+        private List<SalesChannelPerformanceProjection> performance;
     }
 }
