@@ -14,5 +14,5 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection> qSearchDashBoardByParams(Map<String, Object> params);
     List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params);
     List<SalesChannelPerformanceProjection> qSearchSalesPerformanceByChannel(Map<String, Object> params);
-    List<SalesCategoryPerformanceProjection> qSearchSalesPerformanceByCategory(Map<String, Object> params);
+    List<SalesCategoryPerformanceProjection> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName);
 }

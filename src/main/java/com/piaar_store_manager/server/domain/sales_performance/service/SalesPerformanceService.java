@@ -29,7 +29,7 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(params);
     }
 
-    public List<SalesCategoryPerformanceProjection> qSearchCategorySalesPerformanceByParams(Map<String, Object> params) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByCategory(params);
+    public List<SalesCategoryPerformanceProjection> qSearchCategorySalesPerformanceByParams(Map<String, Object> params, List<String> categoryName) {
+        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByCategory(params, categoryName);
     }
 }

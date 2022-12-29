@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
+import com.piaar_store_manager.server.domain.product_category.service.ProductCategoryService;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategoryPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
@@ -19,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SalesPerformanceBusinessService {
     private final SalesPerformanceService salesPerformanceService;
+    private final ProductCategoryService productCategoryService;
 
     public List<SalesPerformanceDto> searchDashboard(Map<String, Object> params) {
         List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchDashBoardByParams(params);
@@ -39,7 +42,9 @@ public class SalesPerformanceBusinessService {
     }
 
     public List<SalesCategoryPerformanceDto> searchSalesPerformanceByCategory(Map<String, Object> params) {
-        List<SalesCategoryPerformanceProjection> projs = salesPerformanceService.qSearchCategorySalesPerformanceByParams(params);
+        List<ProductCategoryEntity> categoryEntities = productCategoryService.searchAll();
+        List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
+        List<SalesCategoryPerformanceProjection> projs = salesPerformanceService.qSearchCategorySalesPerformanceByParams(params, categoryName);
         List<SalesCategoryPerformanceDto> dtos = projs.stream().map(SalesCategoryPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
     }
