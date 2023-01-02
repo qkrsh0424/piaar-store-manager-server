@@ -76,11 +76,19 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                             .then(1)
                             .otherwise(0)
                         ).sum().as("orderRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("orderUnit"),
                         (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
                         (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
                             .then(1)
                             .otherwise(0)
                         ).sum().as("salesRegistration"),
+                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                            .then(qErpOrderItemEntity.unit)
+                            .otherwise(0)
+                        ).sum().as("salesUnit"),
                         (new CaseBuilder()
                             .when(qErpOrderItemEntity.salesYn.eq("y"))
                             .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
@@ -112,7 +120,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                             .then(1)
                             .otherwise(0)
                         ).sum().as("orderRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
                             .then(qErpOrderItemEntity.unit)
                             .otherwise(0)
                         ).sum().as("orderUnit"),
@@ -163,7 +171,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                             .then(1)
                             .otherwise(0)
                         ).sum().as("orderRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
                             .then(qErpOrderItemEntity.unit)
                             .otherwise(0)
                         ).sum().as("orderUnit"),
@@ -213,7 +221,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                     .then(1)
                     .otherwise(0)
                 ).sum().as("orderRegistration"),
-                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
                     .then(qErpOrderItemEntity.unit)
                     .otherwise(0)
                 ).sum().as("orderUnit"),
@@ -272,7 +280,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                     .then(1)
                     .otherwise(0)
                 ).sum().as("orderRegistration"),
-                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
                     .then(qErpOrderItemEntity.unit)
                     .otherwise(0)
                 ).sum().as("orderUnit"),
@@ -310,8 +318,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             SalesPerformanceProjection proj = SalesPerformanceProjection.builder()
                     .datetime(dateValues.get(i))
                     .orderRegistration(0)
+                    .orderUnit(0)
                     .orderPayAmount(0)
                     .salesRegistration(0)
+                    .salesUnit(0)
                     .salesPayAmount(0)
                     .build();
 
