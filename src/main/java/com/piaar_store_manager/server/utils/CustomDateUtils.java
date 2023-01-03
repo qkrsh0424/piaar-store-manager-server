@@ -185,6 +185,17 @@ public class CustomDateUtils {
         return LocalDateTime.parse(formatter.format(cal.getTime())).minusMinutes(1);
     }
 
+    /*
+     * Change UTC LocalDateTime By Clinet LocalDateTime
+     */
+    public static LocalDateTime changeUtcDateTime(LocalDateTime date, int hourDiff) {
+        if(hourDiff > 0) {
+            return date.plusHours(hourDiff);
+        }else {
+            return date.minusHours(hourDiff);
+        }
+    }
+
     /**
      * <p>@JsonDeserialize(using = CustomDateUtils.JsonLocalDateTimeBasicDeserializer.class)</p>
      * <p>private LocalDateTime example</p>
