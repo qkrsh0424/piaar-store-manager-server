@@ -336,8 +336,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             dashboardProjs.forEach(r2 -> {
                 if(r.getDatetime().equals(r2.getDatetime())) {
                     r.setOrderRegistration(r2.getOrderRegistration())
+                     .setOrderUnit(r2.getOrderUnit())
                      .setOrderPayAmount(r2.getOrderPayAmount())
                      .setSalesRegistration(r2.getSalesRegistration())
+                     .setSalesUnit(r2.getSalesUnit())
                      .setSalesPayAmount(r2.getSalesPayAmount());
                 }
             });
@@ -565,8 +567,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             return null;
         }
 
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter).plusHours(9);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter).plusHours(9);
+        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
+        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
 
         if (startDate.isAfter(endDate)) {
             throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
