@@ -17,6 +17,7 @@ import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItem
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
+import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -157,54 +158,44 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(Map<String, Object> params) {
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
+    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
-        List<SalesChannelPerformanceProjection.Performance> projs = this.getSalesChannelPerformanceInitProjs(params);
+        List<SalesChannelPerformanceProjection.Performance> projs = this.getSalesChannelPerformanceInitProjs(filter);
 
-        List<SalesChannelPerformanceProjection> performanceProjs = (List<SalesChannelPerformanceProjection>) query.from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)).and(eqSearchCondition(params)))
-            .groupBy(
-                qErpOrderItemEntity.salesChannel.coalesce(""),
-                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d")
-            )
-            .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
-            .transform(
-                GroupBy.groupBy(
-                    qErpOrderItemEntity.salesChannel.coalesce(""),
-                    dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d")
-                )
-                .list(
-                    Projections.fields(
-                        SalesChannelPerformanceProjection.class,
-                        dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
-                        qErpOrderItemEntity.salesChannel.coalesce("").as("salesChannel"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("orderRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("orderUnit"),
-                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("salesRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("salesUnit"),
-                        (new CaseBuilder()
-                            .when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                            .otherwise(0)
-                        ).sum().as("salesPayAmount")
-                    )
-                )
-            );
+        StringPath salesChannel = Expressions.stringPath("salesChannel");
+        StringPath datetime = Expressions.stringPath("datetime");
+
+        List<SalesChannelPerformanceProjection> performanceProjs = query
+                .select(
+                        Projections.fields(SalesChannelPerformanceProjection.class,
+                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+                                qErpOrderItemEntity.salesChannel.coalesce("").as(salesChannel),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                                        .then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as("salesPayAmount")))
+                .from(qErpOrderItemEntity)
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter))
+                        .and(eqSearchCondition(filter)))
+                .groupBy(salesChannel, datetime)
+                .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
+                .fetch();
 
         // 실행 결과로 projs를 세팅
         this.updateSalesChannelPerformanceProjs(projs, performanceProjs);
@@ -427,6 +418,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales channel performance projs 세팅
      */
+    // TODO :: params 사용하는 메서드 제거
     private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         
@@ -444,6 +436,37 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
         startDate = CustomDateUtils.changeUtcDateTime(startDate, utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
+
+        List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
+        for (int i = 0; i <= dateDiff; i++) {
+            LocalDateTime datetime = startDate.plusDays(i);
+
+            // 검색날짜가 범위에 벗어난다면 for문 탈출
+            if (datetime.isAfter(endDate)) {
+                break;
+            }
+
+            SalesChannelPerformanceProjection.Performance proj = SalesChannelPerformanceProjection.Performance.builder()
+                .datetime(datetime.toLocalDate().toString())
+                .build();
+            projs.add(proj);
+        }
+        return projs;
+    }
+
+    private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(ChannelPerformanceSearchFilter filter) {
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+        
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+        int dateDiff = (int) Duration.between(filter.getStartDate(), filter.getEndDate()).toDays();
+
+        startDate = CustomDateUtils.changeUtcDateTime(filter.getStartDate(), utcHourDifference);
+        endDate = CustomDateUtils.changeUtcDateTime(filter.getEndDate(), utcHourDifference);
 
         List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
         for (int i = 0; i <= dateDiff; i++) {
@@ -633,12 +656,36 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
     }
 
+    private BooleanExpression withinDateRange(ChannelPerformanceSearchFilter filter) {
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
+        }
+
+        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+    }
+
     /*
      * search option code
      */
     private BooleanExpression eqSearchCondition(Map<String, Object> params) {
         String[] searchOptionCode = params.get("optionCode") == null ? null : params.get("optionCode").toString().split(",");
         if (searchOptionCode == null || searchOptionCode.length == 0) {
+            return null;
+        }
+        return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));
+    }
+
+    private BooleanExpression eqSearchCondition(ChannelPerformanceSearchFilter filter) {
+        List<String> searchOptionCode = filter.getOptionCodes();
+        if (searchOptionCode == null || searchOptionCode.size() == 0) {
             return null;
         }
         return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));

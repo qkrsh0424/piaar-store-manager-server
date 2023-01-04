@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -25,8 +26,8 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformance(params);
     }
 
-    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByParams(Map<String, Object> params) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(params);
+    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByFilter(ChannelPerformanceSearchFilter filter) {
+        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
     }
 
     public List<SalesCategoryPerformanceProjection.Performance> qSearchCategorySalesPerformanceByParams(Map<String, Object> params, List<String> categoryName) {

@@ -11,6 +11,7 @@ import com.piaar_store_manager.server.domain.product_category.service.ProductCat
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategoryPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
+import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -35,8 +36,8 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesChannelPerformanceDto.Performance> searchSalesPerformanceByChannel(Map<String, Object> params) {
-        List<SalesChannelPerformanceProjection.Performance> projs = salesPerformanceService.qSearchChannelSalesPerformanceByParams(params);
+    public List<SalesChannelPerformanceDto.Performance> searchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+        List<SalesChannelPerformanceProjection.Performance> projs = salesPerformanceService.qSearchChannelSalesPerformanceByFilter(filter);
         List<SalesChannelPerformanceDto.Performance> dtos = projs.stream().map(SalesChannelPerformanceDto.Performance::toDto).collect(Collectors.toList());
         return dtos;
     }
