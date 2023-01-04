@@ -23,7 +23,6 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannel
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
-import com.querydsl.core.group.GroupBy;
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
@@ -51,6 +50,64 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         this.query = query;
     }
 
+    // @Override
+    // public List<SalesPerformanceProjection> qSearchDashBoardByParamsEx(Map<String, Object> params) {
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        
+    //     if(params.get("date") == null) {
+    //         return null;
+    //     }
+        
+    //     List<String> dateList = Arrays.asList(params.get("date").toString().split(","));
+    //     int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
+
+    //     List<LocalDateTime> localDatetimeList = dateList.stream().map(r -> LocalDateTime.parse(r, formatter)).collect(Collectors.toList());
+    //     List<String> dateValues =  localDatetimeList.stream().map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString()).collect(Collectors.toList());
+        
+    //     // 날짜별 데이터 초기화
+    //     List<SalesPerformanceProjection> projs = this.getDashboardInitProjs(dateValues);
+
+    //     List<SalesPerformanceProjection> dashboardProjs = (List<SalesPerformanceProjection>) query.from(qErpOrderItemEntity)
+    //         .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").in(dateValues)))
+    //         .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
+    //         .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
+    //         .transform(
+    //             GroupBy.groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
+    //             .list(
+    //                 Projections.fields(
+    //                     SalesPerformanceProjection.class,
+    //                     dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("orderRegistration"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+    //                         .then(qErpOrderItemEntity.unit)
+    //                         .otherwise(0)
+    //                     ).sum().as("orderUnit"),
+    //                     (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("salesRegistration"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(qErpOrderItemEntity.unit)
+    //                         .otherwise(0)
+    //                     ).sum().as("salesUnit"),
+    //                     (new CaseBuilder()
+    //                         .when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+    //                         .otherwise(0)
+    //                     ).sum().as("salesPayAmount")
+    //                 )
+    //             )
+    //         );
+
+    //     // 실행 결과로 projs를 세팅
+    //     this.updateDashboardProjs(projs, dashboardProjs);
+    //     return projs;
+    // }
+
     @Override
     public List<SalesPerformanceProjection> qSearchDashBoardByParams(Map<String, Object> params) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -68,46 +125,87 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         // 날짜별 데이터 초기화
         List<SalesPerformanceProjection> projs = this.getDashboardInitProjs(dateValues);
 
-        List<SalesPerformanceProjection> dashboardProjs = (List<SalesPerformanceProjection>) query.from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").in(dateValues)))
-            .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-            .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
-            .transform(
-                GroupBy.groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-                .list(
-                    Projections.fields(
-                        SalesPerformanceProjection.class,
-                        dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("orderRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("orderUnit"),
-                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("salesRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("salesUnit"),
-                        (new CaseBuilder()
-                            .when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                            .otherwise(0)
-                        ).sum().as("salesPayAmount")
-                    )
-                )
-            );
+        StringPath datetime = Expressions.stringPath("datetime");
+
+        List<SalesPerformanceProjection> dashboardProjs = query
+                .select(
+                        Projections.fields(SalesPerformanceProjection.class,
+                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull()).then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as("salesPayAmount")))
+                .from(qErpOrderItemEntity)
+                .where(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").in(dateValues))
+                .groupBy(datetime)
+                .orderBy(datetime.asc())
+                .fetch();
 
         // 실행 결과로 projs를 세팅
         this.updateDashboardProjs(projs, dashboardProjs);
         return projs;
     }
+
+    // @Override
+    // public List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params) {
+    //     int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
+
+    //     // 날짜별 데이터 초기화
+    //     List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(params);
+
+    //     List<SalesPerformanceProjection> performanceProjs = (List<SalesPerformanceProjection>) query.from(qErpOrderItemEntity)
+    //         .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+    //         .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
+    //         .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
+    //         .transform(
+    //             GroupBy.groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
+    //             .list(
+    //                 Projections.fields(
+    //                     SalesPerformanceProjection.class,
+    //                     dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("orderRegistration"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+    //                         .then(qErpOrderItemEntity.unit)
+    //                         .otherwise(0)
+    //                     ).sum().as("orderUnit"),
+    //                     (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(1)
+    //                         .otherwise(0)
+    //                     ).sum().as("salesRegistration"),
+    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(qErpOrderItemEntity.unit)
+    //                         .otherwise(0)
+    //                     ).sum().as("salesUnit"),
+    //                     (new CaseBuilder()
+    //                         .when(qErpOrderItemEntity.salesYn.eq("y"))
+    //                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+    //                         .otherwise(0)
+    //                     ).sum().as("salesPayAmount")
+    //                 )
+    //             )
+    //         );
+
+    //     // 실행 결과로 projs를 세팅
+    //     this.updateSalesPerformanceProjs(projs, performanceProjs);
+    //     return projs;
+    // }
 
     @Override
     public List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params) {
@@ -116,41 +214,35 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         // 날짜별 데이터 초기화
         List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(params);
 
-        List<SalesPerformanceProjection> performanceProjs = (List<SalesPerformanceProjection>) query.from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
-            .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-            .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
-            .transform(
-                GroupBy.groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-                .list(
-                    Projections.fields(
-                        SalesPerformanceProjection.class,
-                        dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("orderRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("orderUnit"),
-                        (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(1)
-                            .otherwise(0)
-                        ).sum().as("salesRegistration"),
-                        (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.unit)
-                            .otherwise(0)
-                        ).sum().as("salesUnit"),
-                        (new CaseBuilder()
-                            .when(qErpOrderItemEntity.salesYn.eq("y"))
-                            .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                            .otherwise(0)
-                        ).sum().as("salesPayAmount")
-                    )
-                )
-            );
+        StringPath datetime = Expressions.stringPath("datetime");
+
+        List<SalesPerformanceProjection> performanceProjs = query
+                .select(
+                        Projections.fields(SalesPerformanceProjection.class,
+                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                                        .then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as("salesPayAmount")))
+                .from(qErpOrderItemEntity)
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+                .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
+                .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
+                .fetch();
 
         // 실행 결과로 projs를 세팅
         this.updateSalesPerformanceProjs(projs, performanceProjs);
