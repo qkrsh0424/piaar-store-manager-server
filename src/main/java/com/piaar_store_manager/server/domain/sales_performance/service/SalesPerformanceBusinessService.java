@@ -12,6 +12,7 @@ import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategory
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -24,8 +25,8 @@ public class SalesPerformanceBusinessService {
     private final SalesPerformanceService salesPerformanceService;
     private final ProductCategoryService productCategoryService;
 
-    public List<SalesPerformanceDto> searchDashboard(Map<String, Object> params) {
-        List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchDashBoardByParams(params);
+    public List<SalesPerformanceDto> searchDashboard(DashboardPerformanceSearchFilter filter) {
+        List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchDashBoardByParams(filter);
         List<SalesPerformanceDto> dtos = projs.stream().map(SalesPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
     }

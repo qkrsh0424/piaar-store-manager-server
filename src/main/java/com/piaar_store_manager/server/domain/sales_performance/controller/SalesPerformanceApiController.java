@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.service.SalesPerformanceBusinessService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,11 @@ import lombok.RequiredArgsConstructor;
 public class SalesPerformanceApiController {
     private final SalesPerformanceBusinessService salesPerformanceBusinessService;
 
-    @GetMapping("/dashboard")
-    public ResponseEntity<?> searchDashboard(@RequestParam Map<String, Object> params) {
+    @PostMapping("/dashboard/search")
+    public ResponseEntity<?> searchDashboard(@RequestBody DashboardPerformanceSearchFilter filter) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchDashboard(params));
+        message.setData(salesPerformanceBusinessService.searchDashboard(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

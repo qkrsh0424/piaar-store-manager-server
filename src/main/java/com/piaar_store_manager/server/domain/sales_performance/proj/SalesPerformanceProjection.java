@@ -1,10 +1,5 @@
 package com.piaar_store_manager.server.domain.sales_performance.proj;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import org.springframework.jdbc.core.RowMapper;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
