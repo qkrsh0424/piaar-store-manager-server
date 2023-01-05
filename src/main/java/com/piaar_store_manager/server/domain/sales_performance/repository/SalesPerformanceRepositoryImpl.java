@@ -3,10 +3,8 @@ package com.piaar_store_manager.server.domain.sales_performance.repository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +16,7 @@ import com.piaar_store_manager.server.domain.product_category.entity.QProductCat
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -93,60 +92,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    // @Override
-    // public List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params) {
-    //     int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
-
-    //     // 날짜별 데이터 초기화
-    //     List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(params);
-
-    //     List<SalesPerformanceProjection> performanceProjs = (List<SalesPerformanceProjection>) query.from(qErpOrderItemEntity)
-    //         .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
-    //         .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-    //         .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
-    //         .transform(
-    //             GroupBy.groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
-    //             .list(
-    //                 Projections.fields(
-    //                     SalesPerformanceProjection.class,
-    //                     dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
-    //                     (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-    //                         .then(1)
-    //                         .otherwise(0)
-    //                     ).sum().as("orderRegistration"),
-    //                     (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-    //                         .then(qErpOrderItemEntity.unit)
-    //                         .otherwise(0)
-    //                     ).sum().as("orderUnit"),
-    //                     (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum()).as("orderPayAmount"),
-    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                         .then(1)
-    //                         .otherwise(0)
-    //                     ).sum().as("salesRegistration"),
-    //                     (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                         .then(qErpOrderItemEntity.unit)
-    //                         .otherwise(0)
-    //                     ).sum().as("salesUnit"),
-    //                     (new CaseBuilder()
-    //                         .when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-    //                         .otherwise(0)
-    //                     ).sum().as("salesPayAmount")
-    //                 )
-    //             )
-    //         );
-
-    //     // 실행 결과로 projs를 세팅
-    //     this.updateSalesPerformanceProjs(projs, performanceProjs);
-    //     return projs;
-    // }
-
     @Override
-    public List<SalesPerformanceProjection> qSearchSalesPerformance(Map<String, Object> params) {
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
+    public List<SalesPerformanceProjection> qSearchSalesPerformance(SalesPerformanceSearchFilter filter) {
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 데이터 초기화
-        List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(params);
+        List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(filter);
 
         StringPath datetime = Expressions.stringPath("datetime");
 
@@ -173,7 +124,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
                                         .otherwise(0)).sum().as("salesPayAmount")))
                 .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
                 .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
                 .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
                 .fetch();
@@ -217,7 +168,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
                                         .otherwise(0)).sum().as("salesPayAmount")))
                 .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter))
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                         .and(eqSearchCondition(filter)))
                 .groupBy(salesChannel, datetime)
                 .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
@@ -229,11 +180,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(Map<String, Object> params, List<String> categoryName) {
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
+    public List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName) {
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         
         // 날짜별 카테고리 데이터 초기화
-        List<SalesCategoryPerformanceProjection.Performance> projs = this.getSalesCategoryPerformanceInitProjs(categoryName, params);
+        List<SalesCategoryPerformanceProjection.Performance> projs = this.getSalesCategoryPerformanceInitProjs(filter, categoryName);
 
         StringPath productCategoryName = Expressions.stringPath("productCategoryName");
         StringPath datetime = Expressions.stringPath("datetime");
@@ -274,7 +225,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 ).sum().as("salesPayAmount")
             ))
             .from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
             .groupBy(productCategoryName, datetime)
             .orderBy(datetime.asc())
             .fetch();
@@ -285,9 +236,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(Map<String, Object> params, List<String> categoryName) {
+    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName) {
         // 카테고리별 데이터 초기화
-        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this.getSalesCategoryAndProductPerformanceInitProjs(categoryName, params);
+        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this.getSalesCategoryAndProductPerformanceInitProjs(categoryName);
 
         StringPath productCategoryName = Expressions.stringPath("productCategoryName");
         StringPath productName = Expressions.stringPath("productName");
@@ -334,7 +285,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 ).sum().as("salesPayAmount")
             ))
             .from(qErpOrderItemEntity)
-            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(params)))
+            .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
             .groupBy(productName)
             .orderBy(productCategoryName.asc())
             .fetch();
@@ -384,18 +335,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales performance projs 세팅
      */
-    private List<SalesPerformanceProjection> getSalesPerformanceInitProjs(Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
+    private List<SalesPerformanceProjection> getSalesPerformanceInitProjs(SalesPerformanceSearchFilter filter) {
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         
-        if (params.get("startDate") == null || params.get("endDate") == null) {
+        if (startDate == null || endDate == null) {
             return null;
         }
-        
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
 
         startDate = CustomDateUtils.changeUtcDateTime(startDate, utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
@@ -441,55 +388,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         });
     }
 
-    /*
-     * sales channel performance projs 세팅
-     */
-    // TODO :: params 사용하는 메서드 제거
-    private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-        
-        if (params.get("startDate") == null || params.get("endDate") == null) {
-            return null;
-        }
-        
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
-        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
-
-        startDate = CustomDateUtils.changeUtcDateTime(startDate, utcHourDifference);
-        endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
-
-        List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
-        for (int i = 0; i <= dateDiff; i++) {
-            LocalDateTime datetime = startDate.plusDays(i);
-
-            // 검색날짜가 범위에 벗어난다면 for문 탈출
-            if (datetime.isAfter(endDate)) {
-                break;
-            }
-
-            SalesChannelPerformanceProjection.Performance proj = SalesChannelPerformanceProjection.Performance.builder()
-                .datetime(datetime.toLocalDate().toString())
-                .build();
-            projs.add(proj);
-        }
-        return projs;
-    }
-
     private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(ChannelPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+        int dateDiff = (int) Duration.between(filter.getStartDate(), filter.getEndDate()).toDays();
 
         if (startDate == null || endDate == null) {
             return null;
         }
         
-        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
-        int dateDiff = (int) Duration.between(filter.getStartDate(), filter.getEndDate()).toDays();
 
         startDate = CustomDateUtils.changeUtcDateTime(filter.getStartDate(), utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(filter.getEndDate(), utcHourDifference);
@@ -543,21 +451,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales category performance projs 세팅
      */
-    private List<SalesCategoryPerformanceProjection.Performance> getSalesCategoryPerformanceInitProjs(List<String> categoryName, Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
+    private List<SalesCategoryPerformanceProjection.Performance> getSalesCategoryPerformanceInitProjs(SalesPerformanceSearchFilter filter, List<String> categoryName) {
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
         categoryName.add("미지정");
         
-        if (params.get("startDate") == null || params.get("endDate") == null) {
+        if (startDate == null || endDate == null) {
             return null;
         }
-        
-        int utcHourDifference = params.get("utcHourDifference") != null ? Integer.parseInt(params.get("utcHourDifference").toString()) : 0;
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
-        int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
         startDate = CustomDateUtils.changeUtcDateTime(startDate, utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
@@ -625,7 +528,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * sales category and product performance projs 세팅
      */
-    private List<SalesCategoryPerformanceProjection.ProductPerformance> getSalesCategoryAndProductPerformanceInitProjs(List<String> categoryName, Map<String, Object> params) {
+    private List<SalesCategoryPerformanceProjection.ProductPerformance> getSalesCategoryAndProductPerformanceInitProjs(List<String> categoryName) {
         List<SalesCategoryPerformanceProjection.ProductPerformance> projs = new ArrayList<>();
         
         for (int i = 0; i < categoryName.size(); i++) {
@@ -663,30 +566,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * date range 설정
      */
-    private BooleanExpression withinDateRange(Map<String, Object> params) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = null;
-        LocalDateTime endDate = null;
-
-        if (params.get("startDate") == null || params.get("endDate") == null) {
-            return null;
-        }
-
-        startDate = LocalDateTime.parse(params.get("startDate").toString(), formatter);
-        endDate = LocalDateTime.parse(params.get("endDate").toString(), formatter);
-
-        if (startDate.isAfter(endDate)) {
-            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
-        }
-
-        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
-    }
-
-    private BooleanExpression withinDateRange(ChannelPerformanceSearchFilter filter) {
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        LocalDateTime startDate = filter.getStartDate();
-        LocalDateTime endDate = filter.getEndDate();
-
+    private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
             return null;
         }
@@ -701,14 +581,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     /*
      * search option code
      */
-    private BooleanExpression eqSearchCondition(Map<String, Object> params) {
-        String[] searchOptionCode = params.get("optionCode") == null ? null : params.get("optionCode").toString().split(",");
-        if (searchOptionCode == null || searchOptionCode.length == 0) {
-            return null;
-        }
-        return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));
-    }
-
     private BooleanExpression eqSearchCondition(ChannelPerformanceSearchFilter filter) {
         List<String> searchOptionCode = filter.getOptionCodes();
         if (searchOptionCode == null || searchOptionCode.size() == 0) {

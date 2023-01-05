@@ -13,6 +13,7 @@ import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelP
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -31,8 +32,8 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesPerformanceDto> searchSalesPerformance(Map<String, Object> params) {
-        List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchSalesPerformanceByParams(params);
+    public List<SalesPerformanceDto> searchSalesPerformance(SalesPerformanceSearchFilter filter) {
+        List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchSalesPerformanceByParams(filter);
         List<SalesPerformanceDto> dtos = projs.stream().map(SalesPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
     }
@@ -43,18 +44,27 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesCategoryPerformanceDto.Performance> searchSalesPerformanceByCategory(Map<String, Object> params) {
+    public List<SalesCategoryPerformanceDto.Performance> searchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter) {
+        System.out.println(filter);
         List<ProductCategoryEntity> categoryEntities = productCategoryService.searchAll();
         List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
-        List<SalesCategoryPerformanceProjection.Performance> projs = salesPerformanceService.qSearchCategorySalesPerformanceByParams(params, categoryName);
+        List<SalesCategoryPerformanceProjection.Performance> projs = salesPerformanceService.qSearchCategorySalesPerformanceByParams(filter, categoryName);
         List<SalesCategoryPerformanceDto.Performance> dtos = projs.stream().map(SalesCategoryPerformanceDto.Performance::toDto).collect(Collectors.toList());
         return dtos;
     }
 
-    public List<SalesCategoryPerformanceDto.ProductPerformance> searchSalesProductPerformanceByCategory(Map<String, Object> params) {
+    // public List<SalesCategoryPerformanceDto.ProductPerformance> searchSalesProductPerformanceByCategory(Map<String, Object> params) {
+    //     List<ProductCategoryEntity> categoryEntities = productCategoryService.searchAll();
+    //     List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
+    //     List<SalesCategoryPerformanceProjection.ProductPerformance> projs = salesPerformanceService.qSearchCategoryAndProductSalesPerformanceByParams(params, categoryName);
+    //     List<SalesCategoryPerformanceDto.ProductPerformance> dtos = projs.stream().map(SalesCategoryPerformanceDto.ProductPerformance::toDto).collect(Collectors.toList());
+    //     return dtos;
+    // }
+
+    public List<SalesCategoryPerformanceDto.ProductPerformance> searchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter) {
         List<ProductCategoryEntity> categoryEntities = productCategoryService.searchAll();
         List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
-        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = salesPerformanceService.qSearchCategoryAndProductSalesPerformanceByParams(params, categoryName);
+        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = salesPerformanceService.qSearchCategoryAndProductSalesPerformanceByParams(filter, categoryName);
         List<SalesCategoryPerformanceDto.ProductPerformance> dtos = projs.stream().map(SalesCategoryPerformanceDto.ProductPerformance::toDto).collect(Collectors.toList());
         return dtos;
     }

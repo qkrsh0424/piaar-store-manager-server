@@ -15,6 +15,7 @@ import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.service.SalesPerformanceBusinessService;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 public class SalesPerformanceApiController {
     private final SalesPerformanceBusinessService salesPerformanceBusinessService;
 
-    @PostMapping("/dashboard/search")
+    @PostMapping("/search/dashboard")
     public ResponseEntity<?> searchDashboard(@RequestBody DashboardPerformanceSearchFilter filter) {
         Message message = new Message();
 
@@ -37,18 +38,29 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/total")
-    public ResponseEntity<?> searchSalesPerformance(@RequestParam Map<String, Object> params) {
+    // @GetMapping("/total")
+    // public ResponseEntity<?> searchSalesPerformance(@RequestParam Map<String, Object> params) {
+    //     Message message = new Message();
+
+    //     message.setData(salesPerformanceBusinessService.searchSalesPerformance(params));
+    //     message.setStatus(HttpStatus.OK);
+    //     message.setMessage("success");
+
+    //     return new ResponseEntity<>(message, message.getStatus());
+    // }
+
+    @PostMapping("/search/total")
+    public ResponseEntity<?> searchSalesPerformance(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchSalesPerformance(params));
+        message.setData(salesPerformanceBusinessService.searchSalesPerformance(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/channel/search")
+    @PostMapping("/search/channel")
     public ResponseEntity<?> searchSalesPerformanceByChannel(@RequestBody ChannelPerformanceSearchFilter filter) {
         Message message = new Message();
 
@@ -59,22 +71,22 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/category")
-    public ResponseEntity<?> searchSalesPerformanceByCategory(@RequestParam Map<String, Object> params) {
+    @PostMapping("/search/category")
+    public ResponseEntity<?> searchSalesPerformanceByCategory(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByCategory(params));
+        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByCategory(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @GetMapping("/category/product")
-    public ResponseEntity<?> searchSalesProductPerformanceByCategory(@RequestParam Map<String, Object> params) {
+    @PostMapping("/search/category/product")
+    public ResponseEntity<?> searchSalesProductPerformanceByCategory(@RequestParam SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(params));
+        message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
