@@ -296,6 +296,62 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     /*
+     * date range 설정
+     */
+    private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
+        }
+
+        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+    }
+
+    /*
+     * search option code
+     */
+    private BooleanExpression eqSearchCondition(ChannelPerformanceSearchFilter filter) {
+        List<String> searchOptionCode = filter.getOptionCodes();
+        if (searchOptionCode == null || searchOptionCode.size() == 0) {
+            return null;
+        }
+        return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));
+    }
+
+    /*
+     * date format setting
+     */
+    private DateTemplate<String> dateFormatTemplate(DateTemplate<String> channelOrderDate, String format) {
+        DateTemplate<String> formattedDate = Expressions.dateTemplate(
+            String.class,
+            "DATE_FORMAT({0}, {1})",
+            channelOrderDate,
+            ConstantImpl.create(format)
+        );
+
+        return formattedDate;
+    }
+
+    /*
+     * hour setting
+     */
+    private DateTemplate<String> dateAddHourTemplate(int hour) {
+        LocalTime addTime = LocalTime.of(hour, 0);
+
+        DateTemplate<String> addDate = Expressions.dateTemplate(
+            String.class,
+            "ADDTIME({0}, {1})",
+            qErpOrderItemEntity.channelOrderDate, 
+            ConstantImpl.create(addTime)
+        );
+
+        return addDate;
+    }
+
+    /*
      * dashboard projs 세팅
      */
     private List<SalesPerformanceProjection> getDashboardInitProjs(List<String> dateValues) {
@@ -561,61 +617,5 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             });
             r.setPerformance(performances);
         });
-    }
-
-    /*
-     * date range 설정
-     */
-    private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
-            return null;
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
-        }
-
-        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
-    }
-
-    /*
-     * search option code
-     */
-    private BooleanExpression eqSearchCondition(ChannelPerformanceSearchFilter filter) {
-        List<String> searchOptionCode = filter.getOptionCodes();
-        if (searchOptionCode == null || searchOptionCode.size() == 0) {
-            return null;
-        }
-        return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));
-    }
-
-    /*
-     * date format setting
-     */
-    private DateTemplate<String> dateFormatTemplate(DateTemplate<String> channelOrderDate, String format) {
-        DateTemplate<String> formattedDate = Expressions.dateTemplate(
-            String.class,
-            "DATE_FORMAT({0}, {1})",
-            channelOrderDate,
-            ConstantImpl.create(format)
-        );
-
-        return formattedDate;
-    }
-
-    /*
-     * hour setting
-     */
-    private DateTemplate<String> dateAddHourTemplate(int hour) {
-        LocalTime addTime = LocalTime.of(hour, 0);
-
-        DateTemplate<String> addDate = Expressions.dateTemplate(
-            String.class,
-            "ADDTIME({0}, {1})",
-            qErpOrderItemEntity.channelOrderDate, 
-            ConstantImpl.create(addTime)
-        );
-
-        return addDate;
     }
 }

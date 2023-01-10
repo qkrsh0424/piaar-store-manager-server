@@ -83,7 +83,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/category/product")
-    public ResponseEntity<?> searchSalesProductPerformanceByCategory(@RequestParam SalesPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchSalesProductPerformanceByCategory(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(filter));

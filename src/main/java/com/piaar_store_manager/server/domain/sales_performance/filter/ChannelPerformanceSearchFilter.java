@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.sales_performance.filter;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -17,5 +16,5 @@ public class ChannelPerformanceSearchFilter {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer utcHourDifference;
-    private List<String> optionCodes = new ArrayList<>();
+    private List<String> optionCodes;
 }

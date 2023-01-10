@@ -138,17 +138,5 @@ public class ProductGetDto {
         ProductGetDto product;
         @Valid
         List<ProductOptionGetDto> options;
-
-        public static RelatedOptions toDto(ProductProjection.RelatedCategoryAndOptions proj) {
-            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
-            List<ProductOptionGetDto> options = proj.getOptions().stream().map(option -> ProductOptionGetDto.toDto(option)).collect(Collectors.toList());
-
-            RelatedOptions dto = RelatedOptions.builder()
-                    .product(product)
-                    .options(options)
-                    .build();
-
-            return dto;
-        }
     }
 }
