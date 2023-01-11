@@ -1,20 +1,17 @@
 package com.piaar_store_manager.server.domain.sales_performance.controller;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.service.SalesPerformanceBusinessService;
 
@@ -87,6 +84,39 @@ public class SalesPerformanceApiController {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product")
+    public ResponseEntity<?> searchSalesPerformanceByProduct(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByProduct(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product/best")
+    public ResponseEntity<?> searchBestProductPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchBestProductPerformance(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product/option/best")
+    public ResponseEntity<?> searchBestOptionPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchBestProductOptionPerformance(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

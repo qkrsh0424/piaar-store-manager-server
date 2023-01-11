@@ -11,15 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
+import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
+import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.BestOptionPerformance;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.BestProductPerformance;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.Performance;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
 import com.querydsl.core.types.ConstantImpl;
@@ -29,6 +36,8 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
+import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -295,6 +304,149 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
+    @Override
+    public List<Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter) {
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+
+        // 날짜별 채널데이터 초기화
+        List<SalesProductPerformanceProjection.Performance> projs = this.getSalesProductOptionPerformanceInitProjs(filter);
+
+        StringPath datetime = Expressions.stringPath("datetime");
+        PathBuilder<ProductEntity> product = new PathBuilder<>(ProductEntity.class, "product");
+        PathBuilder<ProductOptionEntity> option = new PathBuilder<>(ProductOptionEntity.class, "option");
+
+        List<SalesProductPerformanceProjection> performanceProjs = query
+                .select(
+                        Projections.fields(SalesProductPerformanceProjection.class,
+                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity)
+                                        .from(qProductOptionEntity)
+                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
+                                        product)
+                                        ),
+                                (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity)
+                                        .from(qProductOptionEntity)
+                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
+                                        option)),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                                        .then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as("salesPayAmount")))
+                .from(qErpOrderItemEntity)
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+                        .and(eqSearchCondition(filter)))
+                .groupBy(option, datetime)
+                .fetch();
+
+        // 실행 결과로 projs를 세팅
+        this.updateSalesProductOptionPerformanceProjs(projs, performanceProjs);
+        return projs;
+    }
+
+    @Override
+    public List<BestProductPerformance> qSearchBestProductPerformance(ProductPerformanceSearchFilter filter) {
+        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
+        NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
+
+        List<BestProductPerformance> performanceProjs = query
+                .select(
+                        Projections.fields(BestProductPerformance.class,
+                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
+                                        .from(qProductOptionEntity)
+                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
+                                        productDefaultName)),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                                        .then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as(salesPayAmount)))
+                .from(qErpOrderItemEntity)
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+                        // .and(eqSearchCondition(filter))
+                )
+                .groupBy(productDefaultName)
+                .orderBy(salesPayAmount.desc())
+                .fetch();
+
+        return performanceProjs;
+    }
+
+    @Override
+    public List<BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
+        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
+        StringPath optionDefaultName = Expressions.stringPath("optionDefaultName");
+        NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
+
+        List<BestOptionPerformance> performanceProjs = query
+                .select(
+                        Projections.fields(BestOptionPerformance.class,
+                            (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
+                                        .from(qProductOptionEntity)
+                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
+                                        productDefaultName)),
+                                (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity.defaultName)
+                                        .from(qProductOptionEntity)
+                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
+                                        optionDefaultName)),
+                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
+                                        .then(1)
+                                        .otherwise(0)).sum().as("orderRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(1)
+                                        .otherwise(0)).sum().as("salesRegistration"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("salesUnit"),
+                                (new CaseBuilder()
+                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
+                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
+                                        .otherwise(0)).sum().as(salesPayAmount)))
+                .from(qErpOrderItemEntity)
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+                        // .and(eqSearchCondition(filter))
+                )
+                .groupBy(optionDefaultName)
+                .orderBy(salesPayAmount.desc())
+                .fetch();
+
+        return performanceProjs;
+    }
+
     /*
      * date range 설정
      */
@@ -314,6 +466,17 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
      * search option code
      */
     private BooleanExpression eqSearchCondition(ChannelPerformanceSearchFilter filter) {
+        List<String> searchOptionCode = filter.getOptionCodes();
+        if (searchOptionCode == null || searchOptionCode.size() == 0) {
+            return null;
+        }
+        return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(searchOptionCode));
+    }
+
+    /*
+     * search option code
+     */
+    private BooleanExpression eqSearchCondition(ProductPerformanceSearchFilter filter) {
         List<String> searchOptionCode = filter.getOptionCodes();
         if (searchOptionCode == null || searchOptionCode.size() == 0) {
             return null;
@@ -617,5 +780,63 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             });
             r.setPerformance(performances);
         });
+    }
+
+    private List<SalesProductPerformanceProjection.Performance> getSalesProductOptionPerformanceInitProjs(ProductPerformanceSearchFilter filter) {
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+        int dateDiff = (int) Duration.between(filter.getStartDate(), filter.getEndDate()).toDays();
+
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+        
+        startDate = CustomDateUtils.changeUtcDateTime(filter.getStartDate(), utcHourDifference);
+        endDate = CustomDateUtils.changeUtcDateTime(filter.getEndDate(), utcHourDifference);
+
+        List<SalesProductPerformanceProjection.Performance> projs = new ArrayList<>();
+        for (int i = 0; i <= dateDiff; i++) {
+            LocalDateTime datetime = startDate.plusDays(i);
+
+            // 검색날짜가 범위에 벗어난다면 for문 탈출
+            if (datetime.isAfter(endDate)) {
+                break;
+            }
+
+            SalesProductPerformanceProjection.Performance proj = SalesProductPerformanceProjection.Performance.builder()
+                .datetime(datetime.toLocalDate().toString())
+                .build();
+            projs.add(proj);
+        }
+        return projs;
+    }
+
+    private List<SalesProductPerformanceProjection.Performance> updateSalesProductOptionPerformanceProjs(List<SalesProductPerformanceProjection.Performance> initProjs, List<SalesProductPerformanceProjection> performanceProjs) {
+        List<SalesProductPerformanceProjection.Performance> projs = new ArrayList<>();
+
+        initProjs.forEach(r -> {
+            List<SalesProductPerformanceProjection> salesProductOptionProjs = new ArrayList<>();
+            performanceProjs.forEach(r2 -> {
+                if(r.getDatetime().equals(r2.getDatetime())) {
+                    SalesProductPerformanceProjection salesProductOptionProj = SalesProductPerformanceProjection.builder()
+                        .datetime(r2.getDatetime())
+                        .product(r2.getProduct())
+                        .option(r2.getOption())
+                        .orderRegistration(r2.getOrderRegistration())
+                        .orderUnit(r2.getOrderUnit())
+                        .orderPayAmount(r2.getOrderPayAmount())
+                        .salesRegistration(r2.getSalesRegistration())
+                        .salesUnit(r2.getSalesUnit())
+                        .salesPayAmount(r2.getSalesPayAmount())
+                        .build();
+
+                    salesProductOptionProjs.add(salesProductOptionProj);
+                }
+                r.setPerformance(salesProductOptionProjs);
+            });
+        });
+        projs.addAll(initProjs);
+        return projs;
     }
 }

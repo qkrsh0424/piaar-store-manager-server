@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.sales_performance.service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,12 +10,15 @@ import com.piaar_store_manager.server.domain.product_category.service.ProductCat
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategoryPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
+import com.piaar_store_manager.server.domain.sales_performance.dto.SalesProductPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
+import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection;
 
 import lombok.RequiredArgsConstructor;
 
@@ -57,6 +59,24 @@ public class SalesPerformanceBusinessService {
         List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
         List<SalesCategoryPerformanceProjection.ProductPerformance> projs = salesPerformanceService.qSearchCategoryAndProductSalesPerformanceByParams(filter, categoryName);
         List<SalesCategoryPerformanceDto.ProductPerformance> dtos = projs.stream().map(SalesCategoryPerformanceDto.ProductPerformance::toDto).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesProductPerformanceDto.Performance> searchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+        List<SalesProductPerformanceProjection.Performance> projs = salesPerformanceService.qSearchProductOptionSalesPerformanceByFilter(filter);
+        List<SalesProductPerformanceDto.Performance> dtos = projs.stream().map(SalesProductPerformanceDto.Performance::toDto).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(ProductPerformanceSearchFilter filter) {
+        List<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter);
+        List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesProductPerformanceDto.BestOptionPerformance> searchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
+        List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchBestProductOptionPerformanceByFilter(filter);
+        List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
         return dtos;
     }
 }
