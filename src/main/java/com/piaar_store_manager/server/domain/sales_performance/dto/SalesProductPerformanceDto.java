@@ -32,10 +32,10 @@ public class SalesProductPerformanceDto {
 
     public static SalesProductPerformanceDto toDto(SalesProductPerformanceProjection proj) {
         SalesProductPerformanceDto dto = SalesProductPerformanceDto.builder()
-            .productCode(proj.getProduct().getCode() == null ? "미지정" : proj.getProduct().getCode())
-            .productDefaultName(proj.getProduct().getDefaultName() == null ? "미지정" : proj.getProduct().getDefaultName())
-            .optionCode(proj.getOption().getCode() == null ? "미지정" : proj.getOption().getCode())
-            .optionDefaultName(proj.getOption().getDefaultName() == null ? "미지정" : proj.getOption().getDefaultName())
+            .productCode(proj.getProductCode())
+            .productDefaultName(proj.getProductDefaultName())
+            .optionCode(proj.getOptionCode())
+            .optionDefaultName(proj.getOptionDefaultName())
             .orderRegistration(proj.getOrderRegistration())
             .orderUnit(proj.getOrderUnit())
             .orderPayAmount(proj.getOrderPayAmount())
@@ -90,7 +90,7 @@ public class SalesProductPerformanceDto {
 
         public static BestProductPerformance toDto(SalesProductPerformanceProjection.BestProductPerformance proj) {
             BestProductPerformance dto = BestProductPerformance.builder()
-                .productDefaultName(proj.getProductDefaultName())
+                .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
                 .orderRegistration(proj.getOrderRegistration())
@@ -121,8 +121,8 @@ public class SalesProductPerformanceDto {
 
         public static BestOptionPerformance toDto(SalesProductPerformanceProjection.BestOptionPerformance proj) {
             BestOptionPerformance dto = BestOptionPerformance.builder()
-                .productDefaultName(proj.getProductDefaultName())
-                .optionDefaultName(proj.getOptionDefaultName())
+                .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
+                .optionDefaultName(proj.getOptionDefaultName() == null ? "미지정" : proj.getOptionDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
                 .orderRegistration(proj.getOrderRegistration())

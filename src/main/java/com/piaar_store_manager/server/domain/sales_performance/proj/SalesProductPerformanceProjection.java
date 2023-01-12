@@ -21,8 +21,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SalesProductPerformanceProjection {
     private String datetime;
-    private ProductEntity product;
-    private ProductOptionEntity option;
+    private String productCode;
+    private String optionCode;
+    private String productDefaultName;
+    private String optionDefaultName;
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;

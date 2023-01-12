@@ -35,17 +35,6 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    // @GetMapping("/total")
-    // public ResponseEntity<?> searchSalesPerformance(@RequestParam Map<String, Object> params) {
-    //     Message message = new Message();
-
-    //     message.setData(salesPerformanceBusinessService.searchSalesPerformance(params));
-    //     message.setStatus(HttpStatus.OK);
-    //     message.setMessage("success");
-
-    //     return new ResponseEntity<>(message, message.getStatus());
-    // }
-
     @PostMapping("/search/total")
     public ResponseEntity<?> searchSalesPerformance(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();

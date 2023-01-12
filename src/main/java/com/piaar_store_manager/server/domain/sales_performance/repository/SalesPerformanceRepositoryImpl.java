@@ -11,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
-import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
@@ -37,7 +35,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -180,7 +177,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                         .and(eqSearchCondition(filter)))
                 .groupBy(salesChannel, datetime)
-                .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
+                .orderBy(datetime.asc())
                 .fetch();
 
         // 실행 결과로 projs를 세팅
@@ -312,23 +309,19 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         List<SalesProductPerformanceProjection.Performance> projs = this.getSalesProductOptionPerformanceInitProjs(filter);
 
         StringPath datetime = Expressions.stringPath("datetime");
-        PathBuilder<ProductEntity> product = new PathBuilder<>(ProductEntity.class, "product");
-        PathBuilder<ProductOptionEntity> option = new PathBuilder<>(ProductOptionEntity.class, "option");
+        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
+        StringPath optionDefaultName = Expressions.stringPath("optionDefaultName");
+        StringPath productCode = Expressions.stringPath("productCode");
+        StringPath optionCode = Expressions.stringPath("optionCode");
 
         List<SalesProductPerformanceProjection> performanceProjs = query
                 .select(
                         Projections.fields(SalesProductPerformanceProjection.class,
                                 dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        product)
-                                        ),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity)
-                                        .from(qProductOptionEntity)
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        option)),
+                                qProductEntity.defaultName.as(productDefaultName),
+                                qProductEntity.code.as(productCode),
+                                qProductOptionEntity.code.as(optionCode),
+                                qProductOptionEntity.defaultName.as(optionDefaultName),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                                         .then(1)
                                         .otherwise(0)).sum().as("orderRegistration"),
@@ -350,7 +343,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .from(qErpOrderItemEntity)
                 .where(qErpOrderItemEntity.channelOrderDate.isNotNull().and(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                         .and(eqSearchCondition(filter)))
-                .groupBy(option, datetime)
+                .leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
+                .leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
+                .groupBy(optionCode, datetime)
                 .fetch();
 
         // 실행 결과로 projs를 세팅
@@ -409,7 +404,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         List<BestOptionPerformance> performanceProjs = query
                 .select(
                         Projections.fields(BestOptionPerformance.class,
-                            (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
+                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
                                         .from(qProductOptionEntity)
                                         .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
                                         .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
@@ -821,8 +816,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 if(r.getDatetime().equals(r2.getDatetime())) {
                     SalesProductPerformanceProjection salesProductOptionProj = SalesProductPerformanceProjection.builder()
                         .datetime(r2.getDatetime())
-                        .product(r2.getProduct())
-                        .option(r2.getOption())
+                        .productCode(r2.getProductCode())
+                        .productDefaultName(r2.getProductDefaultName())
+                        .optionCode(r2.getOptionCode())
+                        .optionDefaultName(r2.getOptionDefaultName())
                         .orderRegistration(r2.getOrderRegistration())
                         .orderUnit(r2.getOrderUnit())
                         .orderPayAmount(r2.getOrderPayAmount())
