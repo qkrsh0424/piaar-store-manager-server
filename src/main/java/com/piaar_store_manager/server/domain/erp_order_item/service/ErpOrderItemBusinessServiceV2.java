@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_item.service;
 
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpReleaseConfirmItemDto;
+import com.piaar_store_manager.server.domain.erp_order_item.filter.PerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.vo.ErpOrderItemVo;
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
@@ -153,6 +154,16 @@ public class ErpOrderItemBusinessServiceV2 {
             // 재고수량 세팅
             ErpOrderItemVo.setReleaseOptionStockUnitForList(itemVos, optionEntities);
         }
+
+        return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
+    }
+
+    // 판매성과 - 성과 검색에서 조회하는 데이터. 재고수량 세팅 X
+    @Transactional(readOnly = true)
+    public Page<ErpOrderItemVo> searchSalesPerformanceByPaging(PerformanceSearchFilter filter, Pageable pageable) {
+        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findSalesPerformanceByPage(filter, pageable);
+        List<ErpOrderItemProj> itemProjs = itemPages.getContent();
+        List<ErpOrderItemVo> itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
 
         return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
     }

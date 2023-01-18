@@ -10,6 +10,7 @@ import javax.transaction.Transactional;
 
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpOrderItemDto;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
+import com.piaar_store_manager.server.domain.erp_order_item.filter.PerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.erp_order_item.repository.ErpOrderItemCustomJdbc;
 import com.piaar_store_manager.server.domain.erp_order_item.repository.ErpOrderItemRepository;
@@ -95,6 +96,10 @@ public class ErpOrderItemService {
 
     public Page<ErpOrderItemProj> findReleaseItemM2OJByPage(Map<String, Object> params, Pageable pageable) {
         return erpOrderItemRepository.qfindReleaseItemM2OJByPage(params, pageable);
+    }
+
+    public Page<ErpOrderItemProj> findSalesPerformanceByPage(PerformanceSearchFilter filter, Pageable pageable) {
+        return erpOrderItemRepository.qfindSalesPerformanceByPage(filter, pageable);
     }
 
     /**

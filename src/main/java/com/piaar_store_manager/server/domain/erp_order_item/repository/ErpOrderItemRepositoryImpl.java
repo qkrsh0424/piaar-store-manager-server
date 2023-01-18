@@ -1,6 +1,7 @@
 package com.piaar_store_manager.server.domain.erp_order_item.repository;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
+import com.piaar_store_manager.server.domain.erp_order_item.filter.PerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
@@ -16,10 +18,13 @@ import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPQLQuery;
@@ -198,6 +203,35 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         return new PageImpl<ErpOrderItemProj>(result.getResults(), pageable, result.getTotal());
     }
 
+    @Override
+    public Page<ErpOrderItemProj> qfindSalesPerformanceByPage(PerformanceSearchFilter filter, Pageable pageable) {
+        JPQLQuery customQuery = query.from(qErpOrderItemEntity)
+                .select(Projections.fields(ErpOrderItemProj.class,
+                        qErpOrderItemEntity.as("erpOrderItem"),
+                        qProductEntity.as("product"),
+                        qProductOptionEntity.as("productOption"),
+                        qProductCategoryEntity.as("productCategory")
+                ))
+                .where(eqSalesYn(filter))
+                .where(lkSearchCondition(filter))
+                .where(withinDateRange(filter))
+                .where(eqDayOfWeek(filter))
+                .leftJoin(qProductOptionEntity).on(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code))
+                .leftJoin(qProductEntity).on(qProductOptionEntity.productCid.eq(qProductEntity.cid))
+                .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        try {
+            this.sortPagedData(customQuery, pageable);
+        } catch (QueryException e) {
+            throw new CustomInvalidDataException(e.getMessage());
+        }
+
+        QueryResults<ErpOrderItemProj> result = customQuery.fetchResults();
+        return new PageImpl<ErpOrderItemProj>(result.getResults(), pageable, result.getTotal());
+    }
+
     private void sortPagedData(JPQLQuery customQuery, Pageable pageable) {
         for (Sort.Order o : pageable.getSort()) {
             PathBuilder erpOrderItemBuilder = new PathBuilder(qErpOrderItemEntity.getType(), qErpOrderItemEntity.getMetadata());
@@ -239,6 +273,16 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
 
     private BooleanExpression eqSalesYn(Map<String, Object> params) {
         String salesYn = params.get("salesYn") == null ? null : params.get("salesYn").toString();
+
+        if (salesYn == null) {
+            return null;
+        } else {
+            return qErpOrderItemEntity.salesYn.eq(salesYn);
+        }
+    }
+
+    private BooleanExpression eqSalesYn(PerformanceSearchFilter filter) {
+        String salesYn = filter.getSalesYn() == null ? null : filter.getSalesYn();
 
         if (salesYn == null) {
             return null;
@@ -297,6 +341,48 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         }
     }
 
+    private BooleanExpression withinDateRange(PerformanceSearchFilter filter) {
+        LocalDateTime startDate = filter.getStartDate();
+        LocalDateTime endDate = filter.getEndDate();
+
+        if (startDate == null || endDate == null) {
+            return null;
+        }
+
+        if (startDate.isAfter(endDate)) {
+            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
+        }
+
+        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+    }
+
+    private BooleanExpression eqDayOfWeek(PerformanceSearchFilter filter) {
+        Integer dayIndex = filter.getDayIndex();
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+        
+        if (dayIndex == null) {
+            return null;
+        }
+
+        return dateAddHourTemplate(utcHourDifference).dayOfWeek().eq(dayIndex);
+    }
+
+    /*
+     * hour setting
+     */
+    private DateTemplate<String> dateAddHourTemplate(int hour) {
+        LocalTime addTime = LocalTime.of(hour, 0);
+
+        DateTemplate<String> addDate = Expressions.dateTemplate(
+            String.class,
+            "ADDTIME({0}, {1})",
+            qErpOrderItemEntity.channelOrderDate, 
+            ConstantImpl.create(addTime)
+        );
+
+        return addDate;
+    }
+
     private BooleanExpression lkSearchCondition(Map<String, Object> params) {
         String columnName = params.get("searchColumnName") == null ? null : params.get("searchColumnName").toString();
         String searchQuery = params.get("searchQuery") == null ? null : params.get("searchQuery").toString();
@@ -339,5 +425,50 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         } catch (QueryException e) {
             throw new CustomInvalidDataException(e.getMessage());
         }
+    }
+
+    private BooleanExpression lkSearchCondition(PerformanceSearchFilter filter) {
+        // String columnName = params.get("searchColumnName") == null ? null : params.get("searchColumnName").toString();
+        // String searchQuery = params.get("searchQuery") == null ? null : params.get("searchQuery").toString();
+        // if (columnName == null || searchQuery == null) {
+        //     return null;
+        // }
+
+        // try {
+        //     StringPath columnNameStringPath = null;
+        //     switch (columnName) {
+        //         case "categoryName":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductCategoryEntity, "name");
+        //             break;
+        //         case "prodManagementName":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductEntity, "managementName");
+        //             break;
+        //         case "prodDefaultName":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductEntity, "defaultName");
+        //             break;
+        //         case "optionManagementName":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "managementName");
+        //             break;
+        //         case "optionReleaseLocation":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "releaseLocation");
+        //             break;
+        //         case "optionDefaultName":
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qProductOptionEntity, "defaultName");
+        //             break;
+        //         default:
+        //             if (CustomFieldUtils.getFieldByName(qErpOrderItemEntity, columnName) == null) {
+        //                 throw new QueryException("올바른 데이터가 아닙니다.");
+        //             }
+        //             columnNameStringPath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, columnName);
+        //     }
+
+        //     return columnNameStringPath.contains(searchQuery);
+
+        // } catch (ClassCastException e) {
+        //     throw new CustomInvalidDataException("허용된 데이터 타입이 아닙니다.");
+        // } catch (QueryException e) {
+        //     throw new CustomInvalidDataException(e.getMessage());
+        // }
+        return null;
     }
 }

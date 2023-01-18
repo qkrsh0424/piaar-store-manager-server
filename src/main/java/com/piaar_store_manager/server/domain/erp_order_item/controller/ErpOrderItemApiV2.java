@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.erp_order_item.dto.ErpReleaseConfirmItemDto;
+import com.piaar_store_manager.server.domain.erp_order_item.filter.PerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.erp_order_item.service.ErpOrderItemBusinessServiceV2;
 import com.piaar_store_manager.server.domain.message.Message;
 
@@ -134,6 +135,17 @@ public class ErpOrderItemApiV2 {
         Message message = new Message();
 
         message.setData(erpOrderItemBusinessService.searchSalesChannel(params));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/sales-performance")
+    public ResponseEntity<?> searchSalesPerformanceByPaging(@RequestBody PerformanceSearchFilter filter, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 50) Pageable pageable) {
+        Message message = new Message();
+
+        message.setData(erpOrderItemBusinessService.searchSalesPerformanceByPaging(filter, pageable));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 
