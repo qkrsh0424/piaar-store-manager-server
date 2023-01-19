@@ -433,7 +433,13 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         // if (columnName == null || searchQuery == null) {
         //     return null;
         // }
+        List<String> salesChannels = filter.getSalesChannels();
 
+        if(salesChannels == null) {
+            return null;
+        }
+
+        return qErpOrderItemEntity.salesChannel.in(salesChannels);
         // try {
         //     StringPath columnNameStringPath = null;
         //     switch (columnName) {
@@ -469,6 +475,6 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         // } catch (QueryException e) {
         //     throw new CustomInvalidDataException(e.getMessage());
         // }
-        return null;
+        // return null;
     }
 }
