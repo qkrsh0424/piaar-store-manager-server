@@ -158,16 +158,6 @@ public class ErpOrderItemBusinessServiceV2 {
         return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
     }
 
-    // 판매성과 - 성과 검색에서 조회하는 데이터. 재고수량 세팅 X
-    @Transactional(readOnly = true)
-    public Page<ErpOrderItemVo> searchSalesPerformanceByPaging(PerformanceSearchFilter filter, Pageable pageable) {
-        Page<ErpOrderItemProj> itemPages = erpOrderItemService.findSalesPerformanceByPage(filter, pageable);
-        List<ErpOrderItemProj> itemProjs = itemPages.getContent();
-        List<ErpOrderItemVo> itemVos = itemProjs.stream().map(ErpOrderItemVo::toVo).collect(Collectors.toList());
-
-        return new PageImpl(itemVos, pageable, itemPages.getTotalElements());
-    }
-
     public List<ErpReleaseConfirmItemDto> searchReleaseConfirmPackageItem(List<ErpReleaseConfirmItemDto> packageReleaseItemDtos) {
         /*
          * PackageReleaseItemDtos의 code값을 추출해 세트옵션의 id를 추출 (option package를 검색하기 위함. option pakcage에는 parentOptionId만을 참조하므로)

@@ -140,15 +140,4 @@ public class ErpOrderItemApiV2 {
 
         return new ResponseEntity<>(message, message.getStatus());
     }
-
-    @PostMapping("/search/sales-performance")
-    public ResponseEntity<?> searchSalesPerformanceByPaging(@RequestBody PerformanceSearchFilter filter, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 50) Pageable pageable) {
-        Message message = new Message();
-
-        message.setData(erpOrderItemBusinessService.searchSalesPerformanceByPaging(filter, pageable));
-        message.setStatus(HttpStatus.OK);
-        message.setMessage("success");
-
-        return new ResponseEntity<>(message, message.getStatus());
-    }
 }
