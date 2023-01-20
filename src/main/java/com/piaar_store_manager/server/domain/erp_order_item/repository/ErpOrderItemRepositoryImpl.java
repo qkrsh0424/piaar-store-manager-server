@@ -1,7 +1,6 @@
 package com.piaar_store_manager.server.domain.erp_order_item.repository;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.UUID;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.ErpOrderItemEntity;
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
-import com.piaar_store_manager.server.domain.erp_order_item.filter.PerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.erp_order_item.proj.ErpOrderItemProj;
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
@@ -18,13 +16,10 @@ import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomFieldUtils;
 import com.querydsl.core.QueryException;
 import com.querydsl.core.QueryResults;
-import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.DateTemplate;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPQLQuery;
@@ -252,16 +247,6 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         }
     }
 
-    private BooleanExpression eqSalesYn(PerformanceSearchFilter filter) {
-        String salesYn = filter.getSalesYn() == null ? null : filter.getSalesYn();
-
-        if (salesYn == null) {
-            return null;
-        } else {
-            return qErpOrderItemEntity.salesYn.eq(salesYn);
-        }
-    }
-
     private BooleanExpression eqReleaseYn(Map<String, Object> params) {
         String releaseYn = params.get("releaseYn") == null ? null : params.get("releaseYn").toString();
 
@@ -310,21 +295,6 @@ public class ErpOrderItemRepositoryImpl implements ErpOrderItemRepositoryCustom 
         } else {
             throw new CustomInvalidDataException("상세조건이 올바르지 않습니다.");
         }
-    }
-
-    private BooleanExpression withinDateRange(PerformanceSearchFilter filter) {
-        LocalDateTime startDate = filter.getStartDate();
-        LocalDateTime endDate = filter.getEndDate();
-
-        if (startDate == null || endDate == null) {
-            return null;
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
-        }
-
-        return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
     }
 
     private BooleanExpression lkSearchCondition(Map<String, Object> params) {

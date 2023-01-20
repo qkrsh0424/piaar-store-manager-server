@@ -80,6 +80,7 @@ public class SalesProductPerformanceDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class BestProductPerformance {
+        private String productCode;
         private String productDefaultName;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
@@ -90,6 +91,7 @@ public class SalesProductPerformanceDto {
 
         public static BestProductPerformance toDto(SalesProductPerformanceProjection.BestProductPerformance proj) {
             BestProductPerformance dto = BestProductPerformance.builder()
+                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode())
                 .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
@@ -110,7 +112,9 @@ public class SalesProductPerformanceDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class BestOptionPerformance {
+        private String productCode;
         private String productDefaultName;
+        private String optionCode;
         private String optionDefaultName;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
@@ -121,7 +125,9 @@ public class SalesProductPerformanceDto {
 
         public static BestOptionPerformance toDto(SalesProductPerformanceProjection.BestOptionPerformance proj) {
             BestOptionPerformance dto = BestOptionPerformance.builder()
+                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode())
                 .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
+                .optionCode(proj.getOptionCode() == null ? "미지정" : proj.getOptionCode())
                 .optionDefaultName(proj.getOptionDefaultName() == null ? "미지정" : proj.getOptionDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())

@@ -17,4 +17,6 @@ public class ProductPerformanceSearchFilter {
     private LocalDateTime endDate;
     private Integer utcHourDifference;
     private List<String> optionCodes;
+
+    private List<String> salesChannels;
 }

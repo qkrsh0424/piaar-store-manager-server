@@ -33,6 +33,10 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
     }
 
+    public List<SalesChannelPerformanceProjection> qSearchProductChannelSalesPerformanceByFilter(ChannelPerformanceSearchFilter filter) {
+        return salesPerformanceRepositoryCustom.qSearchProductSalesPerformanceByChannel(filter);
+    }
+
     // public List<SalesChannelPerformanceProjection.Performance> qSearchProductOptionOfChannelSalesPerformanceByFilter(ChannelPerformanceSearchFilter filter) {
     //     return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
     // }
@@ -47,6 +51,10 @@ public class SalesPerformanceService {
 
     public List<SalesProductPerformanceProjection.Performance> qSearchProductOptionSalesPerformanceByFilter(ProductPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProductOption(filter);
+    }
+
+    public List<SalesPerformanceProjection> qSearchProductSalesPerformanceByFilter(ProductPerformanceSearchFilter filter) {
+        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProduct(filter);
     }
 
     public List<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByFilter(ProductPerformanceSearchFilter filter) {

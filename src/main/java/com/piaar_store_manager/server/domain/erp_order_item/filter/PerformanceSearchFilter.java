@@ -15,7 +15,7 @@ import lombok.ToString;
 public class PerformanceSearchFilter {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private Integer dayIndex;    
+    private Integer dayIndex;
     private String salesYn;
     private Integer utcHourDifference;
 

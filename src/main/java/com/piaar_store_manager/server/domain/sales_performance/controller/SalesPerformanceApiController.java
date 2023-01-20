@@ -57,6 +57,17 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @PostMapping("/search/product/channel")
+    public ResponseEntity<?> searchProductSalesPerformanceByChannel(@RequestBody ChannelPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchProductSalesPerformanceByChannel(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     @PostMapping("/search/category")
     public ResponseEntity<?> searchSalesPerformanceByCategory(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
@@ -73,6 +84,17 @@ public class SalesPerformanceApiController {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesProductPerformanceByCategory(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product-option")
+    public ResponseEntity<?> searchSalesPerformanceByProductOption(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchSalesPerformanceByProductOption(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

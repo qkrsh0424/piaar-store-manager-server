@@ -52,6 +52,7 @@ public class SalesProductPerformanceProjection {
     @NoArgsConstructor
     public static class BestProductPerformance {
         private String productDefaultName;
+        private String productCode;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
         private Integer orderRegistration;
@@ -69,6 +70,8 @@ public class SalesProductPerformanceProjection {
     public static class BestOptionPerformance {
         private String productDefaultName;
         private String optionDefaultName;
+        private String productCode;
+        private String optionCode;
         private Integer orderPayAmount;
         private Integer salesPayAmount;
         private Integer orderRegistration;

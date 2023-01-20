@@ -46,6 +46,12 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
+    public List<SalesChannelPerformanceDto> searchProductSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+        List<SalesChannelPerformanceProjection> projs = salesPerformanceService.qSearchProductChannelSalesPerformanceByFilter(filter);
+        List<SalesChannelPerformanceDto> dtos = projs.stream().map(SalesChannelPerformanceDto::toDto).collect(Collectors.toList());
+        return dtos;
+    }
+
     public List<SalesCategoryPerformanceDto.Performance> searchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter) {
         List<ProductCategoryEntity> categoryEntities = productCategoryService.searchAll();
         List<String> categoryName = categoryEntities.stream().map(r -> r.getName()).collect(Collectors.toList());
@@ -62,9 +68,15 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesProductPerformanceDto.Performance> searchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+    public List<SalesProductPerformanceDto.Performance> searchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter) {
         List<SalesProductPerformanceProjection.Performance> projs = salesPerformanceService.qSearchProductOptionSalesPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.Performance> dtos = projs.stream().map(SalesProductPerformanceDto.Performance::toDto).collect(Collectors.toList());
+        return dtos;
+    }
+
+    public List<SalesPerformanceDto> searchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+        List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchProductSalesPerformanceByFilter(filter);
+        List<SalesPerformanceDto> dtos = projs.stream().map(SalesPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
     }
 
