@@ -19,4 +19,5 @@ public class ProductPerformanceSearchFilter {
     private List<String> optionCodes;
 
     private List<String> salesChannels;
+    private List<String> productCategoryNames;
 }

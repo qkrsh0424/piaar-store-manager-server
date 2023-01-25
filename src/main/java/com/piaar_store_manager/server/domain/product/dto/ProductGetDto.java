@@ -64,7 +64,7 @@ public class ProductGetDto {
         ProductGetDto productDto = ProductGetDto.builder()
             .cid(entity.getCid())
             .id(entity.getId())
-            .code(entity.getCode())
+            .code(entity.getCode() != null ? entity.getCode().trim() : null)
             .defaultName(entity.getDefaultName())
             .managementName(entity.getManagementName())
             .imageUrl(entity.getImageUrl())

@@ -123,11 +123,33 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/search/product/option/best")
+    @PostMapping("/search/category/product/best")
+    public ResponseEntity<?> searchCategoryBestProductPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchCategoryBestProductPerformance(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product-option/best")
     public ResponseEntity<?> searchBestOptionPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchBestProductOptionPerformance(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/category/product-option/best")
+    public ResponseEntity<?> searchCategoryBestOptionPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchCategoryBestProductOptionPerformance(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

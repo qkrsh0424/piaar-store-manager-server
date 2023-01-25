@@ -91,7 +91,7 @@ public class SalesProductPerformanceDto {
 
         public static BestProductPerformance toDto(SalesProductPerformanceProjection.BestProductPerformance proj) {
             BestProductPerformance dto = BestProductPerformance.builder()
-                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode())
+                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode().trim())
                 .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
@@ -125,9 +125,9 @@ public class SalesProductPerformanceDto {
 
         public static BestOptionPerformance toDto(SalesProductPerformanceProjection.BestOptionPerformance proj) {
             BestOptionPerformance dto = BestOptionPerformance.builder()
-                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode())
+                .productCode(proj.getProductCode() == null ? "미지정" : proj.getProductCode().trim())
                 .productDefaultName(proj.getProductDefaultName() == null ? "미지정" : proj.getProductDefaultName())
-                .optionCode(proj.getOptionCode() == null ? "미지정" : proj.getOptionCode())
+                .optionCode(proj.getOptionCode() == null ? "미지정" : proj.getOptionCode().trim())
                 .optionDefaultName(proj.getOptionDefaultName() == null ? "미지정" : proj.getOptionDefaultName())
                 .orderPayAmount(proj.getOrderPayAmount())
                 .salesPayAmount(proj.getSalesPayAmount())
