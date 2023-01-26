@@ -188,16 +188,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesChannelPerformanceProjection> qSearchProductSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
-        // 날짜별 채널데이터 초기화
-        // List<SalesChannelPerformanceProjection.Performance> projs = this.getSalesChannelPerformanceInitProjs(filter);
+    public List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
 
+        StringPath optionCode = Expressions.stringPath("optionCode");
         StringPath salesChannel = Expressions.stringPath("salesChannel");
 
         List<SalesChannelPerformanceProjection> performanceProjs = query
                 .select(
                         Projections.fields(SalesChannelPerformanceProjection.class,
                                 qErpOrderItemEntity.salesChannel.coalesce("").as(salesChannel),
+                                qErpOrderItemEntity.optionCode.coalesce("").as(optionCode),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                                         .then(1)
                                         .otherwise(0)).sum().as("orderRegistration"),
@@ -220,7 +220,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
                 .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                 .where(eqSearchCondition(filter))
-                .groupBy(salesChannel)
+                .groupBy(salesChannel, optionCode)
                 .fetch();
 
         // 실행 결과로 projs를 세팅

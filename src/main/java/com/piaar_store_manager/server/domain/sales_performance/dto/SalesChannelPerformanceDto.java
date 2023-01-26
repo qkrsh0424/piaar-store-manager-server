@@ -20,6 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class SalesChannelPerformanceDto {
     private String salesChannel;
+    private String optionCode;  // 상품 상세 - 옵션별 판매스토어 매출 분석을 위해 추가 
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;
@@ -30,6 +31,7 @@ public class SalesChannelPerformanceDto {
     public static SalesChannelPerformanceDto toDto(SalesChannelPerformanceProjection proj) {
         SalesChannelPerformanceDto dto = SalesChannelPerformanceDto.builder()
             .salesChannel(proj.getSalesChannel())
+            .optionCode(proj.getOptionCode())
             .orderRegistration(proj.getOrderRegistration())
             .orderUnit(proj.getOrderUnit())
             .orderPayAmount(proj.getOrderPayAmount())

@@ -19,6 +19,7 @@ import lombok.experimental.Accessors;
 public class SalesChannelPerformanceProjection {
     private String datetime;
     private String salesChannel;
+    private String optionCode;  // 상품 상세 - 옵션별 판매스토어 매출 분석을 위해 추가
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;

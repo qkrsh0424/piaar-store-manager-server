@@ -18,7 +18,7 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformance(SalesPerformanceSearchFilter filter);
     List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter);
-    List<SalesChannelPerformanceProjection> qSearchProductSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter);
+    List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter);
     List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
     List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
     List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter);
