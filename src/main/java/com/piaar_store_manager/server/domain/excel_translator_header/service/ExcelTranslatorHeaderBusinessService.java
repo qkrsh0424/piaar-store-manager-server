@@ -115,6 +115,10 @@ public class ExcelTranslatorHeaderBusinessService {
             Row row = worksheet.getRow(i);
             List<ExcelDataDetailDto.UploadedDetailDto> uploadedDetailDtos = new ArrayList<>();
 
+                if(row == null) {
+                    break;
+                }
+
             for(int j = 0; j < row.getLastCellNum(); j++) {
                 Object cellObj = CustomExcelUtils.getCellValueObject(row.getCell(j));
                 ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
