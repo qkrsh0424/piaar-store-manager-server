@@ -7,6 +7,7 @@ import com.piaar_store_manager.server.domain.product_category.entity.QProductCat
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection.RelatedProduct;
+import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection.RelatedProductAndProductCategory;
 import com.piaar_store_manager.server.domain.product_receive.entity.QProductReceiveEntity;
 import com.piaar_store_manager.server.domain.product_release.entity.QProductReleaseEntity;
 import com.piaar_store_manager.server.domain.stock_analysis.proj.StockAnalysisProj;
@@ -53,6 +54,26 @@ public class ProductOptionRepositoryImpl implements ProductOptionRepositoryCusto
                     )
             );
             
+        return projs;
+    }
+
+    @Override
+    public List<RelatedProductAndProductCategory> qfindAllRelatedProductAndProductCategory() {
+        List<RelatedProductAndProductCategory> projs = query.from(qProductOptionEntity)
+            .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+            .leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
+            .transform(
+                GroupBy.groupBy(qProductOptionEntity.cid)
+                    .list(
+                        Projections.fields(
+                            ProductOptionProjection.RelatedProductAndProductCategory.class,
+                            qProductOptionEntity.as("option"),
+                            qProductEntity.as("product"),
+                            qProductCategoryEntity.as("productCategory")
+                        )
+                    )
+            );
+
         return projs;
     }
 

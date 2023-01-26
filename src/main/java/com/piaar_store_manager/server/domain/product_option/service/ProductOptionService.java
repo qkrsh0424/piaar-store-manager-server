@@ -48,6 +48,10 @@ public class ProductOptionService {
         return productOptionRepository.qfindAllRelatedProduct();
     }
 
+    public List<ProductOptionProjection.RelatedProductAndProductCategory> qfindAllRelatedProductAndProductCategory() {
+        return productOptionRepository.qfindAllRelatedProductAndProductCategory();
+    }
+
     // [221021] FEAT
     public List<ProductOptionEntity> searchListByProductId(UUID productId) {
         return productOptionRepository.findByProductId(productId);

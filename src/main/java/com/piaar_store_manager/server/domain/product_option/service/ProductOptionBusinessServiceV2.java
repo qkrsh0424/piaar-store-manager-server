@@ -33,6 +33,16 @@ public class ProductOptionBusinessServiceV2 {
         return dtos;
     }
 
+    /*
+     * 모든 상품옵션을 조회한다
+     * 옵션이 속한 상품과 상품의 카테고리도 함께 조회한다
+     */
+    public List<ProductOptionGetDto.RelatedProductAndProductCategory> searchAllRelatedProductAndProductCategory() {
+        List<ProductOptionProjection.RelatedProductAndProductCategory> projs = productOptionService.qfindAllRelatedProductAndProductCategory();
+        List<ProductOptionGetDto.RelatedProductAndProductCategory> dtos = projs.stream().map(proj -> ProductOptionGetDto.RelatedProductAndProductCategory.toDto(proj)).collect(Collectors.toList());
+        return dtos;
+    }
+
     public List<ProductOptionGetDto> searchBatchByProductId(UUID productId) {
         List<ProductOptionEntity> entities = productOptionService.searchListByProductId(productId);
         List<ProductOptionGetDto> dtos = entities.stream().map(entity -> ProductOptionGetDto.toDto(entity)).collect(Collectors.toList());

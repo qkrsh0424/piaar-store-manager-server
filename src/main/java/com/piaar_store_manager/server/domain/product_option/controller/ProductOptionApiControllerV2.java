@@ -44,6 +44,17 @@ public class ProductOptionApiControllerV2 {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
+    @GetMapping("/all/product/product-category")
+    public ResponseEntity<?> searchAllRelatedProductAndProductCategory() {
+        Message message = new Message();
+
+        message.setData(productOptionBusinessService.searchAllRelatedProductAndProductCategory());
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
     /**
      * Search list api for product option.
      * <p>

@@ -20,6 +20,7 @@ import javax.validation.constraints.Size;
 
 import com.piaar_store_manager.server.domain.option_package.dto.OptionPackageDto;
 import com.piaar_store_manager.server.domain.product.dto.ProductGetDto;
+import com.piaar_store_manager.server.domain.product_category.dto.ProductCategoryGetDto;
 import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
 import com.piaar_store_manager.server.domain.product_option.proj.ProductOptionProjection;
 
@@ -144,6 +145,32 @@ public class ProductOptionGetDto {
             RelatedProduct dto = RelatedProduct.builder()
                 .option(productOption)
                 .product(product)
+                .build();
+
+            return dto;
+        }
+    }
+
+    @Getter
+    @ToString
+    @Accessors(chain = true)
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RelatedProductAndProductCategory {
+        ProductOptionGetDto option;
+        ProductGetDto product;
+        ProductCategoryGetDto productCategory;
+
+        public static RelatedProductAndProductCategory toDto(ProductOptionProjection.RelatedProductAndProductCategory proj) {
+            ProductOptionGetDto productOption = ProductOptionGetDto.toDto(proj.getOption());
+            ProductGetDto product = ProductGetDto.toDto(proj.getProduct());
+            ProductCategoryGetDto productCategory = ProductCategoryGetDto.toDto(proj.getProductCategory());
+
+            RelatedProductAndProductCategory dto = RelatedProductAndProductCategory.builder()
+                .option(productOption)
+                .product(product)
+                .productCategory(productCategory)
                 .build();
 
             return dto;

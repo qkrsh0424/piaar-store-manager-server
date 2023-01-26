@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface ProductOptionRepositoryCustom {
     List<StockAnalysisProj> qfindStockAnalysis();
     List<ProductOptionProjection.RelatedProduct> qfindAllRelatedProduct();
+    List<ProductOptionProjection.RelatedProductAndProductCategory> qfindAllRelatedProductAndProductCategory();
 }
