@@ -21,6 +21,7 @@ import com.piaar_store_manager.server.utils.CustomExcelUtils;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -104,6 +105,7 @@ public class ExcelTranslatorHeaderBusinessService {
         List<UploadExcelDataGetDto> dtos = new ArrayList<>();
         List<ExcelTranslatorUploadHeaderDetailDto.DetailDto> uploadDetailDtos = dto.getUploadHeaderDetail().getDetails();
         
+        FormulaEvaluator evaluator = worksheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
         Row headerRow = worksheet.getRow(dto.getRowStartNumber()-1);
 
         // 저장된 양식이 존재하는데 지정양식과 다른 엑셀이 업로드된 경우
@@ -121,7 +123,7 @@ public class ExcelTranslatorHeaderBusinessService {
             }
 
             for(int j = 0; j < row.getLastCellNum(); j++) {
-                Object cellObj = CustomExcelUtils.getCellValueObject(row.getCell(j));
+                Object cellObj = CustomExcelUtils.getCellValueObject(row.getCell(j), evaluator);
 
                 ExcelDataDetailDto.UploadedDetailDto detailDto = ExcelDataDetailDto.UploadedDetailDto.builder()
                         .id(UUID.randomUUID()).colData(cellObj).cellType(cellObj.getClass().getSimpleName()).build();

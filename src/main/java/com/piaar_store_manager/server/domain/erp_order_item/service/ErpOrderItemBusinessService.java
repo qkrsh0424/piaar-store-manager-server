@@ -174,6 +174,8 @@ public class ErpOrderItemBusinessService {
         List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
         Row row = null;
         int rowNum = translatorGetDto.getRowStartNumber();
+        FormulaEvaluator evaluator = sheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
+        List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = translatorGetDto.getDownloadHeaderDetail().getDetails();
 
         for(int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
             row = sheet.getRow(rowNum++);
@@ -182,7 +184,6 @@ public class ErpOrderItemBusinessService {
                 continue;
             }
 
-            List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = translatorGetDto.getDownloadHeaderDetail().getDetails();
             for(int j = 0; j < details.size(); j++) {
                 if(PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.contains(j)) {
                     // targetCellNumber가 -1이면서 고정값이 공백인 경우. targetCellNumber가 가리키는 cell값이 null이거나 빈값인 경우 예외처리.
@@ -197,9 +198,9 @@ public class ErpOrderItemBusinessService {
             }
 
             // 수량, 가격, 배송비의 타입을 체크해 Number format 으로 변환한다
-            Object unitObj = getTranslatorTargetCellValue(row, details.get(3)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(3));
-            Object priceObj = getTranslatorTargetCellValue(row, details.get(19)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(19));
-            Object deliveryChargeObj = getTranslatorTargetCellValue(row, details.get(20)).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(20));
+            Object unitObj = getTranslatorTargetCellValue(row, details.get(3), evaluator).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(3), evaluator);
+            Object priceObj = getTranslatorTargetCellValue(row, details.get(19), evaluator).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(19), evaluator);
+            Object deliveryChargeObj = getTranslatorTargetCellValue(row, details.get(20), evaluator).equals("") ? 0 : getTranslatorTargetCellValue(row, details.get(20), evaluator);
 
             if(!unitObj.getClass().equals(Integer.class)) {
                 unitObj = CustomExcelUtils.convertObjectValueToIntegerValue(unitObj);
@@ -214,41 +215,42 @@ public class ErpOrderItemBusinessService {
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
                 .id(UUID.randomUUID())
                 .uniqueCode(null)
-                .prodName(getTranslatorTargetCellValue(row, details.get(1)))
-                .optionName(getTranslatorTargetCellValue(row, details.get(2)))
+                .prodName(getTranslatorTargetCellValue(row, details.get(1), evaluator))
+                .optionName(getTranslatorTargetCellValue(row, details.get(2), evaluator))
                 .unit(unitObj)
-                .receiver(getTranslatorTargetCellValue(row, details.get(4)))
-                .receiverContact1(getTranslatorTargetCellValue(row, details.get(5)))
-                .receiverContact2(getTranslatorTargetCellValue(row, details.get(6)))
-                .destination(getTranslatorTargetCellValue(row, details.get(7)))
-                .destinationDetail(getTranslatorTargetCellValue(row, details.get(8)))
-                .salesChannel(getTranslatorTargetCellValue(row, details.get(9)))
-                .orderNumber1(getTranslatorTargetCellValue(row, details.get(10)))
-                .orderNumber2(getTranslatorTargetCellValue(row, details.get(11)))
-                .channelProdCode(getTranslatorTargetCellValue(row, details.get(12)))
-                .channelOptionCode(getTranslatorTargetCellValue(row, details.get(13)))
-                .zipCode(getTranslatorTargetCellValue(row, details.get(14)))
-                .courier(getTranslatorTargetCellValue(row, details.get(15)))
-                .transportType(getTranslatorTargetCellValue(row, details.get(16)))
-                .deliveryMessage(getTranslatorTargetCellValue(row, details.get(17)))
-                .waybillNumber(getTranslatorTargetCellValue(row, details.get(18)))
+                .receiver(getTranslatorTargetCellValue(row, details.get(4), evaluator))
+                .receiverContact1(getTranslatorTargetCellValue(row, details.get(5), evaluator))
+                .receiverContact2(getTranslatorTargetCellValue(row, details.get(6), evaluator))
+                .destination(getTranslatorTargetCellValue(row, details.get(7), evaluator))
+                .destinationDetail(getTranslatorTargetCellValue(row, details.get(8), evaluator))
+                .salesChannel(getTranslatorTargetCellValue(row, details.get(9), evaluator))
+                .orderNumber1(getTranslatorTargetCellValue(row, details.get(10), evaluator))
+                .orderNumber2(getTranslatorTargetCellValue(row, details.get(11), evaluator))
+                .channelProdCode(getTranslatorTargetCellValue(row, details.get(12), evaluator))
+                .channelOptionCode(getTranslatorTargetCellValue(row, details.get(13), evaluator))
+                .zipCode(getTranslatorTargetCellValue(row, details.get(14), evaluator))
+                .courier(getTranslatorTargetCellValue(row, details.get(15), evaluator))
+                .transportType(getTranslatorTargetCellValue(row, details.get(16), evaluator))
+                .deliveryMessage(getTranslatorTargetCellValue(row, details.get(17), evaluator))
+                .waybillNumber(getTranslatorTargetCellValue(row, details.get(18), evaluator))
                 .price(priceObj)
                 .deliveryCharge(deliveryChargeObj)
-                .barcode(getTranslatorTargetCellValue(row, details.get(21)))
-                .prodCode(getTranslatorTargetCellValue(row, details.get(22)))
-                .optionCode(getTranslatorTargetCellValue(row, details.get(23)))
-                .releaseOptionCode(getTranslatorTargetCellValue(row, details.get(24)))
-                .channelOrderDate(getTranslatorTargetCellValue(row, details.get(25)))
-                .managementMemo1(getTranslatorTargetCellValue(row, details.get(26)))
-                .managementMemo2(getTranslatorTargetCellValue(row, details.get(27)))
-                .managementMemo3(getTranslatorTargetCellValue(row, details.get(28)))
-                .managementMemo4(getTranslatorTargetCellValue(row, details.get(29)))
-                .managementMemo5(getTranslatorTargetCellValue(row, details.get(30)))
-                .managementMemo6(getTranslatorTargetCellValue(row, details.get(31)))
-                .managementMemo7(getTranslatorTargetCellValue(row, details.get(32)))
-                .managementMemo8(getTranslatorTargetCellValue(row, details.get(33)))
-                .managementMemo9(getTranslatorTargetCellValue(row, details.get(34)))
-                .managementMemo10(getTranslatorTargetCellValue(row, details.get(35)))
+                .barcode(getTranslatorTargetCellValue(row, details.get(21), evaluator))
+                .prodCode(getTranslatorTargetCellValue(row, details.get(22), evaluator))
+                .optionCode(getTranslatorTargetCellValue(row, details.get(23), evaluator))
+                .optionReleaseLocation(getTranslatorTargetCellValue(row, details.get(24), evaluator))
+                .releaseOptionCode(getTranslatorTargetCellValue(row, details.get(25), evaluator))
+                .channelOrderDate(getTranslatorTargetCellValue(row, details.get(26), evaluator))
+                .managementMemo1(getTranslatorTargetCellValue(row, details.get(27), evaluator))
+                .managementMemo2(getTranslatorTargetCellValue(row, details.get(28), evaluator))
+                .managementMemo3(getTranslatorTargetCellValue(row, details.get(29), evaluator))
+                .managementMemo4(getTranslatorTargetCellValue(row, details.get(30), evaluator))
+                .managementMemo5(getTranslatorTargetCellValue(row, details.get(31), evaluator))
+                .managementMemo6(getTranslatorTargetCellValue(row, details.get(32), evaluator))
+                .managementMemo7(getTranslatorTargetCellValue(row, details.get(33), evaluator))
+                .managementMemo8(getTranslatorTargetCellValue(row, details.get(34), evaluator))
+                .managementMemo9(getTranslatorTargetCellValue(row, details.get(35), evaluator))
+                .managementMemo10(getTranslatorTargetCellValue(row, details.get(36), evaluator))
                 .freightCode(null)
                 .build();
 
@@ -260,11 +262,11 @@ public class ErpOrderItemBusinessService {
     /*
     detail을 참고해서 고정값 여부에 따라 값을 세팅한다
      */
-    private Object getTranslatorTargetCellValue(Row row, ExcelTranslatorDownloadHeaderDetailDto.DetailDto detail) {
+    private Object getTranslatorTargetCellValue(Row row, ExcelTranslatorDownloadHeaderDetailDto.DetailDto detail, FormulaEvaluator evaluator) {
         if(detail.getTargetCellNumber().equals(-1)) {
             return detail.getFixedValue();
         }else {
-            return CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(detail.getTargetCellNumber()), "");
+            return CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(detail.getTargetCellNumber()), "", evaluator);
         }
     }
 

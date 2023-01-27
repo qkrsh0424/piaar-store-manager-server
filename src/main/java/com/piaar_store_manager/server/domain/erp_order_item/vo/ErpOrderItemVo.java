@@ -135,6 +135,7 @@ public class ErpOrderItemVo {
         private Object barcode; // 바코드
         private Object prodCode; // 피아르 상품코드
         private Object optionCode; // 피아르 옵션코드
+        private Object optionReleaseLocation;   // 피아르 옵션 출고지
         private Object releaseOptionCode;   // 출고 옵션코드
         private Object channelOrderDate; // 채널 주문일시
         private Object managementMemo1; // 관리메모1
@@ -254,7 +255,6 @@ public class ErpOrderItemVo {
                 .releaseAt(proj.getErpOrderItem().getReleaseAt())
                 .stockReflectYn(proj.getErpOrderItem().getStockReflectYn())
                 .returnYn(proj.getErpOrderItem().getReturnYn())
-                // .exchangeYn(proj.getErpOrderItem().getExchangeYn())
                 .createdAt(proj.getErpOrderItem().getCreatedAt())
                 .createdBy(proj.getErpOrderItem().getCreatedBy())
                 .categoryName(proj.getProductCategory() != null ? proj.getProductCategory().getName() : "")
@@ -317,7 +317,6 @@ public class ErpOrderItemVo {
                 .releaseAt(dto.getReleaseAt())
                 .stockReflectYn(dto.getStockReflectYn())
                 .returnYn(dto.getReturnYn())
-                // .exchangeYn(dto.getExchangeYn())
                 .createdAt(dto.getCreatedAt())
                 .createdBy(dto.getCreatedBy())
                 .build();
@@ -373,10 +372,10 @@ public class ErpOrderItemVo {
         List<Integer> PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX = Arrays.asList(1, 2, 3, 4, 5, 7);
 
         List<ErpOrderItemVo.ExcelVo> itemVos = new ArrayList<>();
+        FormulaEvaluator evaluator = worksheet.getWorkbook().getCreationHelper().createFormulaEvaluator();
 
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
-            
             if(CustomExcelUtils.isEmptyRow(row)){
                 continue;
             }
@@ -390,9 +389,9 @@ public class ErpOrderItemVo {
             }
             
             // 수량, 금액, 배송비 항목값을 Integer 타입으로 변환한다
-            Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0);
-            Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0);
-            Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0);
+            Object unitObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(3), 0, evaluator);
+            Object priceObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(19), 0, evaluator);
+            Object deliveryChargeObj = CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(20), 0, evaluator);
 
             if(!unitObj.getClass().equals(Integer.class)) {
                 unitObj = CustomExcelUtils.convertObjectValueToIntegerValue(unitObj);
@@ -407,46 +406,48 @@ public class ErpOrderItemVo {
             ErpOrderItemVo.ExcelVo excelVo = ErpOrderItemVo.ExcelVo.builder()
                     .id(UUID.randomUUID())
                     .uniqueCode(null)
-                    .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), ""))
-                    .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), ""))
+                    .prodName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(1), "", evaluator))
+                    .optionName(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(2), "", evaluator))
                     .unit(unitObj)
-                    .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), ""))
-                    .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), ""))
-                    .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), ""))
-                    .destination(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(7), ""))
-                    .destinationDetail(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(8), ""))
-                    .salesChannel(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(9), ""))
-                    .orderNumber1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(10), ""))
-                    .orderNumber2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(11), ""))
-                    .channelProdCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(12), ""))
-                    .channelOptionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), ""))
-                    .zipCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(14), ""))
-                    .courier(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(15), ""))
-                    .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), ""))
-                    .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), ""))
-                    .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), ""))
+                    .receiver(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(4), "", evaluator))
+                    .receiverContact1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(5), "", evaluator))
+                    .receiverContact2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(6), "", evaluator))
+                    .destination(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(7), "", evaluator))
+                    .destinationDetail(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(8), "", evaluator))
+                    .salesChannel(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(9), "", evaluator))
+                    .orderNumber1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(10), "", evaluator))
+                    .orderNumber2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(11), "", evaluator))
+                    .channelProdCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(12), "", evaluator))
+                    .channelOptionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(13), "", evaluator))
+                    .zipCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(14), "", evaluator))
+                    .courier(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(15), "", evaluator))
+                    .transportType(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(16), "", evaluator))
+                    .deliveryMessage(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(17), "", evaluator))
+                    .waybillNumber(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(18), "", evaluator))
                     .price(priceObj)
                     .deliveryCharge(deliveryChargeObj)
-                    .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), ""))
-                    .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), ""))
-                    .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), ""))
+                    .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), "", evaluator))
+                    .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), "", evaluator))
+                    .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "", evaluator))
+                    .optionReleaseLocation(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(24), "", evaluator))
                     .releaseOptionCode(
                             CustomExcelUtils.getCellValueObjectWithDefaultValue(
-                                    row.getCell(24),
-                                    CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "")
+                                    row.getCell(25),
+                                    CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "", evaluator),
+                                    evaluator
                             )
                     )
-                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(25), ""))
-                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), ""))
-                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), ""))
-                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), ""))
-                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), ""))
-                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), ""))
-                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), ""))
-                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), ""))
-                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), ""))
-                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), ""))
-                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), ""))
+                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), "", evaluator))
+                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), "", evaluator))
+                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), "", evaluator))
+                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), "", evaluator))
+                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), "", evaluator))
+                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), "", evaluator))
+                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), "", evaluator))
+                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), "", evaluator))
+                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), "", evaluator))
+                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), "", evaluator))
+                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(36), "", evaluator))
                     .freightCode(null)
                     .build();
 

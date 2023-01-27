@@ -122,8 +122,7 @@ public class CustomExcelUtils {
             case STRING:
                 return cell.getStringCellValue();
             case FORMULA:
-                // return cell.getCellFormula();
-                return getCellValueObject(cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateInCell(cell));
+                return cell.getCellFormula();
             case BLANK:
                 return "";
             case BOOLEAN:
@@ -135,37 +134,36 @@ public class CustomExcelUtils {
         }
     }
 
-    public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
-        if(cell == null || isBlankCell(cell)) {
-            return defaultValue;
-        }
+    // getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) -> 1. getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue, FormulaEvaluator evaluator), 2. getCellValueObject(Cell cell) 으로 분리
+    // public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue) {
+    //     if(cell == null || isBlankCell(cell)) {
+    //         return defaultValue;
+    //     }
         
-        CellType cellType = cell.getCellType();
+    //     CellType cellType = cell.getCellType();
 
-        switch (cellType) {
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                    return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
-                }
-                int result = (int) cell.getNumericCellValue();
-                return result;
-            case STRING:
-                return cell.getStringCellValue();
-            case FORMULA:
-                // return cell.getCellFormula();
-                // return getCellValueObject(cell, cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator());
-                return getCellValueObject(cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateInCell(cell));
-            case BOOLEAN:
-                return cell.getBooleanCellValue();
-            case ERROR:
-                return cell.getErrorCellValue();
-            case BLANK:
-            case _NONE:
-            default:
-                return defaultValue;
-        }
-    }
+    //     switch (cellType) {
+    //         case NUMERIC:
+    //             if (DateUtil.isCellDateFormatted(cell)) {
+    //                 LocalDateTime dateTime = cell.getLocalDateTimeCellValue().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    //                 return CustomDateUtils.getLocalDateTimeToyyyyMMddHHmmss(dateTime);
+    //             }
+    //             int result = (int) cell.getNumericCellValue();
+    //             return result;
+    //         case STRING:
+    //             return cell.getStringCellValue();
+    //         case FORMULA:
+    //             return cell.getCellFormula();
+    //         case BOOLEAN:
+    //             return cell.getBooleanCellValue();
+    //         case ERROR:
+    //             return cell.getErrorCellValue();
+    //         case BLANK:
+    //         case _NONE:
+    //         default:
+    //             return defaultValue;
+    //     }
+    // }
 
     /*
      Object type의 데이터를 Number format으로 변경한다
@@ -241,16 +239,29 @@ public class CustomExcelUtils {
         return isEmpty;
     }
 
-    // public static Object getCellValueObject(Cell cell, FormulaEvaluator evaluator) {
-    //     if (cell == null || isBlankCell(cell)) {
-    //         return "";
-    //     }
+    public static Object getCellValueObject(Cell cell, FormulaEvaluator evaluator) {
+        if (cell == null || isBlankCell(cell)) {
+            return "";
+        }
 
-    //     switch (cell.getCellType()) {
-    //         case FORMULA:
-    //             return getCellValueObject(evaluator.evaluateInCell(cell));
-    //         default:
-    //             return getCellValueObject(cell);
-    //     }
-    // }
+        switch (cell.getCellType()) {
+            case FORMULA:
+                return getCellValueObject(evaluator.evaluateInCell(cell));
+            default:
+                return getCellValueObject(cell);
+        }
+    }
+
+    public static Object getCellValueObjectWithDefaultValue(Cell cell, Object defaultValue, FormulaEvaluator evaluator) {
+        if(cell == null || isBlankCell(cell)) {
+            return defaultValue;
+        }
+        
+        switch (cell.getCellType()) {
+            case FORMULA:
+                return getCellValueObject(evaluator.evaluateInCell(cell));
+            default:
+                return getCellValueObject(cell);
+        }
+    }
 }
