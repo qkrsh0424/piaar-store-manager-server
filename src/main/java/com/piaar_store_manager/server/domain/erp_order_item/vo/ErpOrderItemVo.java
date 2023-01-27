@@ -376,7 +376,10 @@ public class ErpOrderItemVo {
 
         for (int i = 1; i < worksheet.getPhysicalNumberOfRows(); i++) {
             Row row = worksheet.getRow(i);
-            if (row == null) break;
+            
+            if(CustomExcelUtils.isEmptyRow(row)){
+                continue;
+            }
 
             // 피아르 양식 필수값 검사
             for(int j = 0; j < PIAAR_ERP_ORDER_REQUIRED_HEADER_INDEX.size(); j++) {

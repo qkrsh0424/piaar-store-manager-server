@@ -178,8 +178,8 @@ public class ErpOrderItemBusinessService {
         for(int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
             row = sheet.getRow(rowNum++);
 
-            if(row == null) {
-                break;
+            if(CustomExcelUtils.isEmptyRow(row)){
+                continue;
             }
 
             List<ExcelTranslatorDownloadHeaderDetailDto.DetailDto> details = translatorGetDto.getDownloadHeaderDetail().getDetails();

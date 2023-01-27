@@ -122,7 +122,8 @@ public class CustomExcelUtils {
             case STRING:
                 return cell.getStringCellValue();
             case FORMULA:
-                return cell.getCellFormula();
+                // return cell.getCellFormula();
+                return getCellValueObject(cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateInCell(cell));
             case BLANK:
                 return "";
             case BOOLEAN:
@@ -150,9 +151,11 @@ public class CustomExcelUtils {
                 int result = (int) cell.getNumericCellValue();
                 return result;
             case STRING:
-                    return cell.getStringCellValue();
+                return cell.getStringCellValue();
             case FORMULA:
-                return cell.getCellFormula();
+                // return cell.getCellFormula();
+                // return getCellValueObject(cell, cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator());
+                return getCellValueObject(cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator().evaluateInCell(cell));
             case BOOLEAN:
                 return cell.getBooleanCellValue();
             case ERROR:
@@ -207,8 +210,8 @@ public class CustomExcelUtils {
     }
 
     /*
-     CellType이 Blank이거나
-     String 타입이면서 값이 공백인 경우
+     * CellType이 Blank이거나
+     * String 타입이면서 값이 공백인 경우
      */
     public static boolean isBlankCell(Cell cell) {
         if(cell.getCellType().equals(CellType.BLANK)
@@ -218,4 +221,36 @@ public class CustomExcelUtils {
             return false;
         }
     }
+
+    /*
+     * row가 비어있는지 검사
+     */
+    public static boolean isEmptyRow(Row row) {
+        boolean isEmpty = true;
+        DataFormatter dataFormatter = new DataFormatter();
+
+        if (row != null) {
+            for (Cell cell : row) {
+                if (dataFormatter.formatCellValue(cell).trim().length() > 0) {
+                    isEmpty = false;
+                    break;
+                }
+            }
+        }
+
+        return isEmpty;
+    }
+
+    // public static Object getCellValueObject(Cell cell, FormulaEvaluator evaluator) {
+    //     if (cell == null || isBlankCell(cell)) {
+    //         return "";
+    //     }
+
+    //     switch (cell.getCellType()) {
+    //         case FORMULA:
+    //             return getCellValueObject(evaluator.evaluateInCell(cell));
+    //         default:
+    //             return getCellValueObject(cell);
+    //     }
+    // }
 }
