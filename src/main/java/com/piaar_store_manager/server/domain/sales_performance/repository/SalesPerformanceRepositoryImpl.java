@@ -58,11 +58,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
     @Override
     public List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter) {
-        List<LocalDateTime> localDatetimeList = filter.getSearchDate();
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
-        List<String> dateValues =  localDatetimeList.stream().map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString()).collect(Collectors.toList());
-        
-        // 날짜별 데이터 초기화
+        List<String> dateValues = filter.getSearchDate().stream()
+                .map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString())
+                .collect(Collectors.toList());
+
+        // 날짜별 데이터 초기화 - dashboardProjs의 결과로 모든 날짜별 데이터가 조회되지 않으므로 초기화 실행
         List<SalesPerformanceProjection> projs = this.getDashboardInitProjs(dateValues);
 
         StringPath datetime = Expressions.stringPath("datetime");
@@ -73,17 +74,17 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                 dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull()).then(1)
                                         .otherwise(0)).sum().as("orderRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("orderUnit"),
-                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-                                        .as("orderPayAmount"),
                                 (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
                                         .then(1)
                                         .otherwise(0)).sum().as("salesRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
+                                        .then(qErpOrderItemEntity.unit)
+                                        .otherwise(0)).sum().as("orderUnit"),
+                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull().and(qErpOrderItemEntity.salesYn.eq("y")))
                                         .then(qErpOrderItemEntity.unit)
                                         .otherwise(0)).sum().as("salesUnit"),
+                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
+                                        .as("orderPayAmount"),
                                 (new CaseBuilder()
                                         .when(qErpOrderItemEntity.salesYn.eq("y"))
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
@@ -772,10 +773,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             SalesPerformanceProjection proj = SalesPerformanceProjection.builder()
                     .datetime(dateValues.get(i))
                     .orderRegistration(0)
-                    .orderUnit(0)
-                    .orderPayAmount(0)
                     .salesRegistration(0)
+                    .orderUnit(0)
                     .salesUnit(0)
+                    .orderPayAmount(0)
                     .salesPayAmount(0)
                     .build();
 
@@ -785,16 +786,16 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private void updateDashboardProjs(List<SalesPerformanceProjection> initProjs, List<SalesPerformanceProjection> dashboardProjs) {
-        initProjs.forEach(r -> {
-            dashboardProjs.forEach(r2 -> {
-                if(r.getDatetime().equals(r2.getDatetime())) {
-                    r.setOrderRegistration(r2.getOrderRegistration())
-                     .setOrderUnit(r2.getOrderUnit())
-                     .setOrderPayAmount(r2.getOrderPayAmount())
-                     .setSalesRegistration(r2.getSalesRegistration())
-                     .setSalesUnit(r2.getSalesUnit())
-                     .setSalesPayAmount(r2.getSalesPayAmount());
+    private void updateDashboardProjs(List<SalesPerformanceProjection> initProjs, List<SalesPerformanceProjection> resultProjs) {
+        initProjs.forEach(initProj -> {
+            resultProjs.forEach(resultProj -> {
+                if(initProj.getDatetime().equals(resultProj.getDatetime())) {
+                    initProj.setOrderRegistration(resultProj.getOrderRegistration())
+                     .setOrderUnit(resultProj.getOrderUnit())
+                     .setOrderPayAmount(resultProj.getOrderPayAmount())
+                     .setSalesRegistration(resultProj.getSalesRegistration())
+                     .setSalesUnit(resultProj.getSalesUnit())
+                     .setSalesPayAmount(resultProj.getSalesPayAmount());
                 }
             });
         });

@@ -18,20 +18,20 @@ import lombok.experimental.Accessors;
 public class SalesPerformanceDto {
     private String datetime;
     private Integer orderRegistration;
-    private Integer orderUnit;
-    private Integer orderPayAmount;
     private Integer salesRegistration;
+    private Integer orderUnit;
     private Integer salesUnit;
+    private Integer orderPayAmount;
     private Integer salesPayAmount;
 
     public static SalesPerformanceDto toDto(SalesPerformanceProjection proj) {
         SalesPerformanceDto dto = SalesPerformanceDto.builder()
             .datetime(proj.getDatetime())
             .orderRegistration(proj.getOrderRegistration())
-            .orderUnit(proj.getOrderUnit())
-            .orderPayAmount(proj.getOrderPayAmount())
             .salesRegistration(proj.getSalesRegistration())
+            .orderUnit(proj.getOrderUnit())
             .salesUnit(proj.getSalesUnit())
+            .orderPayAmount(proj.getOrderPayAmount())
             .salesPayAmount(proj.getSalesPayAmount())
             .build();
             
