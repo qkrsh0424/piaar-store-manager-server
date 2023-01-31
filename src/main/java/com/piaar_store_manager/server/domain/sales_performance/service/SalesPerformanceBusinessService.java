@@ -3,6 +3,9 @@ package com.piaar_store_manager.server.domain.sales_performance.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
@@ -84,6 +87,12 @@ public class SalesPerformanceBusinessService {
         List<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
         return dtos;
+    }
+
+    public Page<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(ProductPerformanceSearchFilter filter, Pageable pageable) {
+        Page<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter, pageable);
+        List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
+        return new PageImpl(dtos, pageable, projs.getTotalElements());
     }
 
     public List<SalesProductPerformanceDto.BestProductPerformance> searchCategoryBestProductPerformance(ProductPerformanceSearchFilter filter) {

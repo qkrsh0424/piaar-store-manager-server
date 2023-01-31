@@ -2,6 +2,8 @@ package com.piaar_store_manager.server.domain.sales_performance.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
@@ -24,6 +26,7 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter);
     List<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformance(ProductPerformanceSearchFilter filter);
+    Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable);
     List<SalesProductPerformanceProjection.BestProductPerformance> qSearchCategoryBestProductPerformance(ProductPerformanceSearchFilter filter);
     List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter);
     List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchCategoryBestProductOptionPerformance(ProductPerformanceSearchFilter filter);

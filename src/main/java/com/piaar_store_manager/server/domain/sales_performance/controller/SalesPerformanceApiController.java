@@ -1,5 +1,8 @@
 package com.piaar_store_manager.server.domain.sales_performance.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -112,11 +115,22 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/search/product/best")
+    @PostMapping("/search/product/best/ex")
     public ResponseEntity<?> searchBestProductPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchBestProductPerformance(filter));
+        message.setStatus(HttpStatus.OK);
+        message.setMessage("success");
+
+        return new ResponseEntity<>(message, message.getStatus());
+    }
+
+    @PostMapping("/search/product/best")
+    public ResponseEntity<?> searchBestProductPerformanceByPaging(@RequestBody ProductPerformanceSearchFilter filter, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Message message = new Message();
+
+        message.setData(salesPerformanceBusinessService.searchBestProductPerformance(filter, pageable));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

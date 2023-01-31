@@ -20,4 +20,7 @@ public class ProductPerformanceSearchFilter {
 
     private List<String> salesChannels;
     private List<String> productCategoryNames;
+
+    private List<String> productCodes;
+    private String orderByColumn;
 }
