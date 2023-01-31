@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItemEntity;
@@ -32,11 +30,8 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProduct
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.Performance;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
-import com.piaar_store_manager.server.utils.CustomFieldUtils;
-import com.querydsl.core.QueryException;
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -44,7 +39,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
-import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -143,8 +137,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
                                         .otherwise(0)).sum().as("salesPayAmount")))
                 .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull()
-                        .and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
+                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                 .groupBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d"))
                 .orderBy(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").asc())
                 .fetch();
@@ -155,8 +149,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(
-            ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
@@ -243,13 +236,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(
-            SalesPerformanceSearchFilter filter, List<String> categoryName) {
+    public List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory (SalesPerformanceSearchFilter filter, List<String> categoryName) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 카테고리 데이터 초기화
-        List<SalesCategoryPerformanceProjection.Performance> projs = this.getSalesCategoryPerformanceInitProjs(filter,
-                categoryName);
+        List<SalesCategoryPerformanceProjection.Performance> projs = this.getSalesCategoryPerformanceInitProjs(filter, categoryName);
 
         StringPath productCategoryName = Expressions.stringPath("productCategoryName");
         StringPath datetime = Expressions.stringPath("datetime");
@@ -284,8 +275,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
                                         .otherwise(0)).sum().as("salesPayAmount")))
                 .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull()
-                        .and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
+                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                 .groupBy(productCategoryName, datetime)
                 .orderBy(datetime.asc())
                 .fetch();
@@ -296,11 +287,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(
-            SalesPerformanceSearchFilter filter, List<String> categoryName) {
+    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName) {
         // 카테고리별 데이터 초기화
-        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this
-                .getSalesCategoryAndProductPerformanceInitProjs(categoryName);
+        List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this.getSalesCategoryAndProductPerformanceInitProjs(categoryName);
 
         StringPath productCategoryName = Expressions.stringPath("productCategoryName");
         StringPath productName = Expressions.stringPath("productName");
@@ -339,8 +328,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
                                         .otherwise(0)).sum().as("salesPayAmount")))
                 .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull()
-                        .and(withinDateRange(filter.getStartDate(), filter.getEndDate())))
+                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
+                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                 .groupBy(productName)
                 .orderBy(productCategoryName.asc())
                 .fetch();
@@ -355,8 +344,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
-        List<SalesProductPerformanceProjection.Performance> projs = this
-                .getSalesProductOptionPerformanceInitProjs(filter);
+        List<SalesProductPerformanceProjection.Performance> projs = this.getSalesProductOptionPerformanceInitProjs(filter);
 
         StringPath datetime = Expressions.stringPath("datetime");
         StringPath productDefaultName = Expressions.stringPath("productDefaultName");
@@ -452,54 +440,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<BestProductPerformance> qSearchBestProductPerformance(ProductPerformanceSearchFilter filter) {
-        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
-        StringPath productCode = Expressions.stringPath("productCode");
-        NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
-
-        List<BestProductPerformance> performanceProjs = query
-                .select(
-                        Projections.fields(BestProductPerformance.class,
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productDefaultName)),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.code)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productCode)),
-                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                                        .then(1)
-                                        .otherwise(0)).sum().as("orderRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("orderUnit"),
-                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-                                        .as("orderPayAmount"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(1)
-                                        .otherwise(0)).sum().as("salesRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("salesUnit"),
-                                (new CaseBuilder()
-                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                                        .otherwise(0)).sum().as(salesPayAmount)))
-                .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-                .where(includesSearchChannels(filter))
-                .groupBy(productCode)
-                .orderBy(salesPayAmount.desc())
-                .fetch();
-
-        return performanceProjs;
-    }
-
-    @Override
     public Page<BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
         NumberPath<Integer> salesUnit = Expressions.numberPath(Integer.class, "salesUnit");
@@ -559,168 +499,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<BestProductPerformance> qSearchCategoryBestProductPerformance(ProductPerformanceSearchFilter filter) {
-        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
-        StringPath productCode = Expressions.stringPath("productCode");
-        NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
-
-        List<Integer> erpOrderItemCids = query.select(qErpOrderItemEntity.cid)
-                .from(qErpOrderItemEntity)
-                .join(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
-                .join(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-                .join(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-                .where(includesSearchProductCategoryNames(filter))
-                .fetch();
-
-        List<BestProductPerformance> performanceProjs = query
-                .select(
-                        Projections.fields(BestProductPerformance.class,
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productDefaultName)),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.code)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productCode)),
-                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                                        .then(1)
-                                        .otherwise(0)).sum().as("orderRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("orderUnit"),
-                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-                                        .as("orderPayAmount"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(1)
-                                        .otherwise(0)).sum().as("salesRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("salesUnit"),
-                                (new CaseBuilder()
-                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                                        .otherwise(0)).sum().as(salesPayAmount)))
-                .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-                .where(includesSearchChannels(filter))
-                .where(qErpOrderItemEntity.cid.in(erpOrderItemCids))
-                .groupBy(productCode)
-                .orderBy(salesPayAmount.desc())
-                .fetch();
-
-        return performanceProjs;
-    }
-
-
-
-    // @Override
-    // public List<BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
-    //     StringPath productDefaultName = Expressions.stringPath("productDefaultName");
-    //     StringPath productCode = Expressions.stringPath("productCode");
-    //     StringPath optionDefaultName = Expressions.stringPath("optionDefaultName");
-    //     StringPath optionCode = Expressions.stringPath("optionCode");
-    //     NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
-
-    //     List<BestOptionPerformance> performanceProjs = query
-    //             .select(
-    //                     Projections.fields(BestOptionPerformance.class,
-    //                             (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
-    //                                     .from(qProductOptionEntity)
-    //                                     .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-    //                                     .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-    //                                     productDefaultName)),
-    //                             (ExpressionUtils.as(JPAExpressions.select(qProductEntity.code)
-    //                                     .from(qProductOptionEntity)
-    //                                     .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-    //                                     .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-    //                                     productCode)),
-    //                             (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity.defaultName)
-    //                                     .from(qProductOptionEntity)
-    //                                     .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-    //                                     optionDefaultName)),
-    //                             (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity.code)
-    //                                     .from(qProductOptionEntity)
-    //                                     .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-    //                                     optionCode)),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-    //                                     .then(1)
-    //                                     .otherwise(0)).sum().as("orderRegistration"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-    //                                     .then(qErpOrderItemEntity.unit)
-    //                                     .otherwise(0)).sum().as("orderUnit"),
-    //                             (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-    //                                     .as("orderPayAmount"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(1)
-    //                                     .otherwise(0)).sum().as("salesRegistration"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(qErpOrderItemEntity.unit)
-    //                                     .otherwise(0)).sum().as("salesUnit"),
-    //                             (new CaseBuilder()
-    //                                     .when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-    //                                     .otherwise(0)).sum().as(salesPayAmount)))
-    //             .from(qErpOrderItemEntity)
-    //             .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-    //             .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-    //             .where(eqSearchCondition(filter))
-    //             .where(includesSearchChannels(filter))
-    //             .groupBy(optionCode)
-    //             .orderBy(salesPayAmount.desc())
-    //             .fetch();
-
-    //     return performanceProjs;
-    // }
-
-    // @Override
-    // public List<BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
-    //     NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
-
-    //     List<BestOptionPerformance> performanceProjs = query
-    //             .select(
-    //                     Projections.fields(BestOptionPerformance.class,
-    //                             qProductEntity.defaultName.as("productDefaultName"),
-    //                             qProductEntity.code.as("productCode"),
-    //                             qProductOptionEntity.defaultName.as("optionDefaultName"),
-    //                             qProductOptionEntity.code.as("optionCode"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-    //                                     .then(1)
-    //                                     .otherwise(0)).sum().as("orderRegistration"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-    //                                     .then(qErpOrderItemEntity.unit)
-    //                                     .otherwise(0)).sum().as("orderUnit"),
-    //                             (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-    //                                     .as("orderPayAmount"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(1)
-    //                                     .otherwise(0)).sum().as("salesRegistration"),
-    //                             (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(qErpOrderItemEntity.unit)
-    //                                     .otherwise(0)).sum().as("salesUnit"),
-    //                             (new CaseBuilder()
-    //                                     .when(qErpOrderItemEntity.salesYn.eq("y"))
-    //                                     .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-    //                                     .otherwise(0)).sum().as(salesPayAmount)))
-    //             .from(qErpOrderItemEntity)
-    //             .leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
-    //             .leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-    //             .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-    //             .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-    //             .where(eqSearchCondition(filter))
-    //             .where(qProductEntity.code.in(filter.getProductCodes()))
-    //             .where(includesSearchChannels(filter))
-    //             .groupBy(qProductOptionEntity.code)
-    //             .orderBy(salesPayAmount.desc())
-    //             .fetch();
-
-    //     return performanceProjs;
-    // }
-
-    @Override
     public List<BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
 
@@ -768,75 +546,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         }
         // qProductEntity.cid를 정렬된 productCids 순서로 정렬한다.
         return Expressions.stringTemplate("FIELD({0}, {1})", qProductEntity.code, productCodes).asc();
-    }
-
-    @Override
-    public List<BestOptionPerformance> qSearchCategoryBestProductOptionPerformance(
-            ProductPerformanceSearchFilter filter) {
-        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
-        StringPath productCode = Expressions.stringPath("productCode");
-        StringPath optionDefaultName = Expressions.stringPath("optionDefaultName");
-        StringPath optionCode = Expressions.stringPath("optionCode");
-        NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
-
-        List<Integer> erpOrderItemCids = query.select(qErpOrderItemEntity.cid)
-                .from(qErpOrderItemEntity)
-                .join(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
-                .join(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-                .join(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-                .where(includesSearchProductCategoryNames(filter))
-                .fetch();
-
-        List<BestOptionPerformance> performanceProjs = query
-                .select(
-                        Projections.fields(BestOptionPerformance.class,
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.defaultName)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productDefaultName)),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductEntity.code)
-                                        .from(qProductOptionEntity)
-                                        .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productCode)),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity.defaultName)
-                                        .from(qProductOptionEntity)
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        optionDefaultName)),
-                                (ExpressionUtils.as(JPAExpressions.select(qProductOptionEntity.code)
-                                        .from(qProductOptionEntity)
-                                        .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        optionCode)),
-                                (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
-                                        .then(1)
-                                        .otherwise(0)).sum().as("orderRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.unit.isNotNull())
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("orderUnit"),
-                                (qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge).sum())
-                                        .as("orderPayAmount"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(1)
-                                        .otherwise(0)).sum().as("salesRegistration"),
-                                (new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.unit)
-                                        .otherwise(0)).sum().as("salesUnit"),
-                                (new CaseBuilder()
-                                        .when(qErpOrderItemEntity.salesYn.eq("y"))
-                                        .then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
-                                        .otherwise(0)).sum().as(salesPayAmount)))
-                .from(qErpOrderItemEntity)
-                .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-                .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-                .where(eqSearchCondition(filter))
-                .where(includesSearchChannels(filter))
-                .where(qErpOrderItemEntity.cid.in(erpOrderItemCids))
-                .groupBy(optionCode)
-                .orderBy(salesPayAmount.desc())
-                .fetch();
-
-        return performanceProjs;
     }
 
     /*
@@ -905,16 +614,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         }
 
         return qProductCategoryEntity.name.in(categoryNames);
-    }
-
-    private BooleanExpression includesSearchProductCategoryNames(ProductPerformanceSearchFilter filter) {
-        List<String> searchCategoryNames = filter.getProductCategoryNames();
-
-        if (searchCategoryNames == null || searchCategoryNames.size() == 0) {
-            return null;
-        }
-
-        return qProductCategoryEntity.name.in(searchCategoryNames);
     }
 
     /*

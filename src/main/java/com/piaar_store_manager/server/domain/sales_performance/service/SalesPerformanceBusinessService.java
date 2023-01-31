@@ -83,32 +83,14 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(ProductPerformanceSearchFilter filter) {
-        List<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter);
-        List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
-        return dtos;
-    }
-
     public Page<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(ProductPerformanceSearchFilter filter, Pageable pageable) {
         Page<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter, pageable);
         List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
         return new PageImpl(dtos, pageable, projs.getTotalElements());
     }
 
-    public List<SalesProductPerformanceDto.BestProductPerformance> searchCategoryBestProductPerformance(ProductPerformanceSearchFilter filter) {
-        List<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchCategoryBestProductPerformanceByFilter(filter);
-        List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
-        return dtos;
-    }
-
     public List<SalesProductPerformanceDto.BestOptionPerformance> searchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
         List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchBestProductOptionPerformanceByFilter(filter);
-        List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
-        return dtos;
-    }
-
-    public List<SalesProductPerformanceDto.BestOptionPerformance> searchCategoryBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
-        List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchCategoryBestProductOptionPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
         return dtos;
     }

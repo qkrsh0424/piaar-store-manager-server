@@ -25,9 +25,6 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
     List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter);
-    List<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformance(ProductPerformanceSearchFilter filter);
     Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable);
-    List<SalesProductPerformanceProjection.BestProductPerformance> qSearchCategoryBestProductPerformance(ProductPerformanceSearchFilter filter);
     List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchBestProductOptionPerformance(ProductPerformanceSearchFilter filter);
-    List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchCategoryBestProductOptionPerformance(ProductPerformanceSearchFilter filter);
 }
