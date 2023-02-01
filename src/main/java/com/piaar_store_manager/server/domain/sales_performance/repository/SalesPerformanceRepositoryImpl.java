@@ -552,6 +552,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
      * date range 설정
      */
     private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        System.out.println(startDate);
+        System.out.println(endDate);
+
         if (startDate == null || endDate == null) {
             return null;
         }

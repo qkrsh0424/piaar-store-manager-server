@@ -429,25 +429,24 @@ public class ErpOrderItemVo {
                     .barcode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(21), "", evaluator))
                     .prodCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(22), "", evaluator))
                     .optionCode(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "", evaluator))
-                    .optionReleaseLocation(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(24), "", evaluator))
                     .releaseOptionCode(
                             CustomExcelUtils.getCellValueObjectWithDefaultValue(
-                                    row.getCell(25),
+                                    row.getCell(24),
                                     CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(23), "", evaluator),
                                     evaluator
                             )
                     )
-                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), "", evaluator))
-                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), "", evaluator))
-                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), "", evaluator))
-                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), "", evaluator))
-                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), "", evaluator))
-                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), "", evaluator))
-                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), "", evaluator))
-                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), "", evaluator))
-                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), "", evaluator))
-                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), "", evaluator))
-                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(36), "", evaluator))
+                    .channelOrderDate(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(25), "", evaluator))
+                    .managementMemo1(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(26), "", evaluator))
+                    .managementMemo2(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(27), "", evaluator))
+                    .managementMemo3(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(28), "", evaluator))
+                    .managementMemo4(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(29), "", evaluator))
+                    .managementMemo5(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(30), "", evaluator))
+                    .managementMemo6(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(31), "", evaluator))
+                    .managementMemo7(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(32), "", evaluator))
+                    .managementMemo8(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(33), "", evaluator))
+                    .managementMemo9(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(34), "", evaluator))
+                    .managementMemo10(CustomExcelUtils.getCellValueObjectWithDefaultValue(row.getCell(35), "", evaluator))
                     .freightCode(null)
                     .build();
 
