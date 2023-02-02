@@ -22,5 +22,5 @@ public class ProductPerformanceSearchFilter {
     private List<String> productCategoryNames;
 
     private List<String> productCodes;
-    private String orderByColumn;
+    private String pageOrderByColumn;
 }

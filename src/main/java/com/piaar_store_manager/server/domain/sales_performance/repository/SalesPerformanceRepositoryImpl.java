@@ -443,7 +443,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     public Page<BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
         NumberPath<Integer> salesUnit = Expressions.numberPath(Integer.class, "salesUnit");
-        String orderByColumn = filter.getOrderByColumn() == null ? "payAmount" : filter.getOrderByColumn();
+        String pageOrderByColumn = filter.getPageOrderByColumn() == null ? "payAmount" : filter.getPageOrderByColumn();
 
         List<Integer> productCids = query.from(qErpOrderItemEntity)
                 .select(
@@ -488,7 +488,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .where(includesSearchChannels(filter))
                 .where(includesSearchCategorys(filter))
                 .groupBy(qProductEntity.code)
-                .orderBy(orderByColumn.equals("payAmount") ? salesPayAmount.desc() : salesUnit.desc())
+                .orderBy(pageOrderByColumn.equals("payAmount") ? salesPayAmount.desc() : salesUnit.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 

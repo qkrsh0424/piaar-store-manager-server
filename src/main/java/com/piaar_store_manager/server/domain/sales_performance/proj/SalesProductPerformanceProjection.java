@@ -2,9 +2,6 @@ package com.piaar_store_manager.server.domain.sales_performance.proj;
 
 import java.util.List;
 
-import com.piaar_store_manager.server.domain.product.entity.ProductEntity;
-import com.piaar_store_manager.server.domain.product_option.entity.ProductOptionEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
