@@ -126,11 +126,11 @@ public class SalesPerformanceApiController {
         return new ResponseEntity<>(message, message.getStatus());
     }
 
-    @PostMapping("/search/product-option/best")
-    public ResponseEntity<?> searchBestOptionPerformance(@RequestBody ProductPerformanceSearchFilter filter) {
+    @PostMapping("/search/product/product-option")
+    public ResponseEntity<?> searchOptionPerformanceByProduct(@RequestBody ProductPerformanceSearchFilter filter) {
         Message message = new Message();
 
-        message.setData(salesPerformanceBusinessService.searchBestProductOptionPerformance(filter));
+        message.setData(salesPerformanceBusinessService.searchProductOptionPerformanceByProduct(filter));
         message.setStatus(HttpStatus.OK);
         message.setMessage("success");
 

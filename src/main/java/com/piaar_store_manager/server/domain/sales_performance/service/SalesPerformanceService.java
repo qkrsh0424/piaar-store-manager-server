@@ -59,7 +59,7 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchBestProductPerformanceByPaging(filter, pageable);
     }
     
-    public List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchBestProductOptionPerformanceByFilter(ProductPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchBestProductOptionPerformance(filter);
+    public List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformanceByFilter(ProductPerformanceSearchFilter filter) {
+        return salesPerformanceRepositoryCustom.qSearchProductOptionPerformance(filter);
     }
 }

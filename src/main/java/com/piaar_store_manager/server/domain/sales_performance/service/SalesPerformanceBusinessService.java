@@ -89,8 +89,8 @@ public class SalesPerformanceBusinessService {
         return new PageImpl(dtos, pageable, projs.getTotalElements());
     }
 
-    public List<SalesProductPerformanceDto.BestOptionPerformance> searchBestProductOptionPerformance(ProductPerformanceSearchFilter filter) {
-        List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchBestProductOptionPerformanceByFilter(filter);
+    public List<SalesProductPerformanceDto.BestOptionPerformance> searchProductOptionPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+        List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchProductOptionPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
         return dtos;
     }
