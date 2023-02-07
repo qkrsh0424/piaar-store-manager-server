@@ -447,14 +447,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         String pageOrderByColumn = filter.getPageOrderByColumn() == null ? "payAmount" : filter.getPageOrderByColumn();
 
         List<Integer> productCids = query.from(qErpOrderItemEntity)
-                .select(
-                    qProductEntity.cid
-                )
+                .select(qProductEntity.cid)
                 .leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
                 .leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
+                .leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
                 .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
                 .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
                 .where(includesSearchChannels(filter))
+                .where(includesSearchCategorys(filter))
                 .groupBy(qProductEntity.code)
                 .fetch();
 
