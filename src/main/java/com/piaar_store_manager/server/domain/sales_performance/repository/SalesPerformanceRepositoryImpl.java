@@ -149,6 +149,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
+    // datetime을 기준으로 판매채널 성과를 조회한다
     @Override
     public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
@@ -503,7 +504,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
 
         // 검색된 옵션들의 매출데이터 초기화
-        List<BestOptionPerformance> projs = query.from(qProductOptionEntity)
+        List<BestOptionPerformance> projs = query
                 .select(
                         Projections.fields(BestOptionPerformance.class,
                                 qProductEntity.defaultName.as("productDefaultName"),
@@ -518,8 +519,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                 (Expressions.as(Expressions.constant(0), "salesPayAmount"))
                         )
                 )
+                .from(qProductOptionEntity)
                 .leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
                 .where(includesProductCodes(filter))
+                .orderBy(orderByProductCodes(filter.getProductCodes()))
                 .fetch();
 
         List<BestOptionPerformance> performanceProjs = query.from(qErpOrderItemEntity)
@@ -551,9 +554,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .where(includesProductCodes(filter))
                 .where(includesSearchChannels(filter))
                 .groupBy(qProductOptionEntity.code)
-                .orderBy(orderByProductCodes(filter.getProductCodes()))
                 .fetch();
-
         
         this.updateOptionPerformanceProjs(projs, performanceProjs);
         return projs;
@@ -563,7 +564,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         if(productCodes == null) {
                 return null;
         }
-        // qProductEntity.cid를 정렬된 productCids 순서로 정렬한다.
         return Expressions.stringTemplate("FIELD({0}, {1})", qProductEntity.code, productCodes).asc();
     }
 
@@ -713,16 +713,15 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     private List<SalesPerformanceProjection> getSalesPerformanceInitProjs(SalesPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
-        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         
         if (startDate == null || endDate == null) {
                 return null;
         }
         
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         startDate = CustomDateUtils.changeUtcDateTime(startDate, utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
         int dateDiff = (int) Duration.between(startDate, endDate).toDays();
-
 
         List<SalesPerformanceProjection> projs = new ArrayList<>();
         LocalDateTime datetime = null;
@@ -744,7 +743,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                     .build();
             projs.add(proj);
         }
-
         return projs;
     }
 
@@ -766,12 +764,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(ChannelPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
-        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         
         if (startDate == null || endDate == null) {
                 return null;
         }
         
+        int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
         startDate = CustomDateUtils.changeUtcDateTime(filter.getStartDate(), utcHourDifference);
         endDate = CustomDateUtils.changeUtcDateTime(filter.getEndDate(), utcHourDifference);
         int dateDiff = (int) Duration.between(filter.getStartDate(), filter.getEndDate()).toDays();
@@ -793,11 +791,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private List<SalesChannelPerformanceProjection.Performance> updateSalesChannelPerformanceProjs(
-            List<SalesChannelPerformanceProjection.Performance> initProjs,
-            List<SalesChannelPerformanceProjection> performanceProjs) {
-        List<SalesChannelPerformanceProjection.Performance> projs = new ArrayList<>();
-        
+    private void updateSalesChannelPerformanceProjs(List<SalesChannelPerformanceProjection.Performance> initProjs, List<SalesChannelPerformanceProjection> performanceProjs) {
         initProjs.forEach(r -> {
             List<SalesChannelPerformanceProjection> salesChannelProjs = new ArrayList<>();
             performanceProjs.forEach(r2 -> {
@@ -820,15 +814,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 r.setPerformance(salesChannelProjs);
             });
         });
-        projs.addAll(initProjs);
-        return projs;
     }
 
     /*
      * sales category performance projs 세팅
      */
-    private List<SalesCategoryPerformanceProjection.Performance> getSalesCategoryPerformanceInitProjs(
-            SalesPerformanceSearchFilter filter, List<String> categoryName) {
+    private List<SalesCategoryPerformanceProjection.Performance> getSalesCategoryPerformanceInitProjs(SalesPerformanceSearchFilter filter, List<String> categoryName) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
