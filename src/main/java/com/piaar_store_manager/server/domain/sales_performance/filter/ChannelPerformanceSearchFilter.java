@@ -16,5 +16,6 @@ public class ChannelPerformanceSearchFilter {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer utcHourDifference;
+    private List<String> productCodes;
     private List<String> optionCodes;
 }

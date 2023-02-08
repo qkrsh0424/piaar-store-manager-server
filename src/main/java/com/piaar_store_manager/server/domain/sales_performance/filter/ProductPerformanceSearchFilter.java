@@ -16,10 +16,10 @@ public class ProductPerformanceSearchFilter {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer utcHourDifference;
+    
+    private List<String> optionCodes;
+    private List<String> productCodes;
     private List<String> salesChannels;
     private List<String> productCategoryNames;
-    private List<String> productCodes;
-    private List<String> optionCodes;
     private String pageOrderByColumn;
-
 }
