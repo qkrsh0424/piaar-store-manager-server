@@ -17,9 +17,7 @@ import com.piaar_store_manager.server.domain.erp_order_item.entity.QErpOrderItem
 import com.piaar_store_manager.server.domain.product.entity.QProductEntity;
 import com.piaar_store_manager.server.domain.product_category.entity.QProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_option.entity.QProductOptionEntity;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
@@ -54,8 +52,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     private final QProductCategoryEntity qProductCategoryEntity = QProductCategoryEntity.productCategoryEntity;
 
     @Autowired
-    public SalesPerformanceRepositoryImpl(
-            JPAQueryFactory query) {
+    public SalesPerformanceRepositoryImpl(JPAQueryFactory query) {
         this.query = query;
     }
 
@@ -113,12 +110,10 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         // 날짜별 데이터 초기화
         List<SalesPerformanceProjection> projs = this.getSalesPerformanceInitProjs(filter);
 
-        StringPath datetime = Expressions.stringPath("datetime");
-
         List<SalesPerformanceProjection> performanceProjs = query
                 .select(
                         Projections.fields(SalesPerformanceProjection.class,
-                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+                                dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as("datetime"),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                                         .then(1)
                                         .otherwise(0)).sum().as("orderRegistration"),
@@ -151,7 +146,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
     // datetime을 기준으로 판매채널 성과를 조회한다
     @Override
-    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
@@ -197,7 +192,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
         StringPath optionCode = Expressions.stringPath("optionCode");
         StringPath salesChannel = Expressions.stringPath("salesChannel");
 
@@ -337,7 +332,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter) {
+    public List<Performance> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
@@ -391,7 +386,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+    public List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
         // 날짜별 채널데이터 초기화
@@ -438,7 +433,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public Page<BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable) {
+    public Page<BestProductPerformance> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
         NumberPath<Integer> salesUnit = Expressions.numberPath(Integer.class, "salesUnit");
         String pageOrderByColumn = filter.getPageOrderByColumn() == null ? "payAmount" : filter.getPageOrderByColumn();
@@ -497,7 +492,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public List<BestOptionPerformance> qSearchProductOptionPerformance(ProductPerformanceSearchFilter filter) {
+    public List<BestOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
 
         // 검색된 옵션들의 매출데이터 초기화
@@ -579,6 +574,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
     }
 
+    /*
+     * option code 확인
+     */
     private BooleanExpression includesOptionCodes(List<String> optionCodes) {
         if (optionCodes == null || optionCodes.size() == 0) {
             return null;
@@ -586,6 +584,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return qErpOrderItemEntity.optionCode.isNotEmpty().and(qErpOrderItemEntity.optionCode.in(optionCodes));
     }
 
+    /*
+     * sales channel 확인
+     */
     private BooleanExpression includesSearchChannels(List<String> searchSalesChannels) {
         if (searchSalesChannels == null || searchSalesChannels.size() == 0) {
             return null;
@@ -593,6 +594,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return qErpOrderItemEntity.salesChannel.isNotEmpty().and(qErpOrderItemEntity.salesChannel.in(searchSalesChannels));
     }
 
+    /*
+     * product code 확인
+     */
     private BooleanExpression includesProductCodes(List<String> searchProductCodes) {
         if (searchProductCodes == null || searchProductCodes.size() == 0) {
             return null;
@@ -600,6 +604,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return qProductEntity.code.isNotEmpty().and(qProductEntity.code.in(searchProductCodes));
     }
 
+    /*
+     * category name 확인
+     */
     private BooleanExpression includesSearchCategorys(List<String> searchCategoryNames) {
         if (searchCategoryNames == null || searchCategoryNames.size() == 0) {
             return null;
@@ -726,7 +733,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         });
     }
 
-    private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(ChannelPerformanceSearchFilter filter) {
+    private List<SalesChannelPerformanceProjection.Performance> getSalesChannelPerformanceInitProjs(SalesPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
         
@@ -812,8 +819,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         }).collect(Collectors.toList());
 
         List<SalesCategoryPerformanceProjection.Performance> projs = new ArrayList<>();
+        LocalDateTime datetime = null;
         for (int i = 0; i <= dateDiff; i++) {
-            LocalDateTime datetime = startDate.plusDays(i);
+            datetime = startDate.plusDays(i);
 
             // 검색날짜가 범위에 벗어난다면 for문 탈출
             if (datetime.isAfter(endDate)) {
@@ -837,8 +845,8 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
             performanceProjs.forEach(r2 -> {
                 if (r.getDatetime().equals(r2.getDatetime())) {
                     List<SalesCategoryPerformanceProjection> updatedPerform = r.getPerformance().stream().map(r3 -> {
-                        String categoryName = (r3.getProductCategoryName() == null
-                                || r3.getProductCategoryName().isBlank()) ? "미지정" : r3.getProductCategoryName();
+                        String categoryName = (r3.getProductCategoryName() == null || r3.getProductCategoryName().isBlank()) ? "미지정" : r3.getProductCategoryName();
+                        
                         if (categoryName.equals(r2.getProductCategoryName())) {
                             SalesCategoryPerformanceProjection p = SalesCategoryPerformanceProjection.builder()
                                     .productCategoryName(categoryName)
@@ -877,9 +885,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private void updateSalesCategoryAndProductPerformanceProjs(
-            List<SalesCategoryPerformanceProjection.ProductPerformance> initProjs,
-            List<SalesCategoryPerformanceProjection> performanceProjs) {
+    private void updateSalesCategoryAndProductPerformanceProjs(List<SalesCategoryPerformanceProjection.ProductPerformance> initProjs, List<SalesCategoryPerformanceProjection> performanceProjs) {
         initProjs.forEach(r -> {
             List<SalesCategoryPerformanceProjection> performances = new ArrayList<>();
             performanceProjs.forEach(r2 -> {
@@ -902,7 +908,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         });
     }
 
-    private List<SalesProductPerformanceProjection.Performance> getSalesProductOptionPerformanceInitProjs(ProductPerformanceSearchFilter filter) {
+    private List<SalesProductPerformanceProjection.Performance> getSalesProductOptionPerformanceInitProjs(SalesPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
 
@@ -916,8 +922,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
         List<SalesProductPerformanceProjection.Performance> projs = new ArrayList<>();
+        LocalDateTime datetime = null;
         for (int i = 0; i <= dateDiff; i++) {
-            LocalDateTime datetime = startDate.plusDays(i);
+            datetime = startDate.plusDays(i);
 
             // 검색날짜가 범위에 벗어난다면 for문 탈출
             if (datetime.isAfter(endDate)) {
@@ -932,8 +939,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private List<SalesPerformanceProjection> getProductSalesPerformanceInitProjs(
-            ProductPerformanceSearchFilter filter) {
+    private List<SalesPerformanceProjection> getProductSalesPerformanceInitProjs(SalesPerformanceSearchFilter filter) {
         LocalDateTime startDate = filter.getStartDate();
         LocalDateTime endDate = filter.getEndDate();
         
@@ -947,9 +953,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
         List<SalesPerformanceProjection> projs = new ArrayList<>();
+        LocalDateTime datetime = null;
         for (int i = 0; i <= dateDiff; i++) {
-            LocalDateTime datetime = startDate.plusDays(i);
-
+            datetime = startDate.plusDays(i);
             // 검색날짜가 범위에 벗어난다면 for문 탈출
             if (datetime.isAfter(endDate)) {
                 break;

@@ -6,9 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
@@ -31,11 +29,11 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformance(filter);
     }
 
-    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByFilter(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
     }
 
-    public List<SalesChannelPerformanceProjection> qSearchProductChannelSalesPerformanceByFilter(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceProjection> qSearchProductChannelSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchProductOptionSalesPerformanceByChannel(filter);
     }
 
@@ -47,19 +45,19 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesProductPerformanceByCategory(filter, categoryName);
     }
 
-    public List<SalesProductPerformanceProjection.Performance> qSearchProductOptionSalesPerformanceByFilter(ProductPerformanceSearchFilter filter) {
+    public List<SalesProductPerformanceProjection.Performance> qSearchProductOptionSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProductOption(filter);
     }
 
-    public List<SalesPerformanceProjection> qSearchProductSalesPerformanceByFilter(ProductPerformanceSearchFilter filter) {
+    public List<SalesPerformanceProjection> qSearchProductSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProduct(filter);
     }
 
-    public Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByFilter(ProductPerformanceSearchFilter filter, Pageable pageable) {
+    public Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByFilter(SalesPerformanceSearchFilter filter, Pageable pageable) {
         return salesPerformanceRepositoryCustom.qSearchBestProductPerformanceByPaging(filter, pageable);
     }
     
-    public List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformanceByFilter(ProductPerformanceSearchFilter filter) {
+    public List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchProductOptionPerformance(filter);
     }
 }

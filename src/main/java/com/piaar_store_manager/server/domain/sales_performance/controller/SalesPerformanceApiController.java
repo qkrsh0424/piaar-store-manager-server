@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.piaar_store_manager.server.annotation.RequiredLogin;
 import com.piaar_store_manager.server.domain.message.Message;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.service.SalesPerformanceBusinessService;
 
@@ -50,7 +48,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/channel")
-    public ResponseEntity<?> searchSalesPerformanceByChannel(@RequestBody ChannelPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchSalesPerformanceByChannel(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesPerformanceByChannel(filter));
@@ -61,7 +59,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/product/channel")
-    public ResponseEntity<?> searchProductSalesPerformanceByChannel(@RequestBody ChannelPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchProductSalesPerformanceByChannel(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchProductSalesPerformanceByChannel(filter));
@@ -94,7 +92,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/product-option")
-    public ResponseEntity<?> searchSalesPerformanceByProductOption(@RequestBody ProductPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchSalesPerformanceByProductOption(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesPerformanceByProductOption(filter));
@@ -105,7 +103,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/product")
-    public ResponseEntity<?> searchSalesPerformanceByProduct(@RequestBody ProductPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchSalesPerformanceByProduct(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchSalesPerformanceByProduct(filter));
@@ -116,7 +114,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/product/best")
-    public ResponseEntity<?> searchBestProductPerformanceByPaging(@RequestBody ProductPerformanceSearchFilter filter, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+    public ResponseEntity<?> searchBestProductPerformanceByPaging(@RequestBody SalesPerformanceSearchFilter filter, @PageableDefault(sort = "cid", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchBestProductPerformance(filter, pageable));
@@ -127,7 +125,7 @@ public class SalesPerformanceApiController {
     }
 
     @PostMapping("/search/product/product-option")
-    public ResponseEntity<?> searchOptionPerformanceByProduct(@RequestBody ProductPerformanceSearchFilter filter) {
+    public ResponseEntity<?> searchOptionPerformanceByProduct(@RequestBody SalesPerformanceSearchFilter filter) {
         Message message = new Message();
 
         message.setData(salesPerformanceBusinessService.searchProductOptionPerformanceByProduct(filter));

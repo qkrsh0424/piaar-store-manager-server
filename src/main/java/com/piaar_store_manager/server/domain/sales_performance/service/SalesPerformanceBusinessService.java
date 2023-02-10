@@ -14,9 +14,7 @@ import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategory
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesProductPerformanceDto;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
@@ -43,13 +41,13 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesChannelPerformanceDto.Performance> searchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceDto.Performance> searchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
         List<SalesChannelPerformanceProjection.Performance> projs = salesPerformanceService.qSearchChannelSalesPerformanceByFilter(filter);
         List<SalesChannelPerformanceDto.Performance> dtos = projs.stream().map(SalesChannelPerformanceDto.Performance::toDto).collect(Collectors.toList());
         return dtos;
     }
 
-    public List<SalesChannelPerformanceDto> searchProductSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter) {
+    public List<SalesChannelPerformanceDto> searchProductSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
         List<SalesChannelPerformanceProjection> projs = salesPerformanceService.qSearchProductChannelSalesPerformanceByFilter(filter);
         List<SalesChannelPerformanceDto> dtos = projs.stream().map(SalesChannelPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
@@ -71,25 +69,25 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public List<SalesProductPerformanceDto.Performance> searchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter) {
+    public List<SalesProductPerformanceDto.Performance> searchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter) {
         List<SalesProductPerformanceProjection.Performance> projs = salesPerformanceService.qSearchProductOptionSalesPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.Performance> dtos = projs.stream().map(SalesProductPerformanceDto.Performance::toDto).collect(Collectors.toList());
         return dtos;
     }
 
-    public List<SalesPerformanceDto> searchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+    public List<SalesPerformanceDto> searchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter) {
         List<SalesPerformanceProjection> projs = salesPerformanceService.qSearchProductSalesPerformanceByFilter(filter);
         List<SalesPerformanceDto> dtos = projs.stream().map(SalesPerformanceDto::toDto).collect(Collectors.toList());
         return dtos;
     }
 
-    public Page<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(ProductPerformanceSearchFilter filter, Pageable pageable) {
+    public Page<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(SalesPerformanceSearchFilter filter, Pageable pageable) {
         Page<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter, pageable);
         List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
         return new PageImpl(dtos, pageable, projs.getTotalElements());
     }
 
-    public List<SalesProductPerformanceDto.BestOptionPerformance> searchProductOptionPerformanceByProduct(ProductPerformanceSearchFilter filter) {
+    public List<SalesProductPerformanceDto.BestOptionPerformance> searchProductOptionPerformanceByProduct(SalesPerformanceSearchFilter filter) {
         List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchProductOptionPerformanceByFilter(filter);
         List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
         return dtos;

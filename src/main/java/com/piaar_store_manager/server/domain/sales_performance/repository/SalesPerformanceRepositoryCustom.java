@@ -6,9 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.piaar_store_manager.server.domain.sales_performance.filter.ChannelPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
-import com.piaar_store_manager.server.domain.sales_performance.filter.ProductPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
@@ -19,12 +17,12 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProduct
 public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformance(SalesPerformanceSearchFilter filter);
-    List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter);
-    List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(ChannelPerformanceSearchFilter filter);
+    List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter);
+    List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(SalesPerformanceSearchFilter filter);
     List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
     List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
-    List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(ProductPerformanceSearchFilter filter);
-    List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(ProductPerformanceSearchFilter filter);
-    Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByPaging(ProductPerformanceSearchFilter filter, Pageable pageable);
-    List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformance(ProductPerformanceSearchFilter filter);
+    List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter);
+    List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter);
+    Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable);
+    List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter);
 }
