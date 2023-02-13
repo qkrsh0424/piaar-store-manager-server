@@ -19,7 +19,7 @@ import lombok.experimental.Accessors;
 public class SalesCategoryPerformanceProjection {
     private String datetime;
     private String productCategoryName;
-    private String productName;
+    private String productDefaultName;
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;

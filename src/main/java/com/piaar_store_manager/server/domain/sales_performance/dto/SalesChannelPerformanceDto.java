@@ -31,7 +31,7 @@ public class SalesChannelPerformanceDto {
     public static SalesChannelPerformanceDto toDto(SalesChannelPerformanceProjection proj) {
         SalesChannelPerformanceDto dto = SalesChannelPerformanceDto.builder()
             .salesChannel(proj.getSalesChannel())
-            .optionCode(proj.getOptionCode())
+            .optionCode(proj.getOptionCode() == null ? "미지정" : proj.getOptionCode())
             .orderRegistration(proj.getOrderRegistration())
             .orderUnit(proj.getOrderUnit())
             .orderPayAmount(proj.getOrderPayAmount())

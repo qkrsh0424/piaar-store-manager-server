@@ -20,7 +20,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class SalesCategoryPerformanceDto {
     private String productCategoryName;
-    private String productName;
+    private String productDefaultName;
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;
@@ -31,7 +31,7 @@ public class SalesCategoryPerformanceDto {
     public static SalesCategoryPerformanceDto toDto(SalesCategoryPerformanceProjection proj) {
         SalesCategoryPerformanceDto dto = SalesCategoryPerformanceDto.builder()
             .productCategoryName(proj.getProductCategoryName())
-            .productName(proj.getProductName())
+            .productDefaultName(proj.getProductDefaultName())
             .orderRegistration(proj.getOrderRegistration())
             .orderUnit(proj.getOrderUnit())
             .orderPayAmount(proj.getOrderPayAmount())

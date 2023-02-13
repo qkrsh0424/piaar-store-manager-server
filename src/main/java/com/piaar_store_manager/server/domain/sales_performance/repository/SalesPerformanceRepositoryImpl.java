@@ -287,7 +287,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         List<SalesCategoryPerformanceProjection.ProductPerformance> projs = this.getSalesCategoryAndProductPerformanceInitProjs(categoryName);
 
         StringPath productCategoryName = Expressions.stringPath("productCategoryName");
-        StringPath productName = Expressions.stringPath("productName");
+        StringPath productDefaultName = Expressions.stringPath("productDefaultName");
 
         List<SalesCategoryPerformanceProjection> performanceProjs = query
                 .select(
@@ -297,7 +297,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                                         .from(qProductOptionEntity)
                                         .join(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
                                         .where(qErpOrderItemEntity.optionCode.eq(qProductOptionEntity.code)),
-                                        productName)),
+                                        productDefaultName)),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                                         .then(1)
                                         .otherwise(0)).sum().as("orderRegistration"),
@@ -322,7 +322,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
                 .where(qErpOrderItemEntity.channelOrderDate.isNotNull())
                 .where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
-                .groupBy(productName)
+                .groupBy(productDefaultName)
                 .orderBy(productCategoryName.asc())
                 .fetch();
 
@@ -892,7 +892,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 if (r.getProductCategoryName().equals(r2.getProductCategoryName())) {
                     SalesCategoryPerformanceProjection performance = SalesCategoryPerformanceProjection.builder()
                             .productCategoryName(r2.getProductCategoryName())
-                            .productName(r2.getProductName())
+                            .productDefaultName(r2.getProductDefaultName())
                             .orderRegistration(r2.getOrderRegistration())
                             .orderUnit(r2.getOrderUnit())
                             .orderPayAmount(r2.getOrderPayAmount())
