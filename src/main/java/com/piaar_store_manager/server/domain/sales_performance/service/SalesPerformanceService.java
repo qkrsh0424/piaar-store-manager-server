@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -53,11 +54,11 @@ public class SalesPerformanceService {
         return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProduct(filter);
     }
 
-    public Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByFilter(SalesPerformanceSearchFilter filter, Pageable pageable) {
+    public Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByFilter(SalesPerformanceSearchFilter filter, Pageable pageable) {
         return salesPerformanceRepositoryCustom.qSearchBestProductPerformanceByPaging(filter, pageable);
     }
     
-    public List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformanceByFilter(SalesPerformanceSearchFilter filter) {
+    public List<BestProductPerformanceProjection.RelatedProductOptionPerformance> qSearchProductOptionPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchProductOptionPerformance(filter);
     }
 }

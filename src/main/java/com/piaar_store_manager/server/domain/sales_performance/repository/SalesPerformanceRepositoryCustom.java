@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -23,6 +24,6 @@ public interface SalesPerformanceRepositoryCustom {
     List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
     List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter);
-    Page<SalesProductPerformanceProjection.BestProductPerformance> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable);
-    List<SalesProductPerformanceProjection.BestOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter);
+    Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable);
+    List<BestProductPerformanceProjection.RelatedProductOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter);
 }

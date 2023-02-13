@@ -1,7 +1,5 @@
 package com.piaar_store_manager.server.domain.sales_performance.proj;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,17 +9,14 @@ import lombok.ToString;
 import lombok.experimental.Accessors;
 
 @Getter
+@Setter
 @Builder
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Accessors(chain = true)
-public class SalesProductPerformanceProjection {
-    private String datetime;
-    private String productCode;
-    private String optionCode;
+public class BestProductPerformanceProjection {
     private String productDefaultName;
-    private String optionDefaultName;
+    private String productCode;
     private Integer orderPayAmount;
     private Integer salesPayAmount;
     private Integer orderRegistration;
@@ -33,11 +28,19 @@ public class SalesProductPerformanceProjection {
     @Setter
     @Builder
     @ToString
+    @Accessors(chain = true)
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Performance {
-        private String datetime;
-        @Setter
-        private List<SalesProductPerformanceProjection> performance;
+    public static class RelatedProductOptionPerformance {
+        private String productDefaultName;
+        private String optionDefaultName;
+        private String productCode;
+        private String optionCode;
+        private Integer orderPayAmount;
+        private Integer salesPayAmount;
+        private Integer orderRegistration;
+        private Integer salesRegistration;
+        private Integer orderUnit;
+        private Integer salesUnit;
     }
 }

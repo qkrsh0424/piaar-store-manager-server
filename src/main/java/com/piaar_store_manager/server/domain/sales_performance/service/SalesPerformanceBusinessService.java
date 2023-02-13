@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import com.piaar_store_manager.server.domain.product_category.entity.ProductCategoryEntity;
 import com.piaar_store_manager.server.domain.product_category.service.ProductCategoryService;
+import com.piaar_store_manager.server.domain.sales_performance.dto.BestProductPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesCategoryPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesChannelPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.dto.SalesProductPerformanceDto;
 import com.piaar_store_manager.server.domain.sales_performance.filter.DashboardPerformanceSearchFilter;
 import com.piaar_store_manager.server.domain.sales_performance.filter.SalesPerformanceSearchFilter;
+import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategoryPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
@@ -81,15 +83,15 @@ public class SalesPerformanceBusinessService {
         return dtos;
     }
 
-    public Page<SalesProductPerformanceDto.BestProductPerformance> searchBestProductPerformance(SalesPerformanceSearchFilter filter, Pageable pageable) {
-        Page<SalesProductPerformanceProjection.BestProductPerformance> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter, pageable);
-        List<SalesProductPerformanceDto.BestProductPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestProductPerformance::toDto).collect(Collectors.toList());
+    public Page<BestProductPerformanceDto> searchBestProductPerformance(SalesPerformanceSearchFilter filter, Pageable pageable) {
+        Page<BestProductPerformanceProjection> projs = salesPerformanceService.qSearchBestProductPerformanceByFilter(filter, pageable);
+        List<BestProductPerformanceDto> dtos = projs.stream().map(BestProductPerformanceDto::toDto).collect(Collectors.toList());
         return new PageImpl(dtos, pageable, projs.getTotalElements());
     }
 
-    public List<SalesProductPerformanceDto.BestOptionPerformance> searchProductOptionPerformanceByProduct(SalesPerformanceSearchFilter filter) {
-        List<SalesProductPerformanceProjection.BestOptionPerformance> projs = salesPerformanceService.qSearchProductOptionPerformanceByFilter(filter);
-        List<SalesProductPerformanceDto.BestOptionPerformance> dtos = projs.stream().map(SalesProductPerformanceDto.BestOptionPerformance::toDto).collect(Collectors.toList());
+    public List<BestProductPerformanceDto.RelatedProductOptionPerformance> searchProductOptionPerformanceByProduct(SalesPerformanceSearchFilter filter) {
+        List<BestProductPerformanceProjection.RelatedProductOptionPerformance> projs = salesPerformanceService.qSearchProductOptionPerformanceByFilter(filter);
+        List<BestProductPerformanceDto.RelatedProductOptionPerformance> dtos = projs.stream().map(BestProductPerformanceDto.RelatedProductOptionPerformance::toDto).collect(Collectors.toList());
         return dtos;
     }
 }

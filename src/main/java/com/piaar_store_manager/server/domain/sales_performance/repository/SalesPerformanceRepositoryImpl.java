@@ -23,8 +23,8 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesCategor
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesChannelPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection;
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.BestOptionPerformance;
-import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.BestProductPerformance;
+import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection.RelatedProductOptionPerformance;
+import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection;
 import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProductPerformanceProjection.Performance;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
@@ -59,6 +59,11 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     @Override
     public List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter) {
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+
+        if(filter.getSearchDate() == null || filter.getSearchDate().size() == 0) {
+                throw new CustomInvalidDataException("검색 기간이 올바르지 않습니다.");
+        }
+
         List<String> dateValues = filter.getSearchDate().stream()
                 .map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString())
                 .collect(Collectors.toList());
@@ -433,7 +438,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
     }
 
     @Override
-    public Page<BestProductPerformance> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable) {
+    public Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
         NumberPath<Integer> salesUnit = Expressions.numberPath(Integer.class, "salesUnit");
         String pageOrderByColumn = filter.getPageOrderByColumn() == null ? "payAmount" : filter.getPageOrderByColumn();
@@ -452,7 +457,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
         JPQLQuery customQuery = query.from(qErpOrderItemEntity)
                 .select(
-                        Projections.fields(BestProductPerformance.class,
+                        Projections.fields(BestProductPerformanceProjection.class,
                                 qProductEntity.code.as("productCode"),
                                 qProductEntity.defaultName.as("productDefaultName"),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
@@ -485,20 +490,20 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        List<BestProductPerformance> performanceProjs = customQuery.fetch();
+        List<BestProductPerformanceProjection> performanceProjs = customQuery.fetch();
         long totalCount = productCids.size();
 
-        return new PageImpl<BestProductPerformance>(performanceProjs, pageable, totalCount);
+        return new PageImpl<BestProductPerformanceProjection>(performanceProjs, pageable, totalCount);
     }
 
     @Override
-    public List<BestOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter) {
+    public List<BestProductPerformanceProjection.RelatedProductOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter) {
         NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
 
         // 검색된 옵션들의 매출데이터 초기화
-        List<BestOptionPerformance> projs = query
+        List<RelatedProductOptionPerformance> projs = query
                 .select(
-                        Projections.fields(BestOptionPerformance.class,
+                        Projections.fields(RelatedProductOptionPerformance.class,
                                 qProductEntity.defaultName.as("productDefaultName"),
                                 qProductEntity.code.as("productCode"),
                                 qProductOptionEntity.defaultName.as("optionDefaultName"),
@@ -517,9 +522,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
                 .orderBy(orderByProductCodes(filter.getProductCodes()))
                 .fetch();
 
-        List<BestOptionPerformance> performanceProjs = query.from(qErpOrderItemEntity)
+        List<RelatedProductOptionPerformance> performanceProjs = query.from(qErpOrderItemEntity)
                 .select(
-                        Projections.fields(BestOptionPerformance.class,
+                        Projections.fields(RelatedProductOptionPerformance.class,
                                 qProductOptionEntity.code.as("optionCode"),
                                 (new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
                                         .then(1)
@@ -1025,7 +1030,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
         return projs;
     }
 
-    private void updateOptionPerformanceProjs(List<SalesProductPerformanceProjection.BestOptionPerformance> initProjs, List<SalesProductPerformanceProjection.BestOptionPerformance> performanceProjs) {
+    private void updateOptionPerformanceProjs(List<RelatedProductOptionPerformance> initProjs, List<RelatedProductOptionPerformance> performanceProjs) {
         initProjs.forEach(r -> {
             performanceProjs.forEach(r2 -> {
                 if (r.getOptionCode().equals(r2.getOptionCode())) {
