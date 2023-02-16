@@ -18,12 +18,12 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.SalesProduct
 public interface SalesPerformanceRepositoryCustom {
     List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter);
     List<SalesPerformanceProjection> qSearchSalesPerformance(SalesPerformanceSearchFilter filter);
-    List<SalesChannelPerformanceProjection.Performance> qSearchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter);
+    List<SalesChannelPerformanceProjection> qSearchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter);
     List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(SalesPerformanceSearchFilter filter);
-    List<SalesCategoryPerformanceProjection.Performance> qSearchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
-    List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
-    List<SalesProductPerformanceProjection.Performance> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter);
-    List<SalesPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter);
+    List<SalesCategoryPerformanceProjection> qSearchSalesPerformanceByCategory(SalesPerformanceSearchFilter filter);
+    List<SalesCategoryPerformanceProjection> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName);
+    List<SalesProductPerformanceProjection> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter);
+    List<SalesProductPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter);
     Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable);
     List<BestProductPerformanceProjection.RelatedProductOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter);
 }

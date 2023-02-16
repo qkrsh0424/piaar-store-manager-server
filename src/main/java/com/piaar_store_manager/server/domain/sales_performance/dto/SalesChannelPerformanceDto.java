@@ -49,18 +49,18 @@ public class SalesChannelPerformanceDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Performance {
+    public static class PerformanceByDate {
         private String datetime;
         private List<SalesChannelPerformanceDto> performances;
 
-        public static Performance toDto(SalesChannelPerformanceProjection.Performance proj) {
+        public static PerformanceByDate toDto(SalesChannelPerformanceProjection.PerformanceByDate proj) {
             List<SalesChannelPerformanceDto> performanceDtos = new ArrayList<>();
 
             if (proj.getPerformance() != null) {
                 performanceDtos = proj.getPerformance().stream().map(SalesChannelPerformanceDto::toDto).collect(Collectors.toList());
             }
 
-            Performance dto = Performance.builder()
+            PerformanceByDate dto = PerformanceByDate.builder()
                     .datetime(proj.getDatetime())
                     .performances(performanceDtos)
                     .build();

@@ -23,35 +23,35 @@ public class SalesPerformanceService {
     private final SalesPerformanceRepositoryCustom salesPerformanceRepositoryCustom;
 
     public List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchDashBoardByParams(filter);
+		return salesPerformanceRepositoryCustom.qSearchDashBoardByParams(filter);
     }
 
     public List<SalesPerformanceProjection> qSearchSalesPerformanceByParams(SalesPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformance(filter);
+		return salesPerformanceRepositoryCustom.qSearchSalesPerformance(filter);
     }
 
-    public List<SalesChannelPerformanceProjection.Performance> qSearchChannelSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
+    public List<SalesChannelPerformanceProjection> qSearchChannelSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
+		return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByChannel(filter);
     }
 
     public List<SalesChannelPerformanceProjection> qSearchProductChannelSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
         return salesPerformanceRepositoryCustom.qSearchProductOptionSalesPerformanceByChannel(filter);
     }
 
-    public List<SalesCategoryPerformanceProjection.Performance> qSearchCategorySalesPerformanceByParams(SalesPerformanceSearchFilter filter , List<String> categoryName) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByCategory(filter, categoryName);
+    public List<SalesCategoryPerformanceProjection> qSearchCategorySalesPerformanceByParams(SalesPerformanceSearchFilter filter) {
+        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByCategory(filter);
     }
 
-    public List<SalesCategoryPerformanceProjection.ProductPerformance> qSearchCategoryAndProductSalesPerformanceByParams(SalesPerformanceSearchFilter filter, List<String> categoryName) {
-        return salesPerformanceRepositoryCustom.qSearchSalesProductPerformanceByCategory(filter, categoryName);
+    public List<SalesCategoryPerformanceProjection> qSearchCategoryAndProductSalesPerformanceByParams(SalesPerformanceSearchFilter filter, List<String> categoryName) {
+		return salesPerformanceRepositoryCustom.qSearchSalesProductPerformanceByCategory(filter, categoryName);
     }
 
-    public List<SalesProductPerformanceProjection.Performance> qSearchProductOptionSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProductOption(filter);
+    public List<SalesProductPerformanceProjection> qSearchProductOptionSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
+		return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProductOption(filter);
     }
 
-    public List<SalesPerformanceProjection> qSearchProductSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
-        return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProduct(filter);
+    public List<SalesProductPerformanceProjection> qSearchProductSalesPerformanceByFilter(SalesPerformanceSearchFilter filter) {
+		return salesPerformanceRepositoryCustom.qSearchSalesPerformanceByProduct(filter);
     }
 
     public Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByFilter(SalesPerformanceSearchFilter filter, Pageable pageable) {

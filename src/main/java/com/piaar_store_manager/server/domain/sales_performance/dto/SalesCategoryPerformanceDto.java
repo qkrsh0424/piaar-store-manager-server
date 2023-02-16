@@ -49,18 +49,18 @@ public class SalesCategoryPerformanceDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Performance {
+    public static class PerformanceByDate {
         private String datetime;
         private List<SalesCategoryPerformanceDto> performances;
 
-        public static Performance toDto(SalesCategoryPerformanceProjection.Performance proj) {
+        public static PerformanceByDate toDto(SalesCategoryPerformanceProjection.PerformanceByDate proj) {
             List<SalesCategoryPerformanceDto> performanceDtos = new ArrayList<>();
 
             if (proj.getPerformance() != null) {
                 performanceDtos = proj.getPerformance().stream().map(SalesCategoryPerformanceDto::toDto).collect(Collectors.toList());
             }
 
-            Performance dto = Performance.builder()
+            PerformanceByDate dto = PerformanceByDate.builder()
                     .datetime(proj.getDatetime())
                     .performances(performanceDtos)
                     .build();
@@ -75,18 +75,18 @@ public class SalesCategoryPerformanceDto {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ProductPerformance {
+    public static class PerformanceByProductCategoryName {
         private String productCategoryName;
         private List<SalesCategoryPerformanceDto> performances;
 
-        public static ProductPerformance toDto(SalesCategoryPerformanceProjection.ProductPerformance proj) {
+        public static PerformanceByProductCategoryName toDto(SalesCategoryPerformanceProjection.PerformanceByProductCategoryName proj) {
             List<SalesCategoryPerformanceDto> performanceDtos = new ArrayList<>();
 
             if (proj.getPerformance() != null) {
                 performanceDtos = proj.getPerformance().stream().map(SalesCategoryPerformanceDto::toDto).collect(Collectors.toList());
             }
 
-            ProductPerformance dto = ProductPerformance.builder()
+            PerformanceByProductCategoryName dto = PerformanceByProductCategoryName.builder()
                     .productCategoryName(proj.getProductCategoryName())
                     .performances(performanceDtos)
                     .build();

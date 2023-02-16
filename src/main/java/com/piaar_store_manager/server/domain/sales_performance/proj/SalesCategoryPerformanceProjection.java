@@ -33,7 +33,7 @@ public class SalesCategoryPerformanceProjection {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Performance {
+    public static class PerformanceByDate {
         private String datetime;
         @Setter
         private List<SalesCategoryPerformanceProjection> performance;
@@ -45,7 +45,7 @@ public class SalesCategoryPerformanceProjection {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class ProductPerformance {
+    public static class PerformanceByProductCategoryName {
         private String productCategoryName;
         @Setter
         private List<SalesCategoryPerformanceProjection> performance;

@@ -35,7 +35,7 @@ public class SalesProductPerformanceProjection {
     @ToString
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class Performance {
+    public static class PerformanceByDate {
         private String datetime;
         @Setter
         private List<SalesProductPerformanceProjection> performance;
