@@ -290,18 +290,6 @@ public class SalesPerformanceBusinessService {
 		endDate = CustomDateUtils.changeUtcDateTime(endDate, utcHourDifference);
 		int dateDiff = (int) Duration.between(startDate, endDate).toDays();
 
-		// List<SalesCategoryPerformanceProjection> performances = categoryName.stream().map(r -> {
-		// 	return SalesCategoryPerformanceProjection.builder()
-		// 			.productCategoryName(r)
-		// 			.orderRegistration(0)
-		// 			.orderUnit(0)
-		// 			.orderPayAmount(0)
-		// 			.salesRegistration(0)
-		// 			.salesUnit(0)
-		// 			.salesPayAmount(0)
-		// 			.build();
-		// }).collect(Collectors.toList());
-
 		List<SalesCategoryPerformanceProjection.PerformanceByDate> projs = new ArrayList<>();
 		String datetime = null;
 		for (int i = 0; i <= dateDiff; i++) {
@@ -311,7 +299,6 @@ public class SalesPerformanceBusinessService {
 				SalesCategoryPerformanceProjection.PerformanceByDate
 					.builder()
 					.datetime(datetime)
-					// .performance(performances)
 					.build()
 			);
 		}
@@ -319,71 +306,28 @@ public class SalesPerformanceBusinessService {
 		return projs;
 	}
 
-	// private void setSalesCategoryPerformanceInitProjs(List<SalesCategoryPerformanceProjection.PerformanceByDate> initProjs, List<SalesCategoryPerformanceProjection> performanceProjs) {
-	// 	int initProjsSize = initProjs.size();
-	// 	int performanceProjsSize = performanceProjs.size();
-
-	// 	List<SalesCategoryPerformanceProjection> performances = null;
-	// 	SalesCategoryPerformanceProjection.PerformanceByDate initProj = null;
-	// 	SalesCategoryPerformanceProjection performanceProj = null;
-	// 	SalesCategoryPerformanceProjection detailProj = null;
-
-	// 	for(int i = 0; i < initProjsSize; i++) {
-	// 		initProj = initProjs.get(i);
-			
-	// 		for(int j = 0; j < performanceProjsSize; j++) {
-	// 			performances = new ArrayList<>();
-	// 			performanceProj = performanceProjs.get(j);
-				
-	// 			if(initProj.getDatetime().equals(performanceProj.getDatetime())) {
-	// 				for(int k = 0; k < initProj.getPerformance().size(); k++) {
-	// 					detailProj = initProj.getPerformance().get(k);
-	// 					String categoryName = (detailProj.getProductCategoryName() == null || detailProj.getProductCategoryName().isBlank()) ? "미지정" : detailProj.getProductCategoryName();
-						
-	// 					if(categoryName.equals(performanceProj.getProductCategoryName())) {
-	// 						SalesCategoryPerformanceProjection proj = SalesCategoryPerformanceProjection.builder()
-	// 								.productCategoryName(categoryName)
-	// 								.orderRegistration(performanceProj.getOrderRegistration())
-	// 								.orderUnit(performanceProj.getOrderUnit())
-	// 								.orderPayAmount(performanceProj.getOrderPayAmount())
-	// 								.salesRegistration(performanceProj.getSalesRegistration())
-	// 								.salesUnit(performanceProj.getSalesUnit())
-	// 								.salesPayAmount(performanceProj.getSalesPayAmount())
-	// 								.build();
-
-	// 						performances.add(proj);
-	// 					} else {
-	// 						performances.add(detailProj);
-	// 					}
-	// 				}
-	// 				initProj.setPerformance(performances);
-	// 			}
-	// 		}
-	// 	}
-	// }
-
 	private void setSalesCategoryPerformanceInitProjs(List<SalesCategoryPerformanceProjection.PerformanceByDate> initProjs, List<SalesCategoryPerformanceProjection> performanceProjs) {
 		int initProjsSize = initProjs.size();
 		int performanceProjsSize = performanceProjs.size();
 
+		List<SalesCategoryPerformanceProjection> projs = null;
+
 		for(int i = 0; i < initProjsSize; i++) {
-			List<SalesCategoryPerformanceProjection> projs = new ArrayList<>();
+			projs = new ArrayList<>();
 
 			for(int j = 0; j < performanceProjsSize; j++) {
 				if(initProjs.get(i).getDatetime().equals(performanceProjs.get(j).getDatetime())) {
 					String productCategoryName = performanceProjs.get(j).getProductCategoryName() == null || performanceProjs.get(j).getProductCategoryName().isBlank() ? "미지정" : performanceProjs.get(j).getProductCategoryName();
 					
-					SalesCategoryPerformanceProjection proj = SalesCategoryPerformanceProjection.builder()
-								.productCategoryName(productCategoryName)
-								.orderRegistration(performanceProjs.get(j).getOrderRegistration())
-								.orderUnit(performanceProjs.get(j).getOrderUnit())
-								.orderPayAmount(performanceProjs.get(j).getOrderPayAmount())
-								.salesRegistration(performanceProjs.get(j).getSalesRegistration())
-								.salesUnit(performanceProjs.get(j).getSalesUnit())
-								.salesPayAmount(performanceProjs.get(j).getSalesPayAmount())
-								.build();
-					
-					projs.add(proj);
+					projs.add(SalesCategoryPerformanceProjection.builder()
+							.productCategoryName(productCategoryName)
+							.orderRegistration(performanceProjs.get(j).getOrderRegistration())
+							.orderUnit(performanceProjs.get(j).getOrderUnit())
+							.orderPayAmount(performanceProjs.get(j).getOrderPayAmount())
+							.salesRegistration(performanceProjs.get(j).getSalesRegistration())
+							.salesUnit(performanceProjs.get(j).getSalesUnit())
+							.salesPayAmount(performanceProjs.get(j).getSalesPayAmount())
+							.build());
 				}
 			}
 
@@ -461,9 +405,7 @@ public class SalesPerformanceBusinessService {
 		return projs;
 	}
 
-	private void setSalesProductOptionPerformanceInitProjs(
-			List<SalesProductPerformanceProjection.PerformanceByDate> initProjs,
-			List<SalesProductPerformanceProjection> performanceProjs) {
+	private void setSalesProductOptionPerformanceInitProjs(List<SalesProductPerformanceProjection.PerformanceByDate> initProjs, List<SalesProductPerformanceProjection> performanceProjs) {
 		int initProjsSize = initProjs.size();
 		int performanceProjsSize = performanceProjs.size();
 
