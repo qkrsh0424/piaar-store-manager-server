@@ -13,6 +13,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DashboardPerformanceSearchFilter {
+    private String periodType;
     private List<LocalDateTime> searchDate;
     private Integer utcHourDifference;
 }

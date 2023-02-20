@@ -37,9 +37,11 @@ public class SalesPerformanceBusinessService {
     private final ProductCategoryService productCategoryService;
 
     public List<SalesPerformanceDto> searchDashboard(DashboardPerformanceSearchFilter filter) {
+		String periodType = filter.getPeriodType();
+		List<LocalDateTime> searchDate = filter.getSearchDate();
         int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
-		if (filter.getSearchDate() == null || filter.getSearchDate().size() == 0) {
+		if (periodType == null || searchDate == null || searchDate.size() == 0) {
 			throw new CustomInvalidDataException("검색 기간이 올바르지 않습니다.");
 		}
 

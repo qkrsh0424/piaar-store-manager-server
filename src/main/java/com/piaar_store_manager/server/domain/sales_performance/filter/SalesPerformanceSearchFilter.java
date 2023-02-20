@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 public class SalesPerformanceSearchFilter {
+    private String periodType;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private Integer utcHourDifference;

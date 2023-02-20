@@ -25,6 +25,8 @@ import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductP
 import com.piaar_store_manager.server.domain.sales_performance.proj.BestProductPerformanceProjection;
 import com.piaar_store_manager.server.exception.CustomInvalidDataException;
 import com.piaar_store_manager.server.utils.CustomDateUtils;
+import com.piaar_store_manager.server.utils.CustomFieldUtils;
+import com.querydsl.core.QueryException;
 import com.querydsl.core.types.ConstantImpl;
 import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
@@ -32,6 +34,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.DateTemplate;
+import com.querydsl.core.types.dsl.DateTimePath;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.StringPath;
@@ -57,16 +60,13 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	public List<SalesPerformanceProjection> qSearchDashBoardByParams(DashboardPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
-		List<String> dateValues = filter.getSearchDate().stream()
-				.map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString())
-				.collect(Collectors.toList());
-
+		String periodType = filter.getPeriodType();
 		StringPath datetime = Expressions.stringPath("datetime");
 
 		List<SalesPerformanceProjection> dashboardProjs = query
 				.select(
 						Projections.fields(SalesPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull()).then(1)
 										.otherwise(0)).sum().as("orderRegistration"),
 								(new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
@@ -87,8 +87,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
 										.otherwise(0)).sum().as("salesPayAmount")))
 				.from(qErpOrderItemEntity)
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").in(dateValues))
+				.where(withinSearchDate(filter))
 				.groupBy(datetime)
 				.orderBy(datetime.asc())
 				.fetch();
@@ -100,12 +99,13 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	public List<SalesPerformanceProjection> qSearchSalesPerformance(SalesPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 	
+		String periodType = filter.getPeriodType();
 		StringPath datetime = Expressions.stringPath("datetime");
 
 		List<SalesPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as("datetime"),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
 										.otherwise(0)).sum().as("orderRegistration"),
@@ -125,8 +125,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
 										.otherwise(0)).sum().as("salesPayAmount")))
 				.from(qErpOrderItemEntity)
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.groupBy(datetime)
 				.orderBy(datetime.asc())
 				.fetch();
@@ -138,14 +137,15 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	@Override
 	public List<SalesChannelPerformanceProjection> qSearchSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
-
+		
+		String periodType = filter.getPeriodType();
 		StringPath datetime = Expressions.stringPath("datetime");
 		StringPath salesChannel = Expressions.stringPath("salesChannel");
 
 		List<SalesChannelPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesChannelPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
 								qErpOrderItemEntity.salesChannel.coalesce("").as(salesChannel),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -166,8 +166,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
 										.otherwise(0)).sum().as("salesPayAmount")))
 				.from(qErpOrderItemEntity)
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesOptionCodes(filter.getOptionCodes()))
 				.groupBy(salesChannel, datetime)
 				.orderBy(datetime.asc())
@@ -178,6 +177,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
 	@Override
 	public List<SalesChannelPerformanceProjection> qSearchProductOptionSalesPerformanceByChannel(SalesPerformanceSearchFilter filter) {
+		String periodType = filter.getPeriodType();
 		StringPath optionCode = Expressions.stringPath("optionCode");
 		StringPath salesChannel = Expressions.stringPath("salesChannel");
 
@@ -205,10 +205,9 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
 										.otherwise(0)).sum().as("salesPayAmount")))
 				.from(qErpOrderItemEntity)
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesProductCodes(filter.getProductCodes()))
 				.where(includesOptionCodes(filter.getOptionCodes()))
 				.groupBy(salesChannel, optionCode)
@@ -223,13 +222,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 			SalesPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
+		String periodType = filter.getPeriodType();
 		StringPath productCategoryName = Expressions.stringPath("productCategoryName");
 		StringPath datetime = Expressions.stringPath("datetime");
 
 		List<SalesCategoryPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesCategoryPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
 								qProductCategoryEntity.name.as(productCategoryName),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -253,8 +253,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
 				.leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.groupBy(productCategoryName, datetime)
 				.orderBy(datetime.asc())
 				.fetch();
@@ -264,6 +263,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
 	@Override
 	public List<SalesCategoryPerformanceProjection> qSearchSalesProductPerformanceByCategory(SalesPerformanceSearchFilter filter, List<String> categoryName) {
+		String periodType = filter.getPeriodType();
 		StringPath productCategoryName = Expressions.stringPath("productCategoryName");
 		StringPath productDefaultName = Expressions.stringPath("productDefaultName");
 
@@ -298,8 +298,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
 				.leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.groupBy(productDefaultName)
 				.orderBy(productCategoryName.asc())
 				.fetch();
@@ -311,6 +310,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	public List<SalesProductPerformanceProjection> qSearchSalesPerformanceByProductOption(SalesPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
+		String periodType = filter.getPeriodType();
 		StringPath datetime = Expressions.stringPath("datetime");
 		StringPath productDefaultName = Expressions.stringPath("productDefaultName");
 		StringPath optionDefaultName = Expressions.stringPath("optionDefaultName");
@@ -320,7 +320,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesProductPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesProductPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
 								qProductEntity.defaultName.as(productDefaultName),
 								qProductEntity.code.as(productCode),
 								qProductOptionEntity.defaultName.as(optionDefaultName),
@@ -346,8 +346,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.from(qErpOrderItemEntity)
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesProductCodes(filter.getProductCodes()))
 				.where(includesOptionCodes(filter.getOptionCodes()))
 				.groupBy(optionCode, datetime)
@@ -360,13 +359,14 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	public List<SalesProductPerformanceProjection> qSearchSalesPerformanceByProduct(SalesPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
+		String periodType = filter.getPeriodType();
 		StringPath datetime = Expressions.stringPath("datetime");
 		StringPath productCode = Expressions.stringPath("productCode");
 
 		List<SalesProductPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesProductPerformanceProjection.class,
-								dateFormatTemplate(dateAddHourTemplate(utcHourDifference), "%Y-%m-%d").as(datetime),
+								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
 								qProductEntity.code.as(productCode),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -389,8 +389,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.from(qErpOrderItemEntity)
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesOptionCodes(filter.getOptionCodes()))
 				.groupBy(productCode, datetime)
 				.fetch();
@@ -402,6 +401,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	public Page<BestProductPerformanceProjection> qSearchBestProductPerformanceByPaging(SalesPerformanceSearchFilter filter, Pageable pageable) {
 		NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
 		NumberPath<Integer> salesUnit = Expressions.numberPath(Integer.class, "salesUnit");
+		String periodType = filter.getPeriodType();
 		String pageOrderByColumn = filter.getPageOrderByColumn() == null ? "payAmount" : filter.getPageOrderByColumn();
 
 		List<Integer> productCids = query.from(qErpOrderItemEntity)
@@ -409,8 +409,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.id.eq(qProductOptionEntity.productId))
 				.leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesSearchChannels(filter.getSalesChannels()))
 				.where(includesSearchCategorys(filter.getProductCategoryNames()))
 				.groupBy(qProductEntity.code)
@@ -442,8 +441,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
 				.leftJoin(qProductCategoryEntity).on(qProductCategoryEntity.cid.eq(qProductEntity.productCategoryCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesSearchChannels(filter.getSalesChannels()))
 				.where(includesSearchCategorys(filter.getProductCategoryNames()))
 				.groupBy(qProductEntity.code)
@@ -460,6 +458,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	@Override
 	public List<BestProductPerformanceProjection.RelatedProductOptionPerformance> qSearchProductOptionPerformance(SalesPerformanceSearchFilter filter) {
 		NumberPath<Integer> salesPayAmount = Expressions.numberPath(Integer.class, "salesPayAmount");
+		String periodType = filter.getPeriodType();
 
 		// 검색된 옵션들의 매출데이터 초기화
 		List<RelatedProductOptionPerformance> projs = query
@@ -505,8 +504,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.otherwise(0)).sum().as(salesPayAmount)))
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
-				.where(qErpOrderItemEntity.channelOrderDate.isNotNull())
-				.where(withinDateRange(filter.getStartDate(), filter.getEndDate()))
+				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))
 				.where(includesProductCodes(filter.getProductCodes()))
 				.where(includesSearchChannels(filter.getSalesChannels()))
 				.groupBy(qProductOptionEntity.code)
@@ -526,8 +524,20 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	/*
 	 * date range 설정
 	 */
-	private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-		if (startDate == null || endDate == null) {
+	// private BooleanExpression withinDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+	// 	if (startDate == null || endDate == null) {
+	// 		return null;
+	// 	}
+
+	// 	if (startDate.isAfter(endDate)) {
+	// 		throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
+	// 	}
+
+	// 	return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+	// }
+
+	private BooleanExpression withinDateRange(String periodType, LocalDateTime startDate, LocalDateTime endDate) {
+		if (periodType == null || startDate == null || endDate == null) {
 			return null;
 		}
 
@@ -535,7 +545,25 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 			throw new CustomInvalidDataException("조회기간을 정확히 선택해 주세요.");
 		}
 
-		return qErpOrderItemEntity.channelOrderDate.between(startDate, endDate);
+		try {
+			DateTimePath periodTypeDateTimePath = null;
+			switch(periodType) {
+				case "registration":
+					periodTypeDateTimePath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, "createdAt");
+					break;
+				case "channelOrderDate":
+					periodTypeDateTimePath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, "channelOrderDate");
+					break;
+				default:
+					if (CustomFieldUtils.getFieldByName(qErpOrderItemEntity, periodType) == null) {
+						throw new QueryException("올바른 데이터가 아닙니다.");
+					}
+			}
+
+			return periodTypeDateTimePath.isNotNull().and(periodTypeDateTimePath.between(startDate, endDate));
+		} catch (QueryException e) {
+            throw new CustomInvalidDataException(e.getMessage());
+		}
 	}
 
 	/*
@@ -582,29 +610,89 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 	/*
 	 * date format setting
 	 */
-	private DateTemplate<String> dateFormatTemplate(DateTemplate<String> channelOrderDate, String format) {
-		DateTemplate<String> formattedDate = Expressions.dateTemplate(
-				String.class,
-				"DATE_FORMAT({0}, {1})",
-				channelOrderDate,
-				ConstantImpl.create(format));
+	// private DateTemplate<String> dateFormatTemplate(DateTemplate<String> channelOrderDate, String format) {
+	// 	DateTemplate<String> formattedDate = Expressions.dateTemplate(
+	// 			String.class,
+	// 			"DATE_FORMAT({0}, {1})",
+	// 			channelOrderDate,
+	// 			ConstantImpl.create(format));
 
-		return formattedDate;
-	}
+	// 	return formattedDate;
+	// }
 
 	/*
 	 * hour setting
 	 */
-	private DateTemplate<String> dateAddHourTemplate(int hour) {
+	// private DateTemplate<String> dateAddHourTemplate(int hour) {
+	// 	LocalTime addTime = LocalTime.of(hour, 0);
+
+	// 	DateTemplate<String> addDate = Expressions.dateTemplate(
+	// 			String.class,
+	// 			"ADDTIME({0}, {1})",
+	// 			qErpOrderItemEntity.channelOrderDate,
+	// 			ConstantImpl.create(addTime));
+
+	// 	return addDate;
+	// }
+
+	private BooleanExpression withinSearchDate(DashboardPerformanceSearchFilter filter) {
+		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
+
+		String periodType = filter.getPeriodType();
+		List<String> dateValues = filter.getSearchDate().stream()
+				.map(r -> CustomDateUtils.changeUtcDateTime(r, utcHourDifference).toLocalDate().toString())
+				.collect(Collectors.toList());
+
+		if (periodType.equals("registration")) {
+			return qErpOrderItemEntity.createdAt.isNotNull()
+				.and(dateAddHourAndFormatTemplate(periodType, utcHourDifference).in(dateValues));
+		} else if (periodType.equals("channelOrderDate")) {
+			return qErpOrderItemEntity.channelOrderDate.isNotNull()
+				.and(dateAddHourAndFormatTemplate(periodType, utcHourDifference).in(dateValues));
+		} else {
+            throw new CustomInvalidDataException("날짜검색 조건이 올바르지 않습니다.");
+		}
+	}
+
+	private DateTemplate<String> dateAddHourAndFormatTemplate(String periodType, int hour) {
 		LocalTime addTime = LocalTime.of(hour, 0);
+		DateTemplate<String> formattedDate = null;
 
-		DateTemplate<String> addDate = Expressions.dateTemplate(
-				String.class,
-				"ADDTIME({0}, {1})",
-				qErpOrderItemEntity.channelOrderDate,
-				ConstantImpl.create(addTime));
+		if(periodType == null) {
+			throw new CustomInvalidDataException("날짜검색 조건이 올바르지 않습니다.");
+		}
 
-		return addDate;
+		try {
+			DateTimePath periodTypeDateTimePath = null;
+			switch(periodType) {
+				case "registration":
+					periodTypeDateTimePath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, "createdAt");
+					break;
+				case "channelOrderDate":
+					periodTypeDateTimePath = CustomFieldUtils.getFieldValue(qErpOrderItemEntity, "channelOrderDate");
+					break;
+				default:
+					if (CustomFieldUtils.getFieldByName(qErpOrderItemEntity, periodType) == null) {
+						throw new QueryException("올바른 데이터가 아닙니다.");
+					}
+			}
+
+			DateTemplate<String> addHourDate = Expressions.dateTemplate(
+					String.class,
+					"ADDTIME({0}, {1})",
+					periodTypeDateTimePath,
+					ConstantImpl.create(addTime));
+	
+			formattedDate = Expressions.dateTemplate(
+					String.class,
+					"DATE_FORMAT({0}, {1})",
+					addHourDate,
+					ConstantImpl.create("%Y-%m-%d"));
+
+			return formattedDate;
+		} catch (QueryException e) {
+            throw new CustomInvalidDataException(e.getMessage());
+		}
 	}
 
 	private void updateOptionPerformanceProjs(List<RelatedProductOptionPerformance> initProjs, List<RelatedProductOptionPerformance> performanceProjs) {
