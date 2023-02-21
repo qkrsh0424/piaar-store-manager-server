@@ -583,8 +583,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		if (searchSalesChannels == null || searchSalesChannels.size() == 0) {
 			return null;
 		}
-		return qErpOrderItemEntity.salesChannel.isNotEmpty()
-				.and(qErpOrderItemEntity.salesChannel.in(searchSalesChannels));
+
+		if(searchSalesChannels.contains("미지정")) {
+			return qErpOrderItemEntity.salesChannel.isEmpty().or(qErpOrderItemEntity.salesChannel.in(searchSalesChannels));
+		}
+
+		return qErpOrderItemEntity.salesChannel.in(searchSalesChannels);
 	}
 
 	/*
@@ -604,7 +608,12 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		if (searchCategoryNames == null || searchCategoryNames.size() == 0) {
 			return null;
 		}
-		return qProductCategoryEntity.name.isNotEmpty().and(qProductCategoryEntity.name.in(searchCategoryNames));
+
+		if(searchCategoryNames.contains("미지정")) {
+			return qErpOrderItemEntity.optionCode.isEmpty().or(qProductCategoryEntity.name.in(searchCategoryNames));
+		}
+
+		return qProductCategoryEntity.name.in(searchCategoryNames);
 	}
 
 	/*
