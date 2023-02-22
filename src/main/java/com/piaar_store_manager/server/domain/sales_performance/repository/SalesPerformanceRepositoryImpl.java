@@ -66,7 +66,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesPerformanceProjection> dashboardProjs = query
 				.select(
 						Projections.fields(SalesPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull()).then(1)
 										.otherwise(0)).sum().as("orderRegistration"),
 								(new CaseBuilder().when(qErpOrderItemEntity.salesYn.eq("y"))
@@ -105,7 +105,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as("datetime"),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
 										.otherwise(0)).sum().as("orderRegistration"),
@@ -145,7 +145,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesChannelPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesChannelPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								qErpOrderItemEntity.salesChannel.coalesce("").as(salesChannel),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -229,7 +229,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesCategoryPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesCategoryPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								qProductCategoryEntity.name.as(productCategoryName),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -320,7 +320,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesProductPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesProductPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								qProductEntity.defaultName.as(productDefaultName),
 								qProductEntity.code.as(productCode),
 								qProductOptionEntity.defaultName.as(optionDefaultName),
@@ -366,7 +366,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		List<SalesProductPerformanceProjection> performanceProjs = query
 				.select(
 						Projections.fields(SalesProductPerformanceProjection.class,
-								dateAddHourAndFormatTemplate(periodType, utcHourDifference).as(datetime),
+								dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").as("datetime"),
 								qProductEntity.code.as(productCode),
 								(new CaseBuilder().when(qErpOrderItemEntity.cid.isNotNull())
 										.then(1)
@@ -616,34 +616,6 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 		return qProductCategoryEntity.name.in(searchCategoryNames);
 	}
 
-	/*
-	 * date format setting
-	 */
-	// private DateTemplate<String> dateFormatTemplate(DateTemplate<String> channelOrderDate, String format) {
-	// 	DateTemplate<String> formattedDate = Expressions.dateTemplate(
-	// 			String.class,
-	// 			"DATE_FORMAT({0}, {1})",
-	// 			channelOrderDate,
-	// 			ConstantImpl.create(format));
-
-	// 	return formattedDate;
-	// }
-
-	/*
-	 * hour setting
-	 */
-	// private DateTemplate<String> dateAddHourTemplate(int hour) {
-	// 	LocalTime addTime = LocalTime.of(hour, 0);
-
-	// 	DateTemplate<String> addDate = Expressions.dateTemplate(
-	// 			String.class,
-	// 			"ADDTIME({0}, {1})",
-	// 			qErpOrderItemEntity.channelOrderDate,
-	// 			ConstantImpl.create(addTime));
-
-	// 	return addDate;
-	// }
-
 	private BooleanExpression withinSearchDate(DashboardPerformanceSearchFilter filter) {
 		int utcHourDifference = filter.getUtcHourDifference() != null ? filter.getUtcHourDifference() : 0;
 
@@ -654,18 +626,17 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 
 		if (periodType.equals("registration")) {
 			return qErpOrderItemEntity.createdAt.isNotNull()
-				.and(dateAddHourAndFormatTemplate(periodType, utcHourDifference).in(dateValues));
+				.and(dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").in(dateValues));
 		} else if (periodType.equals("channelOrderDate")) {
 			return qErpOrderItemEntity.channelOrderDate.isNotNull()
-				.and(dateAddHourAndFormatTemplate(periodType, utcHourDifference).in(dateValues));
+				.and(dateFormatTemplate(dateAddHourTemplate(periodType, utcHourDifference), "%Y-%m-%d").in(dateValues));
 		} else {
             throw new CustomInvalidDataException("날짜검색 조건이 올바르지 않습니다.");
 		}
 	}
 
-	private DateTemplate<String> dateAddHourAndFormatTemplate(String periodType, int hour) {
+	private DateTemplate<String> dateAddHourTemplate(String periodType, int hour) {
 		LocalTime addTime = LocalTime.of(hour, 0);
-		DateTemplate<String> formattedDate = null;
 
 		if(periodType == null) {
 			throw new CustomInvalidDataException("날짜검색 조건이 올바르지 않습니다.");
@@ -691,17 +662,21 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 					"ADDTIME({0}, {1})",
 					periodTypeDateTimePath,
 					ConstantImpl.create(addTime));
-	
-			formattedDate = Expressions.dateTemplate(
-					String.class,
-					"DATE_FORMAT({0}, {1})",
-					addHourDate,
-					ConstantImpl.create("%Y-%m-%d"));
 
-			return formattedDate;
+			return addHourDate;
 		} catch (QueryException e) {
             throw new CustomInvalidDataException(e.getMessage());
 		}
+	}
+
+	private DateTemplate<String> dateFormatTemplate(DateTemplate<String> addHourDate, String format) {
+		DateTemplate<String> formattedDate = Expressions.dateTemplate(
+				String.class,
+				"DATE_FORMAT({0}, {1})",
+				addHourDate,
+				ConstantImpl.create(format));
+
+		return formattedDate;
 	}
 
 	private void updateOptionPerformanceProjs(List<RelatedProductOptionPerformance> initProjs, List<RelatedProductOptionPerformance> performanceProjs) {
