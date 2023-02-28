@@ -480,7 +480,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 				.orderBy(orderByProductCodes(filter.getProductCodes()))
 				.fetch();
 
-		List<RelatedProductOptionPerformance> performanceProjs = query.from(qErpOrderItemEntity)
+		List<RelatedProductOptionPerformance> performanceProjs = query
 				.select(
 						Projections.fields(RelatedProductOptionPerformance.class,
 								qProductOptionEntity.code.as("optionCode"),
@@ -502,6 +502,7 @@ public class SalesPerformanceRepositoryImpl implements SalesPerformanceRepositor
 										.when(qErpOrderItemEntity.salesYn.eq("y"))
 										.then(qErpOrderItemEntity.price.add(qErpOrderItemEntity.deliveryCharge))
 										.otherwise(0)).sum().as(salesPayAmount)))
+				.from(qErpOrderItemEntity)
 				.leftJoin(qProductOptionEntity).on(qProductOptionEntity.code.eq(qErpOrderItemEntity.optionCode))
 				.leftJoin(qProductEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
 				.where(withinDateRange(periodType, filter.getStartDate(), filter.getEndDate()))

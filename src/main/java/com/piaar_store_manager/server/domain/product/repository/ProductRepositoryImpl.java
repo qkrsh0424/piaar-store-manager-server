@@ -103,7 +103,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             .where(eqStockManagement(params))
             .where(lkCategorySearchCondition(params), lkProductSearchCondition(params), lkOptionSearchCondition(params))
             .where(qProductEntity.cid.in(productCids))
-            .orderBy(this.orderByProductCids(productCids), qProductOptionEntity.defaultName.asc())
+            // .orderBy(this.orderByProductCids(productCids), qProductOptionEntity.defaultName.asc())
+            .orderBy(this.orderByProductCids(productCids))
             .leftJoin(qProductCategoryEntity).on(qProductEntity.productCategoryCid.eq(qProductCategoryEntity.cid))
             .leftJoin(qProductOptionEntity).on(qProductEntity.cid.eq(qProductOptionEntity.productCid))
             .transform(
